@@ -25,17 +25,17 @@ def set_fft_param(output_fps, wave_param_common):
     return fft_blocksize, fft_blocktime, output_fps_real
 
 # @author: Felix Pfreundtner
-def initialze_wave_blockbeginend(standard_dict):
+def initialze_wave_blockbeginend(standard_dict, overlap, fft_blocktime, wave_param_dict):
     wave_blockbeginend_dict=deepcopy(standard_dict)   
     for source in wave_blockbeginend_dict:
-          wave_blockbeginend_dict[source]=[0,float(-1)]
+          wave_blockbeginend_dict[source]=[-(fft_blocktime*wave_param_dict[source][1])*(1-overlap/100),0]
     return wave_blockbeginend_dict
     
 # @author: Felix Pfreundtner
-def wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, fft_blocktime):   
+def wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, fft_blocktime,overlap):   
     for source in wave_blockbeginend_dict:
-        wave_blockbeginend_dict[source][0]=wave_blockbeginend_dict[source][1] + 1
-        wave_blockbeginend_dict[source][1]=wave_blockbeginend_dict[source][1] + fft_blocktime*wave_param_dict[source][1] 
+        wave_blockbeginend_dict[source][0]=wave_blockbeginend_dict[source][0] + (fft_blocktime*wave_param_dict[source][1])*(1-overlap/100)
+        wave_blockbeginend_dict[source][1]=wave_blockbeginend_dict[source][0] + (fft_blocktime*wave_param_dict[source][1])-1
     return wave_blockbeginend_dict
 
 # @author: Felix Pfreundtner
