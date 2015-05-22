@@ -7,14 +7,16 @@ Created on Fri May 22 16:25:01 2015
 import math
 from copy import deepcopy
 import scipy.io.wavfile
-import numpy
 
+
+# @author: Felix Pfreundtner
 def create_standard_dict(gui_dict):
     standard_dict=deepcopy(gui_dict)
     for source in standard_dict:
         standard_dict[source]=[]
     return standard_dict   
 
+# @author: Felix Pfreundtner
 def set_fft_param(output_fps, wave_param_common):
     # Standard FFT block size colculation dependend on output_fps
     fft_blocksize = 2**(round(math.log(wave_param_common[0]/output_fps, 2)))
@@ -22,19 +24,21 @@ def set_fft_param(output_fps, wave_param_common):
     output_fps_real = 1/fft_blocktime
     return fft_blocksize, fft_blocktime, output_fps_real
 
+# @author: Felix Pfreundtner
 def initialze_wave_blockbeginend(standard_dict):
     wave_blockbeginend_dict=deepcopy(standard_dict)   
     for source in wave_blockbeginend_dict:
           wave_blockbeginend_dict[source]=[0,float(-1)]
     return wave_blockbeginend_dict
-
+    
+# @author: Felix Pfreundtner
 def wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, fft_blocktime):   
     for source in wave_blockbeginend_dict:
         wave_blockbeginend_dict[source][0]=wave_blockbeginend_dict[source][1] + 1
         wave_blockbeginend_dict[source][1]=wave_blockbeginend_dict[source][1] + fft_blocktime*wave_param_dict[source][1] 
     return wave_blockbeginend_dict
 
-
+# @author: Felix Pfreundtner
 def get_hrtf_filenames(standard_dict, gui_dict):   
     hrtf_filenames_dict=deepcopy(standard_dict)
     for source in hrtf_filenames_dict:
@@ -43,7 +47,7 @@ def get_hrtf_filenames(standard_dict, gui_dict):
             if gui_dict[source][0] <= 180:
                 azimuthangle=gui_dict[source][0]
             else:
-                azimuthangle=gui_dict[source][0]-180
+                azimuthangle=360 - gui_dict[source][0]
         else:
             if gui_dict[source][0] <= 180:
                 if rounddifference < 2.5:
@@ -52,13 +56,13 @@ def get_hrtf_filenames(standard_dict, gui_dict):
                     azimuthangle = round(gui_dict[source][0] + 5 - rounddifference)
             else:  
                 if rounddifference < 2.5:
-                    azimuthangle = round((gui_dict[source][0] - 180) - (gui_dict[source][0] - 180) % 5)
+                    azimuthangle = 360 - round(gui_dict[source][0] - rounddifference)
                 else:    
-                    azimuthangle = round((gui_dict[source][0] - 180) + 5 - (gui_dict[source][0] - 180) % 5)
-            
+                    azimuthangle = 360 - round(gui_dict[source][0] + 5 - rounddifference)    
         hrtf_filenames_dict[source] = ["./kemar/compact/elev0/H0e"+str(azimuthangle).zfill(3)+"a.wav"]
     return hrtf_filenames_dict
-    
+
+# @author: Felix Pfreundtner
 def get_hrtf(hrtf_filenames_dict, standard_dict, gui_dict):
     hrtf_dict=deepcopy(standard_dict)
     for source in hrtf_filenames_dict:
@@ -70,3 +74,5 @@ def get_hrtf(hrtf_filenames_dict, standard_dict, gui_dict):
                 hrtf_input[:,[0, 1]] = hrtf_input[:,[1, 0]]
                 hrtf_dict[source]=hrtf_input
     return hrtf_dict    
+    
+    
