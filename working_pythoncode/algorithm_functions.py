@@ -5,23 +5,26 @@ Created on Fri May 22 16:25:01 2015
 @author: Felix Pfreundtner
 """
 import math
+from copy import deepcopy
 
 def create_standard_dict(gui_dict):
-      for item in gui_dict:
-          gui_dict[item]=[]
-      return gui_dict    
+    standard_dict=deepcopy(gui_dict)
+    for item in standard_dict:
+        standard_dict[item]=[]
+    return standard_dict   
 
-def set_fft_param(output_fps, gui_dict, wave_param_common):
+def set_fft_param(output_fps, wave_param_common):
     # Standard FFT block size colculation dependend on output_fps
     fft_blocksize = 2**(round(math.log(wave_param_common[0]/output_fps, 2)))
     fft_blocktime = fft_blocksize/wave_param_common[0]
     output_fps_real = 1/fft_blocktime
     return fft_blocksize, fft_blocktime, output_fps_real
 
-def initialze_wave_blockbeginend(gui_dict):
-    for item in gui_dict:
-          gui_dict[item]=[0,float(-1)]
-    return gui_dict
+def initialze_wave_blockbeginend(standard_dict):
+    wave_blockbeginend_dict=deepcopy(standard_dict)   
+    for item in wave_blockbeginend_dict:
+          wave_blockbeginend_dict[item]=[0,float(-1)]
+    return wave_blockbeginend_dict
 
 def wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, fft_blocktime):   
     for item in wave_blockbeginend_dict:
@@ -30,3 +33,15 @@ def wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, fft_blocktime):
     return wave_blockbeginend_dict
 
 
+def get_hrtf_filenames(standard_dict, gui_dict):   
+    hrtf_filenames=deepcopy(standard_dict)
+    for item in hrtf_filenames:
+        if round(gui_dict[item][0]) % 5 == 0:
+            azimuthangle=gui_dict[item][0]
+            hrtf_filenames[item] = ["./kemar/compact/elev0/H0e"+str(azimuthangle)+"a.wav"]
+        else:
+            azimuthangle1 = round(gui_dict[item][0] - gui_dict[item][0] % 5) 
+            azimuthangle2 = round(gui_dict[item][0] + 5 - gui_dict[item][0] % 5) 
+            hrtf_filenames[item] = ["./kemar/compact/elev0/H0e"+str(azimuthangle1)+"a.wav", "./kemar/compact/elev0/H0e"+str(azimuthangle2)+"a.wav"]
+
+    return hrtf_filenames
