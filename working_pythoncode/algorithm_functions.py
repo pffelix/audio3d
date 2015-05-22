@@ -15,7 +15,10 @@ def create_standard_dict(gui_dict):
     for source in standard_dict:
         standard_dict[source]=[]
     return standard_dict   
-
+    
+# @author: Felix Pfreundtner
+# function does a normal school arithmetic round (Round half away from zero)
+# different to pythons rounding method (Round half to even)
 def normal_round(value):
     if value >=0:
        if  value-math.floor(value) < 0.5:
