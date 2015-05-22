@@ -26,11 +26,11 @@ wave_param_common = [44100,16]
 standard_dict=algorithm_functions.create_standard_dict(gui_dict)
 output_fps = 60  
 #Overlap FFT in Prozent
-overlap=82
+overlap=0
               
 iterationcounter = 0
 fft_blocksize, fft_blocktime, output_fps_real = algorithm_functions.set_fft_param(output_fps, wave_param_common)
-wave_blockbeginend_dict=algorithm_functions.initialze_wave_blockbeginend(standard_dict, overlap, fft_blocktime, wave_param_dict)
+wave_blockbeginend_dict = algorithm_functions.initialze_wave_blockbeginend(standard_dict, overlap, fft_blocktime, wave_param_dict)
 
 
 #Run FFT iteration  
