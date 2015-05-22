@@ -16,6 +16,19 @@ def create_standard_dict(gui_dict):
         standard_dict[source]=[]
     return standard_dict   
 
+def normal_round(value):
+    if value >=0:
+       if  value-math.floor(value) < 0.5:
+           value=math.floor(value)
+       else:
+           value=math.ceil(value)
+    else:
+       if  value-math.floor(value) <= 0.5:
+           value=math.floor(value)
+       else:
+           value=math.ceil(value)
+    return value    
+    
 # @author: Felix Pfreundtner
 def set_fft_param(output_fps, wave_param_common):
     # Standard FFT block size colculation dependend on output_fps
