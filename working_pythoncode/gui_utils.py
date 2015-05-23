@@ -97,7 +97,7 @@ class AddSpeakerButton(QtGui.QPushButton):
 class ResetButton(QtGui.QPushButton):
 
     def __init__(self):
-        super(ResetButton,self).__init__('Reset Button')
+        super(ResetButton,self).__init__('Reset')
 
 class Speaker(Item):
 
