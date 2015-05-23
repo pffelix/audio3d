@@ -37,9 +37,12 @@ class MainWindow(QWidget):
 
             new_speaker = Speaker(1)
             new_speaker.setPos(0, 0)
+            new_head = Head()
+            new_head.setPos(100,100)
 
             speaker_list.append(new_speaker)
             scene.addItem(new_speaker)
+            scene.addItem(new_head)
             view.viewport().update()
 
         # set items
