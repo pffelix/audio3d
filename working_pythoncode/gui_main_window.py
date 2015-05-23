@@ -19,13 +19,12 @@ class MainWindow(QWidget):
     def init_ui(self):
 
         # set items
-        speaker = ColorItem()
+        speaker = Item()
         speaker.setPos(0, 0)
 
         # set scene and view
-        scene = QGraphicsScene()
-        # speaker1 = QGraphicsRectItem()
-        # speaker1.setRect(0,0,100,100)
+        scene = Room()
+        scene.setSceneRect(0,0,250,250)
         scene.addItem(speaker)
         view = QGraphicsView(scene)
 
