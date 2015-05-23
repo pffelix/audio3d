@@ -47,10 +47,14 @@ class MainWindow(QWidget):
         default_speaker.setPos(0, 0)
         speaker_list.append(default_speaker)
 
+        head = Head()
+        head.setPos(100,100)
+
         # set scene and view
         scene = Room()
         scene.setSceneRect(0,0,250,250)
         scene.addItem(default_speaker)
+        scene.addItem(head)
         view = View(scene)
 
         # set buttons
