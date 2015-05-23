@@ -26,7 +26,7 @@ class MainWindow(QWidget):
         scene = Room()
         scene.setSceneRect(0,0,250,250)
         scene.addItem(speaker)
-        view = QGraphicsView(scene)
+        view = View(scene)
 
         # set layout
         layout = QVBoxLayout()
