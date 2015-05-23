@@ -1,6 +1,8 @@
 
 from PyQt4 import QtCore, QtGui
 
+speaker_list = []
+gui_dict = {}
 
 class Item(QtGui.QGraphicsPixmapItem):
 
@@ -83,3 +85,8 @@ class AddSpeakerButton(QtGui.QPushButton):
 
     def __init__(self):
         super(AddSpeakerButton,self).__init__('Add Speaker')
+
+class ResetButton(QtGui.QPushButton):
+
+    def __init__(self):
+        super(ResetButton,self).__init__('Reset Button')
