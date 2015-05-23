@@ -13,8 +13,6 @@ from gui_utils import *
 
 class MainWindow(QWidget):
 
-    speaker_list = []
-
     def __init__(self):
         super(MainWindow,self).__init__()
         self.setAcceptDrops(True)
@@ -26,32 +24,48 @@ class MainWindow(QWidget):
 
             new_speaker = Item()
             new_speaker.setPos(0, 0)
-            self.speaker_list.append(new_speaker)
+            speaker_list.append(new_speaker)
+            scene.addItem(new_speaker)
+            view.viewport().update()
+
+        def reset():
+
+            for item in scene.items():
+                scene.removeItem(item)
+
+            del speaker_list[:]
+
+            new_speaker = Item()
+            new_speaker.setPos(0, 0)
+
+            speaker_list.append(new_speaker)
             scene.addItem(new_speaker)
             view.viewport().update()
 
         # set items
-        speaker = Item()
-        speaker.setPos(0, 0)
-        self.speaker_list.append(speaker)
+        default_speaker = Item()
+        default_speaker.setPos(0, 0)
+        speaker_list.append(default_speaker)
 
         # set scene and view
         scene = Room()
         scene.setSceneRect(0,0,250,250)
-        scene.addItem(speaker)
+        scene.addItem(default_speaker)
         view = View(scene)
 
         # set buttons
         add_speaker_button = AddSpeakerButton()
-
+        reset_button = ResetButton()
         # set layout
         layout = QVBoxLayout()
         layout.addWidget(view)
         layout.addWidget(add_speaker_button)
-        layout.addWidget(QPushButton('Reset'))
+        layout.addWidget(reset_button)
 
         # connect signal and slots
         add_speaker_button.clicked.connect(addspeaker)
+        reset_button.clicked.connect(reset)
+
         # set window
         self.setLayout(layout)
         self.resize(640,480)
