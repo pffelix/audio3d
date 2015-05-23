@@ -132,7 +132,7 @@ class Speaker(Item):
         if dx < 0:
             deg = 360 - deg
 
-        gui_dict[self.index] = [deg, dis, self.path]
+        gui_dict[self.index] = [deg, dis/100, self.path]
         print(gui_dict)
 
 class Head(Item):
