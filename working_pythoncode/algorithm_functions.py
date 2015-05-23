@@ -6,7 +6,7 @@ Created on Fri May 22 16:25:01 2015
 """
 import math
 from copy import deepcopy
-import scipy.io.wavfile
+import scipy
 
 
 # @author: Felix Pfreundtner
@@ -51,7 +51,7 @@ def initialze_wave_blockbeginend(standard_dict, overlap, fft_blocktime, wave_par
 def wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, fft_blocktime,overlap):   
     for source in wave_blockbeginend_dict:
         wave_blockbeginend_dict[source][0]=wave_blockbeginend_dict[source][0] + (fft_blocktime*wave_param_dict[source][1])*(1-overlap/100)
-        wave_blockbeginend_dict[source][1]=wave_blockbeginend_dict[source][0] + (fft_blocktime*wave_param_dict[source][1])-1
+        wave_blockbeginend_dict[source][1]=wave_blockbeginend_dict[source][0] + (fft_blocktime*wave_param_dict[source][1])
     return wave_blockbeginend_dict
 
 # @author: Felix Pfreundtner
@@ -91,4 +91,5 @@ def get_hrtf(hrtf_filenames_dict, standard_dict, gui_dict):
                 hrtf_dict[source]=hrtf_input
     return hrtf_dict    
     
+
     
