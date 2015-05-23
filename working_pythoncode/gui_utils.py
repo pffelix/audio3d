@@ -3,6 +3,7 @@ from PyQt4 import QtCore, QtGui
 
 speaker_list = []
 gui_dict = {}
+head_pos = 0
 
 class Item(QtGui.QGraphicsPixmapItem):
 
@@ -90,3 +91,11 @@ class ResetButton(QtGui.QPushButton):
 
     def __init__(self):
         super(ResetButton,self).__init__('Reset Button')
+
+class Speaker(Item):
+
+    index = 1
+
+    def __init__(self, index):
+        super(Speaker, self).__init__()
+        self.index = index

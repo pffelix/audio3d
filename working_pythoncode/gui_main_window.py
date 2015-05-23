@@ -22,7 +22,7 @@ class MainWindow(QWidget):
 
         def addspeaker():
 
-            new_speaker = Item()
+            new_speaker = Speaker(1+len(speaker_list))
             new_speaker.setPos(0, 0)
             speaker_list.append(new_speaker)
             scene.addItem(new_speaker)
@@ -35,7 +35,7 @@ class MainWindow(QWidget):
 
             del speaker_list[:]
 
-            new_speaker = Item()
+            new_speaker = Speaker(1)
             new_speaker.setPos(0, 0)
 
             speaker_list.append(new_speaker)
@@ -43,7 +43,7 @@ class MainWindow(QWidget):
             view.viewport().update()
 
         # set items
-        default_speaker = Item()
+        default_speaker = Speaker(1)
         default_speaker.setPos(0, 0)
         speaker_list.append(default_speaker)
 
