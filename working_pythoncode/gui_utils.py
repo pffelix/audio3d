@@ -91,16 +91,6 @@ class View(QtGui.QGraphicsView):
         e.acceptProposedAction()
         QtGui.QGraphicsView.dragMoveEvent(self, e)
 
-class AddSpeakerButton(QtGui.QPushButton):
-
-    def __init__(self):
-        super(AddSpeakerButton,self).__init__('Add Speaker')
-
-class ResetButton(QtGui.QPushButton):
-
-    def __init__(self):
-        super(ResetButton,self).__init__('Reset')
-
 class Speaker(Item):
 
     index = 1
@@ -117,7 +107,6 @@ class Speaker(Item):
         self.index = index
         self.path = path
         speaker_list.append(self)
-
         self.cal_rel_pos()
 
     def cal_rel_pos(self):
