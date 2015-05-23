@@ -79,3 +79,7 @@ class View(QtGui.QGraphicsView):
         e.acceptProposedAction()
         QtGui.QGraphicsView.dragMoveEvent(self, e)
 
+class AddSpeakerButton(QtGui.QPushButton):
+
+    def __init__(self):
+        super(AddSpeakerButton,self).__init__('Add Speaker')
