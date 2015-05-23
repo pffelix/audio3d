@@ -76,7 +76,7 @@ class MainWindow(QWidget):
         # set window
         self.setLayout(layout)
         self.resize(640,480)
-        self.setWindowTitle('3DAudio')
+        self.setWindowTitle('3D Audio')
         self.show()
 
 def main():
