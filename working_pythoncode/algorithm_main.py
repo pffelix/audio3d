@@ -6,6 +6,9 @@ Created on Fri May 22 16:27:57 2015
 """
 
 import algorithm_functions as alf
+from copy import deepcopy
+import numpy as np
+
 
 import scipy.io.wavfile
 
@@ -32,9 +35,9 @@ wave_param_common = [44100,16]
 standard_dict=alf.create_standard_dict(gui_dict)
 output_fps = 60  
 #Overlap FFT in Prozent
-overlap=50
-              
+overlap=50          
 iterationcounter = 0
+
 fft_blocksize, fft_blocktime, output_fps_real = alf.set_fft_param(output_fps, wave_param_common)
 wave_blockbeginend_dict = alf.initialze_wave_blockbeginend(standard_dict, overlap, fft_blocktime, wave_param_dict)
 
@@ -52,11 +55,15 @@ hrtf_dict = alf.get_hrtf(hrtf_filenames_dict, standard_dict, gui_dict)
 # @matthias: for reading the wave file from sample a to b you need to round the constraints from wave_blockbeginend_dict{sp#,[ a, b]: -> int(alf.normal_round(a)) and int(alf.normal_round(b))
 wave_blockbeginend_dict = alf.wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, fft_blocktime, overlap)
 
-# Algorithm function get_fft_block mockup         
+# Algorithm function get_fft_block mockup  
+convoluted_block_dict={}      
 for source in fft_block_complete_signal_dict:
     fft_block_dict[source] = fft_block_complete_signal_dict[source][int(alf.normal_round(wave_blockbeginend_dict[source][0])):int(alf.normal_round(wave_blockbeginend_dict[source][1]))]
+    convoluted_block_dict[source]=np.zeros((fft_blocksize, 2))
 
+    #for left_right in range(1):
 
+        #convoluted_block_dict[source]=alf.convolute(fft_block_dict[source], hrtf_dict[source][:,left_right], fft_blocksize )
 
 iterationcounter+=1
 

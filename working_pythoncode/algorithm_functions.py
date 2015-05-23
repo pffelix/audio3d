@@ -6,7 +6,10 @@ Created on Fri May 22 16:25:01 2015
 """
 import math
 from copy import deepcopy
+
+import numpy as np
 import scipy
+from scipy.fftpack import rfft, irfft
 
 
 # @author: Felix Pfreundtner
@@ -92,4 +95,17 @@ def get_hrtf(hrtf_filenames_dict, standard_dict, gui_dict):
     return hrtf_dict    
     
 
+def convolute(source_block, hrtf, fft_blocksize ):
+    
+    hrtf_block = np.zeros((fft_blocksize-len(hrtf),),dtype='int16')
+    hrtf_block = np.concatenate((hrtf,hrtf_block))
+    
+    hrtf_block_frequency=rfft(hrtf_block)
+    source_block_frequency=rfft(source_block)
+    convoluted_block_frequency=source_block_frequency*hrtf_block_frequency
+    convoluted_block=irfft(convoluted_block_frequency)
+    return convoluted_block
+    
+    
+    
     

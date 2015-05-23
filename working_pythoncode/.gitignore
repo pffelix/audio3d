@@ -1,0 +1,2 @@
+/.spyderworkspace        
+__pycache__/         # ignoriere alle Dateien im bin-Ordner
