@@ -1,9 +1,9 @@
 
 from PyQt4 import QtCore, QtGui
 
-speaker_list = []
 gui_dict = {}
-head_pos = 0
+head_pos = QtCore.QPoint(100, 100)
+speaker_list = []
 
 class Item(QtGui.QGraphicsPixmapItem):
 
@@ -62,15 +62,17 @@ class Room(QtGui.QGraphicsScene):
 
     def dropEvent(self, e):
         global head_pos
+        global speaker_list
         self.current_item.setPos(e.scenePos())
 
         if self.current_item.type == 'head':
             head_pos = e.scenePos()
-            # to be implemented: re-calculate all speakers position
+
+            for speaker in speaker_list:
+                speaker.cal_rel_pos()
 
         elif self.current_item.type == 'speaker':
-            pass
-            # to be implemented: calculate relative position to head
+            self.current_item.cal_rel_pos()
 
     def dragMoveEvent(self, e):
         e.acceptProposedAction()
@@ -106,12 +108,29 @@ class Speaker(Item):
     origin_image = QtGui.QImage('./image/speaker.png')
 
     def __init__(self, index):
+        global gui_dict
+        global speaker_list
+
         super(Speaker, self).__init__()
+        self.setPos(0,0)
         self.index = index
+        speaker_list.append(self)
+        self.cal_rel_pos()
 
     def cal_rel_pos(self):
         global head_pos
-        reL_pos = self.pos()-head_pos
+        global gui_dict
+        dx = self.x() - head_pos.x()
+        dy = head_pos.y() - self.y()
+        dis = (dx**2+dy**2)**0.5
+
+        from math import acos, degrees
+        deg = degrees(acos(dy/dis))
+        if dx < 0:
+            deg = 360 - deg
+
+        gui_dict['sp'+str(self.index)] = [deg, dis, 0]
+        print(gui_dict)
 
 class Head(Item):
 
@@ -119,5 +138,9 @@ class Head(Item):
     origin_image = QtGui.QImage('./image/head.jpeg')
 
     def __init__(self):
+        global head_pos
+
         super(Head,self).__init__()
+        self.setPos(100,100)
+        head_pos = self.pos()
 
