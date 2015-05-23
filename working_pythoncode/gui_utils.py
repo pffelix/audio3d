@@ -8,19 +8,16 @@ head_pos = 0
 class Item(QtGui.QGraphicsPixmapItem):
 
     origin_image = QtGui.QImage('./image/speaker.png')
-    image = origin_image.scaled(50, 50, QtCore.Qt.KeepAspectRatio)
 
     def __init__(self):
 
-        super(Item, self).__init__(QtGui.QPixmap.fromImage(self.image))
+        image = self.origin_image.scaled(50, 50, QtCore.Qt.KeepAspectRatio)
+        super(Item, self).__init__(QtGui.QPixmap.fromImage(image))
         self.setToolTip("Click and drag this speaker!")
         self.setCursor(QtCore.Qt.OpenHandCursor)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable)
-
-    def boundingRect(self):
-        return QtCore.QRectF(-15.5, -15.5, 34, 34)
 
     def mousePressEvent(self, event):
         if event.button() != QtCore.Qt.LeftButton:
@@ -37,7 +34,8 @@ class Item(QtGui.QGraphicsPixmapItem):
         mime = QtCore.QMimeData()
         drag.setMimeData(mime)
 
-        pixmap = QtGui.QPixmap.fromImage(self.image)
+        image = self.origin_image.scaled(50, 50, QtCore.Qt.KeepAspectRatio)
+        pixmap = QtGui.QPixmap.fromImage(image)
 
         pixmap.setMask(pixmap.createHeuristicMask())
 
@@ -63,7 +61,16 @@ class Room(QtGui.QGraphicsScene):
         e.acceptProposedAction()
 
     def dropEvent(self, e):
+        global head_pos
         self.current_item.setPos(e.scenePos())
+
+        if self.current_item.type == 'head':
+            head_pos = e.scenePos()
+            # to be implemented: re-calculate all speakers position
+
+        elif self.current_item.type == 'speaker':
+            pass
+            # to be implemented: calculate relative position to head
 
     def dragMoveEvent(self, e):
         e.acceptProposedAction()
@@ -95,7 +102,22 @@ class ResetButton(QtGui.QPushButton):
 class Speaker(Item):
 
     index = 1
+    type = 'speaker'
+    origin_image = QtGui.QImage('./image/speaker.png')
 
     def __init__(self, index):
         super(Speaker, self).__init__()
         self.index = index
+
+    def cal_rel_pos(self):
+        global head_pos
+        reL_pos = self.pos()-head_pos
+
+class Head(Item):
+
+    type = 'head'
+    origin_image = QtGui.QImage('./image/head.jpeg')
+
+    def __init__(self):
+        super(Head,self).__init__()
+
