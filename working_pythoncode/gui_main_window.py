@@ -8,6 +8,7 @@ author: H. Zhu
 
 import sys
 from PyQt4.QtGui import *
+from gui_utils import *
 
 class MainWindow(QWidget):
 
@@ -16,11 +17,16 @@ class MainWindow(QWidget):
         self.init_ui()
 
     def init_ui(self):
+
+        # set items
+        speaker = ColorItem()
+        speaker.setPos(0, 0)
+
         # set scene and view
         scene = QGraphicsScene()
-        speaker1 = QGraphicsRectItem()
-        speaker1.setRect(0,0,100,100)
-        scene.addItem(speaker1)
+        # speaker1 = QGraphicsRectItem()
+        # speaker1.setRect(0,0,100,100)
+        scene.addItem(speaker)
         view = QGraphicsView(scene)
 
         # set layout
