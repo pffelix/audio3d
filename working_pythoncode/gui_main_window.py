@@ -22,7 +22,10 @@ class MainWindow(QWidget):
 
         def addspeaker():
 
-            new_speaker = Speaker(1+len(gui_dict))
+            file_browser = FileBrowser()
+            path = file_browser.getOpenFileName()
+
+            new_speaker = Speaker(1+len(gui_dict), path)
             scene.addItem(new_speaker)
             view.viewport().update()
 
@@ -42,14 +45,12 @@ class MainWindow(QWidget):
             view.viewport().update()
 
         # set items
-        default_speaker = Speaker(1)
 
         head = Head()
 
         # set scene and view
         scene = Room()
         scene.setSceneRect(0,0,250,250)
-        scene.addItem(default_speaker)
         scene.addItem(head)
         view = View(scene)
 
