@@ -12,8 +12,9 @@ class Item(QtGui.QGraphicsPixmapItem):
         super(Item, self).__init__(QtGui.QPixmap.fromImage(self.image))
         self.setToolTip("Click and drag this speaker!")
         self.setCursor(QtCore.Qt.OpenHandCursor)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
-        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable, True)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable)
 
     def boundingRect(self):
         return QtCore.QRectF(-15.5, -15.5, 34, 34)
@@ -38,7 +39,7 @@ class Item(QtGui.QGraphicsPixmapItem):
         pixmap.setMask(pixmap.createHeuristicMask())
 
         drag.setPixmap(pixmap)
-        drag.setHotSpot(QtCore.QPoint(20, 20))
+        drag.setHotSpot(QtCore.QPoint(30, 30))
 
         drag.exec_()
         self.setCursor(QtCore.Qt.OpenHandCursor)
@@ -63,3 +64,18 @@ class Room(QtGui.QGraphicsScene):
 
     def dragMoveEvent(self, e):
         e.acceptProposedAction()
+
+class View(QtGui.QGraphicsView):
+
+    def dragEnterEvent(self, e):
+        e.acceptProposedAction()
+        QtGui.QGraphicsView.dragEnterEvent(self, e)
+
+    def dropEvent(self, e):
+        self.viewport().update()
+        QtGui.QGraphicsView.dropEvent(self, e)
+
+    def dragMoveEvent(self, e):
+        e.acceptProposedAction()
+        QtGui.QGraphicsView.dragMoveEvent(self, e)
+
