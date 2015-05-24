@@ -10,6 +10,9 @@ from copy import deepcopy
 import numpy as np
 import scipy
 from scipy.fftpack import rfft, irfft
+from scipy.signal import fftconvolve
+import scipy.io.wavfile
+
 
 
 # @author: Felix Pfreundtner
@@ -94,18 +97,28 @@ def get_hrtf(hrtf_filenames_dict, standard_dict, gui_dict):
                 hrtf_dict[source]=hrtf_input
     return hrtf_dict    
     
+    
+# @author: Felix Pfreundtner
+def convolve(source_block, hrtf, fft_blocksize ):
+    
+    #hrtf_block = np.zeros((fft_blocksize-len(hrtf),),dtype='int16')
+    #hrtf_block = np.concatenate((hrtf,hrtf_block))
+    convolved_block=fftconvolve(source_block, hrtf, mode='same')
+    return convolved_block
 
-def convolute(source_block, hrtf, fft_blocksize ):
-    
-    hrtf_block = np.zeros((fft_blocksize-len(hrtf),),dtype='int16')
-    hrtf_block = np.concatenate((hrtf,hrtf_block))
-    
-    hrtf_block_frequency=rfft(hrtf_block)
-    source_block_frequency=rfft(source_block)
-    convoluted_block_frequency=source_block_frequency*hrtf_block_frequency
-    convoluted_block=irfft(convoluted_block_frequency)
-    return convoluted_block
-    
-    
-    
-    
+# @author: Felix Pfreundtner
+def bit_int(convolved_dict):
+    convolved_dict_scaled={}
+    for source in convolved_dict:
+        convolved_dict_scaled[source] = np.empty((len(convolved_dict[source]), 2))
+        for left_right in range(2):
+            convolved_dict_scaled[source][:, left_right] = convolved_dict[source][:, left_right]/np.max(np.abs(convolved_dict[source][:, left_right])) * 32767
+        convolved_dict_scaled[source] = convolved_dict_scaled[source].astype(np.int16, copy=False)
+  
+    return convolved_dict_scaled
+
+# @author: Felix Pfreundtner
+def writebinauraloutput(convolved_dict_scaled, wave_param_common, gui_dict):
+    for source in convolved_dict_scaled:
+        scipy.io.wavfile.write(gui_dict[source][2] + "binauraloutput.wav" , wave_param_common[0], convolved_dict_scaled[source])    
+        
