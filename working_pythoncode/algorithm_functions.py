@@ -100,11 +100,14 @@ def get_hrtf(hrtf_filenames_dict, standard_dict, gui_dict):
     
     
 # @author: Felix Pfreundtner
-def convolve(sp_block, hrtf ):
+def convolve(sp_block, hrtf_block, fft_blocksize):
     
-    #hrtf_block = np.zeros((fft_blocksize-len(hrtf),),dtype='int16')
-    #hrtf_block = np.concatenate((hrtf,hrtf_block))
-    convolved_block=fftconvolve(sp_block, hrtf, mode='same')
+    hrtf_zeropadding = np.zeros((fft_blocksize-len(hrtf_block),),dtype='float')
+    hrtf_block_blocksize = np.concatenate((hrtf_block.astype(float, copy=False),hrtf_zeropadding))
+    sp_zeropadding = np.zeros((fft_blocksize-len(sp_block),),dtype='float')
+    sp_block_blocksize = np.concatenate((sp_block.astype(float, copy=False),sp_zeropadding))
+    
+    convolved_block=fftconvolve(sp_block_blocksize, hrtf_block_blocksize, mode='same')
     return convolved_block
     
 # @author: Felix Pfreundtner
@@ -128,6 +131,14 @@ def bit_int(convolved_dict):
   
     return convolved_dict_scaled
 
+# @author: Felix Pfreundtner
+def create_convolved_dict(convolved_block_dict, convolved_dict, begin_block, outputsignal_sample_number):
+    outputsignal_sample_number= len(convolved_dict)   
+    convolved_dict[begin_block : outputsignal_sample_number, :] += convolved_block_dict[0 : (outputsignal_sample_number - begin_block), :]
+    convolved_dict=np.concatenate((convolved_dict, convolved_block_dict[(outputsignal_sample_number - begin_block):, :]))
+    outputsignal_sample_number= len(convolved_dict)
+    
+    return convolved_dict, outputsignal_sample_number
 
 # @author: Felix Pfreundtner
 def writebinauraloutput(convolved_dict_scaled, wave_param_common, gui_dict):
