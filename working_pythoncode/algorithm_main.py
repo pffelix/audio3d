@@ -10,6 +10,7 @@ from copy import deepcopy
 import numpy as np
 
 import scipy.io.wavfile
+import matplotlib.pyplot as plt
 
 # GUI mockup
 gui_dict={0: [272,1,"./audio/electrical_guitar_(44.1,16).wav"],
@@ -37,7 +38,7 @@ wave_param_common = [44100,16]
 # Determine number of output frames per second
 output_fps = 60  
 #Overlap FFT in Prozent
-overlap=20         
+overlap=90         
 iterationcounter = 1
 
 fft_blocksize, fft_blocktime, output_fps_real = alf.set_fft_param(output_fps, wave_param_common)
@@ -60,8 +61,8 @@ wave_blockbeginend_dict_list=deepcopy(standard_dict)
 for sp in continue_output:
     wave_blockbeginend_dict_list[sp] = []
 
-# Run convolution iteration  
-while any(continue_output.values()) == True:
+# Run block iteration  
+while any(continue_output.values()) == True and iterationcounter<270 :
     
     # Get current hrtf file dependend on input angle for every sp
     hrtf_filenames_dict = alf.get_hrtf_filenames(standard_dict, gui_dict)
@@ -102,8 +103,8 @@ while any(continue_output.values()) == True:
         
         
     iterationcounter+=1
-
     
+   
 # Write generated binaural sound to file
 convolved_dict_scaled = alf.bit_int(convolved_dict)       
 alf.writebinauraloutput(convolved_dict_scaled, wave_param_common, gui_dict)

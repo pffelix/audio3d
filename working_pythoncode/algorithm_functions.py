@@ -107,7 +107,7 @@ def convolve(sp_block, hrtf_block, fft_blocksize):
     sp_zeropadding = np.zeros((fft_blocksize-len(sp_block),),dtype='float')
     sp_block_blocksize = np.concatenate((sp_block.astype(float, copy=False),sp_zeropadding))
     
-    convolved_block=fftconvolve(sp_block_blocksize, hrtf_block_blocksize, mode='same')
+    convolved_block=fftconvolve(sp_block_blocksize, hrtf_block.astype(float, copy=False), mode='same')
     return convolved_block
     
 # @author: Felix Pfreundtner
