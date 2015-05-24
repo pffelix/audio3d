@@ -91,29 +91,21 @@ class View(QtGui.QGraphicsView):
         e.acceptProposedAction()
         QtGui.QGraphicsView.dragMoveEvent(self, e)
 
-class AddSpeakerButton(QtGui.QPushButton):
-
-    def __init__(self):
-        super(AddSpeakerButton,self).__init__('Add Speaker')
-
-class ResetButton(QtGui.QPushButton):
-
-    def __init__(self):
-        super(ResetButton,self).__init__('Reset')
-
 class Speaker(Item):
 
     index = 1
     type = 'speaker'
     origin_image = QtGui.QImage('./image/speaker.png')
+    path = 'unknown'
 
-    def __init__(self, index):
+    def __init__(self, index, path):
         global gui_dict
         global speaker_list
 
         super(Speaker, self).__init__()
         self.setPos(0,0)
         self.index = index
+        self.path = path
         speaker_list.append(self)
         self.cal_rel_pos()
 
@@ -129,7 +121,7 @@ class Speaker(Item):
         if dx < 0:
             deg = 360 - deg
 
-        gui_dict['sp'+str(self.index)] = [deg, dis, 0]
+        gui_dict[self.index] = [deg, dis/100, self.path]
         print(gui_dict)
 
 class Head(Item):
@@ -144,3 +136,7 @@ class Head(Item):
         self.setPos(100,100)
         head_pos = self.pos()
 
+class FileBrowser(QtGui.QFileDialog):
+
+    def __init__(self):
+        super(FileBrowser, self).__init__()
