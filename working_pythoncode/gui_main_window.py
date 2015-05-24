@@ -6,7 +6,7 @@ A Simple sketch of the Gui
 author: H. Zhu
 """
 
-import sys,traceback
+import sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from gui_utils import *
@@ -18,11 +18,11 @@ class MainWindow(QWidget):
 
         self.setAcceptDrops(True)
         # set items
-        self.head = Head()
+        self.audience = Audience()
         # set scene and view
         self.room = Room()
-        self.room.setSceneRect(0,0,250,250)
-        self.room.addItem(self.head)
+        self.room.setSceneRect(0,0,400,400)
+        self.room.addItem(self.audience)
         # set view
         self.view = View(self.room)
 
@@ -49,7 +49,7 @@ class MainWindow(QWidget):
 
         # set window
         self.setLayout(layout)
-        self.resize(640,480)
+        self.setFixedSize(500, 600)
         self.setWindowTitle('3D Audio')
         self.show()
 
@@ -72,8 +72,8 @@ class MainWindow(QWidget):
         gui_dict.clear()
         del speaker_list[:]
 
-        new_head = Head()
-        self.room.addItem(new_head)
+        new_audience = Audience()
+        self.room.addItem(new_audience)
         self.view.viewport().update()
 
     @pyqtSlot()
