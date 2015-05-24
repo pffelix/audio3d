@@ -2,7 +2,7 @@
 from PyQt4 import QtCore, QtGui
 
 gui_dict = {}
-head_pos = QtCore.QPoint(100, 100)
+audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
 
 class Item(QtGui.QGraphicsPixmapItem):
@@ -61,12 +61,12 @@ class Room(QtGui.QGraphicsScene):
         e.acceptProposedAction()
 
     def dropEvent(self, e):
-        global head_pos
+        global audience_pos
         global speaker_list
         self.current_item.setPos(e.scenePos())
 
-        if self.current_item.type == 'head':
-            head_pos = e.scenePos()
+        if self.current_item.type == 'audience':
+            audience_pos = e.scenePos()
 
             for speaker in speaker_list:
                 speaker.cal_rel_pos()
@@ -110,10 +110,10 @@ class Speaker(Item):
         self.cal_rel_pos()
 
     def cal_rel_pos(self):
-        global head_pos
+        global audience_pos
         global gui_dict
-        dx = self.x() - head_pos.x()
-        dy = head_pos.y() - self.y()
+        dx = self.x() - audience_pos.x()
+        dy = audience_pos.y() - self.y()
         dis = (dx**2+dy**2)**0.5
 
         from math import acos, degrees
@@ -124,17 +124,17 @@ class Speaker(Item):
         gui_dict[self.index] = [deg, dis/100, self.path]
         print(gui_dict)
 
-class Head(Item):
+class Audience(Item):
 
-    type = 'head'
-    origin_image = QtGui.QImage('./image/head.jpeg')
+    type = 'audience'
+    origin_image = QtGui.QImage('./image/audience.jpeg')
 
     def __init__(self):
-        global head_pos
+        global audience_pos
 
-        super(Head,self).__init__()
-        self.setPos(100,100)
-        head_pos = self.pos()
+        super(Audience, self).__init__()
+        self.setPos(170, 170)
+        audience_pos = self.pos()
 
 class FileBrowser(QtGui.QFileDialog):
 
