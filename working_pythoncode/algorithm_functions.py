@@ -43,7 +43,7 @@ def get_block_param(output_bps, wave_param_common, hrtf_blocksize):
     # Standard FFT block size colculation dependend on output_fps
     fft_blocksize = 2**(round(math.log(wave_param_common[0]/output_bps, 2)))
     fft_blocktime = fft_blocksize/wave_param_common[0]
-    sp_blocksize = fft_blocksize-hrtf_blocksize-1
+    sp_blocksize = fft_blocksize-hrtf_blocksize+1
     sp_blocktime = sp_blocksize/wave_param_common[0]
     output_bps_real = 1/fft_blocktime
     return fft_blocksize, fft_blocktime, sp_blocksize, sp_blocktime, output_bps_real
@@ -100,16 +100,30 @@ def get_hrtf(hrtf_filenames_dict, standard_dict, gui_dict):
                 
     return hrtf_dict    
     
+# @author: Felix Pfreundtner
+def get_sp_block_dict(signal_dict_sp, wave_blockbeginend_dict_sp, sp_blocksize, error_list_sp):    
+    sp_block_dict_sp=signal_dict_sp[int(rnd(wave_blockbeginend_dict_sp[0])):int(rnd(wave_blockbeginend_dict_sp[1]))]
+    # if last block of speaker input signal
+    if len(sp_block_dict_sp) == sp_blocksize:
+        error_list_sp.append("correct blocksize")
+       
+    elif len(sp_block_dict_sp) < sp_blocksize:
+        error_list_sp.append("block smaller than correct blocksize")
+        add_zeros_to_block = np.zeros((sp_blocksize-len(sp_block_dict_sp),),dtype='int16')
+        sp_block_dict_sp = np.concatenate((sp_block_dict_sp, add_zeros_to_block))
+    else:
+        error_list_sp.append("error block size doesn't match")
+    return sp_block_dict_sp, error_list_sp
     
 # @author: Felix Pfreundtner
-def convolve(sp_block, hrtf_block, fft_blocksize):
+def fft_convolve(sp_block_sp, hrtf_block_sp_l_r, fft_blocksize):
     
-    hrtf_zeropadding = np.zeros((fft_blocksize-len(hrtf_block),),dtype='float')
-    hrtf_block_blocksize = np.concatenate((hrtf_block.astype(float, copy=False),hrtf_zeropadding))
-    sp_zeropadding = np.zeros((fft_blocksize-len(sp_block),),dtype='float')
-    sp_block_blocksize = np.concatenate((sp_block.astype(float, copy=False),sp_zeropadding))
+    hrtf_zero_padding = np.zeros((fft_blocksize-len(hrtf_block_sp_l_r),),dtype='float')
+    hrtf_block_fft_input = np.concatenate((hrtf_block_sp_l_r.astype(float, copy=False),hrtf_zero_padding))
+    sp_zero_padding = np.zeros((fft_blocksize-len(sp_block_sp),),dtype='float')
+    sp_block_fft_input = np.concatenate((sp_block_sp.astype(float, copy=False),sp_zero_padding))
     
-    convolved_block=fftconvolve(sp_block_blocksize, hrtf_block.astype(float, copy=False), mode='same')
+    convolved_block=fftconvolve(sp_block_sp, hrtf_block_sp_l_r, mode='full')
     return convolved_block
     
 # @author: Felix Pfreundtner
