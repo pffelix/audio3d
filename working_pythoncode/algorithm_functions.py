@@ -25,7 +25,7 @@ def create_standard_dict(gui_dict):
 # @author: Felix Pfreundtner
 # function does a normal school arithmetic round (Round half away from zero)
 # different to pythons rounding method (Round half to even)
-def normal_round(value):
+def rnd(value):
     if value >=0:
        if  value-math.floor(value) < 0.5:
            value=math.floor(value)
@@ -39,25 +39,27 @@ def normal_round(value):
     return value    
     
 # @author: Felix Pfreundtner
-def set_fft_param(output_fps, wave_param_common):
+def get_block_param(output_bps, wave_param_common, hrtf_blocksize):
     # Standard FFT block size colculation dependend on output_fps
-    fft_blocksize = 2**(round(math.log(wave_param_common[0]/output_fps, 2)))
+    fft_blocksize = 2**(round(math.log(wave_param_common[0]/output_bps, 2)))
     fft_blocktime = fft_blocksize/wave_param_common[0]
-    output_fps_real = 1/fft_blocktime
-    return fft_blocksize, fft_blocktime, output_fps_real
+    sp_blocksize = fft_blocksize-hrtf_blocksize-1
+    sp_blocktime = sp_blocksize/wave_param_common[0]
+    output_bps_real = 1/fft_blocktime
+    return fft_blocksize, fft_blocktime, sp_blocksize, sp_blocktime, output_bps_real
 
 # @author: Felix Pfreundtner
-def initialze_wave_blockbeginend(standard_dict, overlap, fft_blocktime, wave_param_dict):
-    wave_blockbeginend_dict=deepcopy(standard_dict)   
+def initialze_wave_blockbeginend(standard_dict, overlap, sp_blocktime, wave_param_dict):
+    wave_blockbeginend_dict=deepcopy(standard_dict) 
     for sp in wave_blockbeginend_dict:
-          wave_blockbeginend_dict[sp]=[-(fft_blocktime*wave_param_dict[sp][1])*(1-overlap/100),0]
+        wave_blockbeginend_dict[sp]=[-(sp_blocktime*wave_param_dict[sp][1])*(1-overlap/100),0]
     return wave_blockbeginend_dict
     
 # @author: Felix Pfreundtner
-def wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, fft_blocktime,overlap):   
+def wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, sp_blocktime, overlap):   
     for sp in wave_blockbeginend_dict:
-        wave_blockbeginend_dict[sp][0]=wave_blockbeginend_dict[sp][0] + (fft_blocktime*wave_param_dict[sp][1])*(1-overlap/100)
-        wave_blockbeginend_dict[sp][1]=wave_blockbeginend_dict[sp][0] + (fft_blocktime*wave_param_dict[sp][1])
+        wave_blockbeginend_dict[sp][0]=wave_blockbeginend_dict[sp][0] + (sp_blocktime*wave_param_dict[sp][1])*(1-overlap/100)
+        wave_blockbeginend_dict[sp][1]=wave_blockbeginend_dict[sp][0] + (sp_blocktime*wave_param_dict[sp][1])
     return wave_blockbeginend_dict
 
 # @author: Felix Pfreundtner
