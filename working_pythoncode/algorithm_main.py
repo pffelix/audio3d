@@ -13,9 +13,9 @@ import scipy.io.wavfile
 import matplotlib.pyplot as plt
 
 # GUI mockup
-gui_dict={0: [272,1,"./audio/electrical_guitar_(44.1,16).wav"],
-          1: [2.45,1,"./audio/sine_1kHz_(44.1,16).wav"],
-          2: [270,1, "./audio/synthesizer_(44.1,16).wav"]
+gui_dict={0: [0,1,"./audio/electrical_guitar_(44.1,16).wav"],
+          1: [0,1,"./audio/sine_1kHz_(44.1,16).wav"],
+          2: [0,1, "./audio/synthesizer_(44.1,16).wav"]
          }
 # Algorithm function get_wave_param mockup         
 wave_param_dict={0: [970200, 44100, 16],
@@ -45,13 +45,20 @@ hrtf_blocksize = 128
 # Variable counts number of already convolved blocks, initialized with zero
 blockcounter = 0
 
-fft_blocksize, fft_blocktime, sp_blocksize, sp_blocktime, output_bps_real = alf.get_block_param(output_bps, wave_param_common, hrtf_blocksize)
+fft_blocksize, fft_blocktime, sp_blocksize, sp_blocktime, output_bps_real, overlap = alf.get_block_param(output_bps, wave_param_common, hrtf_blocksize)
 
 
 # Initialize Dictionarys
 standard_dict=alf.create_standard_dict(gui_dict)
 
 wave_blockbeginend_dict = alf.initialze_wave_blockbeginend(standard_dict, sp_blocktime, wave_param_dict)
+
+hrtf_filenames_dict = deepcopy(standard_dict)
+
+hrtf_block_dict = deepcopy(standard_dict)
+
+prior_head_angle_dict=deepcopy(standard_dict)
+
 
 binaural_dict=deepcopy(standard_dict)
 for sp in binaural_dict:
@@ -72,21 +79,18 @@ for sp in wave_blockbeginend_dict_list:
     wave_blockbeginend_dict_list[sp] = []
 
 # Run block iteration  
-while any(continue_output.values()) == True :
+while any(continue_output.values()) == True and blockcounter < 4000:
     
     #increment number of already convolved blocks
     blockcounter+=1
 
-    # Get current hrtf file dependend on input angle for every sp
-    hrtf_filenames_dict = alf.get_hrtf_filenames(standard_dict, gui_dict)
-    hrtf_block_dict = alf.get_hrtf(hrtf_filenames_dict, standard_dict, gui_dict)
-    
     # range of frames to be read in iteration from wav files (float numbers needed for adding the correct framesizes to the next iteration)               
     wave_blockbeginend_dict = alf.wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, sp_blocktime)
     
     # re-initialize binaural output dictionary for all speakers after each block processing
     binaural_block_dict={}
     
+    # iterate over all speakers sp
     for sp in gui_dict:
         binaural_block_dict[sp]=np.zeros((fft_blocksize, 2))
         
@@ -96,7 +100,17 @@ while any(continue_output.values()) == True :
         
         # if speaker audio file still has unplayed samples start convolution 
         if continue_output[sp] == True:
-            # Read wave samples with fft block framesize for every speaker
+            
+            # check whether head position to speaker sp has changed
+            if gui_dict[sp][0] != prior_head_angle_dict[sp]:
+                
+                # if head position has changed load new fitting hrtf file into array
+                hrtf_filenames_dict[sp] = alf.get_hrtf_filenames(gui_dict[sp])
+                hrtf_block_dict[sp] = alf.get_hrtf(hrtf_filenames_dict[sp], gui_dict[sp])
+                # save head position to speaker of this block in prior_head_angle dict
+                prior_head_angle_dict[sp] = gui_dict[sp][0]
+            
+            # Load current wave block of speaker sp with speaker_blocksize (fft_blocksize-hrtf_blocksize+1)
             sp_block_dict[sp], error_list[sp] = alf.get_sp_block_dict(signal_dict[sp], wave_blockbeginend_dict[sp], sp_blocksize, error_list[sp])
             # for the left an right ear channel
             for l_r in range(2):
@@ -106,9 +120,8 @@ while any(continue_output.values()) == True :
                 #binaural_block_dict[sp][:, l_r]= alf.apply_hamming_window(binaural_block_dict[sp][:, l_r])
                 
         # add speaker binaural block output to a iterative time based output array       
-        binaural_dict[sp], outputsignal_sample_number[sp]=alf.create_binaural_dict(binaural_block_dict[sp], binaural_dict[sp], int(alf.rnd(wave_blockbeginend_dict[sp][0])), outputsignal_sample_number[sp])
+        binaural_dict[sp], outputsignal_sample_number[sp]=alf.add_to_binaural_dict(binaural_block_dict[sp], binaural_dict[sp], int(alf.rnd(wave_blockbeginend_dict[sp][0])), outputsignal_sample_number[sp])
 
-        
         # check wheter this block is last block in speaker audio file and stop convolution of speaker audio file
         if wave_blockbeginend_dict[sp][1] == float(wave_param_dict[sp][0]):
             continue_output[sp] = False
@@ -117,9 +130,15 @@ while any(continue_output.values()) == True :
         continue_output_list[sp].append(continue_output[sp])
         wave_blockbeginend_dict_list[sp].extend(wave_blockbeginend_dict[sp])
         
-        
-    
+        # model head position change to speaker for speaker sp
+        gui_dict[sp][0]+=0.8
+        if gui_dict[sp][0] >= 360:
+            gui_dict[sp][0] -= 360
+
+
+# resize amplitudes of signal to 16bit integer    
+binaural_dict_scaled = alf.bit_int(binaural_dict)    
+# show plot of the output signal binaural_dict_scaled   
 plt.plot(binaural_dict[1])   
-# Write generated binaural sound to file
-binaural_dict_scaled = alf.bit_int(binaural_dict)       
+# Write generated output signal binaural_dict_scaled to file
 alf.writebinauraloutput(binaural_dict_scaled, wave_param_common, gui_dict)
