@@ -66,8 +66,7 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def reset(self):
 
-        for item in self.room.items():
-            self.room.removeItem(item)
+        self.room.clear()
 
         gui_dict.clear()
         del speaker_list[:]
