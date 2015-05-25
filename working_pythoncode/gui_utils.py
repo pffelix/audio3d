@@ -7,13 +7,11 @@ speaker_list = []
 
 class Item(QtGui.QGraphicsPixmapItem):
 
-    origin_image = QtGui.QImage('./image/speaker.png')
 
     def __init__(self):
 
         image = self.origin_image.scaled(50, 50, QtCore.Qt.KeepAspectRatio)
         super(Item, self).__init__(QtGui.QPixmap.fromImage(image))
-        self.setToolTip("Click and drag this speaker!")
         self.setCursor(QtCore.Qt.OpenHandCursor)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
@@ -106,6 +104,7 @@ class Speaker(Item):
         self.setPos(0,0)
         self.index = index
         self.path = path
+        self.setToolTip("Click and drag this speaker!")
         speaker_list.append(self)
         self.cal_rel_pos()
 
