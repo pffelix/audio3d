@@ -9,7 +9,7 @@ from copy import deepcopy
 
 import numpy as np
 import scipy
-from scipy.fftpack import rfft, irfft
+from scipy.fftpack import rfft, irfft, fft, ifft
 from scipy.signal import fftconvolve
 import scipy.io.wavfile
 
@@ -46,19 +46,21 @@ def get_block_param(output_bps, wave_param_common, hrtf_blocksize):
     sp_blocksize = fft_blocksize-hrtf_blocksize+1
     sp_blocktime = sp_blocksize/wave_param_common[0]
     output_bps_real = 1/fft_blocktime
+    output_overlap = (fft_blocksize-sp_blocksize)/fft_blocksize*100 # in %
+    
     return fft_blocksize, fft_blocktime, sp_blocksize, sp_blocktime, output_bps_real
 
 # @author: Felix Pfreundtner
-def initialze_wave_blockbeginend(standard_dict, overlap, sp_blocktime, wave_param_dict):
+def initialze_wave_blockbeginend(standard_dict, sp_blocktime, wave_param_dict):
     wave_blockbeginend_dict=deepcopy(standard_dict) 
     for sp in wave_blockbeginend_dict:
-        wave_blockbeginend_dict[sp]=[-(sp_blocktime*wave_param_dict[sp][1])*(1-overlap/100),0]
+        wave_blockbeginend_dict[sp]=[-(sp_blocktime*wave_param_dict[sp][1]),0]
     return wave_blockbeginend_dict
     
 # @author: Felix Pfreundtner
-def wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, sp_blocktime, overlap):   
+def wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, sp_blocktime):   
     for sp in wave_blockbeginend_dict:
-        wave_blockbeginend_dict[sp][0]=wave_blockbeginend_dict[sp][0] + (sp_blocktime*wave_param_dict[sp][1])*(1-overlap/100)
+        wave_blockbeginend_dict[sp][0]=wave_blockbeginend_dict[sp][0] + (sp_blocktime*wave_param_dict[sp][1])
         wave_blockbeginend_dict[sp][1]=wave_blockbeginend_dict[sp][0] + (sp_blocktime*wave_param_dict[sp][1])
     return wave_blockbeginend_dict
 
@@ -118,13 +120,22 @@ def get_sp_block_dict(signal_dict_sp, wave_blockbeginend_dict_sp, sp_blocksize, 
 # @author: Felix Pfreundtner
 def fft_convolve(sp_block_sp, hrtf_block_sp_l_r, fft_blocksize):
     
-    hrtf_zero_padding = np.zeros((fft_blocksize-len(hrtf_block_sp_l_r),),dtype='float')
-    hrtf_block_fft_input = np.concatenate((hrtf_block_sp_l_r.astype(float, copy=False),hrtf_zero_padding))
-    sp_zero_padding = np.zeros((fft_blocksize-len(sp_block_sp),),dtype='float')
-    sp_block_fft_input = np.concatenate((sp_block_sp.astype(float, copy=False),sp_zero_padding))
+    hrtf_zeros = np.zeros((fft_blocksize-len(hrtf_block_sp_l_r),),dtype='float')
+    hrtf_block_sp_zeropadded = np.concatenate((hrtf_block_sp_l_r.astype(float, copy=False),hrtf_zeros))
+    sp_zeros = np.zeros((fft_blocksize-len(sp_block_sp),),dtype='float')
+    sp_block_sp_zeropadded = np.concatenate((sp_block_sp.astype(float, copy=False),sp_zeros))
     
-    convolved_block=fftconvolve(sp_block_sp, hrtf_block_sp_l_r, mode='full')
-    return convolved_block
+    # bring time domain to to frequency domain
+    hrtf_block_sp_frequency = fft(hrtf_block_sp_zeropadded, fft_blocksize)
+    sp_block_sp_frequency = fft(sp_block_sp_zeropadded, fft_blocksize)
+    
+    # execute convulotion of speaker input and hrtf input: multiply complex frequency domain vectors
+    binaural_block_sp_frequency = sp_block_sp_frequency * hrtf_block_sp_frequency
+    
+    # bring multiplied spectrum back to time domain, disneglected small complex time parts resulting from numerical fft approach
+    binaural_block_sp = ifft(binaural_block_sp_frequency, fft_blocksize).real
+    
+    return binaural_block_sp
     
 # @author: Felix Pfreundtner
 def apply_hamming_window(inputsignal):
@@ -135,29 +146,29 @@ def apply_hamming_window(inputsignal):
     
 
 # @author: Felix Pfreundtner
-def bit_int(convolved_dict):
-    convolved_dict_scaled={}
-    for sp in convolved_dict:
-        convolved_dict_scaled[sp] = np.zeros((len(convolved_dict[sp]), 2), dtype=np.int16)
+def bit_int(binaural_dict):
+    binaural_dict_scaled={}
+    for sp in binaural_dict:
+        binaural_dict_scaled[sp] = np.zeros((len(binaural_dict[sp]), 2), dtype=np.int16)
         for l_r in range(2):
-            maximum_value=np.max(np.abs(convolved_dict[sp][:, l_r]))
+            maximum_value=np.max(np.abs(binaural_dict[sp][:, l_r]))
             if maximum_value != 0:
-                convolved_dict_scaled[sp][:, l_r] = convolved_dict[sp][:, l_r]/maximum_value * 32767
-                convolved_dict_scaled[sp] = convolved_dict_scaled[sp].astype(np.int16, copy=False)
+                binaural_dict_scaled[sp][:, l_r] = binaural_dict[sp][:, l_r]/maximum_value * 32767
+                binaural_dict_scaled[sp] = binaural_dict_scaled[sp].astype(np.int16, copy=False)
   
-    return convolved_dict_scaled
+    return binaural_dict_scaled
 
 # @author: Felix Pfreundtner
-def create_convolved_dict(convolved_block_dict, convolved_dict, begin_block, outputsignal_sample_number):
-    outputsignal_sample_number= len(convolved_dict)   
-    convolved_dict[begin_block : outputsignal_sample_number, :] += convolved_block_dict[0 : (outputsignal_sample_number - begin_block), :]
-    convolved_dict=np.concatenate((convolved_dict, convolved_block_dict[(outputsignal_sample_number - begin_block):, :]))
-    outputsignal_sample_number= len(convolved_dict)
+def create_binaural_dict(binaural_block_dict, binaural_dict, begin_block, outputsignal_sample_number):
+    outputsignal_sample_number= len(binaural_dict)   
+    binaural_dict[begin_block : outputsignal_sample_number, :] += binaural_block_dict[0 : (outputsignal_sample_number - begin_block), :]
+    binaural_dict=np.concatenate((binaural_dict, binaural_block_dict[(outputsignal_sample_number - begin_block):, :]))
+    outputsignal_sample_number= len(binaural_dict)
     
-    return convolved_dict, outputsignal_sample_number
+    return binaural_dict, outputsignal_sample_number
 
 # @author: Felix Pfreundtner
-def writebinauraloutput(convolved_dict_scaled, wave_param_common, gui_dict):
-    for sp in convolved_dict_scaled:
-        scipy.io.wavfile.write(gui_dict[sp][2] + "binauraloutput.wav" , wave_param_common[0], convolved_dict_scaled[sp])    
+def writebinauraloutput(binaural_dict_scaled, wave_param_common, gui_dict):
+    for sp in binaural_dict_scaled:
+        scipy.io.wavfile.write(gui_dict[sp][2] + "binauraloutput.wav" , wave_param_common[0], binaural_dict_scaled[sp])    
         

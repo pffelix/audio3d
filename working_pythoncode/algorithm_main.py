@@ -14,24 +14,26 @@ import matplotlib.pyplot as plt
 
 # GUI mockup
 gui_dict={0: [272,1,"./audio/electrical_guitar_(44.1,16).wav"],
-          1: [2.45,1,"./audio/sine_1kHz_(44.1,16).wav"]
+          1: [2.45,1,"./audio/sine_1kHz_(44.1,16).wav"],
+          2: [270,1, "./audio/synthesizer_(44.1,16).wav"]
          }
 # Algorithm function get_wave_param mockup         
-wave_param_dict={0: [970200, 44100,16],
-                 1: [220500, 44100,16]
+wave_param_dict={0: [970200, 44100, 16],
+                 1: [220500, 44100, 16],
+                 2: [139263, 44100, 16]
                 } 
+                
 # Algorithm function get_fft_block mockup         
 signal_dict={} 
 sp_block_dict={}             
 _, signal_dict[0] = scipy.io.wavfile.read(gui_dict[0][2])              
-_, signal_dict[1] = scipy.io.wavfile.read(gui_dict[1][2])       
+_, signal_dict[1] = scipy.io.wavfile.read(gui_dict[1][2]) 
+_, signal_dict[2] = scipy.io.wavfile.read(gui_dict[2][2])       
 
- 
- 
+
 #Initialize FFT iteration after GUI call
-        
 
-
+[fs3,aaa]=scipy.io.wavfile.read(gui_dict[2][2])
 
 #Standard samplerate, sampledepth, output_frames_per_second         
 wave_param_common = [44100,16]  
@@ -40,9 +42,8 @@ output_bps = 60
 # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
 hrtf_blocksize = 128
 
-#Overlap FFT in Prozent
-overlap=31.278        
-blocknumber = 1
+# Variable counts number of already convolved blocks, initialized with zero
+blockcounter = 0
 
 fft_blocksize, fft_blocktime, sp_blocksize, sp_blocktime, output_bps_real = alf.get_block_param(output_bps, wave_param_common, hrtf_blocksize)
 
@@ -50,11 +51,11 @@ fft_blocksize, fft_blocktime, sp_blocksize, sp_blocktime, output_bps_real = alf.
 # Initialize Dictionarys
 standard_dict=alf.create_standard_dict(gui_dict)
 
-wave_blockbeginend_dict = alf.initialze_wave_blockbeginend(standard_dict, overlap, sp_blocktime, wave_param_dict)
+wave_blockbeginend_dict = alf.initialze_wave_blockbeginend(standard_dict, sp_blocktime, wave_param_dict)
 
-convolved_dict=deepcopy(standard_dict)
-for sp in convolved_dict:
-    convolved_dict[sp] = np.zeros((fft_blocksize, 2))
+binaural_dict=deepcopy(standard_dict)
+for sp in binaural_dict:
+    binaural_dict[sp] = np.zeros((fft_blocksize, 2))
     
 continue_output=deepcopy(standard_dict)
 for sp in continue_output:
@@ -71,20 +72,23 @@ for sp in wave_blockbeginend_dict_list:
     wave_blockbeginend_dict_list[sp] = []
 
 # Run block iteration  
-while any(continue_output.values()) == True and blocknumber <= 2000 :
+while any(continue_output.values()) == True :
     
+    #increment number of already convolved blocks
+    blockcounter+=1
+
     # Get current hrtf file dependend on input angle for every sp
     hrtf_filenames_dict = alf.get_hrtf_filenames(standard_dict, gui_dict)
     hrtf_block_dict = alf.get_hrtf(hrtf_filenames_dict, standard_dict, gui_dict)
     
     # range of frames to be read in iteration from wav files (float numbers needed for adding the correct framesizes to the next iteration)               
-    wave_blockbeginend_dict = alf.wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, sp_blocktime, overlap)
+    wave_blockbeginend_dict = alf.wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, sp_blocktime)
     
     # re-initialize binaural output dictionary for all speakers after each block processing
-    convolved_block_dict={}
+    binaural_block_dict={}
     
     for sp in gui_dict:
-        convolved_block_dict[sp]=np.zeros((fft_blocksize, 2))
+        binaural_block_dict[sp]=np.zeros((fft_blocksize, 2))
         
         # check wheter this block is last block in speaker audio file, set ending of the block to last sample in speaker audio file
         if  alf.rnd(wave_blockbeginend_dict[sp][1]) > float(wave_param_dict[sp][0]-1):
@@ -97,12 +101,12 @@ while any(continue_output.values()) == True and blocknumber <= 2000 :
             # for the left an right ear channel
             for l_r in range(2):
                 # convolve hrtf with speaker block input
-                convolved_block_dict[sp][0:fft_blocksize, l_r] = alf.fft_convolve(sp_block_dict[sp], hrtf_block_dict[sp][:,l_r], fft_blocksize)
+                binaural_block_dict[sp][0:fft_blocksize, l_r] = alf.fft_convolve(sp_block_dict[sp], hrtf_block_dict[sp][:,l_r], fft_blocksize)
                 # apply hamming window to binaural block ouptut
-                convolved_block_dict[sp][:, l_r]= alf.apply_hamming_window(convolved_block_dict[sp][:, l_r])
+                #binaural_block_dict[sp][:, l_r]= alf.apply_hamming_window(binaural_block_dict[sp][:, l_r])
                 
         # add speaker binaural block output to a iterative time based output array       
-        convolved_dict[sp], outputsignal_sample_number[sp]=alf.create_convolved_dict(convolved_block_dict[sp], convolved_dict[sp], int(alf.rnd(wave_blockbeginend_dict[sp][0])), outputsignal_sample_number[sp])
+        binaural_dict[sp], outputsignal_sample_number[sp]=alf.create_binaural_dict(binaural_block_dict[sp], binaural_dict[sp], int(alf.rnd(wave_blockbeginend_dict[sp][0])), outputsignal_sample_number[sp])
 
         
         # check wheter this block is last block in speaker audio file and stop convolution of speaker audio file
@@ -114,9 +118,8 @@ while any(continue_output.values()) == True and blocknumber <= 2000 :
         wave_blockbeginend_dict_list[sp].extend(wave_blockbeginend_dict[sp])
         
         
-    blocknumber+=1
     
-plt.plot(convolved_dict[1])   
+plt.plot(binaural_dict[1])   
 # Write generated binaural sound to file
-convolved_dict_scaled = alf.bit_int(convolved_dict)       
-alf.writebinauraloutput(convolved_dict_scaled, wave_param_common, gui_dict)
+binaural_dict_scaled = alf.bit_int(binaural_dict)       
+alf.writebinauraloutput(binaural_dict_scaled, wave_param_common, gui_dict)
