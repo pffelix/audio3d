@@ -254,7 +254,7 @@ def get_rate_and_data(filename):
     '''filename: string or open file handle
     Input .wav file.'''
     
-     if hasattr(filename,'read'):
+    if hasattr(filename,'read'):
         fid = filename
     else:
         fid = open(filename, 'rb')
