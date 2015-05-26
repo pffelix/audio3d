@@ -93,7 +93,7 @@ class View(QtGui.QGraphicsView):
 
 class Speaker(Item):
 
-    index = 1
+    index = 0
     type = 'speaker'
     origin_image = QtGui.QImage('./image/speaker.png')
     path = 'unknown'
