@@ -134,7 +134,28 @@ class Audience(Item):
         self.setPos(170, 170)
         audience_pos = self.pos()
 
-class FileBrowser(QtGui.QFileDialog):
+class SpeakerProperty(QtGui.QDialog):
 
     def __init__(self):
-        super(FileBrowser, self).__init__()
+        super(SpeakerProperty,self).__init__()
+        self.init_ui()
+
+    def init_ui(self):
+
+        file_select_button = QtGui.QPushButton('Browse')
+        # set layout
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(file_select_button)
+
+        # connect signal and slots
+        # file_select_button.clicked.connect(self.browse())
+
+        # set window
+        self.setLayout(layout)
+        self.setFixedSize(500, 600)
+        self.setWindowTitle('Speaker Properties')
+        self.show()
+
+    def browse(self):
+        file_browser = QtGui.QFileDialog()
+        self.path = file_browser.getOpenFileName()
