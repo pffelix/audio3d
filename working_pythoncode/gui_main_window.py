@@ -26,6 +26,8 @@ class MainWindow(QWidget):
         self.room.addItem(self.audience)
         # set view
         self.view = View(self.room)
+        # set property window
+        self.speaker_property = SpeakerProperty()
 
         self.init_ui()
 
@@ -44,7 +46,7 @@ class MainWindow(QWidget):
         layout.addWidget(reset_button)
 
         # connect signal and slots
-        add_speaker_button.clicked.connect(self.addspeaker)
+        add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
         control_button.clicked.connect(self.control)
 
@@ -55,20 +57,23 @@ class MainWindow(QWidget):
         self.show()
 
     @pyqtSlot()
-    def addspeaker(self):
+    def add_speaker(self):
 
-        file_browser = FileBrowser()
-        path = file_browser.getOpenFileName()
+        self.speaker_property.added.connect(self.add2scene)
+        self.speaker_property.show()
 
-        new_speaker = Speaker(len(gui_dict), path)
-        self.room.addItem(new_speaker)
+
+    @pyqtSlot()
+    def add2scene(self):
+        new_speaker = Speaker(len(gui_dict), self.speaker_property.path)
+        speaker_list.append(new_speaker)
+        self.room.addItem(speaker_list[-1])
         self.view.viewport().update()
 
     @pyqtSlot()
     def reset(self):
 
-        for item in self.room.items():
-            self.room.removeItem(item)
+        self.room.clear()
 
         gui_dict.clear()
         del speaker_list[:]
@@ -79,8 +84,9 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def control(self):
-        threading.Thread(target=alg.algo)
-
+        play = threading.Thread(target=alg.algo)
+        play.start()
+        
 def main():
 
     app = QApplication(sys.argv)
