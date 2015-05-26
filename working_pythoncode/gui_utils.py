@@ -34,13 +34,13 @@ class Item(QtGui.QGraphicsPixmapItem):
         mime = QtCore.QMimeData()
         drag.setMimeData(mime)
 
-        image = self.origin_image.scaled(50, 50, QtCore.Qt.KeepAspectRatio)
-        pixmap = QtGui.QPixmap.fromImage(image)
+        # image = self.origin_image.scaled(50, 50, QtCore.Qt.KeepAspectRatio)
+        # pixmap = QtGui.QPixmap.fromImage(image)
+        #
+        # pixmap.setMask(pixmap.createHeuristicMask())
 
-        pixmap.setMask(pixmap.createHeuristicMask())
-
-        drag.setPixmap(pixmap)
-        drag.setHotSpot(QtCore.QPoint(30, 30))
+        # drag.setPixmap(pixmap)
+        # drag.setHotSpot(QtCore.QPoint(50, 50))
 
         drag.exec_()
         self.setCursor(QtCore.Qt.OpenHandCursor)
@@ -60,11 +60,26 @@ class Room(QtGui.QGraphicsScene):
     def dragEnterEvent(self, e):
         e.acceptProposedAction()
 
-    def dropEvent(self, e):
+    # def dropEvent(self, e):
+    #     global audience_pos
+    #     global speaker_list
+    #     self.current_item.setPos(e.scenePos())
+    #
+    #     if self.current_item.type == 'audience':
+    #         audience_pos = e.scenePos()
+    #
+    #         for speaker in speaker_list:
+    #             speaker.cal_rel_pos()
+    #
+    #     elif self.current_item.type == 'speaker':
+    #         self.current_item.cal_rel_pos()
+
+    def dragMoveEvent(self, e):
+
+        e.acceptProposedAction()
         global audience_pos
         global speaker_list
         self.current_item.setPos(e.scenePos())
-
         if self.current_item.type == 'audience':
             audience_pos = e.scenePos()
 
@@ -73,9 +88,6 @@ class Room(QtGui.QGraphicsScene):
 
         elif self.current_item.type == 'speaker':
             self.current_item.cal_rel_pos()
-
-    def dragMoveEvent(self, e):
-        e.acceptProposedAction()
 
 class View(QtGui.QGraphicsView):
 
