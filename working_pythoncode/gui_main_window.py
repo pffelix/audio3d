@@ -26,6 +26,8 @@ class MainWindow(QWidget):
         self.room.addItem(self.audience)
         # set view
         self.view = View(self.room)
+        # set property window
+        self.speaker_property = SpeakerProperty()
 
         self.init_ui()
 
@@ -57,12 +59,14 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def add_speaker(self):
 
-        speaker_property = SpeakerProperty()
-        speaker_property.added.connect(self.add2scene)
-        speaker_property.exec_()
+        self.speaker_property.added.connect(self.add2scene)
+        self.speaker_property.show()
+
 
     @pyqtSlot()
     def add2scene(self):
+        new_speaker = Speaker(len(gui_dict), self.speaker_property.path)
+        speaker_list.append(new_speaker)
         self.room.addItem(speaker_list[-1])
         self.view.viewport().update()
 

@@ -136,36 +136,44 @@ class Audience(Item):
         self.setPos(170, 170)
         audience_pos = self.pos()
 
-class SpeakerProperty(QtGui.QDialog):
+class SpeakerProperty(QtGui.QWidget):
 
     added = QtCore.pyqtSignal()
 
     def __init__(self):
         super(SpeakerProperty,self).__init__()
+
+        # set labels
+        self.path_label = QtGui.QLabel('Audio Source:')
+        self.position_label = QtGui.QLabel('Relative Position to the Audience:')
+        # set line edit
+        self.path_line_edit = QtGui.QLineEdit()
+        # set buttons
+        self.file_select_button = QtGui.QPushButton('Browse')
+        self.path = 'unknown'
         self.init_ui()
 
     def init_ui(self):
 
-        file_select_button = QtGui.QPushButton('Browse')
         # set layout
-        layout = QtGui.QVBoxLayout()
-        layout.addWidget(file_select_button)
+        layout = QtGui.QGridLayout()
+        layout.addWidget(self.path_label, 0, 0, 1, 1)
+        layout.addWidget(self.path_line_edit, 1, 0, 1, 2)
+        layout.addWidget(self.file_select_button, 1, 2, 1, 1)
+        layout.addWidget(self.position_label, 3, 0, 1, 1)
 
         # connect signal and slots
-        file_select_button.clicked.connect(self.browse)
+        self.file_select_button.clicked.connect(self.browse)
 
         # set window
         self.setLayout(layout)
-        self.setFixedSize(500, 600)
+        # self.setFixedSize(500, 600)
         self.setWindowTitle('Speaker Properties')
-
-        self.show()
 
     @QtCore.pyqtSlot()
     def browse(self):
 
         file_browser = QtGui.QFileDialog()
-        path = file_browser.getOpenFileName()
-        new_speaker = Speaker(len(gui_dict), path)
-        speaker_list.append(new_speaker)
+        self.path = file_browser.getOpenFileName()
+        self.path_line_edit.setText(self.path)
         self.added.emit()
