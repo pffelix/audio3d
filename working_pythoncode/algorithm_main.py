@@ -23,7 +23,7 @@ wave_param_dict={0: [970200, 44100, 16],
                  2: [139263, 44100, 16]
                 } 
                 
-# Algorithm function get_fft_block mockup         
+# Algorithm function get_fft_block mockup; signal_dict will be removed         
 signal_dict={} 
 sp_block_dict={}             
 _, signal_dict[0] = scipy.io.wavfile.read(gui_dict[0][2])              
@@ -109,7 +109,7 @@ while any(continue_output.values()) == True and blockcounter < 4000:
                 hrtf_block_dict[sp] = alf.get_hrtf(hrtf_filenames_dict[sp], gui_dict[sp])
                 # save head position to speaker of this block in prior_head_angle dict
                 prior_head_angle_dict[sp] = gui_dict[sp][0]
-            
+'replace here
             # Load current wave block of speaker sp with speaker_blocksize (fft_blocksize-hrtf_blocksize+1)
             sp_block_dict[sp], error_list[sp] = alf.get_sp_block_dict(signal_dict[sp], wave_blockbeginend_dict[sp], sp_blocksize, error_list[sp])
             # for the left an right ear channel
@@ -118,7 +118,7 @@ while any(continue_output.values()) == True and blockcounter < 4000:
                 binaural_block_dict[sp][0:fft_blocksize, l_r] = alf.fft_convolve(sp_block_dict[sp], hrtf_block_dict[sp][:,l_r], fft_blocksize)
                 # apply hamming window to binaural block ouptut
                 #binaural_block_dict[sp][:, l_r]= alf.apply_hamming_window(binaural_block_dict[sp][:, l_r])
-                
+               
         # add speaker binaural block output to a iterative time based output array       
         binaural_dict[sp], outputsignal_sample_number[sp]=alf.add_to_binaural_dict(binaural_block_dict[sp], binaural_dict[sp], int(alf.rnd(wave_blockbeginend_dict[sp][0])), outputsignal_sample_number[sp])
 
