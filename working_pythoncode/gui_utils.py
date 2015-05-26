@@ -91,7 +91,7 @@ class View(QtGui.QGraphicsView):
 
 class Speaker(Item):
 
-    index = 1
+    index = 0
     type = 'speaker'
     origin_image = QtGui.QImage('./image/speaker.png')
     path = 'unknown'
@@ -104,7 +104,6 @@ class Speaker(Item):
         self.setPos(0,0)
         self.index = index
         self.path = path
-        self.setToolTip("Click and drag this speaker!")
         speaker_list.append(self)
         self.cal_rel_pos()
 

@@ -10,12 +10,13 @@ import sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from gui_utils import *
+import algorithm_main as alg
+import threading
 
 class MainWindow(QWidget):
 
     def __init__(self):
         super(MainWindow,self).__init__()
-
         self.setAcceptDrops(True)
         # set items
         self.audience = Audience()
@@ -59,14 +60,15 @@ class MainWindow(QWidget):
         file_browser = FileBrowser()
         path = file_browser.getOpenFileName()
 
-        new_speaker = Speaker(1+len(gui_dict), path)
+        new_speaker = Speaker(len(gui_dict), path)
         self.room.addItem(new_speaker)
         self.view.viewport().update()
 
     @pyqtSlot()
     def reset(self):
 
-        self.room.clear()
+        for item in self.room.items():
+            self.room.removeItem(item)
 
         gui_dict.clear()
         del speaker_list[:]
@@ -77,8 +79,7 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def control(self):
-        pass
-
+        threading.Thread(target=alg.algo)
 
 def main():
 
