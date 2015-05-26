@@ -44,7 +44,7 @@ class MainWindow(QWidget):
         layout.addWidget(reset_button)
 
         # connect signal and slots
-        add_speaker_button.clicked.connect(self.addspeaker)
+        add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
         control_button.clicked.connect(self.control)
 
@@ -55,13 +55,15 @@ class MainWindow(QWidget):
         self.show()
 
     @pyqtSlot()
-    def addspeaker(self):
+    def add_speaker(self):
 
         speaker_property = SpeakerProperty()
-        path = speaker_property.path
+        speaker_property.added.connect(self.add2scene)
+        speaker_property.exec_()
 
-        new_speaker = Speaker(len(gui_dict), path)
-        self.room.addItem(new_speaker)
+    @pyqtSlot()
+    def add2scene(self):
+        self.room.addItem(speaker_list[-1])
         self.view.viewport().update()
 
     @pyqtSlot()

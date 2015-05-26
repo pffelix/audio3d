@@ -1,9 +1,11 @@
 
 from PyQt4 import QtCore, QtGui
+import gui_main_window as mw
 
 gui_dict = {}
 audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
+speaker_added = 0
 
 class Item(QtGui.QGraphicsPixmapItem):
 
@@ -136,6 +138,8 @@ class Audience(Item):
 
 class SpeakerProperty(QtGui.QDialog):
 
+    added = QtCore.pyqtSignal()
+
     def __init__(self):
         super(SpeakerProperty,self).__init__()
         self.init_ui()
@@ -148,14 +152,20 @@ class SpeakerProperty(QtGui.QDialog):
         layout.addWidget(file_select_button)
 
         # connect signal and slots
-        # file_select_button.clicked.connect(self.browse())
+        file_select_button.clicked.connect(self.browse)
 
         # set window
         self.setLayout(layout)
         self.setFixedSize(500, 600)
         self.setWindowTitle('Speaker Properties')
+
         self.show()
 
+    @QtCore.pyqtSlot()
     def browse(self):
+
         file_browser = QtGui.QFileDialog()
-        self.path = file_browser.getOpenFileName()
+        path = file_browser.getOpenFileName()
+        new_speaker = Speaker(len(gui_dict), path)
+        speaker_list.append(new_speaker)
+        self.added.emit()
