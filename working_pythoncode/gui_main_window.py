@@ -89,6 +89,7 @@ class MainWindow(QWidget):
         
     def closeEvent (self, eventQCloseEvent):
         self.room.clear()
+        self.speaker_property.close() # closes 'browse' with main window
         eventQCloseEvent.accept()
 
 
