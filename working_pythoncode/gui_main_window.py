@@ -60,14 +60,27 @@ class MainWindow(QWidget):
         self.show()
 
     @pyqtSlot()
+    def show_property(self):
+
+        from gui_utils import  speaker_to_show
+        i = speaker_to_show
+        path = str(gui_dict[i][2])
+        azimuth = str(gui_dict[i][0])
+        dist = str(gui_dict[i][1])
+        self.speaker_property.path_line_edit.setText(path)
+        self.speaker_property.azimuth_line_edit.setText(azimuth)
+        self.speaker_property.distance_line_edit.setText(dist)
+        self.speaker_property.show()
+
+    @pyqtSlot()
     def add_speaker(self):
 
         self.speaker_property.added.connect(self.add2scene)
         self.speaker_property.show()
 
-
     @pyqtSlot()
     def add2scene(self):
+
         if len(gui_dict) < 6:
 
             # read in data
@@ -78,13 +91,13 @@ class MainWindow(QWidget):
 
             # create new speaker
             new_speaker = Speaker(index, path, x, y)
+            new_speaker.signal_handler.show_property.connect(self.show_property)
             self.room.addItem(speaker_list[-1])
             self.view.viewport().update()
 
             # clean up
-            self.speaker_property.clear()
             self.speaker_property.added.disconnect()
-            self.speaker_property.close()
+            self.speaker_property.clear()
         else:
             return
             

@@ -1,11 +1,11 @@
 
 from PyQt4 import QtCore, QtGui
-import gui_main_window as mw
+from gui_main_window import *
 
 gui_dict = {}
 audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
-speaker_added = 0
+speaker_to_show = 0
 
 class Item(QtGui.QGraphicsPixmapItem):
 
@@ -84,6 +84,16 @@ class View(QtGui.QGraphicsView):
         e.acceptProposedAction()
         QtGui.QGraphicsView.dragMoveEvent(self, e)
 
+# Signal handler for QGraphicsItem which doesn't provide the signal/slot function
+class SignalHandler(QtCore.QObject):
+
+    show_property = QtCore.pyqtSignal()
+
+    def __init__(self, index):
+        super(SignalHandler, self).__init__()
+        self.index = index
+
+
 class Speaker(Item):
 
     index = 0
@@ -99,6 +109,7 @@ class Speaker(Item):
         self.setPos(posx,posy)
         self.index = index
         self.path = path
+        self.signal_handler = SignalHandler(self.index)
         speaker_list.append(self)
         self.cal_rel_pos()
 
@@ -116,6 +127,13 @@ class Speaker(Item):
 
         gui_dict[self.index] = [deg, dis/100, self.path]
         print(gui_dict)
+
+    def mouseDoubleClickEvent(self, event):
+
+        global speaker_to_show
+        speaker_to_show = self.index
+        self.signal_handler.show_property.emit()
+
 
 class Audience(Item):
 
@@ -177,7 +195,6 @@ class SpeakerProperty(QtGui.QWidget):
 
         # set window
         self.setLayout(layout)
-        # self.setFixedSize(500, 600)
         self.setWindowTitle('Speaker Properties')
 
     @QtCore.pyqtSlot()
@@ -197,6 +214,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.posx = x0 + dist*sin(radians(azimuth))
         self.posy = y0 - dist*cos(radians(azimuth))
         self.added.emit()
+        self.close()
 
     @QtCore.pyqtSlot()
     def cancel(self):
