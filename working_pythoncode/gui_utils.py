@@ -91,12 +91,12 @@ class Speaker(Item):
     origin_image = QtGui.QImage('./image/speaker.png')
     path = 'unknown'
 
-    def __init__(self, index, path):
+    def __init__(self, index, path, posx=0,posy=0):
         global gui_dict
         global speaker_list
 
         super(Speaker, self).__init__()
-        self.setPos(0,0)
+        self.setPos(posx,posy)
         self.index = index
         self.path = path
         speaker_list.append(self)
@@ -129,9 +129,11 @@ class Audience(Item):
         self.setPos(170, 170)
         audience_pos = self.pos()
 
-class SpeakerProperty(QtGui.QDialog):
+class SpeakerProperty(QtGui.QWidget):
 
     added = QtCore.pyqtSignal()
+    posx = 0
+    posy = 0
 
     def __init__(self):
         super(SpeakerProperty,self).__init__()
@@ -139,25 +141,39 @@ class SpeakerProperty(QtGui.QDialog):
         # set labels
         self.path_label = QtGui.QLabel('Audio Source:')
         self.position_label = QtGui.QLabel('Relative Position to the Audience:')
+        self.azimuth_label = QtGui.QLabel('Azimuth:')
+        self.distance_label = QtGui.QLabel('Distance:')
         # set line edit
         self.path_line_edit = QtGui.QLineEdit()
+        self.azimuth_line_edit = QtGui.QLineEdit()
+        self.distance_line_edit = QtGui.QLineEdit()
+
         # set buttons
         self.file_select_button = QtGui.QPushButton('Browse')
+        self.confirm_button = QtGui.QPushButton('Confirm')
+        self.cancel_button = QtGui.QPushButton('Cancel')
         self.path = 'unknown'
-        self.setModal(True)
         self.init_ui()
 
     def init_ui(self):
 
         # set layout
         layout = QtGui.QGridLayout()
-        layout.addWidget(self.path_label, 0, 0, 1, 1)
-        layout.addWidget(self.path_line_edit, 1, 0, 1, 2)
-        layout.addWidget(self.file_select_button, 1, 2, 1, 1)
-        layout.addWidget(self.position_label, 3, 0, 1, 1)
+        layout.addWidget(self.path_label, 0, 0, 1, 4)
+        layout.addWidget(self.path_line_edit, 1, 0, 1, 3)
+        layout.addWidget(self.file_select_button, 1, 3, 1, 1)
+        layout.addWidget(self.position_label, 3, 0, 1, 4)
+        layout.addWidget(self.azimuth_label, 4, 0, 1, 1)
+        layout.addWidget(self.azimuth_line_edit, 4, 1, 1, 1)
+        layout.addWidget(self.distance_label, 4, 2, 1, 1)
+        layout.addWidget(self.distance_line_edit, 4, 3, 1, 1)
+        layout.addWidget(self.confirm_button, 5, 0, 1, 2)
+        layout.addWidget(self.cancel_button, 5, 2, 1, 2)
 
         # connect signal and slots
         self.file_select_button.clicked.connect(self.browse)
+        self.confirm_button.clicked.connect(self.confirm)
+        self.cancel_button.clicked.connect(self.cancel)
 
         # set window
         self.setLayout(layout)
@@ -170,4 +186,18 @@ class SpeakerProperty(QtGui.QDialog):
         file_browser = QtGui.QFileDialog()
         self.path = file_browser.getOpenFileName()
         self.path_line_edit.setText(self.path)
+
+    @QtCore.pyqtSlot()
+    def confirm(self):
+        from math import cos, sin, degrees, radians
+        x0 = audience_pos.x()
+        y0 = audience_pos.y()
+        azimuth = float(self.azimuth_line_edit.text())
+        dist = 100*float(self.distance_line_edit.text())
+        self.posx = x0 + dist*sin(radians(azimuth))
+        self.posy = y0 - dist*cos(radians(azimuth))
         self.added.emit()
+
+    @QtCore.pyqtSlot()
+    def cancel(self):
+        self.close()
