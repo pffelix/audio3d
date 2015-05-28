@@ -27,21 +27,13 @@ class Item(QtGui.QGraphicsPixmapItem):
         self.setCursor(QtCore.Qt.ClosedHandCursor)
 
     def mouseMoveEvent(self, event):
+
         if QtCore.QLineF(QtCore.QPointF(event.screenPos()), QtCore.QPointF(event.buttonDownScreenPos(QtCore.Qt.LeftButton))).length() < QtGui.QApplication.startDragDistance():
             return
 
         drag = QtGui.QDrag(event.widget())
         mime = QtCore.QMimeData()
         drag.setMimeData(mime)
-
-        # image = self.origin_image.scaled(50, 50, QtCore.Qt.KeepAspectRatio)
-        # pixmap = QtGui.QPixmap.fromImage(image)
-        #
-        # pixmap.setMask(pixmap.createHeuristicMask())
-
-        # drag.setPixmap(pixmap)
-        # drag.setHotSpot(QtCore.QPoint(50, 50))
-
         drag.exec_()
         self.setCursor(QtCore.Qt.OpenHandCursor)
 
@@ -60,34 +52,23 @@ class Room(QtGui.QGraphicsScene):
     def dragEnterEvent(self, e):
         e.acceptProposedAction()
 
-    # def dropEvent(self, e):
-    #     global audience_pos
-    #     global speaker_list
-    #     self.current_item.setPos(e.scenePos())
-    #
-    #     if self.current_item.type == 'audience':
-    #         audience_pos = e.scenePos()
-    #
-    #         for speaker in speaker_list:
-    #             speaker.cal_rel_pos()
-    #
-    #     elif self.current_item.type == 'speaker':
-    #         self.current_item.cal_rel_pos()
-
     def dragMoveEvent(self, e):
 
         e.acceptProposedAction()
         global audience_pos
         global speaker_list
-        self.current_item.setPos(e.scenePos())
-        if self.current_item.type == 'audience':
-            audience_pos = e.scenePos()
+        try:
+            self.current_item.setPos(e.scenePos())
+            if self.current_item.type == 'audience':
+                audience_pos = e.scenePos()
 
-            for speaker in speaker_list:
-                speaker.cal_rel_pos()
+                for speaker in speaker_list:
+                    speaker.cal_rel_pos()
 
-        elif self.current_item.type == 'speaker':
-            self.current_item.cal_rel_pos()
+            elif self.current_item.type == 'speaker':
+                self.current_item.cal_rel_pos()
+        except AttributeError:
+            pass
 
 class View(QtGui.QGraphicsView):
 
