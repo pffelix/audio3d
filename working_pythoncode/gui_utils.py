@@ -169,7 +169,6 @@ class SpeakerProperty(QtGui.QWidget):
         self.confirm_button = QtGui.QPushButton('Confirm')
         self.cancel_button = QtGui.QPushButton('Cancel')
         self.path = 'unknown'
-        self.setModal(True)
         self.init_ui()
 
     def init_ui(self):
