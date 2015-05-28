@@ -129,7 +129,7 @@ class Speaker(Item):
         print(gui_dict)
 
     def mouseDoubleClickEvent(self, event):
-        global speaker_to_show
+
         speaker_to_show = self.index
         self.signal_handler.show_property.emit()
 
