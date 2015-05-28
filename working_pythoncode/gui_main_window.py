@@ -69,13 +69,20 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def add2scene(self):
         if len(gui_dict) < 6:
+
+            # read in data
             index = len(gui_dict)
             path = self.speaker_property.path
             x = self.speaker_property.posx
             y = self.speaker_property.posy
+
+            # create new speaker
             new_speaker = Speaker(index, path, x, y)
             self.room.addItem(speaker_list[-1])
             self.view.viewport().update()
+
+            # clean up
+            self.speaker_property.clear()
             self.speaker_property.added.disconnect()
             self.speaker_property.close()
         else:
@@ -104,7 +111,7 @@ class MainWindow(QWidget):
             return
         elif n == 1:
             speaker_list[0].setPos(170, 50)
-            speaker_list()[0].cal_rel_pos()
+            speaker_list[0].cal_rel_pos()
         elif n == 2:
             speaker_list[0].setPos(100, 50)
             speaker_list[1].setPos(240, 50)

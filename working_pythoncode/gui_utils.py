@@ -201,3 +201,11 @@ class SpeakerProperty(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def cancel(self):
         self.close()
+
+    def clear(self):
+        self.path_line_edit.clear()
+        self.azimuth_line_edit.clear()
+        self.distance_line_edit.clear()
+        self.path = 'unknown'
+        self.posx = 0
+        self.posy = 0
