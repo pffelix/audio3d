@@ -10,7 +10,7 @@ import sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from gui_utils import *
-import algorithm_main as alg
+#import algorithm_main as alg
 import threading
 
 class MainWindow(QWidget):
@@ -62,7 +62,7 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def show_property(self):
 
-        from gui_utils import speaker_to_show
+        #from gui_utils import speaker_to_show
         i = speaker_to_show
         path = str(gui_dict[i][2])
         azimuth = str(gui_dict[i][0])
