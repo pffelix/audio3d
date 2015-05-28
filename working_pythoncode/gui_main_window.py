@@ -37,6 +37,7 @@ class MainWindow(QWidget):
         add_speaker_button = QPushButton('Add Speaker')
         reset_button = QPushButton('Reset')
         control_button = QPushButton('Play/Stop')
+        default_position_button = QPushButton('Default Position')
 
         # set layout
         layout = QVBoxLayout()
@@ -44,11 +45,13 @@ class MainWindow(QWidget):
         layout.addWidget(add_speaker_button)
         layout.addWidget(control_button)
         layout.addWidget(reset_button)
+        layout.addWidget(default_position_button)
 
         # connect signal and slots
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
         control_button.clicked.connect(self.control)
+        default_position_button.clicked.connect(self.positions)
 
         # set window
         self.setLayout(layout)
@@ -65,11 +68,16 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def add2scene(self):
-        new_speaker = Speaker(len(gui_dict), self.speaker_property.path)
-        speaker_list.append(new_speaker)
-        self.room.addItem(speaker_list[-1])
-        self.view.viewport().update()
-
+        if len(gui_dict) < 6:
+            new_speaker = Speaker(len(gui_dict), self.speaker_property.path)
+            speaker_list.append(new_speaker)
+            self.room.addItem(speaker_list[-1])
+            self.view.viewport().update()
+            self.speaker_property.added.disconnect()
+            self.speaker_property.close()
+        else:
+            return
+            
     @pyqtSlot()
     def reset(self):
 
@@ -86,13 +94,73 @@ class MainWindow(QWidget):
     def control(self):
         play = threading.Thread(target=alg.algo)
         play.start()
+    
+    def positions(self):
+        n = len(gui_dict)
+        if n == 0:
+            return
+        elif n == 1:
+            self.room.items()[0].setPos(170, 50)
+            self.room.items()[0].cal_rel_pos()
+        elif n == 2:
+            self.room.items()[0].setPos(100, 50)
+            self.room.items()[1].setPos(240, 50)
+            self.room.items()[0].cal_rel_pos()
+            self.room.items()[1].cal_rel_pos()
+        elif n == 3:
+            self.room.items()[0].setPos(170, 50)
+            self.room.items()[1].setPos(50, 20)
+            self.room.items()[2].setPos(290, 20)
+            self.room.items()[0].cal_rel_pos()
+            self.room.items()[1].cal_rel_pos()
+            self.room.items()[2].cal_rel_pos()
+        elif n == 4:
+            self.room.items()[0].setPos(50, 20)
+            self.room.items()[1].setPos(290, 20)
+            self.room.items()[2].setPos(290, 320)
+            self.room.items()[3].setPos(50, 320)
+            self.room.items()[0].cal_rel_pos()
+            self.room.items()[1].cal_rel_pos()
+            self.room.items()[2].cal_rel_pos()
+            self.room.items()[3].cal_rel_pos()
+        elif n == 5:
+            self.room.items()[0].setPos(50, 20)
+            self.room.items()[1].setPos(290, 20)
+            self.room.items()[2].setPos(290, 320)
+            self.room.items()[3].setPos(50, 320)
+            self.room.items()[4].setPos(170, 50)
+            self.room.items()[0].cal_rel_pos()
+            self.room.items()[1].cal_rel_pos()
+            self.room.items()[2].cal_rel_pos()
+            self.room.items()[3].cal_rel_pos()
+            self.room.items()[4].cal_rel_pos()
+        elif n == 6:
+            self.room.items()[0].setPos(50, 20)
+            self.room.items()[1].setPos(290, 20)
+            self.room.items()[2].setPos(290, 320)
+            self.room.items()[3].setPos(50, 320)
+            self.room.items()[4].setPos(170, 50)
+            self.room.items()[5].setPos(290, 170)
+            self.room.items()[0].cal_rel_pos()
+            self.room.items()[1].cal_rel_pos()
+            self.room.items()[2].cal_rel_pos()
+            self.room.items()[3].cal_rel_pos()
+            self.room.items()[4].cal_rel_pos() 
+            self.room.items()[5].cal_rel_pos() 
+        else:
+            return
         
+    def closeEvent (self, eventQCloseEvent):
+        self.room.clear()
+        eventQCloseEvent.accept()
+
+
 def main():
 
-    app = QApplication(sys.argv)
     w = MainWindow()
-    sys.exit(app.exec_())
+    return qApp.exec_()
 
 
 if __name__ == '__main__':
+    app = QApplication(sys.argv)
     main()

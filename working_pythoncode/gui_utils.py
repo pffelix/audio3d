@@ -148,7 +148,7 @@ class Audience(Item):
         self.setPos(170, 170)
         audience_pos = self.pos()
 
-class SpeakerProperty(QtGui.QWidget):
+class SpeakerProperty(QtGui.QDialog):
 
     added = QtCore.pyqtSignal()
 
@@ -163,6 +163,7 @@ class SpeakerProperty(QtGui.QWidget):
         # set buttons
         self.file_select_button = QtGui.QPushButton('Browse')
         self.path = 'unknown'
+        self.setModal(True)
         self.init_ui()
 
     def init_ui(self):
