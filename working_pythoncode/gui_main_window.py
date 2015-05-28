@@ -73,6 +73,8 @@ class MainWindow(QWidget):
             speaker_list.append(new_speaker)
             self.room.addItem(speaker_list[-1])
             self.view.viewport().update()
+            self.speaker_property.added.disconnect()
+            self.speaker_property.close()
         else:
             return
             
@@ -150,7 +152,6 @@ class MainWindow(QWidget):
         
     def closeEvent (self, eventQCloseEvent):
         self.room.clear()
-        self.speaker_property.close() # closes 'browse' with main window
         eventQCloseEvent.accept()
 
 
