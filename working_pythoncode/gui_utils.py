@@ -1,6 +1,4 @@
-
 from PyQt4 import QtCore, QtGui
-from gui_main_window import *
 
 gui_dict = {}
 audience_pos = QtCore.QPoint(170, 170)
