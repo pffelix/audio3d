@@ -10,7 +10,7 @@ class Item(QtGui.QGraphicsPixmapItem):
 
     def __init__(self):
 
-        image = self.origin_image.scaled(50, 50, QtCore.Qt.KeepAspectRatio)
+        image = self.origin_image.scaled(50, 50, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
         super(Item, self).__init__(QtGui.QPixmap.fromImage(image))
         self.setCursor(QtCore.Qt.OpenHandCursor)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
