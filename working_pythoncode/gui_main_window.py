@@ -62,7 +62,7 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def show_property(self):
 
-        #from gui_utils import speaker_to_show
+        from gui_utils import speaker_to_show
         i = speaker_to_show
         path = str(gui_dict[i][2])
         azimuth = str(gui_dict[i][0])

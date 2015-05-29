@@ -93,16 +93,13 @@ class SignalHandler(QtCore.QObject):
 
 
 class Speaker(Item):
-    global speaker_to_show
-    global gui_dict
-    global speaker_list
-    global audience_pos
     index = 0
     type = 'speaker'
     path = 'unknown'
 
     def __init__(self, index, path, posx=0,posy=0):
 
+        global speaker_list
         self.index = index
         image_path = './image/speaker'+str(index+1)+'.png'
         self.origin_image = QtGui.QImage(image_path)
@@ -114,7 +111,8 @@ class Speaker(Item):
         self.cal_rel_pos()
 
     def cal_rel_pos(self):
-
+        global gui_dict
+        global audience_pos
         dx = self.x() - audience_pos.x()
         dy = audience_pos.y() - self.y()
         dis = (dx**2+dy**2)**0.5
@@ -128,7 +126,7 @@ class Speaker(Item):
         print(gui_dict)
 
     def mouseDoubleClickEvent(self, event):
-
+        global speaker_to_show
         speaker_to_show = self.index
         self.signal_handler.show_property.emit()
 
