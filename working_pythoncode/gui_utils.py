@@ -163,6 +163,8 @@ class SpeakerProperty(QtGui.QWidget):
         self.path_line_edit = QtGui.QLineEdit()
         self.azimuth_line_edit = QtGui.QLineEdit()
         self.distance_line_edit = QtGui.QLineEdit()
+        self.azimuth_line_edit.setText('315.0')
+        self.distance_line_edit.setText('2.4')
 
         # set buttons
         self.file_select_button = QtGui.QPushButton('Browse')
