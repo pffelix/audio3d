@@ -76,6 +76,8 @@ class MainWindow(QWidget):
     def add_speaker(self):
 
         self.speaker_property.added.connect(self.add2scene)
+        self.speaker_property.azimuth_line_edit.setText('315.0')
+        self.speaker_property.distance_line_edit.setText('2.4')
         self.speaker_property.show()
 
     @pyqtSlot()
