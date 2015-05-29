@@ -94,7 +94,6 @@ class SignalHandler(QtCore.QObject):
 
 class Speaker(Item):
 
-    global speaker_to_show
     global gui_dict
     global speaker_list
     global audience_pos
@@ -130,9 +129,9 @@ class Speaker(Item):
 
     def mouseDoubleClickEvent(self, event):
 
+        global speaker_to_show
         speaker_to_show = self.index
         self.signal_handler.show_property.emit()
-
 
 class Audience(Item):
 
