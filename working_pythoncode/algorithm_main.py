@@ -24,13 +24,16 @@ wave_param_dict={0: [970200, 44100, 16],
                  2: [139263, 44100, 16]
                 } 
                 
-# Algorithm function get_fft_block mockup; signal_dict will be removed         
+# Algorithm function get_fft_block mockup; signal_dict will be removed     
+rate_dict={}
+sp_whole_dict={} #will contain whole title as numpy array
 signal_dict={} 
 sp_block_dict={}             
 _, signal_dict[0] = scipy.io.wavfile.read(gui_dict[0][2])              
 _, signal_dict[1] = scipy.io.wavfile.read(gui_dict[1][2]) 
-_, signal_dict[2] = scipy.io.wavfile.read(gui_dict[2][2])       
+_, signal_dict[2] = scipy.io.wavfile.read(gui_dict[2][2])     
 
+current_blockbegin = 0 
 
 #Initialize FFT iteration after GUI call
 
@@ -47,12 +50,12 @@ hrtf_blocksize = 128
 blockcounter = 0
 
 fft_blocksize, fft_blocktime, sp_blocksize, sp_blocktime, output_bps_real, overlap = alf.get_block_param(output_bps, wave_param_common, hrtf_blocksize)
-
+print (fft_blocktime, sp_blocksize, sp_blocktime, output_bps_real, overlap)
 
 # Initialize Dictionarys
 standard_dict=alf.create_standard_dict(gui_dict)
 
-wave_blockbeginend_dict = alf.initialze_wave_blockbeginend(standard_dict, sp_blocktime, wave_param_dict)
+wave_blockbeginend_dict = alf.initialize_wave_blockbeginend(standard_dict, sp_blocktime, wave_param_dict)
 
 hrtf_filenames_dict = deepcopy(standard_dict)
 
@@ -79,11 +82,18 @@ wave_blockbeginend_dict_list=deepcopy(standard_dict)
 for sp in wave_blockbeginend_dict_list:
     wave_blockbeginend_dict_list[sp] = []
 
+# (once get rate and data in independent dictionaries (avoid get_rate_and_data to be called every while-loop))
+rate_dict[sp], sp_dict[sp] = alf.get_rate_and_data(gui_dict[sp][2]) 
+
 # Run block iteration  
 while any(continue_output.values()) == True and blockcounter < 4000:
+
+    #calculate first and last sample for this iteration
+    current_blockbegin = blockcounter*897
     
     #increment number of already convolved blocks
     blockcounter+=1
+    print (blockcounter)
 
     # range of frames to be read in iteration from wav files (float numbers needed for adding the correct framesizes to the next iteration)               
     wave_blockbeginend_dict = alf.wave_blockbeginend(wave_blockbeginend_dict, wave_param_dict, sp_blocktime)
@@ -95,7 +105,7 @@ while any(continue_output.values()) == True and blockcounter < 4000:
     for sp in gui_dict:
         binaural_block_dict[sp]=np.zeros((fft_blocksize, 2))
         
-        # check wheter this block is last block in speaker audio file, set ending of the block to last sample in speaker audio file
+        # check whether this block is last block in speaker audio file, set ending of the block to last sample in speaker audio file
         if  alf.rnd(wave_blockbeginend_dict[sp][1]) > float(wave_param_dict[sp][0]-1):
             wave_blockbeginend_dict[sp][1] = float(wave_param_dict[sp][0])
         
@@ -110,15 +120,22 @@ while any(continue_output.values()) == True and blockcounter < 4000:
                 hrtf_block_dict[sp] = alf.get_hrtf(hrtf_filenames_dict[sp], gui_dict[sp])
                 # save head position to speaker of this block in prior_head_angle dict
                 prior_head_angle_dict[sp] = gui_dict[sp][0]
-'''replace here'''
+# insert here
+            #put block of current iteration blockwise in sp_block_dict
+            sample=0
+            while sample < 897:
+                sp_block_dict[sp][sample] = sp_whole_dict[sp][current_blockbegin+sample]
+                sample += sample
+            
+
             # Load current wave block of speaker sp with speaker_blocksize (fft_blocksize-hrtf_blocksize+1)
             sp_block_dict[sp], error_list[sp] = alf.get_sp_block_dict(signal_dict[sp], wave_blockbeginend_dict[sp], sp_blocksize, error_list[sp])
             # for the left an right ear channel
             for l_r in range(2):
                 # convolve hrtf with speaker block input
                 binaural_block_dict[sp][0:fft_blocksize, l_r] = alf.fft_convolve(sp_block_dict[sp], hrtf_block_dict[sp][:,l_r], fft_blocksize)
-                # apply hamming window to binaural block ouptut
-                #binaural_block_dict[sp][:, l_r]= alf.apply_hamming_window(binaural_block_dict[sp][:, l_r])
+            # apply hamming window to binaural block ouptut
+            #binaural_block_dict[sp][:, l_r]= alf.apply_hamming_window(binaural_block_dict[sp][:, l_r])
                
         # add speaker binaural block output to a iterative time based output array       
         binaural_dict[sp], outputsignal_sample_number[sp]=alf.add_to_binaural_dict(binaural_block_dict[sp], binaural_dict[sp], int(alf.rnd(wave_blockbeginend_dict[sp][0])), outputsignal_sample_number[sp])

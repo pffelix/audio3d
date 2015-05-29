@@ -4,6 +4,8 @@ Created on Fri May 22 16:25:01 2015
 
 @author: Felix Pfreundtner
 """
+
+from __future__ import division, print_function, absolute_import
 import math
 from copy import deepcopy
 
@@ -12,6 +14,9 @@ import scipy
 from scipy.fftpack import rfft, irfft, fft, ifft
 from scipy.signal import fftconvolve
 import scipy.io.wavfile
+import sys
+import struct
+import warnings
 
 
 
@@ -51,7 +56,7 @@ def get_block_param(output_bps, wave_param_common, hrtf_blocksize):
     return fft_blocksize, fft_blocktime, sp_blocksize, sp_blocktime, output_bps_real, overlap
 
 # @author: Felix Pfreundtner
-def initialze_wave_blockbeginend(standard_dict, sp_blocktime, wave_param_dict):
+def initialize_wave_blockbeginend(standard_dict, sp_blocktime, wave_param_dict):
     wave_blockbeginend_dict=deepcopy(standard_dict) 
     for sp in wave_blockbeginend_dict:
         wave_blockbeginend_dict[sp]=[-(sp_blocktime*wave_param_dict[sp][1]),0]
@@ -218,7 +223,7 @@ def _read_fmt_chunk(fid):
     return size, comp, noc, rate, sbytes, ba, bits
 
 
-#Preparing get_data_and_rate 3:
+#Preparing get_rate_and_data #3:
 def _skip_unknown_chunk(fid):
     if _big_endian:
         fmt = '>i'
@@ -229,7 +234,7 @@ def _skip_unknown_chunk(fid):
     size = struct.unpack(fmt, data)[0]
     fid.seek(size, 1)
 
-#Preparing get_data_and_rate #4:
+#Preparing get_rate_and_data #4:
 def _read_riff_chunk(fid):
     global _big_endian
     str1 = fid.read(4)
