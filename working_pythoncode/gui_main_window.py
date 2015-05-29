@@ -62,7 +62,7 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def show_property(self):
 
-        #from gui_utils import speaker_to_show
+        from gui_utils import speaker_to_show
         i = speaker_to_show
         path = str(gui_dict[i][2])
         azimuth = str(gui_dict[i][0])
@@ -71,6 +71,15 @@ class MainWindow(QWidget):
         self.speaker_property.azimuth_line_edit.setText(azimuth)
         self.speaker_property.distance_line_edit.setText(dist)
         self.speaker_property.show()
+        self.speaker_property.added.connect(self.change_property)
+        
+    def change_property(self):
+        from gui_utils import speaker_to_show
+        i = speaker_to_show
+        x_new = self.speaker_property.posx
+        y_new = self.speaker_property.posy
+        speaker_list[i].setPos(x_new, y_new)
+        speaker_list[i].cal_rel_pos()
 
     @pyqtSlot()
     def add_speaker(self):
