@@ -208,9 +208,12 @@ class SpeakerProperty(QtGui.QWidget):
         y0 = audience_pos.y()
         azimuth = float(self.azimuth_line_edit.text())
         dist = 100*float(self.distance_line_edit.text())
-        if azimuth < 360 and dist < 300.0:
-            self.posx = x0 + dist*sin(radians(azimuth))
-            self.posy = y0 - dist*cos(radians(azimuth))
+        #if azimuth < 360 and dist < 300.0:
+        self.posx = x0 + dist*sin(radians(azimuth))
+        self.posy = y0 - dist*cos(radians(azimuth))
+        print(self.posx)
+        print(self.posy)
+        if self.posx > -40 and self.posx < 400 and self.posy > -40 and self.posy < 400:
             self.added.emit()
             self.close()
         else:
