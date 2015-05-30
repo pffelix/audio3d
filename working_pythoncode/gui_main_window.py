@@ -80,6 +80,9 @@ class MainWindow(QWidget):
         y_new = self.speaker_property.posy
         speaker_list[i].setPos(x_new, y_new)
         speaker_list[i].cal_rel_pos()
+        
+        self.speaker_property.added.disconnect()
+        self.speaker_property.clear()
 
     @pyqtSlot()
     def add_speaker(self):
