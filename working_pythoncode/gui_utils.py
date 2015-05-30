@@ -93,6 +93,7 @@ class SignalHandler(QtCore.QObject):
 
 
 class Speaker(Item):
+
     index = 0
     type = 'speaker'
     path = 'unknown'
@@ -207,10 +208,16 @@ class SpeakerProperty(QtGui.QWidget):
         y0 = audience_pos.y()
         azimuth = float(self.azimuth_line_edit.text())
         dist = 100*float(self.distance_line_edit.text())
-        self.posx = x0 + dist*sin(radians(azimuth))
-        self.posy = y0 - dist*cos(radians(azimuth))
-        self.added.emit()
-        self.close()
+        if azimuth < 360 and dist < 300.0:
+            self.posx = x0 + dist*sin(radians(azimuth))
+            self.posy = y0 - dist*cos(radians(azimuth))
+            self.added.emit()
+            self.close()
+        else:
+            QtGui.QMessageBox.question(self, 'Message',
+                     'A value is out of range! Try again.', QtGui.QMessageBox.Ok)
+        #self.added.emit()
+        #self.close()
 
     @QtCore.pyqtSlot()
     def cancel(self):
