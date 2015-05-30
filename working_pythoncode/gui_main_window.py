@@ -28,6 +28,7 @@ class MainWindow(QWidget):
         self.view = View(self.room)
         # set property window
         self.speaker_property = SpeakerProperty()
+        self.speaker_property.closed.connect(self.property_closed)
 
         self.init_ui()
 
@@ -74,6 +75,7 @@ class MainWindow(QWidget):
         self.speaker_property.added.connect(self.change_property)
         
     def change_property(self):
+
         from gui_utils import speaker_to_show
         i = speaker_to_show
         x_new = self.speaker_property.posx
@@ -81,6 +83,8 @@ class MainWindow(QWidget):
         speaker_list[i].setPos(x_new, y_new)
         speaker_list[i].cal_rel_pos()
         
+    def property_closed(self):
+
         self.speaker_property.added.disconnect()
         self.speaker_property.clear()
 
@@ -109,9 +113,9 @@ class MainWindow(QWidget):
             self.room.addItem(speaker_list[-1])
             self.view.viewport().update()
 
-            # clean up
-            self.speaker_property.added.disconnect()
-            self.speaker_property.clear()
+            # # clean up
+            # self.speaker_property.added.disconnect()
+            # self.speaker_property.clear()
         else:
             return
             

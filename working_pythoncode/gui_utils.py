@@ -147,6 +147,7 @@ class Audience(Item):
 class SpeakerProperty(QtGui.QWidget):
 
     added = QtCore.pyqtSignal()
+    closed = QtCore.pyqtSignal()
     posx = 0
     posy = 0
 
@@ -233,3 +234,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.path = 'unknown'
         self.posx = 0
         self.posy = 0
+
+    def closeEvent(self, QCloseEvent):
+        self.closed.emit()
+
