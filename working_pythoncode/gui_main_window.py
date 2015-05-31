@@ -26,6 +26,10 @@ class MainWindow(QWidget):
         self.room.addItem(self.audience)
         # set view
         self.view = View(self.room)
+        self.view.setFixedSize(400,400)
+        self.view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
         # set property window
         self.speaker_property = SpeakerProperty()
         self.speaker_property.closed.connect(self.property_closed)
@@ -56,7 +60,6 @@ class MainWindow(QWidget):
 
         # set window
         self.setLayout(layout)
-        self.setFixedSize(500, 600)
         self.setWindowTitle('3D Audio')
         self.show()
 

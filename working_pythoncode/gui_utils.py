@@ -142,7 +142,7 @@ class Audience(Item):
 
         super(Audience, self).__init__()
         self.setPos(170, 170)
-        audience_pos = self.pos()
+        audience_pos = self.scenePos()
 
 class SpeakerProperty(QtGui.QWidget):
 
