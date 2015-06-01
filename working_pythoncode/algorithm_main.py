@@ -18,23 +18,18 @@ gui_dict={0: [0,1,"./audio/electrical_guitar_(44.1,16).wav"],
           1: [0,1,"./audio/sine_1kHz_(44.1,16).wav"],
           2: [0,1, "./audio/synthesizer_(44.1,16).wav"]
          }
-# Algorithm function get_wave_param mockup         
-wave_param_dict={0: [970200, 44100, 16],
-                 1: [220500, 44100, 16],
-                 2: [139263, 44100, 16]
-                } 
+
+#Initialize variables and dictionarys after GUI call
                 
-# Algorithm function get_fft_block mockup; signal_dict will be removed         
-signal_dict={} 
-sp_block_dict={}             
-_, signal_dict[0] = scipy.io.wavfile.read(gui_dict[0][2])              
-_, signal_dict[1] = scipy.io.wavfile.read(gui_dict[1][2]) 
-_, signal_dict[2] = scipy.io.wavfile.read(gui_dict[2][2])       
-
-
-#Initialize FFT iteration after GUI call
-
-[fs3,aaa]=scipy.io.wavfile.read(gui_dict[2][2])
+wave_param_dict={}                
+sp_block_dict={}     
+ 
+# Read in whole Wave File of Speaker sp into signal_dict[sp] and write Wave Parameter samplenumber, samplefrequency and bitdepth (Standard 16bit) into wave_param_dict[sp]
+signal_dict={}    
+for sp in gui_dict:       
+    samplerate_sp, signal_dict[sp] = scipy.io.wavfile.read(gui_dict[sp][2])              
+    wave_param_dict[sp]=[]
+    wave_param_dict[sp].extend([len(signal_dict[sp]), samplerate_sp, 16])
 
 #Standard samplerate, sampledepth, output_frames_per_second         
 wave_param_common = [44100,16]  
@@ -65,6 +60,7 @@ binaural_dict=deepcopy(standard_dict)
 for sp in binaural_dict:
     binaural_dict[sp] = np.zeros((fft_blocksize, 2))
     
+ 
 continue_output=deepcopy(standard_dict)
 for sp in continue_output:
     continue_output[sp] = True
@@ -79,8 +75,10 @@ wave_blockbeginend_dict_list=deepcopy(standard_dict)
 for sp in wave_blockbeginend_dict_list:
     wave_blockbeginend_dict_list[sp] = []
 
-# Run block iteration  
-while any(continue_output.values()) == True and blockcounter < 4000:
+
+
+# Run convolution block by block iteration  
+while any(continue_output.values()) == True :
     
     #increment number of already convolved blocks
     blockcounter+=1
@@ -110,7 +108,6 @@ while any(continue_output.values()) == True and blockcounter < 4000:
                 hrtf_block_dict[sp] = alf.get_hrtf(hrtf_filenames_dict[sp], gui_dict[sp])
                 # save head position to speaker of this block in prior_head_angle dict
                 prior_head_angle_dict[sp] = gui_dict[sp][0]
-'''replace here'''
             # Load current wave block of speaker sp with speaker_blocksize (fft_blocksize-hrtf_blocksize+1)
             sp_block_dict[sp], error_list[sp] = alf.get_sp_block_dict(signal_dict[sp], wave_blockbeginend_dict[sp], sp_blocksize, error_list[sp])
             # for the left an right ear channel
@@ -131,8 +128,8 @@ while any(continue_output.values()) == True and blockcounter < 4000:
         continue_output_list[sp].append(continue_output[sp])
         wave_blockbeginend_dict_list[sp].extend(wave_blockbeginend_dict[sp])
         
-        # model head position change to speaker for speaker sp
-        gui_dict[sp][0]+=0.8
+        # model speaker position change about 1° per block (0.02s) in clockwise rotation 
+        gui_dict[sp][0]+=1
         if gui_dict[sp][0] >= 360:
             gui_dict[sp][0] -= 360
 
