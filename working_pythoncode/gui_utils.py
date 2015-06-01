@@ -7,7 +7,6 @@ speaker_to_show = 0
 
 class Item(QtGui.QGraphicsPixmapItem):
 
-
     def __init__(self):
 
         image = self.origin_image.scaled(50, 50, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
@@ -57,6 +56,17 @@ class Room(QtGui.QGraphicsScene):
         global speaker_list
         try:
             self.current_item.setPos(e.scenePos())
+            x = self.current_item.scenePos().x()
+            y = self.current_item.scenePos().y()
+            if x > 350:
+                self.current_item.setPos(350,y)
+            elif x < 0:
+                self.current_item.setPos(0, y)
+            elif y < 0:
+                self.current_item.setPos(x, 0)
+            elif y > 350:
+                self.current_item.setPos(x, 350)
+
             if self.current_item.type == 'audience':
                 audience_pos = e.scenePos()
 
@@ -81,6 +91,13 @@ class View(QtGui.QGraphicsView):
     def dragMoveEvent(self, e):
         e.acceptProposedAction()
         QtGui.QGraphicsView.dragMoveEvent(self, e)
+
+    # this will disable scrolling of the view
+    def wheelEvent(self, QWheelEvent):
+        pass
+
+    def keyPressEvent(self, QKeyEvent):
+        pass
 
 # Signal handler for QGraphicsItem which doesn't provide the signal/slot function
 class SignalHandler(QtCore.QObject):
