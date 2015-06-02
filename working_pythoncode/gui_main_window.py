@@ -191,7 +191,6 @@ class MainWindow(QWidget):
             speaker_list[3].cal_rel_pos()
             speaker_list[4].cal_rel_pos() 
             speaker_list[5].cal_rel_pos() 
-
         else:
             return
         
