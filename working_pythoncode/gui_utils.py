@@ -5,6 +5,17 @@ audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
 speaker_to_show = 0
 
+class Headtracker(object):
+
+    def __init__(self):
+        self.head_deg = 0
+
+    def cal_head_deg(self):
+        pass
+
+    def get_head_deg(self):
+        return self.head_deg
+
 class Item(QtGui.QGraphicsPixmapItem):
 
     def __init__(self):
@@ -139,6 +150,10 @@ class Speaker(Item):
         deg = degrees(acos(dy/dis))
         if dx < 0:
             deg = 360 - deg
+
+        head_tracker = Headtracker()
+        head_tracker.cal_head_deg()
+        deg = deg + head_tracker.get_head_deg()
 
         gui_dict[self.index] = [deg, dis/100, self.path]
         # print(gui_dict)
