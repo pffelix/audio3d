@@ -153,8 +153,10 @@ class Speaker(Item):
 
         head_tracker = Headtracker()
         head_tracker.cal_head_deg()
-        deg = deg + head_tracker.get_head_deg()
+        deg += head_tracker.get_head_deg()
 
+        if deg >= 360:
+            deg %= 360
         gui_dict[self.index] = [deg, dis/100, self.path]
         # print(gui_dict)
 
