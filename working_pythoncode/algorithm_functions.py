@@ -186,5 +186,5 @@ def get_samplerate_bits_nochannels(filename):
     samplerate = struct.unpack(fmt+"I", file.read(4))[0]
     file.seek(34)
     bits = struct.unpack(fmt+"H", file.read(2))[0]
-  
+    file.close()
     return samplerate, bits, nochannels
