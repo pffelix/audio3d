@@ -12,19 +12,22 @@ import numpy as np
 import scipy.io.wavfile
 import matplotlib.pyplot as plt
 import gui_main_window as gui
+import pyaudio
 
-# # GUI mockup
-# gui_dict={0: [0,1,"./audio/electrical_guitar_(44.1,16).wav"],
-#           1: [0,1,"./audio/sine_1kHz_(44.1,16).wav"],
-#           2: [0,1, "./audio/synthesizer_(44.1,16).wav"]
-#          }
+# GUI mockup
+gui_dict_mockup={0: [0,1,"./audio/electrical_guitar_(44.1,16).wav"],
+                 1: [0,1,"./audio/sine_1kHz_(44.1,16).wav"],
+                 2: [0,1, "./audio/synthesizer_(44.1,16).wav"]
+                }
+
 def algo():
     #Initialize variables and dictionarys after GUI call
-    gui_dict = gui.gui_dict
-    print('working!')
+    try:
+        gui_dict=gui_dict_mockup
+    except:
+        gui_dict = gui.gui_dict
     wave_param_dict={}
     sp_block_dict={}
-
     # Read in whole Wave File of Speaker sp into signal_dict[sp] and write Wave Parameter samplenumber, samplefrequency and bitdepth (Standard 16bit) into wave_param_dict[sp]
     signal_dict={}
     for sp in gui_dict:
@@ -79,7 +82,7 @@ def algo():
 
 
     # Run convolution block by block iteration
-    while any(continue_output.values()) == True :
+    while any(continue_output.values()) == True and blockcounter < 5:
 
         # gui_dict = gui.gui_dict
         print(blockcounter)
@@ -144,3 +147,6 @@ def algo():
     # plt.plot(binaural_dict[1])
     # Write generated output signal binaural_dict_scaled to file
     alf.writebinauraloutput(binaural_dict_scaled, wave_param_common, gui_dict)
+    print()
+
+algo()
