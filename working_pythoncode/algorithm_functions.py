@@ -9,11 +9,12 @@ from copy import deepcopy
 
 import numpy as np
 import scipy
-from scipy.fftpack import rfft, irfft, fft, ifft
-from scipy.signal import fftconvolve
+from scipy.fftpack import fft, ifft
 import scipy.io.wavfile
 import struct
-
+import pyaudio
+import wave
+import time
 
 # @author: Felix Pfreundtner
 def create_standard_dict(gui_dict):
@@ -188,3 +189,33 @@ def get_samplerate_bits_nochannels(filename):
     bits = struct.unpack(fmt+"H", file.read(2))[0]
     file.close()
     return samplerate, bits, nochannels
+
+
+    
+def audiocallback(in_data, frame_count, time_info, flag):
+    if flag:
+        print("Playback Error: %i" % flag)
+    if frame_count>1:
+        nextiteration = pyaudio.paContinue 
+    else:
+        nextiteration = pyaudio.paComplete 
+    return data[0:1024], nextiteration
+    
+def startaudio(channels, samplerate,fft_blocksize):    
+    pa = pyaudio.PyAudio()
+    audiostream = pa.open(format = pyaudio.paInt16, 
+                 channels = channels,
+                 rate  = samplerate,
+                 output = True,
+                 frames_per_buffer = fft_blocksize,
+                 stream_callback = audiocallback)
+    
+    audiostream.start_stream()
+    while audiostream.is_active():
+        time.sleep(0.1)
+    audiostream.stop_stream()
+    audiostream.close()
+    pa.terminate()
+
+    
+

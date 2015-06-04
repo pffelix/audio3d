@@ -12,6 +12,8 @@ import numpy as np
 import scipy.io.wavfile
 import matplotlib.pyplot as plt
 import gui_main_window as gui
+import threading
+
 #import pyaudio
 
 # GUI mockup
@@ -82,10 +84,16 @@ def algo():
     for sp in wave_blockbeginend_dict_list:
         wave_blockbeginend_dict_list[sp] = []
 
-
-
+    # start play buffer
+    #play_output=deepcopy(standard_dict)
+    #for sp in play_output:
+    #    play_output[sp] = False
+    #audioutput = threading.Thread(target=alf.startaudio(wave_param_dict[3][0], wave_param_dict[1][0], fft_blocksize))
+    #audioutput.start()
+    
+    
     # Run convolution block by block iteration
-    while any(continue_output.values()) == True and blockcounter < 5:
+    while any(continue_output.values()) == True:
 
         # gui_dict = gui.gui_dict
         print(blockcounter)
@@ -126,10 +134,12 @@ def algo():
                     binaural_block_dict[sp][0:fft_blocksize, l_r] = alf.fft_convolve(sp_block_dict[sp], hrtf_block_dict[sp][:,l_r], fft_blocksize)
                     # apply hamming window to binaural block ouptut
                     #binaural_block_dict[sp][:, l_r]= alf.apply_hamming_window(binaural_block_dict[sp][:, l_r])
+            
 
+            
             # add speaker binaural block output to a iterative time based output array
             binaural_dict[sp], outputsignal_sample_number[sp]=alf.add_to_binaural_dict(binaural_block_dict[sp], binaural_dict[sp], int(alf.rnd(wave_blockbeginend_dict[sp][0])), outputsignal_sample_number[sp])
-
+            
             # check wheter this block is last block in speaker audio file and stop convolution of speaker audio file
             if wave_blockbeginend_dict[sp][1] == float(wave_param_dict[sp][0]):
                 continue_output[sp] = False
