@@ -12,7 +12,7 @@ import numpy as np
 import scipy.io.wavfile
 import matplotlib.pyplot as plt
 import gui_main_window as gui
-import pyaudio
+#import pyaudio
 
 # GUI mockup
 gui_dict_mockup={0: [0,1,"./audio/electrical_guitar_(44.1,16).wav"],
@@ -34,6 +34,9 @@ def algo():
         samplerate_sp, signal_dict[sp] = scipy.io.wavfile.read(gui_dict[sp][2])
         wave_param_dict[sp]=[]
         wave_param_dict[sp].extend([len(signal_dict[sp]), samplerate_sp, 16])
+    #get samplerate from header in .wav-file of all speakers    
+    for sp in gui_dict:
+        wave_param_dict[sp][1] = alf.get_samplerate(gui_dict[sp][2])
 
     #Standard samplerate, sampledepth, output_frames_per_second
     wave_param_common = [44100,16]

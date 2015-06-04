@@ -12,7 +12,7 @@ import scipy
 from scipy.fftpack import rfft, irfft, fft, ifft
 from scipy.signal import fftconvolve
 import scipy.io.wavfile
-
+import struct
 
 
 # @author: Felix Pfreundtner
@@ -167,4 +167,24 @@ def add_to_binaural_dict(binaural_block_dict, binaural_dict, begin_block, output
 def writebinauraloutput(binaural_dict_scaled, wave_param_common, gui_dict):
     for sp in binaural_dict_scaled:
         scipy.io.wavfile.write(gui_dict[sp][2] + "binauraloutput.wav" , wave_param_common[0], binaural_dict_scaled[sp])    
+        
+
+# @author: Matthias Lederle        
+def get_samplerate(filename):
+    file = open(filename, 'rb')
+    _big_endian = False
+    # check whether file is RIFX or RIFF
+    str1 = file.read(4)
+    if str1 == b'RIFX':
+        _big_endian = True
+    elif str1 != b'RIFF':
+        raise ValueError("Not a WAV file.")
+    if _big_endian:
+        fmt = '>'
+    else:
+        fmt = '<'
+    file.seek(24)
+    rate = struct.unpack(fmt+"I", file.read(4))[0]
+    
+    return rate
 
