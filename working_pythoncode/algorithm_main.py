@@ -17,7 +17,7 @@ import gui_main_window as gui
 # GUI mockup
 gui_dict_mockup={0: [0,1,"./audio/electrical_guitar_(44.1,16).wav"],
                  1: [0,1,"./audio/sine_1kHz_(44.1,16).wav"],
-                 2: [0,1, "./audio/synthesizer_(44.1,16).wav"]
+                 2: [0,1,"./audio/synthesizer_(44.1,16).wav"]
                 }
 
 def algo():
@@ -33,11 +33,11 @@ def algo():
     for sp in gui_dict:
         samplerate_sp, signal_dict[sp] = scipy.io.wavfile.read(gui_dict[sp][2])
         wave_param_dict[sp]=[]
-        wave_param_dict[sp].extend([len(signal_dict[sp]), samplerate_sp, 16])
+        wave_param_dict[sp].extend([len(signal_dict[sp]), samplerate_sp, 16, 1])
     #get samplerate from header in .wav-file of all speakers    
     for sp in gui_dict:
-        wave_param_dict[sp][1] = alf.get_samplerate(gui_dict[sp][2])
-
+        wave_param_dict[sp][1], wave_param_dict[sp][2], wave_param_dict[sp][3]  = alf.get_samplerate_bits_nochannels(gui_dict[sp][2])
+      
     #Standard samplerate, sampledepth, output_frames_per_second
     wave_param_common = [44100,16]
     # Determine number of output blocks per second

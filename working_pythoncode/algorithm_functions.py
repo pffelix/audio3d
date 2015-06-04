@@ -170,21 +170,21 @@ def writebinauraloutput(binaural_dict_scaled, wave_param_common, gui_dict):
         
 
 # @author: Matthias Lederle        
-def get_samplerate(filename):
+def get_samplerate_bits_nochannels(filename):
     file = open(filename, 'rb')
     _big_endian = False
-    # check whether file is RIFX or RIFF
+# check whether file is RIFX or RIFF
     str1 = file.read(4)
     if str1 == b'RIFX':
         _big_endian = True
-    elif str1 != b'RIFF':
-        raise ValueError("Not a WAV file.")
     if _big_endian:
         fmt = '>'
     else:
         fmt = '<'
-    file.seek(24)
-    rate = struct.unpack(fmt+"I", file.read(4))[0]
-    
-    return rate
-
+    file.seek(22)
+    nochannels = struct.unpack(fmt+"H", file.read(2))[0]
+    samplerate = struct.unpack(fmt+"I", file.read(4))[0]
+    file.seek(34)
+    bits = struct.unpack(fmt+"H", file.read(2))[0]
+  
+    return samplerate, bits, nochannels
