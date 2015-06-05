@@ -10,7 +10,7 @@ import sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from gui_utils import *
-import algorithm_main as alg
+from dsp import Dsp
 import threading
 
 class MainWindow(QWidget):
@@ -136,8 +136,10 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def control(self):
-        play = threading.Thread(target=alg.algo)
+        dsp_Object = Dsp(gui_dict)
+        play = threading.Thread(target=dsp_Object.run())
         play.start()
+        print()
 
     def positions(self):
         n = len(gui_dict)
