@@ -1,0 +1,29 @@
+Windows Python 3.4:
+
+offizieller PYAudio Windwos Installer funktioniert nicht für Python 3.4
+-> unoffizieller installer jedoch schon
+
+hier herunterladen:
+http://www.lfd.uci.edu/~gohlke/pythonlibs/
+
+entweder 32bit oder 64bit Python Version auswählen je nach Python Konsole (bit version steht in Spiderfenster beim start der ipython konsole):
+PyAudio-0.2.8-cp34-none-win32.whl
+PyAudio-0.2.8-cp34-none-win_amd64.whl
+
+Installation über Startmenü/Anaconda/Commandpropt <- als Adminstrator ausführen (Rechtsklick Run as Admin)
+in Konsole mit cd auf Verzeichnis der herunterladenen whl datei wechseln. Dann ausführen:
+python -m pip install PyAudio-0.2.8-cp34-none-win32.whl
+oder 
+python -m pip install PyAudio-0.2.8-cp34-none-win_amd64.whl
+
+
+
+Linux:
+
+offizieller PYAudio Linux Installer funktioniert vermutlich:
+
+lässt sich hier herunterladen:
+https://people.csail.mit.edu/hubert/pyaudio/
+
+apt-get install python3-pyaudio
+
