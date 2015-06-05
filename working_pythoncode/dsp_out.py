@@ -12,6 +12,7 @@ import pyaudio
 import time
 import math
 import ntpath
+import os
 
 class DspOut:
     def __init__(self, gui_dict_init, fft_blocksize):
@@ -75,6 +76,8 @@ class DspOut:
 
     # @author: Felix Pfreundtner
     def writebinauraloutput(self, binaural_dict_scaled, wave_param_common, gui_dict):
+        if not os.path.exists("./audio_out/"):
+            os.makedirs("./audio_out/")
         for sp in binaural_dict_scaled:
             scipy.io.wavfile.write("./audio_out/binaural" + ntpath.basename(gui_dict[sp][2]), wave_param_common[0], binaural_dict_scaled[sp])
 
