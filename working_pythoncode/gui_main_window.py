@@ -137,7 +137,7 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def control(self):
         dsp_Object = Dsp(gui_dict)
-        play = threading.Thread(target=dsp_Object.run())
+        play = threading.Thread(target=dsp_Object.run)
         play.start()
         print()
 
