@@ -17,8 +17,13 @@ import os
 class DspOut:
     def __init__(self, gui_dict_init, fft_blocksize):
         self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize, 2)))
+        self.binaural_block = np.zeros((fft_blocksize, 2), dtype=np.int16)
         self.binaural_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize, 2)))
-
+        self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
+        self.testoutput = np.ones((fft_blocksize, 2), dtype=np.int16)*30000
+        self.played_frames_end = 0
+        self.continue_convolution_list = dict.fromkeys(gui_dict_init, [])
+        self.continue_convolution_dict = dict.fromkeys(gui_dict_init, True)
 
 
     # @author: Felix Pfreundtner
@@ -58,19 +63,18 @@ class DspOut:
         for sp in binaural_dict:
             binaural_dict_scaled[sp] = np.zeros((len(binaural_dict[sp]), 2), dtype=np.int16)
             for l_r in range(2):
-                maximum_value=np.max(np.abs(binaural_dict[sp][:, l_r]))
+                maximum_value=np.amax(np.abs(binaural_dict[sp][:, l_r]))
                 if maximum_value != 0:
-                    binaural_dict_scaled[sp][:, l_r] = binaural_dict[sp][:, l_r]/maximum_value * 32767
+                    binaural_dict_scaled[sp][:, l_r] = binaural_dict[sp][:, l_r]/maximum_value*32767
                     binaural_dict_scaled[sp] = binaural_dict_scaled[sp].astype(np.int16, copy=False)
 
         return binaural_dict_scaled
 
     # @author: Felix Pfreundtner
-    def add_to_binaural_dict(self, binaural_block_dict, binaural_dict, begin_block, outputsignal_sample_number):
-        outputsignal_sample_number= len(binaural_dict)
+    def add_to_binaural_dict(self, binaural_block_dict, binaural_dict, begin_block):
+        outputsignal_sample_number = len(binaural_dict)
         binaural_dict[begin_block : outputsignal_sample_number, :] += binaural_block_dict[0 : (outputsignal_sample_number - begin_block), :]
         binaural_dict=np.concatenate((binaural_dict, binaural_block_dict[(outputsignal_sample_number - begin_block):, :]))
-        outputsignal_sample_number= len(binaural_dict)
 
         return binaural_dict, outputsignal_sample_number
 
@@ -81,33 +85,67 @@ class DspOut:
         for sp in binaural_dict_scaled:
             scipy.io.wavfile.write("./audio_out/binaural" + ntpath.basename(gui_dict[sp][2]), wave_param_common[0], binaural_dict_scaled[sp])
 
+    def sp_gain_factor(self, distance_sp, total_number_of_sp):
+        sp_gain_factor = 1 / total_number_of_sp
+        return sp_gain_factor
 
     # @author: Felix Pfreundtner
-    def audiocallback(in_data, frame_count, time_info, flag):
-        if flag:
-            print("Playback Error: %i" % flag)
-        if frame_count>1:
-            nextiteration = pyaudio.paContinue
-        else:
-            nextiteration = pyaudio.paComplete
-        return binaural_block_dict, nextiteration
+    def mix_binaural_block(self, binaural_block_dict, binaural_block, gui_dict):
+        binaural_block = np.zeros((len(binaural_block), 2), dtype=np.int16)
+        for sp in binaural_block_dict:
+                    # normalize sp block to have the same maximum amplitude as every other sp and attend distance related gain factor to the sp
+                    maximum_value_sp=np.amax(np.abs(binaural_block_dict[sp]))
+                    if maximum_value_sp != 0:
+                        binaural_block_dict[sp] = binaural_block_dict[sp]/maximum_value_sp*32767*self.sp_gain_factor(gui_dict[sp][1], len(gui_dict))
+                        # print (np.amax(np.abs(binaural_block_dict[sp])))
+                        binaural_block_dict[sp] = binaural_block_dict[sp].astype(np.int16, copy=False)
+                        # add sp block output to a common block output
+                        binaural_block += binaural_block_dict[sp]
+        # normalize common sp block output
+        maximum_value=np.amax(np.abs(binaural_block))
+        if maximum_value != 0:
+            binaural_block = binaural_block / maximum_value * 32767
+            binaural_block = binaural_block.astype(np.int16, copy=False)
+            # print (np.amax(np.abs(binaural_block)))
+        return binaural_block
 
     # @author: Felix Pfreundtner
-    def startaudio(self, channels, samplerate,fft_blocksize):
+    def add_to_binaural(self, binaural_block, binaural, begin_block):
+        outputsignal_sample_number = len(binaural)
+        binaural[begin_block : outputsignal_sample_number, :] += binaural_block[0 : (outputsignal_sample_number - begin_block), :]
+        binaural=np.concatenate((binaural, binaural_block[(outputsignal_sample_number - begin_block):, :]))
+        return binaural
+
+    # @author: Felix Pfreundtner
+    def callback(self, in_data, frame_count, time_info, status):
+        if status:
+            print("Playback Error: %i" % status)
+        played_frames_begin = self.played_frames_end
+        self.played_frames_end += frame_count
+        print("Played Block: " + str(int(played_frames_begin/frame_count)))
+        data = self.binaural[played_frames_begin:self.played_frames_end, :]
+        print ("call" + str(self.played_frames_end))
+        return data, pyaudio.paContinue
+
+    # @author: Felix Pfreundtner
+    def audiooutput(self, channels, samplerate, sp_blocksize):
         pa = pyaudio.PyAudio()
         audiostream = pa.open(format = pyaudio.paInt16,
                      channels = channels,
                      rate  = samplerate,
                      output = True,
-                     frames_per_buffer = fft_blocksize,
-                     stream_callback = audiocallback)
+                     frames_per_buffer = sp_blocksize,
+                     stream_callback = self.callback)
 
         audiostream.start_stream()
         while audiostream.is_active():
-            time.sleep(0.1)
+            time.sleep(sp_blocksize/samplerate)
         audiostream.stop_stream()
         audiostream.close()
         pa.terminate()
-
-
-
+        if any(self.continue_convolution_dict.values()) == True:
+            print("Error PC to slow - Playback Stopped")
+            for sp in self.continue_convolution_dict:
+                #self.played_frames_end += sp_blocksize
+                self.continue_convolution_dict[sp] = False
+        # return continue_convolution_dict
