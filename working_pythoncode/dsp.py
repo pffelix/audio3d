@@ -41,9 +41,9 @@ class Dsp:
         # global gui_dict
         # Run convolution block by block iteration
 
-        while any(self.DspOut_Object.continue_convolution_dict.values()) == True and self.blockcounter < 400:
+        while any(self.DspOut_Object.continue_convolution_dict.values()) == True :
 
-            #self.gui_dict = gui_utils.gui_dict
+            self.gui_dict = gui_utils.gui_dict
             print("FFT Block " + str(self.blockcounter) + ":")
             for i, sp in enumerate(self.gui_dict):
                 print("sp" + str(sp) + ": " + str(self.gui_dict[sp][0]))
@@ -121,8 +121,8 @@ class Dsp:
 
             # wait until audioplayback finished with current block
             print ("wave:" + str(int(self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][1]))))
-            while self.DspOut_Object.played_frames_end + self.number_of_bufferblocks*self.DspIn_Object.sp_blocksize != int(self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][1])) and not all(self.DspOut_Object.continue_convolution_dict.values()) == False:
-                time.sleep(1/self.DspIn_Object.wave_param_common[0])
+            #while self.DspOut_Object.played_frames_end + self.number_of_bufferblocks*self.DspIn_Object.sp_blocksize != int(self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][1])) and not all(self.DspOut_Object.continue_convolution_dict.values()) == False:
+                #time.sleep(1/self.DspIn_Object.wave_param_common[0])
 
             # increment number of already convolved blocks
             self.blockcounter += 1
@@ -135,11 +135,11 @@ class Dsp:
         self.DspOut_Object.writebinauraloutput(binaural_dict_scaled, self.DspIn_Object.wave_param_common, self.gui_dict)
 
 
-gui_dict_mockup = {0: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav"],
-                   1: [220, 1, "./audio_in/sine_1kHz_(44.1,1,16).wav"],
-                   2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav"]
-                   }
+#gui_dict_mockup = {0: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav"],
+                  # 1: [220, 1, "./audio_in/sine_1kHz_(44.1,1,16).wav"],
+                   #2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav"]
+                  # }
 
-Dsp_objekt = Dsp(gui_dict_mockup)
-Dsp_objekt.run()
-print()
+#Dsp_objekt = Dsp(gui_dict_mockup)
+#Dsp_objekt.run()
+#print()
