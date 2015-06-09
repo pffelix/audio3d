@@ -139,9 +139,9 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def control(self):
-        dsp_object = Dsp(gui_dict)
-        dsp_object.signal_handler.error_occur.connect(self.show_error)
-        play = threading.Thread(target=dsp_object.run)
+        self.dsp_object = Dsp(gui_dict)
+        self.dsp_object.signal_handler.error_occur.connect(self.show_error)
+        play = threading.Thread(target=self.dsp_object.run)
         play.start()
         print()
 
