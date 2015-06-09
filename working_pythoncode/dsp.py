@@ -21,7 +21,7 @@ class Dsp:
         self.error_list = dict.fromkeys(gui_dict_init, [])
         self.outputsignal_sample_number = dict.fromkeys(gui_dict_init, [])
         # Set number of bufferblocks between fft block convolution and audio block playback
-        self.number_of_bufferblocks = 1
+        self.number_of_bufferblocks = 3
         # Create Input Object which contains mono input samples of sources and hrtf impulse responses samples
         self.DspIn_Object = dsp_in.DspIn(gui_dict_init)
         # Create Output Object which contains binaural output samples
@@ -130,8 +130,8 @@ class Dsp:
 
             # wait until audioplayback finished with current block
             print ("wave:" + str(int(self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][1]))))
-            #while self.DspOut_Object.played_frames_end + self.number_of_bufferblocks*self.DspIn_Object.sp_blocksize != int(self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][1])) and not all(self.DspOut_Object.continue_convolution_dict.values()) == False:
-                #time.sleep(1/self.DspIn_Object.wave_param_common[0])
+            while int((self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][1])-self.DspOut_Object.played_frames_end)/self.DspIn_Object.sp_blocksize) > self.number_of_bufferblocks and not all(self.DspOut_Object.continue_convolution_dict.values()) == False:
+                time.sleep(1/self.DspIn_Object.wave_param_common[0]*100)
 
             # increment number of already convolved blocks
             self.blockcounter += 1

@@ -94,7 +94,9 @@ class DspOut:
     # @author: Felix Pfreundtner
     def mix_binaural_block(self, binaural_block_dict, binaural_block, gui_dict, wave_block_maximum_amplitude_dict):
         binaural_block = np.zeros((len(binaural_block), 2))
-        distance_max = max([gui_dict[sp][1] for sp in gui_dict])
+
+        # maximum distance of a speaker to head in window is sqrt(4^2+4^2)[m]
+        distance_max = math.sqrt(32) # max([gui_dict[sp][1] for sp in gui_dict])
         total_number_of_sp = len(gui_dict)
         for sp in binaural_block_dict:
             # normalize to have the maximum int16 amplitude
