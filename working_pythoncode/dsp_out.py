@@ -87,16 +87,17 @@ class DspOut:
 
     # @author: Felix Pfreundtner
     def sp_gain_factor(self, distance_sp, distance_max):
-        # sound pressure decreases with distance 1/r
-        sp_gain_factor = distance_sp / distance_max
+        # sound pressure decreases with distance 1/r and scale factor 1:10 for higher dynamics
+        scale_factor = 1/10
+        sp_gain_factor = 1 - distance_sp/distance_max
         return sp_gain_factor
 
     # @author: Felix Pfreundtner
     def mix_binaural_block(self, binaural_block_dict, binaural_block, gui_dict, wave_block_maximum_amplitude_dict):
         binaural_block = np.zeros((len(binaural_block), 2))
 
-        # maximum distance of a speaker to head in window is sqrt(4^2+4^2)[m]
-        distance_max = math.sqrt(32) # max([gui_dict[sp][1] for sp in gui_dict])
+        # maximum distance of a speaker to head in window with borderlength 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
+        distance_max = 3.5*math.sqrt(2) # max([gui_dict[sp][1] for sp in gui_dict])
         total_number_of_sp = len(gui_dict)
         for sp in binaural_block_dict:
             # normalize to have the maximum int16 amplitude

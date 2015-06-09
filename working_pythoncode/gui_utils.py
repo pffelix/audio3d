@@ -187,7 +187,7 @@ class Speaker(Item):
 class Audience(Item):
 
     type = 'audience'
-    origin_image = QtGui.QImage('./image/audience.jpeg')
+    origin_image = QtGui.QImage('./image/audience.png')
 
     def __init__(self):
         global audience_pos
