@@ -69,14 +69,19 @@ class Room(QtGui.QGraphicsScene):
             self.current_item.setPos(e.scenePos())
             x = self.current_item.scenePos().x()
             y = self.current_item.scenePos().y()
+
             if x > 350:
                 self.current_item.setPos(350,y)
+                if y>350:
+                    self.current_item.setPos(350, 350)
             elif x < 0:
                 self.current_item.setPos(0, y)
             elif y < 0:
                 self.current_item.setPos(x, 0)
             elif y > 350:
                 self.current_item.setPos(x, 350)
+                if x>350:
+                    self.current_item.setPos(350, 350)
 
             if self.current_item.type == 'audience':
                 audience_pos = e.scenePos()
