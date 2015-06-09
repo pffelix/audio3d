@@ -17,6 +17,7 @@ class DspIn:
         self.hrtf_block_dict = dict.fromkeys(gui_dict_init, [])
         self.wave_blockbeginend_dict_list = dict.fromkeys(gui_dict_init, [])
         self.wave_blockbeginend_dict = dict.fromkeys(gui_dict_init, [])
+        self.wave_block_maximum_amplitude_dict = dict.fromkeys(gui_dict_init, [])
         self.signal_dict = {}
         self.sp_block_dict = {}
         # Standard samplerate, sampledepth
@@ -33,7 +34,6 @@ class DspIn:
             # get samplerate from header in .wav-file of all speakers
             self.wave_param_dict[sp][1], self.wave_param_dict[sp][2], self.wave_param_dict[sp][3] = self.get_samplerate_bits_nochannels(gui_dict_init[sp][2])
         self.wave_blockbeginend_dict = self.initialze_wave_blockbeginend(self.wave_blockbeginend_dict, self.sp_blocktime, self.wave_param_dict)
-
 
     # @author: Felix Pfreundtner
     # function does a normal school arithmetic round (Round half away from zero)
@@ -144,3 +144,7 @@ class DspIn:
         bits = struct.unpack(fmt+"H", file.read(2))[0]
         file.close()
         return samplerate, bits, nochannels
+
+    def get_wave_block_maximum_amplitude(self, sp):
+        for sp in self.sp_block_dict:
+            self.wave_block_maximum_amplitude_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp]))
