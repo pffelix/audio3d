@@ -63,9 +63,9 @@ class DspOut:
         for sp in binaural_dict:
             binaural_dict_scaled[sp] = np.zeros((len(binaural_dict[sp]), 2), dtype=np.int16)
             for l_r in range(2):
-                maximum_value=np.amax(np.abs(binaural_dict[sp][:, l_r]))
-                if maximum_value != 0:
-                    binaural_dict_scaled[sp][:, l_r] = binaural_dict[sp][:, l_r]/maximum_value*32767
+                maximum_amplitude=np.amax(np.abs(binaural_dict[sp][:, l_r]))
+                if maximum_amplitude != 0:
+                    binaural_dict_scaled[sp][:, l_r] = binaural_dict[sp][:, l_r]/maximum_amplitude*32767
                     binaural_dict_scaled[sp] = binaural_dict_scaled[sp].astype(np.int16, copy=False)
 
         return binaural_dict_scaled
@@ -85,28 +85,31 @@ class DspOut:
         for sp in binaural_dict_scaled:
             scipy.io.wavfile.write("./audio_out/binaural" + ntpath.basename(gui_dict[sp][2]), wave_param_common[0], binaural_dict_scaled[sp])
 
-    def sp_gain_factor(self, distance_sp, total_number_of_sp):
-        sp_gain_factor = 1 / total_number_of_sp
+    # @author: Felix Pfreundtner
+    def sp_gain_factor(self, distance_sp, distance_max):
+        # sound pressure decreases with distance 1/r
+        sp_gain_factor = distance_sp / distance_max
         return sp_gain_factor
 
     # @author: Felix Pfreundtner
-    def mix_binaural_block(self, binaural_block_dict, binaural_block, gui_dict):
-        binaural_block = np.zeros((len(binaural_block), 2), dtype=np.int16)
+    def mix_binaural_block(self, binaural_block_dict, binaural_block, gui_dict, wave_block_maximum_amplitude_dict):
+        binaural_block = np.zeros((len(binaural_block), 2))
+        distance_max = max([gui_dict[sp][1] for sp in gui_dict])
+        total_number_of_sp = len(gui_dict)
         for sp in binaural_block_dict:
-                    # normalize sp block to have the same maximum amplitude as every other sp and attend distance related gain factor to the sp
-                    maximum_value_sp=np.amax(np.abs(binaural_block_dict[sp]))
-                    if maximum_value_sp != 0:
-                        binaural_block_dict[sp] = binaural_block_dict[sp]/maximum_value_sp*32767*self.sp_gain_factor(gui_dict[sp][1], len(gui_dict))
-                        # print (np.amax(np.abs(binaural_block_dict[sp])))
-                        binaural_block_dict[sp] = binaural_block_dict[sp].astype(np.int16, copy=False)
-                        # add sp block output to a common block output
-                        binaural_block += binaural_block_dict[sp]
-        # normalize common sp block output
-        maximum_value=np.amax(np.abs(binaural_block))
-        if maximum_value != 0:
-            binaural_block = binaural_block / maximum_value * 32767
-            binaural_block = binaural_block.astype(np.int16, copy=False)
-            # print (np.amax(np.abs(binaural_block)))
+            # normalize to have the maximum int16 amplitude
+            if gui_dict[sp][3] == True:
+                maximum_amplitude = 32767
+            # take maximum amplitude of original wave file of sp block
+            else:
+                maximum_amplitude = wave_block_maximum_amplitude_dict[sp]
+            # get maximum amplitude of convoluted sp + hrtf block
+            maximum_amplitude_binaural_block = np.amax(np.abs(binaural_block_dict[sp]))
+            if maximum_amplitude_binaural_block != 0:
+                binaural_block_dict[sp] = binaural_block_dict[sp] / maximum_amplitude_binaural_block * maximum_amplitude
+            # add sp block output to a common block output
+            binaural_block += binaural_block_dict[sp]*self.sp_gain_factor(gui_dict[sp][1], distance_max) / total_number_of_sp
+        binaural_block = binaural_block.astype(np.int16, copy=False)
         return binaural_block
 
     # @author: Felix Pfreundtner

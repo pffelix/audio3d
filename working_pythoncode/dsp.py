@@ -50,12 +50,13 @@ class Dsp:
             self.gui_dict = gui_utils.gui_dict
             print("FFT Block " + str(self.blockcounter) + ":")
             for i, sp in enumerate(self.gui_dict):
-                print("sp" + str(sp) + ": " + str(self.gui_dict[sp][0]))
+                print("sp" + str(sp) + ": " + str(int(self.gui_dict[sp][0])) + ", " + str(self.gui_dict[sp][1]))
 
             # range of frames to be read in iteration from wav files (float numbers needed for adding the correct framesizes to the next iteration)
             self.DspIn_Object.wave_blockbeginend_dict = self.DspIn_Object.wave_blockbeginend(
                 self.DspIn_Object.wave_blockbeginend_dict, self.DspIn_Object.wave_param_dict,
                 self.DspIn_Object.sp_blocktime)
+
 
             # iterate over all speakers sp
             for sp in self.gui_dict:
@@ -82,6 +83,10 @@ class Dsp:
                     self.DspIn_Object.sp_block_dict[sp], self.error_list[sp] = self.DspIn_Object.get_sp_block_dict(
                         self.DspIn_Object.signal_dict[sp], self.DspIn_Object.wave_blockbeginend_dict[sp],
                         self.DspIn_Object.sp_blocksize, self.error_list[sp])
+
+                    # get maximum amplitude of each wav file
+                    self.DspIn_Object.get_wave_block_maximum_amplitude(sp)
+
                     # for the left an right ear channel
                     for l_r in range(2):
                         # convolve hrtf with speaker block input
@@ -112,7 +117,7 @@ class Dsp:
                 #     gui_dict[sp][0] -= 360
 
             # Mix binaural stereo blockoutput of every speaker to one binaural stereo block having regard to speaker distances
-            self.DspOut_Object.binaural_block = self.DspOut_Object.mix_binaural_block(self.DspOut_Object.binaural_block_dict, self.DspOut_Object.binaural_block, self.gui_dict)
+            self.DspOut_Object.binaural_block = self.DspOut_Object.mix_binaural_block(self.DspOut_Object.binaural_block_dict, self.DspOut_Object.binaural_block, self.gui_dict, self.DspIn_Object.wave_block_maximum_amplitude_dict)
 
             # Add mixed binaural stereo blocks to a time continuing binaural output
             self.DspOut_Object.binaural = self.DspOut_Object.add_to_binaural(self.DspOut_Object.binaural_block, self.DspOut_Object.binaural, int(
@@ -141,11 +146,11 @@ class Dsp:
 
 # if you want to start dsp without gui_main comment self.gui_dict = gui_utils.gui_dict (in line 52) and uncomment following code to generate a mockup dsp_object:
 
-# gui_dict_mockup = {0: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav"],
-#                   1: [220, 1, "./audio_in/sine_1kHz_(44.1,1,16).wav"],
-#                    2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav"]
-#                   }
-#
+gui_dict_mockup = {0: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav", False],
+                  1: [220, 1, "./audio_in/sine_1kHz_(44.1,1,16).wav", False],
+                   2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav", False]
+                  }
+
 # dsp_object = Dsp(gui_dict_mockup)
 # dsp_object.run()
 # print()
