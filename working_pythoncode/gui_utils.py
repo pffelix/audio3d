@@ -69,17 +69,34 @@ class Room(QtGui.QGraphicsScene):
             self.current_item.setPos(e.scenePos())
             x = self.current_item.scenePos().x()
             y = self.current_item.scenePos().y()
+
             if x > 350:
                 self.current_item.setPos(350,y)
-            elif x < 0:
+                if y > 350:
+                    self.current_item.setPos(350, 350)
+                if y < 0:
+                    self.current_item.setPos(350, 0)
+            if x < 0:
                 self.current_item.setPos(0, y)
-            elif y < 0:
+                if y < 0:
+                    self.current_item.setPos(0, 0)
+                if y > 350:
+                    self.current_item.setPos(0, 350)
+            if y < 0:
                 self.current_item.setPos(x, 0)
-            elif y > 350:
+                if x < 0:
+                    self.current_item.setPos(0, 0)
+                if x > 350:
+                    self.current_item.setPos(350, 0)
+            if y > 350:
                 self.current_item.setPos(x, 350)
+                if x > 350:
+                    self.current_item.setPos(350, 350)
+                if x < 0:
+                    self.current_item.setPos(0, 350)
 
             if self.current_item.type == 'audience':
-                audience_pos = e.scenePos()
+                audience_pos = self.current_item.pos()
 
                 for speaker in speaker_list:
                     speaker.cal_rel_pos()
@@ -249,16 +266,45 @@ class SpeakerProperty(QtGui.QWidget):
         #if azimuth < 360 and dist < 300.0:
         self.posx = x0 + dist*sin(radians(azimuth))
         self.posy = y0 - dist*cos(radians(azimuth))
+
+        x = self.posx
+        y = self.posy
+
+        if x > 350:
+            self.posx = 350
+            if y > 350:
+                self.posy = 350
+            if y < 0:
+                self.posy = 0
+        elif x < 0:
+            self.posx = 0
+            if y < 0:
+                self.posy = 0
+            if y > 350:
+                self.posy = 350
+        elif y < 0:
+            self.posy = 0
+            if x < 0:
+                self.posx = 0
+            if x > 350:
+                self.posx = 350
+        elif y > 350:
+            self.posy = 350
+            if x > 350:
+                self.posx = 350
+            if x < 0:
+                self.posx = 0
+        # if self.posx > 0 and self.posx < 350 and self.posy > 0 and self.posy < 350:
+        #     self.added.emit()
+        #     self.close()
+        # else:
+        #     QtGui.QMessageBox.question(self, 'Message',
+        #              'A value is out of range! Try again.', QtGui.QMessageBox.Ok)
+
         print(self.posx)
         print(self.posy)
-        if self.posx > -40 and self.posx < 400 and self.posy > -40 and self.posy < 400:
-            self.added.emit()
-            self.close()
-        else:
-            QtGui.QMessageBox.question(self, 'Message',
-                     'A value is out of range! Try again.', QtGui.QMessageBox.Ok)
-        #self.added.emit()
-        #self.close()
+        self.added.emit()
+        self.close()
 
     @QtCore.pyqtSlot()
     def cancel(self):
