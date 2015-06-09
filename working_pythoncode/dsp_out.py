@@ -87,8 +87,7 @@ class DspOut:
 
     # @author: Felix Pfreundtner
     def sp_gain_factor(self, distance_sp, distance_max):
-        # sound pressure decreases with distance 1/r and scale factor 1:10 for higher dynamics
-        scale_factor = 1/10
+        # sound pressure decreases with distance 1/r
         sp_gain_factor = 1 - distance_sp/distance_max
         return sp_gain_factor
 
