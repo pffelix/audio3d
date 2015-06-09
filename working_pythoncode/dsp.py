@@ -10,6 +10,7 @@ import dsp_in
 import dsp_out
 import gui_utils
 import threading
+from algo_signal_handler import AlgoSignalHandler
 import time
 
 class Dsp:
@@ -28,6 +29,12 @@ class Dsp:
         # Variable counts number of already convolved blocks, initialized with zero
         self.blockcounter = 0
 
+        # Here a signal handler will be created
+        # Usage:
+        # When error occurs, call the function self.signal_handler.send_error()
+        # The only parameter (A String!) is the message you want to send
+        self.signal_handler = AlgoSignalHandler()
+
         #self.DspOut_Object.spblocksize=self.DspIn_Object.sp_blocksize
         #self.
     def run(self):
@@ -40,7 +47,6 @@ class Dsp:
         # global gui_dict
         # global gui_dict
         # Run convolution block by block iteration
-
         while any(self.DspOut_Object.continue_convolution_dict.values()) == True :
 
             self.gui_dict = gui_utils.gui_dict
