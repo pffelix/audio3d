@@ -33,10 +33,10 @@ class Dsp:
         # Usage:
         # When error occurs, call the function self.signal_handler.send_error()
         # The only parameter (A String!) is the message you want to send
-        self.signal_handler = AlgoSignalHandler()
+        # self.signal_handler = AlgoSignalHandler()
 
         #self.DspOut_Object.spblocksize=self.DspIn_Object.sp_blocksize
-        #self.
+
     def run(self):
         # start play buffer
         # play_output=deepcopy(standard_dict)
@@ -141,11 +141,13 @@ class Dsp:
         self.DspOut_Object.writebinauraloutput(binaural_dict_scaled, self.DspIn_Object.wave_param_common, self.gui_dict)
 
 
-#gui_dict_mockup = {0: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav"],
-                  # 1: [220, 1, "./audio_in/sine_1kHz_(44.1,1,16).wav"],
-                   #2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav"]
-                  # }
+# if you want to start dsp without gui_main comment self.gui_dict = gui_utils.gui_dict (in line 52) and uncomment following code to generate a mockup dsp_object:
 
-#Dsp_objekt = Dsp(gui_dict_mockup)
-#Dsp_objekt.run()
-#print()
+# gui_dict_mockup = {0: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav"],
+#                   1: [220, 1, "./audio_in/sine_1kHz_(44.1,1,16).wav"],
+#                    2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav"]
+#                   }
+#
+# dsp_object = Dsp(gui_dict_mockup)
+# dsp_object.run()
+# print()
