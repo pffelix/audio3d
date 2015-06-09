@@ -10,7 +10,7 @@ import dsp_in
 import dsp_out
 import gui_utils
 import threading
-from algo_signal_handler import AlgoSignalHandler
+from dsp_signal_handler import DspSignalHandler
 import time
 
 class Dsp:
@@ -33,9 +33,7 @@ class Dsp:
         # Usage:
         # When error occurs, call the function self.signal_handler.send_error()
         # The only parameter (A String!) is the message you want to send
-        # self.signal_handler = AlgoSignalHandler()
-
-        #self.DspOut_Object.spblocksize=self.DspIn_Object.sp_blocksize
+        self.signal_handler = DspSignalHandler()
 
     def run(self):
         # start play buffer

@@ -34,9 +34,6 @@ class MainWindow(QWidget):
         self.speaker_property = SpeakerProperty()
         self.speaker_property.closed.connect(self.property_closed)
 
-        # set algo object
-        self.dsp_object = Dsp(gui_dict)
-
         self.init_ui()
 
     def init_ui(self):
@@ -142,8 +139,9 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def control(self):
-        self.dsp_object.signal_handler.error_occur.connect(self.show_error)
-        play = threading.Thread(target=self.dsp_object.run)
+        dsp_object = Dsp(gui_dict)
+        dsp_object.signal_handler.error_occur.connect(self.show_error)
+        play = threading.Thread(target=dsp_object.run)
         play.start()
         print()
 
