@@ -126,7 +126,7 @@ class Speaker(Item):
     type = 'speaker'
     path = 'unknown'
 
-    def __init__(self, index, path, posx=0,posy=0):
+    def __init__(self, index, path, posx=0,posy=0, norm=False):
 
         global speaker_list
         self.index = index
@@ -135,6 +135,7 @@ class Speaker(Item):
         super(Speaker, self).__init__()
         self.setPos(posx,posy)
         self.path = path
+        self.norm = norm
         self.signal_handler = SignalHandler(self.index)
         speaker_list.append(self)
         self.cal_rel_pos()
@@ -157,8 +158,8 @@ class Speaker(Item):
 
         if deg >= 360:
             deg %= 360
-        gui_dict[self.index] = [deg, dis/100, self.path]
-        # print(gui_dict)
+        gui_dict[self.index] = [deg, dis/100, self.path,self.norm]
+        #print(gui_dict)
 
     def mouseDoubleClickEvent(self, event):
         global speaker_to_show
@@ -202,6 +203,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.file_select_button = QtGui.QPushButton('Browse')
         self.confirm_button = QtGui.QPushButton('Confirm')
         self.cancel_button = QtGui.QPushButton('Cancel')
+        self.normalize_box = QtGui.QCheckBox('Normalize Audio')
         self.path = 'unknown'
         self.init_ui()
 
@@ -219,6 +221,7 @@ class SpeakerProperty(QtGui.QWidget):
         layout.addWidget(self.distance_line_edit, 4, 3, 1, 1)
         layout.addWidget(self.confirm_button, 5, 0, 1, 2)
         layout.addWidget(self.cancel_button, 5, 2, 1, 2)
+        layout.addWidget(self.normalize_box, 3, 3, 1, 2)
 
         # connect signal and slots
         self.file_select_button.clicked.connect(self.browse)
@@ -262,6 +265,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.close()
 
     def clear(self):
+        self.normalize_box.setCheckState(QtCore.Qt.Unchecked)
         self.path_line_edit.clear()
         self.azimuth_line_edit.clear()
         self.distance_line_edit.clear()

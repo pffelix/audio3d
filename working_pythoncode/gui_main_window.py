@@ -114,7 +114,10 @@ class MainWindow(QWidget):
             y = self.speaker_property.posy
 
             # create new speaker
-            new_speaker = Speaker(index, path, x, y)
+            if self.speaker_property.normalize_box.isChecked():
+                new_speaker = Speaker(index, path, x, y, True)
+            else:   
+                new_speaker = Speaker(index, path, x, y)
             new_speaker.signal_handler.show_property.connect(self.show_property)
             self.room.addItem(speaker_list[-1])
             self.view.viewport().update()
