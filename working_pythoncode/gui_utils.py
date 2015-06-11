@@ -66,7 +66,7 @@ class Room(QtGui.QGraphicsScene):
         global audience_pos
         global speaker_list
         try:
-            self.current_item.setPos(e.scenePos())
+            self.current_item.setPos(e.scenePos().x()-25,e.scenePos().y()-25)
             x = self.current_item.scenePos().x()
             y = self.current_item.scenePos().y()
 
