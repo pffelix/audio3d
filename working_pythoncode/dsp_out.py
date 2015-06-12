@@ -129,7 +129,7 @@ class DspOut:
         self.played_frames_end += frame_count
         print("Played Block: " + str(int(played_frames_begin/frame_count)))
         data = self.binaural[played_frames_begin:self.played_frames_end, :]
-        print ("call" + str(self.played_frames_end))
+        # print ("call" + str(self.played_frames_end))
         return data, pyaudio.paContinue
 
     # @author: Felix Pfreundtner

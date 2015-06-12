@@ -7,10 +7,13 @@ Created on Fri May 22 16:27:57 2015
 
 import numpy as np
 import dsp_in
+import dsp
 import dsp_out
 import gui_utils
 import threading
+import multiprocessing
 from dsp_signal_handler import DspSignalHandler
+
 import time
 
 class Dsp:
@@ -21,7 +24,7 @@ class Dsp:
         self.error_list = dict.fromkeys(gui_dict_init, [])
         self.outputsignal_sample_number = dict.fromkeys(gui_dict_init, [])
         # Set number of bufferblocks between fft block convolution and audio block playback
-        self.number_of_bufferblocks = 3
+        self.number_of_bufferblocks = 200
         # Create Input Object which contains mono input samples of sources and hrtf impulse responses samples
         self.DspIn_Object = dsp_in.DspIn(gui_dict_init)
         # Create Output Object which contains binaural output samples
@@ -47,10 +50,10 @@ class Dsp:
         # Run convolution block by block iteration
         while any(self.DspOut_Object.continue_convolution_dict.values()) == True :
 
-            self.gui_dict = gui_utils.gui_dict
+            # self.gui_dict = gui_utils.gui_dict
             print("FFT Block " + str(self.blockcounter) + ":")
-            for i, sp in enumerate(self.gui_dict):
-                print("sp" + str(sp) + ": " + str(int(self.gui_dict[sp][0])) + ", " + str(self.gui_dict[sp][1]))
+            #for i, sp in enumerate(self.gui_dict):
+                #print("sp" + str(sp) + ": " + str(int(self.gui_dict[sp][0])) + ", " + str(self.gui_dict[sp][1]))
 
             # range of frames to be read in iteration from wav files (float numbers needed for adding the correct framesizes to the next iteration)
             self.DspIn_Object.wave_blockbeginend_dict = self.DspIn_Object.wave_blockbeginend(
@@ -125,13 +128,16 @@ class Dsp:
 
             # Begin Audio Playback if specified Number of Bufferblocks has been convolved
             if self.blockcounter == self.number_of_bufferblocks:
-                startaudiooutput = threading.Thread(target=self.DspOut_Object.audiooutput, args = (2, self.DspIn_Object.wave_param_common[0], self.DspIn_Object.sp_blocksize))
+                multiprocessing.freeze_support()
+                startaudiooutput = multiprocessing.Process(target=self.DspOut_Object.audiooutput, args = (2, self.DspIn_Object.wave_param_common[0], self.DspIn_Object.sp_blocksize))
                 startaudiooutput.start()
+                # startaudiooutput.join()
+
 
             # wait until audioplayback finished with current block
-            print ("wave:" + str(int(self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][1]))))
-            while int((self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][1])-self.DspOut_Object.played_frames_end)/self.DspIn_Object.sp_blocksize) > self.number_of_bufferblocks and not all(self.DspOut_Object.continue_convolution_dict.values()) == False:
-                time.sleep(1/self.DspIn_Object.wave_param_common[0]*100)
+            #print ("wave:" + str(int(self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][1]))))
+            # while int((self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][1])-self.DspOut_Object.played_frames_end)/self.DspIn_Object.sp_blocksize) > self.number_of_bufferblocks and not all(self.DspOut_Object.continue_convolution_dict.values()) == False:
+                 # time.sleep(1/self.DspIn_Object.wave_param_common[0]*100)
 
             # increment number of already convolved blocks
             self.blockcounter += 1
@@ -142,15 +148,8 @@ class Dsp:
         # plt.plot(binaural_dict[1])
         # Write generated output signal binaural_dict_scaled to file
         self.DspOut_Object.writebinauraloutput(binaural_dict_scaled, self.DspIn_Object.wave_param_common, self.gui_dict)
+        # if startaudiooutput.is_alive():
+        #     print("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww")
+        #     time.sleep(5)
 
 
-# if you want to start dsp without gui_main comment self.gui_dict = gui_utils.gui_dict (in line 52) and uncomment following code to generate a mockup dsp_object:
-
-gui_dict_mockup = {0: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav", False],
-                  1: [220, 1, "./audio_in/sine_1kHz_(44.1,1,16).wav", False],
-                   2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav", False]
-                  }
-
-# dsp_object = Dsp(gui_dict_mockup)
-# dsp_object.run()
-# print()

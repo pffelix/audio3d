@@ -23,10 +23,10 @@ class DspIn:
         # Standard samplerate, sampledepth
         self.wave_param_common = [44100, 16]
         # Determine number of output blocks per second
-        self.output_bps = 60
+        self.fft_blocksize = 1024
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
         self.hrtf_blocksize = 128
-        self.fft_blocksize, self.fft_blocktime, self.sp_blocksize, self.sp_blocktime, self.output_bps_real, self.overlap = self.get_block_param(self.output_bps, self.wave_param_common, self.hrtf_blocksize)
+        self.sp_blocksize, self.sp_blocktime, self.overlap = self.get_block_param(self.wave_param_common, self.hrtf_blocksize, self.fft_blocksize)
         for sp in self.wave_param_dict:
             # Read in whole Wave File of Speaker sp into signal_dict[sp] and write Wave Parameter samplenumber, samplefrequency and bitdepth (Standard 16bit) into wave_param_dict[sp]
             self.samplerate_sp, self.signal_dict[sp] = scipy.io.wavfile.read(gui_dict_init[sp][2])
@@ -52,15 +52,11 @@ class DspIn:
         return value
 
     # @author: Felix Pfreundtner
-    def get_block_param(self, output_bps, wave_param_common, hrtf_blocksize):
-        # Standard FFT block size colculation dependend on output_fps
-        fft_blocksize = 2**(round(math.log(wave_param_common[0]/output_bps, 2)))
-        fft_blocktime = fft_blocksize/wave_param_common[0]
+    def get_block_param(self, wave_param_common, hrtf_blocksize, fft_blocksize):
         sp_blocksize = fft_blocksize-hrtf_blocksize+1
         sp_blocktime = sp_blocksize/wave_param_common[0]
         overlap = (fft_blocksize-sp_blocksize)/fft_blocksize*100 # in %
-        output_bps_real = 1/fft_blocktime
-        return fft_blocksize, fft_blocktime, sp_blocksize, sp_blocktime, output_bps_real, overlap
+        return sp_blocksize, sp_blocktime, overlap
 
     # @author: Felix Pfreundtner
     def initialze_wave_blockbeginend(self, wave_blockbeginend_dict,sp_blocktime, wave_param_dict):

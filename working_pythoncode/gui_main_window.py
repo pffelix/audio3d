@@ -6,12 +6,12 @@ A Simple sketch of the Gui
 author: H. Zhu
 """
 
-import sys
-from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from PyQt4.QtGui import *
 from gui_utils import *
 from dsp import Dsp
 import threading
+
 
 class MainWindow(QWidget):
 
@@ -207,14 +207,3 @@ class MainWindow(QWidget):
     def closeEvent (self, eventQCloseEvent):
         self.room.clear()
         eventQCloseEvent.accept()
-
-
-def main():
-
-    w = MainWindow()
-    return qApp.exec_()
-
-
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    main()
