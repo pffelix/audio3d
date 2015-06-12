@@ -13,9 +13,11 @@ import time
 import math
 import ntpath
 import os
+import collections
+import threading
 
 class DspOut:
-    def __init__(self, gui_dict_init, fft_blocksize):
+    def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize):
         self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize, 2)))
         self.binaural_block = np.zeros((fft_blocksize, 2), dtype=np.int16)
         self.binaural_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize, 2)))
@@ -24,7 +26,11 @@ class DspOut:
         self.played_frames_end = 0
         self.continue_convolution_list = dict.fromkeys(gui_dict_init, [])
         self.continue_convolution_dict = dict.fromkeys(gui_dict_init, True)
-
+        self.get_new_block = True
+        self.binaural_block_add = np.zeros((sp_blocksize, 2), dtype=np.int16)
+        self.play_counter = 0
+        self.playbuffer = collections.deque()
+        self.lock = threading.Lock()
 
     # @author: Felix Pfreundtner
     def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize):
@@ -128,20 +134,27 @@ class DspOut:
         played_frames_begin = self.played_frames_end
         self.played_frames_end += frame_count
         print("Played Block: " + str(int(played_frames_begin/frame_count)))
-        data = self.binaural[played_frames_begin:self.played_frames_end, :]
-        # print ("call" + str(self.played_frames_end))
+        self.lock.acquire()
+        try:
+            data = self.binaural[played_frames_begin:self.played_frames_end, :]
+            # data = self.binaural_block_add
+        finally:
+            self.lock.release()
+
+        print("Played Block: " + str(self.play_counter))
+        self.play_counter+=1
         return data, pyaudio.paContinue
 
     # @author: Felix Pfreundtner
     def audiooutput(self, channels, samplerate, sp_blocksize):
         pa = pyaudio.PyAudio()
         audiostream = pa.open(format = pyaudio.paInt16,
-                     channels = channels,
-                     rate  = samplerate,
-                     output = True,
-                     frames_per_buffer = sp_blocksize,
-                     stream_callback = self.callback)
-
+                              channels = channels,
+                              rate = samplerate,
+                              output = True,
+                              frames_per_buffer = sp_blocksize,
+                              stream_callback = self.callback,
+                              )
         audiostream.start_stream()
         while audiostream.is_active():
             time.sleep(sp_blocksize/samplerate)

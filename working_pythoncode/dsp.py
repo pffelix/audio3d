@@ -24,11 +24,11 @@ class Dsp:
         self.error_list = dict.fromkeys(gui_dict_init, [])
         self.outputsignal_sample_number = dict.fromkeys(gui_dict_init, [])
         # Set number of bufferblocks between fft block convolution and audio block playback
-        self.number_of_bufferblocks = 200
+        self.number_of_bufferblocks = 4
         # Create Input Object which contains mono input samples of sources and hrtf impulse responses samples
         self.DspIn_Object = dsp_in.DspIn(gui_dict_init)
         # Create Output Object which contains binaural output samples
-        self.DspOut_Object = dsp_out.DspOut(gui_dict_init, self.DspIn_Object.fft_blocksize)
+        self.DspOut_Object = dsp_out.DspOut(gui_dict_init, self.DspIn_Object.fft_blocksize, self.DspIn_Object.sp_blocksize)
         # Variable counts number of already convolved blocks, initialized with zero
         self.blockcounter = 0
 
@@ -48,12 +48,12 @@ class Dsp:
         # global gui_dict
         # global gui_dict
         # Run convolution block by block iteration
-        while any(self.DspOut_Object.continue_convolution_dict.values()) == True :
+        while any(self.DspOut_Object.continue_convolution_dict.values()) == True:
 
-            # self.gui_dict = gui_utils.gui_dict
+            self.gui_dict = gui_utils.gui_dict
             print("FFT Block " + str(self.blockcounter) + ":")
-            #for i, sp in enumerate(self.gui_dict):
-                #print("sp" + str(sp) + ": " + str(int(self.gui_dict[sp][0])) + ", " + str(self.gui_dict[sp][1]))
+            # for i, sp in enumerate(self.gui_dict):
+                # print("sp" + str(sp) + ": " + str(int(self.gui_dict[sp][0])) + ", " + str(self.gui_dict[sp][1]))
 
             # range of frames to be read in iteration from wav files (float numbers needed for adding the correct framesizes to the next iteration)
             self.DspIn_Object.wave_blockbeginend_dict = self.DspIn_Object.wave_blockbeginend(
@@ -98,7 +98,7 @@ class Dsp:
                                                                self.DspIn_Object.hrtf_block_dict[sp][:, l_r],
                                                                self.DspIn_Object.fft_blocksize)
                         # apply hamming window to binaural block ouptut
-                        # binaural_block_dict[sp][:, l_r]= self.DspOut_Object.apply_hamming_window(binaural_block_dict[sp][:, l_r])
+                        # self.DspOut_Object.binaural_block_dict[sp][:, l_r]= self.DspOut_Object.apply_hamming_window(self.DspOut_Object.binaural_block_dict[sp][:, l_r])
 
                 # add stereo speaker binaural block output to a time continuinng binaural output for every speaker
                 self.DspOut_Object.binaural_dict[sp], self.outputsignal_sample_number[
@@ -122,22 +122,27 @@ class Dsp:
             # Mix binaural stereo blockoutput of every speaker to one binaural stereo block having regard to speaker distances
             self.DspOut_Object.binaural_block = self.DspOut_Object.mix_binaural_block(self.DspOut_Object.binaural_block_dict, self.DspOut_Object.binaural_block, self.gui_dict, self.DspIn_Object.wave_block_maximum_amplitude_dict)
 
+
             # Add mixed binaural stereo blocks to a time continuing binaural output
             self.DspOut_Object.binaural = self.DspOut_Object.add_to_binaural(self.DspOut_Object.binaural_block, self.DspOut_Object.binaural, int(
                         self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][0])))
 
+            self.DspOut_Object.lock.acquire()
+            try:
+                self.DspOut_Object.binaural_block_add = self.DspOut_Object.binaural[self.DspIn_Object.wave_blockbeginend_dict[0][0]:self.DspIn_Object.wave_blockbeginend_dict[0][1], :]
+            finally:
+                self.DspOut_Object.lock.release()
+
+
             # Begin Audio Playback if specified Number of Bufferblocks has been convolved
             if self.blockcounter == self.number_of_bufferblocks:
-                multiprocessing.freeze_support()
-                startaudiooutput = multiprocessing.Process(target=self.DspOut_Object.audiooutput, args = (2, self.DspIn_Object.wave_param_common[0], self.DspIn_Object.sp_blocksize))
+                startaudiooutput = threading.Thread(target=self.DspOut_Object.audiooutput, args = (2, self.DspIn_Object.wave_param_common[0], self.DspIn_Object.sp_blocksize))
                 startaudiooutput.start()
                 # startaudiooutput.join()
 
-
             # wait until audioplayback finished with current block
-            #print ("wave:" + str(int(self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][1]))))
-            # while int((self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][1])-self.DspOut_Object.played_frames_end)/self.DspIn_Object.sp_blocksize) > self.number_of_bufferblocks and not all(self.DspOut_Object.continue_convolution_dict.values()) == False:
-                 # time.sleep(1/self.DspIn_Object.wave_param_common[0]*100)
+            while self.blockcounter-self.DspOut_Object.play_counter > self.number_of_bufferblocks and not all(self.DspOut_Object.continue_convolution_dict.values()) == False:
+                 time.sleep(1/self.DspIn_Object.wave_param_common[0]*100)
 
             # increment number of already convolved blocks
             self.blockcounter += 1
