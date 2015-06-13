@@ -18,9 +18,9 @@ import threading
 
 class DspOut:
     def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize):
-        self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize, 2)))
+        self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize, 2), dtype=np.int16))
         self.binaural_block = np.zeros((fft_blocksize, 2), dtype=np.int16)
-        self.binaural_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize, 2)))
+        self.binaural_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize, 2), dtype=np.int16))
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
         self.testoutput = np.ones((fft_blocksize, 2), dtype=np.int16)*30000
         self.played_frames_end = 0
@@ -33,7 +33,7 @@ class DspOut:
         self.lock = threading.Lock()
 
     # @author: Felix Pfreundtner
-    def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize):
+    def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize, sp_max_gain_sp, hrtf_max_gain_sp_l_r):
 
         # Do for speaker sp zeropadding: zeropad hrtf (left or right input) and speaker (mono input)
         hrtf_zeros = np.zeros((fft_blocksize-len(hrtf_block_sp_l_r), ), dtype = 'int16')
@@ -51,6 +51,10 @@ class DspOut:
         # bring multiplied spectrum back to time domain, disneglected small complex time parts resulting from numerical fft approach
         binaural_block_sp = ifft(binaural_block_sp_frequency, fft_blocksize).real
 
+        # normalize multiplied spectrum back to 16bit integer, consider maximum amplitude value of sp black and hrtf impulse to get dynamical volume output
+        binaural_block_sp_max_gain = int(np.amax(np.abs(binaural_block_sp)))
+        binaural_block_sp = binaural_block_sp / (binaural_block_sp_max_gain / sp_max_gain_sp / hrtf_max_gain_sp_l_r * 32767)
+        binaural_block_sp = binaural_block_sp.astype(np.int16, copy=False)
         return binaural_block_sp
 
 
@@ -91,32 +95,21 @@ class DspOut:
         for sp in binaural_dict_scaled:
             scipy.io.wavfile.write("./audio_out/binaural" + ntpath.basename(gui_dict[sp][2]), wave_param_common[0], binaural_dict_scaled[sp])
 
-    # @author: Felix Pfreundtner
-    def sp_gain_factor(self, distance_sp, distance_max):
-        # sound pressure decreases with distance 1/r
-        sp_gain_factor = 1 - distance_sp/distance_max
-        return sp_gain_factor
 
     # @author: Felix Pfreundtner
-    def mix_binaural_block(self, binaural_block_dict, binaural_block, gui_dict, wave_block_maximum_amplitude_dict):
-        binaural_block = np.zeros((len(binaural_block), 2))
-
+    def mix_binaural_block(self, binaural_block_dict, fft_blocksize, gui_dict):
+        binaural_block = np.zeros((fft_blocksize, 2))
         # maximum distance of a speaker to head in window with borderlength 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
         distance_max = 3.5*math.sqrt(2) # max([gui_dict[sp][1] for sp in gui_dict])
+        # get total number of speakers from gui_dict
         total_number_of_sp = len(gui_dict)
         for sp in binaural_block_dict:
-            # normalize to have the maximum int16 amplitude
-            if gui_dict[sp][3] == True:
-                maximum_amplitude = 32767
-            # take maximum amplitude of original wave file of sp block
-            else:
-                maximum_amplitude = wave_block_maximum_amplitude_dict[sp]
-            # get maximum amplitude of convoluted sp + hrtf block
-            maximum_amplitude_binaural_block = np.amax(np.abs(binaural_block_dict[sp]))
-            if maximum_amplitude_binaural_block != 0:
-                binaural_block_dict[sp] = binaural_block_dict[sp] / maximum_amplitude_binaural_block * maximum_amplitude
-            # add sp block output to a common block output
-            binaural_block += binaural_block_dict[sp]*self.sp_gain_factor(gui_dict[sp][1], distance_max) / total_number_of_sp
+            # get distance speaker to head from gui_dict
+            distance_sp = gui_dict[sp][1]
+            # sound pressure decreases with distance 1/r
+            sp_gain_factor = 1 - distance_sp/distance_max
+            # add gained sp block output to a summarized block output of all speakers
+            binaural_block += binaural_block_dict[sp]*sp_gain_factor / total_number_of_sp
         binaural_block = binaural_block.astype(np.int16, copy=False)
         return binaural_block
 

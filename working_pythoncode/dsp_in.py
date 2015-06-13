@@ -15,9 +15,10 @@ class DspIn:
         self.wave_param_dict = dict.fromkeys(gui_dict_init, [])
         self.hrtf_filenames_dict = dict.fromkeys(gui_dict_init, [])
         self.hrtf_block_dict = dict.fromkeys(gui_dict_init, [])
+        self.hrtf_max_gain_dict = dict.fromkeys(gui_dict_init, [])
+        self.sp_max_gain_dict = dict.fromkeys(gui_dict_init, [])
         self.wave_blockbeginend_dict_list = dict.fromkeys(gui_dict_init, [])
         self.wave_blockbeginend_dict = dict.fromkeys(gui_dict_init, [])
-        self.wave_block_maximum_amplitude_dict = dict.fromkeys(gui_dict_init, [])
         self.signal_dict = {}
         self.sp_block_dict = {}
         # Standard samplerate, sampledepth
@@ -58,6 +59,26 @@ class DspIn:
         overlap = (fft_blocksize-sp_blocksize)/fft_blocksize*100 # in %
         return sp_blocksize, sp_blocktime, overlap
 
+        # @author: Matthias Lederle
+    def get_samplerate_bits_nochannels(self, filename):
+        file = open(filename, 'rb')
+        _big_endian = False
+        # check whether file is RIFX or RIFF
+        str1 = file.read(4)
+        if str1 == b'RIFX':
+            _big_endian = True
+        if _big_endian:
+            fmt = '>'
+        else:
+            fmt = '<'
+        file.seek(22)
+        nochannels = struct.unpack(fmt+"H", file.read(2))[0]
+        samplerate = struct.unpack(fmt+"I", file.read(4))[0]
+        file.seek(34)
+        bits = struct.unpack(fmt+"H", file.read(2))[0]
+        file.close()
+        return samplerate, bits, nochannels
+
     # @author: Felix Pfreundtner
     def initialze_wave_blockbeginend(self, wave_blockbeginend_dict,sp_blocktime, wave_param_dict):
         for sp in wave_blockbeginend_dict:
@@ -90,19 +111,21 @@ class DspIn:
                     azimuthangle = 360 - self.rnd(gui_dict_sp[0] - rounddifference)
                 else:
                     azimuthangle = 360 - self.rnd(gui_dict_sp[0] + 5 - rounddifference)
-        hrtf_filenames_dict_sp = ["./kemar/compact/elev0/H0e"+str(azimuthangle).zfill(3)+"a.wav"]
+        hrtf_filenames_dict_sp = "./kemar/compact/elev0/H0e" + str(azimuthangle).zfill(3) + "a.wav"
         return hrtf_filenames_dict_sp
 
     # @author: Felix Pfreundtner
     def get_hrtf(self, hrtf_filenames_dict_sp, gui_dict_sp):
-        for hrtf_filename in hrtf_filenames_dict_sp:
-            _, hrtf_input = scipy.io.wavfile.read(hrtf_filename)
-            if gui_dict_sp[0] <= 180:
-                hrtf_block_dict_sp=hrtf_input
-            else:
-                hrtf_input[:,[0, 1]] = hrtf_input[:,[1, 0]]
-                hrtf_block_dict_sp=hrtf_input
-        return hrtf_block_dict_sp
+        _, hrtf_input = scipy.io.wavfile.read(hrtf_filenames_dict_sp)
+        if gui_dict_sp[0] <= 180:
+            hrtf_block_dict_sp=hrtf_input
+        else:
+            hrtf_input[:,[0, 1]] = hrtf_input[:,[1, 0]]
+            hrtf_block_dict_sp=hrtf_input
+        hrtf_max_gain_sp=[]
+        hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
+        hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
+        return hrtf_block_dict_sp, hrtf_max_gain_sp
 
     # @author: Felix Pfreundtner
     def get_sp_block_dict(self, signal_dict_sp, wave_blockbeginend_dict_sp, sp_blocksize, error_list_sp):
@@ -120,27 +143,17 @@ class DspIn:
         return sp_block_dict_sp, error_list_sp
 
 
+    # @author: Felix Pfreundtner
+    def normalize(self, sp_block_dict_sp, normalize_flag_sp):
+        if normalize_flag_sp:
+            # take maximum amplitude of original wave file of sp block
+            max_amplitude_input = np.amax(np.abs(sp_block_dict_sp))
+            if max_amplitude_input != 0:
+                # normalize to have the maximum int16 amplitude
+                max_amplitude_output = 32767
+                sp_block_dict_sp = sp_block_dict_sp / (max_amplitude_input * max_amplitude_output)
+                sp_block_dict_sp = sp_block_dict_sp.astype(np.int16, copy=False)
+        sp_max_gain_sp = np.amax(np.abs(sp_block_dict_sp[:,]))
+        return sp_block_dict_sp, sp_max_gain_sp
 
-    # @author: Matthias Lederle
-    def get_samplerate_bits_nochannels(self, filename):
-        file = open(filename, 'rb')
-        _big_endian = False
-        # check whether file is RIFX or RIFF
-        str1 = file.read(4)
-        if str1 == b'RIFX':
-            _big_endian = True
-        if _big_endian:
-            fmt = '>'
-        else:
-            fmt = '<'
-        file.seek(22)
-        nochannels = struct.unpack(fmt+"H", file.read(2))[0]
-        samplerate = struct.unpack(fmt+"I", file.read(4))[0]
-        file.seek(34)
-        bits = struct.unpack(fmt+"H", file.read(2))[0]
-        file.close()
-        return samplerate, bits, nochannels
 
-    def get_wave_block_maximum_amplitude(self, sp):
-        for sp in self.sp_block_dict:
-            self.wave_block_maximum_amplitude_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp]))
