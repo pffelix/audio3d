@@ -57,14 +57,6 @@ class DspOut:
         return binaural_block_sp
 
     # @author: Felix Pfreundtner
-    def apply_hamming_window(self, inputsignal):
-        hamming_window = [0.53836 - 0.46164*math.cos(2*math.pi*t/(len(inputsignal) - 1)) for t in range(len(inputsignal))]
-        hamming_window = np.asarray(hamming_window, dtype=np.float64)
-        inputsignal = inputsignal * hamming_window
-        return inputsignal
-
-
-    # @author: Felix Pfreundtner
     def overlap_add (self, binaural_block_dict_sp, binaural_block_dict_out_sp, binaural_block_dict_add_sp, fft_blocksize, sp_blocksize):
         binaural_block_dict_out_sp = binaural_block_dict_sp[:sp_blocksize, :]
         binaural_block_dict_out_sp[:fft_blocksize - sp_blocksize] += binaural_block_dict_add_sp

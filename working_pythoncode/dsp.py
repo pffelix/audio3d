@@ -92,6 +92,9 @@ class Dsp:
                     # normalize sp block if requested
                     self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.sp_max_gain_dict[sp]  = self.DspIn_Object.normalize(self.DspIn_Object.sp_block_dict[sp], self.gui_dict[sp][3])
 
+                    # apply window to sp input in sp_block_dict
+                    self.DspIn_Object.sp_block_dict[sp]= self.DspIn_Object.apply_window(self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.cosine)
+
                     # for the left an right ear channel
                     for l_r in range(2):
                         # convolve hrtf with speaker block input
@@ -101,8 +104,6 @@ class Dsp:
                                                                self.DspIn_Object.fft_blocksize,
                                                                self.DspIn_Object.sp_max_gain_dict[sp],
                                                                self.DspIn_Object.hrtf_max_gain_dict[sp][l_r])
-                        # apply hamming window to binaural block ouptut
-                        # self.DspOut_Object.binaural_block_dict[sp][:, l_r]= self.DspOut_Object.apply_hamming_window(self.DspOut_Object.binaural_block_dict[sp][:, l_r])
 
 
                 # check wheter this block is last block in speaker audio file and stop convolution of speaker audio file

@@ -35,6 +35,8 @@ class DspIn:
             # get samplerate from header in .wav-file of all speakers
             self.wave_param_dict[sp][1], self.wave_param_dict[sp][2], self.wave_param_dict[sp][3] = self.get_samplerate_bits_nochannels(gui_dict_init[sp][2])
         self.wave_blockbeginend_dict = self.initialze_wave_blockbeginend(self.wave_blockbeginend_dict, self.sp_blocktime, self.wave_param_dict)
+        self.hamming = self.buid_hamming_window(self.sp_blocksize)
+        self.cosine = self.buid_cosine_window(self.sp_blocksize)
 
     # @author: Felix Pfreundtner
     # function does a normal school arithmetic round (Round half away from zero)
@@ -157,3 +159,25 @@ class DspIn:
         return sp_block_dict_sp, sp_max_gain_sp
 
 
+    # @author: Felix Pfreundtner
+    def buid_hamming_window(self, sp_blocksize):
+        N = sp_blocksize
+        hamming_window = np.zeros((N,), dtype=np.float16)
+        for n in range(N):
+            hamming_window[n,] = 0.53836 - 0.46164*math.cos(2*math.pi*n/ (N - 1))
+        return hamming_window
+
+    # @author: Felix Pfreundtner
+    def buid_cosine_window(self, sp_blocksize):
+        N = sp_blocksize
+        cosine_window = np.zeros((N,), dtype=np.float16)
+        for n in range(N):
+            cosine_window[n,] = math.sin(math.pi*n / (N - 1))
+        return cosine_window
+
+
+    # @author: Felix Pfreundtner
+    def apply_window(self, inputsignal, windowsignal):
+        inputsignal = inputsignal * windowsignal
+        inputsignal = inputsignal.astype(np.int16, copy=False)
+        return inputsignal
