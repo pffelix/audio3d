@@ -105,12 +105,6 @@ class Dsp:
                         # self.DspOut_Object.binaural_block_dict[sp][:, l_r]= self.DspOut_Object.apply_hamming_window(self.DspOut_Object.binaural_block_dict[sp][:, l_r])
 
 
-                # add stereo speaker binaural block output to a time continuinng binaural output for every speaker
-                #self.DspOut_Object.binaural_dict[sp], self.outputsignal_sample_number[
-                    #sp] = self.DspOut_Object.add_to_binaural_dict(self.DspOut_Object.binaural_block_dict[sp],
-                                                                  #self.DspOut_Object.binaural_dict[sp], int(
-                        #self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[sp][0])))
-
                 # check wheter this block is last block in speaker audio file and stop convolution of speaker audio file
                 if self.DspIn_Object.wave_blockbeginend_dict[sp][1] == float(self.DspIn_Object.wave_param_dict[sp][0]):
                     self.DspOut_Object.continue_convolution_dict[sp] = False
@@ -120,17 +114,18 @@ class Dsp:
                 #if self.gui_dict[sp][0] >= 360:
                     #self.gui_dict[sp][0] -= 360
 
+                # overlap samples [0: fft_block_size-sp_block_size] sp block with prior sp block samples [sp_block_size: fft_block_size] and save in binaural_block_dict_out
+                # save end of block [sp_block_size: fft_block_size] in binaural_block_dict_add to overlap in the next iteration
+                self.DspOut_Object.binaural_block_dict_out[sp], self.DspOut_Object.binaural_block_dict_add[sp] = self.DspOut_Object.overlap_add(self.DspOut_Object.binaural_block_dict[sp], self.DspOut_Object.binaural_block_dict_out[sp], self.DspOut_Object.binaural_block_dict_add[sp], self.DspIn_Object.fft_blocksize, self.DspIn_Object.sp_blocksize)
+
             # Mix binaural stereo blockoutput of every speaker to one binaural stereo block having regard to speaker distances
-            self.DspOut_Object.binaural_block = self.DspOut_Object.mix_binaural_block(self.DspOut_Object.binaural_block_dict, self.DspIn_Object.fft_blocksize, self.gui_dict)
+            self.DspOut_Object.binaural_block = self.DspOut_Object.mix_binaural_block(self.DspOut_Object.binaural_block_dict_out, self.DspIn_Object.sp_blocksize, self.gui_dict)
 
 
             # Add mixed binaural stereo blocks to a time continuing binaural output
-            self.DspOut_Object.binaural = self.DspOut_Object.add_to_binaural(self.DspOut_Object.binaural_block, self.DspOut_Object.binaural, int(
-                        self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[0][0])))
-
             self.DspOut_Object.lock.acquire()
             try:
-                self.DspOut_Object.binaural_block_add = self.DspOut_Object.binaural[self.DspIn_Object.wave_blockbeginend_dict[0][0]:self.DspIn_Object.wave_blockbeginend_dict[0][1], :]
+                self.DspOut_Object.binaural = self.DspOut_Object.add_to_binaural(self.DspOut_Object.binaural, self.DspOut_Object.binaural_block, self.blockcounter)
             finally:
                 self.DspOut_Object.lock.release()
 
@@ -147,15 +142,11 @@ class Dsp:
 
             # increment number of already convolved blocks
             self.blockcounter += 1
-        # resize amplitudes of signal to 16bit integer
-        binaural_dict_scaled = self.DspOut_Object.bit_int(self.DspOut_Object.binaural_dict)
+
         # show plot of the output signal binaural_dict_scaled
-        # plt.plot(self.DspOut_Object.binaural[:, l_r])
+        # plt.plot(self.DspOut_Object.binaural[:,:])
         # plt.show()
         # Write generated output signal binaural_dict_scaled to file
-        self.DspOut_Object.writebinauraloutput(binaural_dict_scaled, self.DspIn_Object.wave_param_common, self.gui_dict)
-        # if startaudiooutput.is_alive():
-        #     print("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww")
-        #     time.sleep(5)
+        self.DspOut_Object.writebinauraloutput(self.DspOut_Object.binaural, self.DspIn_Object.wave_param_common, self.gui_dict)
 
 

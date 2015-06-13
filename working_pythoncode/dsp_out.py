@@ -19,15 +19,14 @@ import threading
 class DspOut:
     def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize):
         self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize, 2), dtype=np.int16))
-        self.binaural_block = np.zeros((fft_blocksize, 2), dtype=np.int16)
-        self.binaural_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize, 2), dtype=np.int16))
+        self.binaural_block_dict_out = dict.fromkeys(gui_dict_init, np.zeros((sp_blocksize, 2), dtype=np.int16))
+        self.binaural_block_dict_add = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize - sp_blocksize, 2), dtype=np.int16))
+        self.binaural_block = np.zeros((sp_blocksize, 2), dtype=np.int16)
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
-        self.testoutput = np.ones((fft_blocksize, 2), dtype=np.int16)*30000
         self.played_frames_end = 0
         self.continue_convolution_list = dict.fromkeys(gui_dict_init, [])
         self.continue_convolution_dict = dict.fromkeys(gui_dict_init, True)
         self.get_new_block = True
-        self.binaural_block_add = np.zeros((sp_blocksize, 2), dtype=np.int16)
         self.play_counter = 0
         self.playbuffer = collections.deque()
         self.lock = threading.Lock()
@@ -52,7 +51,7 @@ class DspOut:
         binaural_block_sp = ifft(binaural_block_sp_frequency, fft_blocksize).real
 
         # normalize multiplied spectrum back to 16bit integer, consider maximum amplitude value of sp black and hrtf impulse to get dynamical volume output
-        binaural_block_sp_max_gain = int(np.amax(np.abs(binaural_block_sp)))
+        binaural_block_sp_max_gain = int(np.amax(np.abs(binaural_block_sp))) # 421014006*10
         binaural_block_sp = binaural_block_sp / (binaural_block_sp_max_gain / sp_max_gain_sp / hrtf_max_gain_sp_l_r * 32767)
         binaural_block_sp = binaural_block_sp.astype(np.int16, copy=False)
         return binaural_block_sp
@@ -66,59 +65,47 @@ class DspOut:
         return inputsignal
 
 
-
     # @author: Felix Pfreundtner
-    def bit_int(self, binaural_dict):
-        binaural_dict_scaled={}
-        for sp in binaural_dict:
-            binaural_dict_scaled[sp] = np.zeros((len(binaural_dict[sp]), 2), dtype=np.int16)
-            for l_r in range(2):
-                maximum_amplitude=np.amax(np.abs(binaural_dict[sp][:, l_r]))
-                if maximum_amplitude != 0:
-                    binaural_dict_scaled[sp][:, l_r] = binaural_dict[sp][:, l_r]/maximum_amplitude*32767
-                    binaural_dict_scaled[sp] = binaural_dict_scaled[sp].astype(np.int16, copy=False)
-
-        return binaural_dict_scaled
-
-    # @author: Felix Pfreundtner
-    def add_to_binaural_dict(self, binaural_block_dict, binaural_dict, begin_block):
-        outputsignal_sample_number = len(binaural_dict)
-        binaural_dict[begin_block : outputsignal_sample_number, :] += binaural_block_dict[0 : (outputsignal_sample_number - begin_block), :]
-        binaural_dict=np.concatenate((binaural_dict, binaural_block_dict[(outputsignal_sample_number - begin_block):, :]))
-
-        return binaural_dict, outputsignal_sample_number
-
-    # @author: Felix Pfreundtner
-    def writebinauraloutput(self, binaural_dict_scaled, wave_param_common, gui_dict):
-        if not os.path.exists("./audio_out/"):
-            os.makedirs("./audio_out/")
-        for sp in binaural_dict_scaled:
-            scipy.io.wavfile.write("./audio_out/binaural" + ntpath.basename(gui_dict[sp][2]), wave_param_common[0], binaural_dict_scaled[sp])
+    def overlap_add (self, binaural_block_dict_sp, binaural_block_dict_out_sp, binaural_block_dict_add_sp, fft_blocksize, sp_blocksize):
+        binaural_block_dict_out_sp = binaural_block_dict_sp[:sp_blocksize, :]
+        binaural_block_dict_out_sp[:fft_blocksize - sp_blocksize] += binaural_block_dict_add_sp
+        binaural_block_dict_add_sp = binaural_block_dict_sp[sp_blocksize:, :]
+        return binaural_block_dict_out_sp, binaural_block_dict_add_sp
 
 
     # @author: Felix Pfreundtner
-    def mix_binaural_block(self, binaural_block_dict, fft_blocksize, gui_dict):
-        binaural_block = np.zeros((fft_blocksize, 2))
+    def mix_binaural_block(self, binaural_block_dict_out, sp_blocksize, gui_dict):
+        binaural_block = np.zeros((sp_blocksize, 2))
         # maximum distance of a speaker to head in window with borderlength 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
         distance_max = 3.5*math.sqrt(2) # max([gui_dict[sp][1] for sp in gui_dict])
         # get total number of speakers from gui_dict
         total_number_of_sp = len(gui_dict)
-        for sp in binaural_block_dict:
+        for sp in binaural_block_dict_out:
             # get distance speaker to head from gui_dict
             distance_sp = gui_dict[sp][1]
             # sound pressure decreases with distance 1/r
             sp_gain_factor = 1 - distance_sp/distance_max
             # add gained sp block output to a summarized block output of all speakers
-            binaural_block += binaural_block_dict[sp]*sp_gain_factor / total_number_of_sp
+            binaural_block += binaural_block_dict_out[sp]*sp_gain_factor / total_number_of_sp
         binaural_block = binaural_block.astype(np.int16, copy=False)
         return binaural_block
 
+
     # @author: Felix Pfreundtner
-    def add_to_binaural(self, binaural_block, binaural, begin_block):
-        outputsignal_sample_number = len(binaural)
-        binaural[begin_block : outputsignal_sample_number, :] += binaural_block[0 : (outputsignal_sample_number - begin_block), :]
-        binaural=np.concatenate((binaural, binaural_block[(outputsignal_sample_number - begin_block):, :]))
+    def add_to_binaural(self, binaural, binaural_block, blockcounter):
+        if blockcounter == 0:
+            binaural = binaural_block
+        else:
+            binaural = np.concatenate((binaural, binaural_block))
         return binaural
+
+    # @author: Felix Pfreundtner
+    def writebinauraloutput(self, binaural, wave_param_common, gui_dict):
+        if not os.path.exists("./audio_out/"):
+            os.makedirs("./audio_out/")
+        scipy.io.wavfile.write("./audio_out/binauralmix.wav", wave_param_common[0], binaural)
+
+
 
     # @author: Felix Pfreundtner
     def callback(self, in_data, frame_count, time_info, status):
@@ -130,7 +117,6 @@ class DspOut:
         self.lock.acquire()
         try:
             data = self.binaural[played_frames_begin:self.played_frames_end, :]
-            # data = self.binaural_block_add
         finally:
             self.lock.release()
 
