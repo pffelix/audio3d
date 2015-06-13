@@ -51,11 +51,10 @@ class DspOut:
         binaural_block_sp = ifft(binaural_block_sp_frequency, fft_blocksize).real
 
         # normalize multiplied spectrum back to 16bit integer, consider maximum amplitude value of sp black and hrtf impulse to get dynamical volume output
-        binaural_block_sp_max_gain = int(np.amax(np.abs(binaural_block_sp))) # 421014006*10
+        binaural_block_sp_max_gain = int(np.amax(np.abs(binaural_block_sp))) # 421014006*10 #
         binaural_block_sp = binaural_block_sp / (binaural_block_sp_max_gain / sp_max_gain_sp / hrtf_max_gain_sp_l_r * 32767)
         binaural_block_sp = binaural_block_sp.astype(np.int16, copy=False)
         return binaural_block_sp
-
 
     # @author: Felix Pfreundtner
     def apply_hamming_window(self, inputsignal):
@@ -113,13 +112,11 @@ class DspOut:
             print("Playback Error: %i" % status)
         played_frames_begin = self.played_frames_end
         self.played_frames_end += frame_count
-        print("Played Block: " + str(int(played_frames_begin/frame_count)))
         self.lock.acquire()
         try:
             data = self.binaural[played_frames_begin:self.played_frames_end, :]
         finally:
             self.lock.release()
-
         print("Played Block: " + str(self.play_counter))
         self.play_counter+=1
         return data, pyaudio.paContinue

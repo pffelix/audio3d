@@ -24,7 +24,7 @@ class DspIn:
         # Standard samplerate, sampledepth
         self.wave_param_common = [44100, 16]
         # Determine number of output blocks per second
-        self.fft_blocksize = 1024
+        self.fft_blocksize = 512
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
         self.hrtf_blocksize = 128
         self.sp_blocksize, self.sp_blocktime, self.overlap = self.get_block_param(self.wave_param_common, self.hrtf_blocksize, self.fft_blocksize)
@@ -151,7 +151,7 @@ class DspIn:
             if max_amplitude_input != 0:
                 # normalize to have the maximum int16 amplitude
                 max_amplitude_output = 32767
-                sp_block_dict_sp = sp_block_dict_sp / (max_amplitude_input * max_amplitude_output)
+                sp_block_dict_sp = sp_block_dict_sp / (max_amplitude_input / max_amplitude_output)
                 sp_block_dict_sp = sp_block_dict_sp.astype(np.int16, copy=False)
         sp_max_gain_sp = np.amax(np.abs(sp_block_dict_sp[:,]))
         return sp_block_dict_sp, sp_max_gain_sp
