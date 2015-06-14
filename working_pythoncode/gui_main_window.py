@@ -71,8 +71,8 @@ class MainWindow(QWidget):
         from gui_utils import speaker_to_show
         i = speaker_to_show
         path = str(gui_dict[i][2])
-        azimuth = str(gui_dict[i][0])
-        dist = str(gui_dict[i][1])
+        azimuth = "{:.0f}".format(gui_dict[i][0])
+        dist = "{:.2f}".format(gui_dict[i][1])
         self.speaker_property.path_line_edit.setText(path)
         self.speaker_property.azimuth_line_edit.setText(azimuth)
         self.speaker_property.distance_line_edit.setText(dist)
@@ -114,9 +114,11 @@ class MainWindow(QWidget):
 
         if deg >= 360:
             deg %= 360
-        
-        self.speaker_property.azimuth_line_edit.setText(str(deg))
-        self.speaker_property.distance_line_edit.setText(str(dis/100))
+
+        str_deg = "{:.0f}".format(deg)
+        str_dis = "{:.2f}".format(dis/100)
+        self.speaker_property.azimuth_line_edit.setText(str_deg)
+        self.speaker_property.distance_line_edit.setText(str_dis)
         self.speaker_property.show()
 
     @pyqtSlot()
