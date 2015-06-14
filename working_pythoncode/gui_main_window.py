@@ -12,6 +12,8 @@ from gui_utils import *
 from dsp import Dsp
 import threading
 
+default_position = [[50, 20],[290, 20],[170, 50],[50, 320],[290, 320],[290, 170]]
+
 
 class MainWindow(QWidget):
 
@@ -93,10 +95,28 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def add_speaker(self):
-
+        index = len(gui_dict)
         self.speaker_property.added.connect(self.add2scene)
-        self.speaker_property.azimuth_line_edit.setText('315.0')
-        self.speaker_property.distance_line_edit.setText('2.4')
+
+        # calculate current default position
+        from gui_utils import audience_pos
+        x = default_position[index][0]
+        y = default_position[index][1]
+        dx = x - audience_pos.x()
+        dy = audience_pos.y() - y
+        dis = (dx**2+dy**2)**0.5
+
+        from math import acos, degrees
+        deg = degrees(acos(dy/dis))
+
+        if dx < 0:
+            deg = 360 - deg
+
+        if deg >= 360:
+            deg %= 360
+        
+        self.speaker_property.azimuth_line_edit.setText(str(deg))
+        self.speaker_property.distance_line_edit.setText(str(dis/100))
         self.speaker_property.show()
 
     @pyqtSlot()
@@ -117,7 +137,6 @@ class MainWindow(QWidget):
                 new_speaker = Speaker(index, path, x, y)
             new_speaker.signal_handler.show_property.connect(self.show_property)
             self.room.addItem(speaker_list[-1])
-            self.positions()
             self.view.viewport().update()
 
             # # clean up
@@ -151,57 +170,12 @@ class MainWindow(QWidget):
         print(self.dsp_object.signal_handler.error_message)
 
     def positions(self):
-        n = len(gui_dict)
-        if n == 0:
-            return
-        elif n == 1:
-            speaker_list[0].setPos(170, 50)
-            speaker_list[0].cal_rel_pos()
-        elif n == 2:
-            speaker_list[0].setPos(100, 50)
-            speaker_list[1].setPos(240, 50)
-            speaker_list[0].cal_rel_pos()
-            speaker_list[1].cal_rel_pos()
-        elif n == 3:
-            speaker_list[0].setPos(50, 20)
-            speaker_list[1].setPos(290, 20)
-            speaker_list[2].setPos(170, 50)
-            speaker_list[0].cal_rel_pos()
-            speaker_list[1].cal_rel_pos()
-            speaker_list[2].cal_rel_pos()
-        elif n == 4:
-            speaker_list[0].setPos(50, 20)
-            speaker_list[1].setPos(290, 20)
-            speaker_list[3].setPos(50, 320)
-            speaker_list[2].setPos(290, 320)
-            speaker_list[0].cal_rel_pos()
-            speaker_list[1].cal_rel_pos()
-            speaker_list[2].cal_rel_pos()
-            speaker_list[3].cal_rel_pos()
-        elif n == 5:
-            speaker_list[0].setPos(50, 20)
-            speaker_list[1].setPos(290, 20)
-            speaker_list[2].setPos(170, 50)
-            speaker_list[3].setPos(50, 320)
-            speaker_list[4].setPos(290, 320)
-            speaker_list[0].cal_rel_pos()
-            speaker_list[1].cal_rel_pos()
-            speaker_list[2].cal_rel_pos()
-            speaker_list[3].cal_rel_pos()
-            speaker_list[4].cal_rel_pos()
-        elif n == 6:
-            speaker_list[0].setPos(50, 20)
-            speaker_list[1].setPos(290, 20)
-            speaker_list[2].setPos(170, 50)
-            speaker_list[3].setPos(50, 320)
-            speaker_list[4].setPos(290, 320)
-            speaker_list[5].setPos(290, 170)
-            speaker_list[0].cal_rel_pos()
-            speaker_list[1].cal_rel_pos()
-            speaker_list[2].cal_rel_pos()
-            speaker_list[3].cal_rel_pos()
-            speaker_list[4].cal_rel_pos()
-            speaker_list[5].cal_rel_pos()
+
+        for index,speaker in enumerate(speaker_list):
+            x = default_position[index][0]
+            y = default_position[index][1]
+            speaker_list[index].setPos(x,y)
+            speaker_list[index].cal_rel_pos()
         else:
             return
 
