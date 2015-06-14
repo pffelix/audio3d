@@ -40,15 +40,15 @@ class Dsp:
         self.signal_handler = DspSignalHandler()
 
         # @author Matthias Lederle
-        self.blocknumpy = self.DspIn_Object.get_one_block_of_samples(
-            self.DspIn_Object.gui_dict_init[sp][2],
-            self.DspIn_Object.wave_blockbeginend_dict[sp],
-            self.DspIn_Object.wave_param_dict[4],
-            self.DspIn_Object.wave_param_dict[sp][2],
-            self.DspIn_Object.wave_param_dict[sp][3],
-            self.DspIn_Object.wave_param_dict[5],
-            self.DspIn_Object.wave_param_dict[6]
-        )
+        # self.blocknumpy = self.DspIn_Object.get_one_block_of_samples(
+        #     self.DspIn_Object.gui_dict_init[sp][2],
+        #     self.DspIn_Object.wave_blockbeginend_dict[sp],
+        #     self.DspIn_Object.wave_param_dict[4],
+        #     self.DspIn_Object.wave_param_dict[sp][2],
+        #     self.DspIn_Object.wave_param_dict[sp][3],
+        #     self.DspIn_Object.wave_param_dict[5],
+        #     self.DspIn_Object.wave_param_dict[6]
+        # )
 
     def run(self):
         # start play buffer

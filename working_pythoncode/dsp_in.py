@@ -39,9 +39,9 @@ class DspIn:
         self.cosine = self.buid_cosine_window(self.sp_blocksize)
 
         # @author Matthias Lederle
-        self.wave_param_dict[sp][4], self.wave_param_dict[sp][5], self.wave_param_dict[sp][6] = \
-            self.get_params_of_file_once(
-            self.gui_dict_init[sp][2])
+        # self.wave_param_dict[sp][4], self.wave_param_dict[sp][5], self.wave_param_dict[sp][6] = \
+        #     self.get_params_of_file_once(
+        #     self.gui_dict_init[sp][2])
         #wave_param_dict now looks like: ([sp][0 = ?, 1 = samplerate, 2 = bits, 3 = nochannels,
         # 4 = fmt, 5 = total_header_size, 6 = data_chunk_size)
 
