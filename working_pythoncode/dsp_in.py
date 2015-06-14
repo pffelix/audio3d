@@ -38,6 +38,8 @@ class DspIn:
         self.hamming = self.buid_hamming_window(self.sp_blocksize)
         self.cosine = self.buid_cosine_window(self.sp_blocksize)
 
+        # @author Matthias Lederle
+
     # @author: Felix Pfreundtner
     # function does a normal school arithmetic round (Round half away from zero)
     # different to pythons round() method (Round half to even)
@@ -181,3 +183,109 @@ class DspIn:
         inputsignal = inputsignal * windowsignal
         inputsignal = inputsignal.astype(np.int16, copy=False)
         return inputsignal
+
+    # @author: Matthias Lederle
+    def get_params_of_file_once(self, filename):
+        file = open(filename, 'rb')
+        _big_endian = False
+        # check endianness (whether file is RIFX or RIFF)
+        str1 = file.read(4)
+        if str1 == b'RIFX':
+            _big_endian = True
+        if _big_endian:
+            fmt = '>'
+        else:
+            fmt = '<'
+        # get to know where actual sample data begins and how big data-chunk is
+        file.seek(36)
+        counter = 0
+        checkbytes = b'aaaa'
+        # go to byte, where data actually starts
+        while checkbytes != b'data':
+            file.seek(-2, 1)
+            checkbytes = file.read(4)
+            counter += 1
+            # print(checkbytes, counter)
+        data_chunk_size = struct.unpack(fmt + 'i', file.read(4))[0]  # [data_chunk_size] = Bytes
+        total_header_size = 40 + (counter * 2)
+        file.close()
+
+        return fmt, total_header_size, data_chunk_size
+
+    def get_one_block_of_samples(self, filename, beginend_block_sp, fmt, bits, nochannels,
+                                 total_header_size, data_chunk_size):
+        file = open(filename, 'rb')
+        blocklength = beginend_block_sp[1] - beginend_block_sp[0] #blocklength is the number of samples
+        blocknumpy = np.zeros((blocklength, 1), dtype=np.int16)
+        end_of_file = False
+        bitfactor = int(bits / 8)
+        first_byte_of_block = total_header_size + (beginend_block_sp[0] * bitfactor * nochannels)
+        last_byte_of_block = total_header_size + (beginend_block_sp[1] * bitfactor * nochannels)
+        last_byte_of_file = total_header_size + data_chunk_size
+        file.seek(first_byte_of_block)
+        # choose correct specifier depending on bits/sample
+        if bitfactor == 1:
+            specifier = "B"
+        elif bitfactor == 2:
+            specifier = "h"
+        else:
+            print("Specifier for this number of bits/sample is not defined!")
+        # if mono, write blocknumpy
+        if nochannels == 1:
+            if last_byte_of_block < last_byte_of_file:
+                i = 0
+                while i < blocklength:
+                    blocknumpy[i, 0] = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
+                    i += 1
+            else: #last block to be filled individually
+                remaining_samples = int((last_byte_of_file - first_byte_of_block)/(bitfactor*nochannels))
+                i = 0
+                while i < remaining_samples:
+                    blocknumpy[i, 0] = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
+                    i += 1
+                end_of_file = True
+        # If stereo, make mono and write blocknumpy
+        elif nochannels == 2:
+            # First: Write left and right signal in independent lists
+            samplelist_of_one_block_left = []
+            samplelist_of_one_block_right = []
+            remaining_samples = 10000  # random value that cant be reached by (data_chunk_size - current_last_byte, see below)
+            if last_byte_of_block < last_byte_of_file:
+                i = 0
+                while i < blocklength:
+                    left_int = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
+                    right_int = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
+                    samplelist_of_one_block_left.append(left_int)
+                    samplelist_of_one_block_right.append(right_int)
+                    i += 1
+            else:  # (if current_last_byte >= data_chunk_size:
+                remaining_samples = int((last_byte_of_file - first_byte_of_block)/(bitfactor*nochannels))
+                i = 0
+                while i < remaining_samples:
+                    left_int = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
+                    right_int = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
+                    samplelist_of_one_block_left.append(left_int)
+                    samplelist_of_one_block_right.append(right_int)
+                    i += 1
+                end_of_file = True
+
+            # Second: Interpolate and merge the two lists and write in blocknumpy
+            if remaining_samples == 10000:
+                i = 0
+                while i < blocklength:
+                    mean_value = int((samplelist_of_one_block_left[i] + samplelist_of_one_block_right[i]) / 2)
+                    blocknumpy[i, 0] = mean_value
+                    i += 1
+            else:
+                i = 0
+                while i < remaining_samples:
+                    mean_value = int((samplelist_of_one_block_left[i] + samplelist_of_one_block_right[i]) / 2)
+                    blocknumpy[i, 0] = mean_value
+                    i += 1
+                end_of_file = True
+        else:
+            print("Signal is neither mono nor stereo (nochannels != 1 or 2) and can't be processed!")
+
+        file.close()
+
+        return blocknumpy#, end_of_file <-- will be added later!!!
