@@ -117,6 +117,7 @@ class MainWindow(QWidget):
                 new_speaker = Speaker(index, path, x, y)
             new_speaker.signal_handler.show_property.connect(self.show_property)
             self.room.addItem(speaker_list[-1])
+            self.positions()
             self.view.viewport().update()
 
             # # clean up
