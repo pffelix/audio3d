@@ -6,7 +6,7 @@ Created on Fri Jun  5 10:31:01 2015
 """
 
 import numpy as np
-from scipy.fftpack import fft, ifft
+from scipy.fftpack import fft, ifft, fftfreq
 import scipy.io.wavfile
 import pyaudio
 import time
@@ -32,7 +32,7 @@ class DspOut:
         self.lock = threading.Lock()
 
     # @author: Felix Pfreundtner
-    def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize, sp_max_gain_sp, hrtf_max_gain_sp_l_r):
+    def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize, sp_max_gain_sp, hrtf_max_gain_sp_l_r, samplerate, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r):
 
         # Do for speaker sp zeropadding: zeropad hrtf (left or right input) and speaker (mono input)
         hrtf_zeros = np.zeros((fft_blocksize-len(hrtf_block_sp_l_r), ), dtype = 'int16')
@@ -41,11 +41,29 @@ class DspOut:
         sp_block_sp_zeropadded = np.concatenate((sp_block_sp, sp_zeros))
 
         # bring time domain input to to frequency domain
-        hrtf_block_sp_frequency = fft(hrtf_block_sp_zeropadded, fft_blocksize)
-        sp_block_sp_frequency = fft(sp_block_sp_zeropadded, fft_blocksize)
+        hrtf_block_sp_fft = fft(hrtf_block_sp_zeropadded, fft_blocksize)
+        sp_block_sp_fft = fft(sp_block_sp_zeropadded, fft_blocksize)
+
+        # save fft magnitude spectrum of sp_block in sp_spectrum and hrtf_block in hrtf_spectrum to be shown by gui
+        freq_all = fftfreq(fft_blocksize, 1/samplerate) # array of all calculated FFT frequencies
+        position_freq = np.where(freq_all>=0) # position of only positive frequencies (negative frequencies redundant)
+        freqs = freq_all[position_freq] # array of only positive FFT frequencies (negative frequencies redundant)
+        sp_spectrum_dict_sp[:, 0] = freqs
+        hrtf_spectrum_dict_sp_l_r[:, 0] = freqs
+        sp_magnitude_spectrum = abs(sp_block_sp_fft[position_freq]) # get magnitude spectrum of sp block
+        max_amplitude_output = 32767 # normalize spectrum to get int16 values
+        max_amplitude_sp_magnitude_spectrum = np.amax(np.abs(sp_magnitude_spectrum))
+        if max_amplitude_sp_magnitude_spectrum != 0:
+            sp_spectrum_dict_sp[:,1] = sp_magnitude_spectrum / (max_amplitude_sp_magnitude_spectrum / max_amplitude_output)
+        hrtf_magnitude_spectrum = abs(hrtf_block_sp_fft[position_freq]) # get magnitude spectrum of hrtf block
+        max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(hrtf_magnitude_spectrum))
+        if max_amplitude_hrtf_magnitude_spectrum != 0:
+            hrtf_spectrum_dict_sp_l_r[:,1]  = hrtf_magnitude_spectrum / (max_amplitude_hrtf_magnitude_spectrum / max_amplitude_output)
+        sp_spectrum_dict_sp[0, 1] = 0
+        hrtf_spectrum_dict_sp_l_r[0, 1] = 0
 
         # execute convulotion of speaker input and hrtf input: multiply complex frequency domain vectors
-        binaural_block_sp_frequency = sp_block_sp_frequency * hrtf_block_sp_frequency
+        binaural_block_sp_frequency = sp_block_sp_fft * hrtf_block_sp_fft
 
         # bring multiplied spectrum back to time domain, disneglected small complex time parts resulting from numerical fft approach
         binaural_block_sp = ifft(binaural_block_sp_frequency, fft_blocksize).real
@@ -54,7 +72,7 @@ class DspOut:
         binaural_block_sp_max_gain = int(np.amax(np.abs(binaural_block_sp))) # 421014006*10 #
         binaural_block_sp = binaural_block_sp / (binaural_block_sp_max_gain / sp_max_gain_sp / hrtf_max_gain_sp_l_r * 32767)
         binaural_block_sp = binaural_block_sp.astype(np.int16, copy=False)
-        return binaural_block_sp
+        return binaural_block_sp, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r
 
     # @author: Felix Pfreundtner
     def overlap_add (self, binaural_block_dict_sp, binaural_block_dict_out_sp, binaural_block_dict_add_sp, fft_blocksize, sp_blocksize):
@@ -95,7 +113,6 @@ class DspOut:
         if not os.path.exists("./audio_out/"):
             os.makedirs("./audio_out/")
         scipy.io.wavfile.write("./audio_out/binauralmix.wav", wave_param_common[0], binaural)
-
 
 
     # @author: Felix Pfreundtner

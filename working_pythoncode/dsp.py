@@ -32,6 +32,8 @@ class Dsp:
         self.DspOut_Object = dsp_out.DspOut(gui_dict_init, self.DspIn_Object.fft_blocksize, self.DspIn_Object.sp_blocksize)
         # Variable counts number of already convolved blocks, initialized with zero
         self.blockcounter = 0
+        self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.int16))
+        self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.int16), np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.int16)])
 
         # Here a signal handler will be created
         # Usage:
@@ -93,17 +95,12 @@ class Dsp:
                     self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.sp_max_gain_dict[sp]  = self.DspIn_Object.normalize(self.DspIn_Object.sp_block_dict[sp], self.gui_dict[sp][3])
 
                     # apply window to sp input in sp_block_dict
-                    self.DspIn_Object.sp_block_dict[sp]= self.DspIn_Object.apply_window(self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.cosine)
+                    # self.DspIn_Object.sp_block_dict[sp]= self.DspIn_Object.apply_window(self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.cosine)
 
                     # for the left an right ear channel
                     for l_r in range(2):
                         # convolve hrtf with speaker block input
-                        self.DspOut_Object.binaural_block_dict[sp][0:self.DspIn_Object.fft_blocksize,
-                        l_r] = self.DspOut_Object.fft_convolve(self.DspIn_Object.sp_block_dict[sp],
-                                                               self.DspIn_Object.hrtf_block_dict[sp][:, l_r],
-                                                               self.DspIn_Object.fft_blocksize,
-                                                               self.DspIn_Object.sp_max_gain_dict[sp],
-                                                               self.DspIn_Object.hrtf_max_gain_dict[sp][l_r])
+                        self.DspOut_Object.binaural_block_dict[sp][0:self.DspIn_Object.fft_blocksize,l_r], self.sp_spectrum_dict[sp], self.hrtf_spectrum_dict[sp][l_r] = self.DspOut_Object.fft_convolve(self.DspIn_Object.sp_block_dict[sp],self.DspIn_Object.hrtf_block_dict[sp][:, l_r],self.DspIn_Object.fft_blocksize,self.DspIn_Object.sp_max_gain_dict[sp],self.DspIn_Object.hrtf_max_gain_dict[sp][l_r], self.DspIn_Object.wave_param_common[0], self.sp_spectrum_dict[sp], self.hrtf_spectrum_dict[sp][l_r])
 
 
                 # check wheter this block is last block in speaker audio file and stop convolution of speaker audio file
@@ -145,7 +142,7 @@ class Dsp:
             self.blockcounter += 1
 
         # show plot of the output signal binaural_dict_scaled
-        # plt.plot(self.DspOut_Object.binaural[:,:])
+        # plt.plot(self.sp_spectrum_dict[sp][:,0], self.sp_spectrum_dict[sp][:,1])
         # plt.show()
         # Write generated output signal binaural_dict_scaled to file
         self.DspOut_Object.writebinauraloutput(self.DspOut_Object.binaural, self.DspIn_Object.wave_param_common, self.gui_dict)
