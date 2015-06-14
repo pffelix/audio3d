@@ -41,6 +41,17 @@ class Dsp:
         # The only parameter (A String!) is the message you want to send
         self.signal_handler = DspSignalHandler()
 
+        # @author Matthias Lederle
+        # self.blocknumpy = self.DspIn_Object.get_one_block_of_samples(
+        #     self.DspIn_Object.gui_dict_init[sp][2],
+        #     self.DspIn_Object.wave_blockbeginend_dict[sp],
+        #     self.DspIn_Object.wave_param_dict[4],
+        #     self.DspIn_Object.wave_param_dict[sp][2],
+        #     self.DspIn_Object.wave_param_dict[sp][3],
+        #     self.DspIn_Object.wave_param_dict[5],
+        #     self.DspIn_Object.wave_param_dict[6]
+        # )
+
     def run(self):
         # start play buffer
         # play_output=deepcopy(standard_dict)
@@ -90,6 +101,9 @@ class Dsp:
                     self.DspIn_Object.sp_block_dict[sp], self.error_list[sp]= self.DspIn_Object.get_sp_block_dict(
                         self.DspIn_Object.signal_dict[sp], self.DspIn_Object.wave_blockbeginend_dict[sp],
                         self.DspIn_Object.sp_blocksize, self.error_list[sp])
+                    #instead, now blockwise:
+                    # @author Matthias Lederle
+                    #self.DspIn_Object.sp_block_dict[sp] = self.blocknumpy
 
                     # normalize sp block if requested
                     self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.sp_max_gain_dict[sp]  = self.DspIn_Object.normalize(self.DspIn_Object.sp_block_dict[sp], self.gui_dict[sp][3])
