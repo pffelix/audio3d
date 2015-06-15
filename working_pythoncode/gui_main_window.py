@@ -95,31 +95,34 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def add_speaker(self):
-        index = len(gui_dict)
-        self.speaker_property.added.connect(self.add2scene)
-
-        # calculate current default position
-        from gui_utils import audience_pos
-        x = default_position[index][0]
-        y = default_position[index][1]
-        dx = x - audience_pos.x()
-        dy = audience_pos.y() - y
-        dis = (dx**2+dy**2)**0.5
-
-        from math import acos, degrees
-        deg = degrees(acos(dy/dis))
-
-        if dx < 0:
-            deg = 360 - deg
-
-        if deg >= 360:
-            deg %= 360
-
-        str_deg = "{:.0f}".format(deg)
-        str_dis = "{:.2f}".format(dis/100)
-        self.speaker_property.azimuth_line_edit.setText(str_deg)
-        self.speaker_property.distance_line_edit.setText(str_dis)
-        self.speaker_property.show()
+        if len(gui_dict) < 6:
+            index = len(gui_dict)
+            self.speaker_property.added.connect(self.add2scene)
+    
+            # calculate current default position
+            from gui_utils import audience_pos
+            x = default_position[index][0]
+            y = default_position[index][1]
+            dx = x - audience_pos.x()
+            dy = audience_pos.y() - y
+            dis = (dx**2+dy**2)**0.5
+    
+            from math import acos, degrees
+            deg = degrees(acos(dy/dis))
+    
+            if dx < 0:
+                deg = 360 - deg
+    
+            if deg >= 360:
+                deg %= 360
+    
+            str_deg = "{:.0f}".format(deg)
+            str_dis = "{:.2f}".format(dis/100)
+            self.speaker_property.azimuth_line_edit.setText(str_deg)
+            self.speaker_property.distance_line_edit.setText(str_dis)
+            self.speaker_property.show()
+        else:
+            return
 
     @pyqtSlot()
     def add2scene(self):
@@ -179,7 +182,7 @@ class MainWindow(QWidget):
             speaker_list[index].setPos(x,y)
             speaker_list[index].cal_rel_pos()
         else:
-            return
+            return        
 
     def closeEvent (self, eventQCloseEvent):
         self.room.clear()
