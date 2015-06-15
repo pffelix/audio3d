@@ -74,7 +74,6 @@ class Dsp:
                 self.DspIn_Object.wave_blockbeginend_dict, self.DspIn_Object.wave_param_dict,
                 self.DspIn_Object.sp_blocktime)
 
-
             # iterate over all speakers sp
             for sp in self.gui_dict:
                 self.DspOut_Object.binaural_block_dict[sp] = np.zeros((self.DspIn_Object.fft_blocksize, 2), dtype=np.int16)
@@ -106,7 +105,7 @@ class Dsp:
                     self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.sp_max_gain_dict[sp]  = self.DspIn_Object.normalize(self.DspIn_Object.sp_block_dict[sp], self.gui_dict[sp][3])
 
                     # apply window to sp input in sp_block_dict
-                    # self.DspIn_Object.sp_block_dict[sp]= self.DspIn_Object.apply_window(self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.cosine)
+                    self.DspIn_Object.sp_block_dict[sp]= self.DspIn_Object.apply_window(self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.hann)
 
                     # for the left an right ear channel
                     for l_r in range(2):

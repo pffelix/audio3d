@@ -39,7 +39,7 @@ class DspIn:
         self.wave_blockbeginend_dict = self.initialze_wave_blockbeginend(self.wave_blockbeginend_dict, self.sp_blocktime, self.wave_param_dict)
         self.hamming = self.buid_hamming_window(self.sp_blocksize)
         self.cosine = self.buid_cosine_window(self.sp_blocksize)
-
+        self.hann = self.build_hann_window(self.sp_blocksize)
         # @author Matthias Lederle
         # self.wave_param_dict[sp][4], self.wave_param_dict[sp][5], self.wave_param_dict[sp][6] = \
         #     self.get_params_of_file_once(
@@ -173,7 +173,7 @@ class DspIn:
     def get_hrtf_param(self):
         if self.hrtf_database == "kemar_full_normal_ear" or  self.hrtf_database == "kemar_full_big_ear":
             hrtf_blocksize = 512
-            # get inverse minimum phase impulse response response of kemar measurement speaker optimus pro 7 and truncate to fft_blocksize (
+            # get inverse minimum phase impulse response response of kemar measurement speaker optimus pro 7 and truncate to fft_blocksize
             _, kemar_inverse_filter = scipy.io.wavfile.read("./kemar/full/headphones+spkr/Opti-minphase.wav")
             kemar_inverse_filter = kemar_inverse_filter[0:self.fft_blocksize, ]
         if self.hrtf_database == "kemar_compact":
@@ -218,8 +218,21 @@ class DspIn:
         N = sp_blocksize
         hamming_window = np.zeros((N,), dtype=np.float16)
         for n in range(N):
-            hamming_window[n,] = 0.53836 - 0.46164*math.cos(2*math.pi*n/ (N - 1))
+            hamming_window[n,] = 0.54 - 0.46*math.cos(2*math.pi*n/ (N+1))
         return hamming_window
+
+    def build_hann_window(self, sp_blocksize):
+        N = sp_blocksize
+        hann_window = np.zeros((N,), dtype=np.float16)
+        for n in range(N):
+            hann_window[n,] = 0.5*(1 - math.cos(2*math.pi*n/(N)))
+        add = np.zeros((2000,))
+        add[0:513,] = hann_window
+        add[256:256+513,] += hann_window
+        add[513:513+513,] += hann_window
+        plt.plot(add)
+        plt.show()
+        return hann_window
 
     # @author: Felix Pfreundtner
     def buid_cosine_window(self, sp_blocksize):
@@ -231,10 +244,10 @@ class DspIn:
 
 
     # @author: Felix Pfreundtner
-    def apply_window(self, inputsignal, windowsignal):
-        inputsignal = inputsignal * windowsignal
-        inputsignal = inputsignal.astype(np.int16, copy=False)
-        return inputsignal
+    def apply_window(self, sp_block_sp, windowsignal):
+        sp_block_sp = sp_block_sp * windowsignal
+        sp_block_sp = sp_block_sp.astype(np.int16, copy=False)
+        return sp_block_sp
 
     # @author: Matthias Lederle
     def get_params_of_file_once(self, filename):
