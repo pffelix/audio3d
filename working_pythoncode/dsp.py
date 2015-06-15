@@ -111,7 +111,7 @@ class Dsp:
                     # for the left an right ear channel
                     for l_r in range(2):
                         # convolve hrtf with speaker block input
-                        self.DspOut_Object.binaural_block_dict[sp][0:self.DspIn_Object.fft_blocksize,l_r], self.sp_spectrum_dict[sp], self.hrtf_spectrum_dict[sp][l_r] = self.DspOut_Object.fft_convolve(self.DspIn_Object.sp_block_dict[sp],self.DspIn_Object.hrtf_block_dict[sp][:, l_r],self.DspIn_Object.fft_blocksize,self.DspIn_Object.sp_max_gain_dict[sp],self.DspIn_Object.hrtf_max_gain_dict[sp][l_r], self.DspIn_Object.wave_param_common[0], self.sp_spectrum_dict[sp], self.hrtf_spectrum_dict[sp][l_r])
+                        self.DspOut_Object.binaural_block_dict[sp][0:self.DspIn_Object.fft_blocksize,l_r], self.sp_spectrum_dict[sp], self.hrtf_spectrum_dict[sp][l_r] = self.DspOut_Object.fft_convolve(self.DspIn_Object.sp_block_dict[sp],self.DspIn_Object.hrtf_block_dict[sp][:, l_r],self.DspIn_Object.fft_blocksize,self.DspIn_Object.sp_max_gain_dict[sp],self.DspIn_Object.hrtf_max_gain_dict[sp][l_r], self.DspIn_Object.wave_param_common[0], self.sp_spectrum_dict[sp], self.hrtf_spectrum_dict[sp][l_r], self.DspIn_Object.hrtf_database, self.DspIn_Object.kemar_inverse_filter)
 
 
                 # check wheter this block is last block in speaker audio file and stop convolution of speaker audio file

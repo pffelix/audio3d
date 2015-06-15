@@ -32,7 +32,7 @@ class DspOut:
         self.lock = threading.Lock()
 
     # @author: Felix Pfreundtner
-    def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize, sp_max_gain_sp, hrtf_max_gain_sp_l_r, samplerate, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r):
+    def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize, sp_max_gain_sp, hrtf_max_gain_sp_l_r, samplerate, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r, hrtf_database, kemar_inverse_filter):
 
         # Do for speaker sp zeropadding: zeropad hrtf (left or right input) and speaker (mono input)
         hrtf_zeros = np.zeros((fft_blocksize-len(hrtf_block_sp_l_r), ), dtype = 'int16')
@@ -62,8 +62,12 @@ class DspOut:
         sp_spectrum_dict_sp[0, 1] = 0
         hrtf_spectrum_dict_sp_l_r[0, 1] = 0
 
-        # execute convulotion of speaker input and hrtf input: multiply complex frequency domain vectors
+        # execute convolution of speaker input and hrtf input: multiply complex frequency domain vectors
         binaural_block_sp_frequency = sp_block_sp_fft * hrtf_block_sp_fft
+
+        # if kemar full is selected furthermore convolve with ( approximated 1024 samples) inverse impulse response of optimus pro 7 speaker
+        if hrtf_database == "kemar_full_normal_ear" or hrtf_database == "kemar_full_big_ear":
+            binaural_block_sp_frequency = binaural_block_sp_frequency * fft(kemar_inverse_filter, fft_blocksize)
 
         # bring multiplied spectrum back to time domain, disneglected small complex time parts resulting from numerical fft approach
         binaural_block_sp = ifft(binaural_block_sp_frequency, fft_blocksize).real
