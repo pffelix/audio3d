@@ -9,6 +9,7 @@ import scipy.io.wavfile
 import struct
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
 class DspIn:
     def __init__(self, gui_dict_init):
@@ -25,9 +26,8 @@ class DspIn:
         # Determine number of output blocks per second
         self.fft_blocksize = 1024
         self.hrtf_databases = ["kemar_full_normal_ear", "kemar_full_big_ear", "kemar_compact"]
-        self.hrtf_database = self.hrtf_databases[0]
-        self.hrtf_blocksizes = [512, 512, 128]
-        self.hrtf_blocksize = self.hrtf_blocksizes[0]
+        self.hrtf_database = self.hrtf_databases[2]
+        self.kemar_inverse_filter, self.hrtf_blocksize = self.get_hrtf_param()
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
         self.sp_blocksize, self.sp_blocktime, self.overlap = self.get_block_param(self.wave_param_common, self.hrtf_blocksize, self.fft_blocksize)
         for sp in self.wave_param_dict:
@@ -133,6 +133,7 @@ class DspIn:
             else:
                 hrtf_input[:,[0, 1]] = hrtf_input[:,[1, 0]]
                 hrtf_block_dict_sp=hrtf_input
+            kemar_inv_filter = np.ones((1024,))
             hrtf_max_gain_sp=[]
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
@@ -166,9 +167,21 @@ class DspIn:
             hrtf_max_gain_sp=[]
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
+        return hrtf_block_dict_sp, hrtf_max_gain_sp, kemar_inv_filter
 
-
-        return hrtf_block_dict_sp, hrtf_max_gain_sp
+    # @author: Felix Pfreundtner
+    def get_hrtf_param(self):
+        if self.hrtf_database == "kemar_full_normal_ear" or  self.hrtf_database == "kemar_full_big_ear":
+            hrtf_blocksize = 512
+            if self.fft_blocksize == 1024:
+                _, kemar_inverse_filter = scipy.io.wavfile.read("./kemar/full/headphones+spkr/Opti-inverse.wav")
+                kemar_inverse_filter = kemar_inverse_filter[100:1124, ]
+            else:
+                kemar_inverse_filter = np.ones((self.fft_blocksize,), dtype = np.int16)
+        if self.hrtf_database == "kemar_compact":
+            hrtf_blocksize = 128
+            kemar_inverse_filter = np.ones((self.fft_blocksize,), dtype = np.int16)
+        return kemar_inverse_filter, hrtf_blocksize
 
 
     # @author: Felix Pfreundtner
