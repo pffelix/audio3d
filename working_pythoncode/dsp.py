@@ -90,10 +90,7 @@ class Dsp:
                     # check whether head position to speaker sp has changed
                     if self.gui_dict[sp][0] != self.prior_head_angle_dict[sp]:
                         # if head position has changed load new fitting hrtf file into array
-                        self.DspIn_Object.hrtf_filenames_dict[sp] = self.DspIn_Object.get_hrtf_filenames(
-                            self.gui_dict[sp])
-                        self.DspIn_Object.hrtf_block_dict[sp], self.DspIn_Object.hrtf_max_gain_dict[sp] = self.DspIn_Object.get_hrtf(
-                            self.DspIn_Object.hrtf_filenames_dict[sp], self.gui_dict[sp])
+                        self.DspIn_Object.hrtf_block_dict[sp], self.DspIn_Object.hrtf_max_gain_dict[sp] = self.DspIn_Object.get_hrtfs(self.gui_dict[sp], self.DspIn_Object.hrtf[2])
                         # save head position to speaker of this block in prior_head_angle dict
                         self.prior_head_angle_dict[sp] = self.gui_dict[sp][0]
 

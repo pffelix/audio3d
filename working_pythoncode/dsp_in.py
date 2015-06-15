@@ -25,6 +25,7 @@ class DspIn:
         self.wave_param_common = [44100, 16]
         # Determine number of output blocks per second
         self.fft_blocksize = 1024
+        self.hrtf = ["kemar_full_normal_ear", "kemar_full_big_ear", "kemar_compact"]
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
         self.hrtf_blocksize = 128
         self.sp_blocksize, self.sp_blocktime, self.overlap = self.get_block_param(self.wave_param_common, self.hrtf_blocksize, self.fft_blocksize)
@@ -102,39 +103,73 @@ class DspIn:
         return wave_blockbeginend_dict
 
     # @author: Felix Pfreundtner
-    def get_hrtf_filenames(self, gui_dict_sp):
-        rounddifference = gui_dict_sp[0] % 5
-        if rounddifference == 0:
-            if gui_dict_sp[0] <= 180:
-                azimuthangle = self.rnd(gui_dict_sp[0])
-            else:
-                azimuthangle = self.rnd(360 - gui_dict_sp[0])
-        else:
-            if gui_dict_sp[0] <= 180:
-                if rounddifference < 2.5:
-                    azimuthangle = self.rnd(gui_dict_sp[0] - rounddifference)
-                else:
-                    azimuthangle = self.rnd(gui_dict_sp[0] + 5 - rounddifference)
-            else:
-                if rounddifference < 2.5:
-                    azimuthangle = 360 - self.rnd(gui_dict_sp[0] - rounddifference)
-                else:
-                    azimuthangle = 360 - self.rnd(gui_dict_sp[0] + 5 - rounddifference)
-        hrtf_filenames_dict_sp = "./kemar/compact/elev0/H0e" + str(azimuthangle).zfill(3) + "a.wav"
-        return hrtf_filenames_dict_sp
+    def get_hrtfs(self, gui_dict_sp, hrtf):
 
-    # @author: Felix Pfreundtner
-    def get_hrtf(self, hrtf_filenames_dict_sp, gui_dict_sp):
-        _, hrtf_input = scipy.io.wavfile.read(hrtf_filenames_dict_sp)
-        if gui_dict_sp[0] <= 180:
+        if hrtf == "kemar_compact":
+            # get filmename of the relevant hrtf
+            rounddifference = gui_dict_sp[0] % 5
+            if rounddifference == 0:
+                if gui_dict_sp[0] <= 180:
+                    azimuthangle = self.rnd(gui_dict_sp[0])
+                else:
+                    azimuthangle = self.rnd(360 - gui_dict_sp[0])
+            else:
+                if gui_dict_sp[0] <= 180:
+                    if rounddifference < 2.5:
+                        azimuthangle = self.rnd(gui_dict_sp[0] - rounddifference)
+                    else:
+                        azimuthangle = self.rnd(gui_dict_sp[0] + 5 - rounddifference)
+                else:
+                    if rounddifference < 2.5:
+                        azimuthangle = 360 - self.rnd(gui_dict_sp[0] - rounddifference)
+                    else:
+                        azimuthangle = 360 - self.rnd(gui_dict_sp[0] + 5 - rounddifference)
+            hrtf_filenames_dict_sp = "./kemar/compact/elev0/H0e" + str(azimuthangle).zfill(3) + "a.wav"
+
+            # get samples of the relevant hrtf for each ear in numpy array (l,r)
+            _, hrtf_input = scipy.io.wavfile.read(hrtf_filenames_dict_sp)
+            if gui_dict_sp[0] <= 180:
+                hrtf_block_dict_sp=hrtf_input
+            else:
+                hrtf_input[:,[0, 1]] = hrtf_input[:,[1, 0]]
+                hrtf_block_dict_sp=hrtf_input
+            hrtf_max_gain_sp=[]
+            hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
+            hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
+
+        if hrtf == "kemar_full_normal_ear" or hrtf == "kemar_full_big_ear":
+            # get filmename of the relevant hrtf for each ear
+            rounddifference = gui_dict_sp[0] % 5
+            if rounddifference == 0:
+                azimuthangle_l = self.rnd(gui_dict_sp[0])
+            else:
+                if rounddifference < 2.5:
+                    azimuthangle_l = self.rnd(gui_dict_sp[0] - rounddifference)
+                else:
+                    azimuthangle_l = self.rnd(gui_dict_sp[0] + 5 - rounddifference)
+            if azimuthangle_l >= 180:
+                azimuthangle_r = azimuthangle_l - 180
+            else:
+                azimuthangle_r = azimuthangle_l + 180
+
+            if hrtf == "kemar_full_normal_ear":
+                hrtf_filenames_dict_sp_l = "./kemar/full/elev0/L0e" + str(azimuthangle_l).zfill(3) + "a.wav"
+                hrtf_filenames_dict_sp_r = "./kemar/full/elev0/L0e" + str(azimuthangle_r).zfill(3) + "a.wav"
+            else:
+                hrtf_filenames_dict_sp_l = "./kemar/full/elev0/R0e" + str(azimuthangle_l).zfill(3) + "a.wav"
+                hrtf_filenames_dict_sp_r = "./kemar/full/elev0/R0e" + str(azimuthangle_r).zfill(3) + "a.wav"
+
+            # get samples of the relevant hrtf for each ear in numpy array (l,r)
+            _, hrtf_input_l = scipy.io.wavfile.read(hrtf_filenames_dict_sp_l)
+            _, hrtf_input_r = scipy.io.wavfile.read(hrtf_filenames_dict_sp_r)
             hrtf_block_dict_sp=hrtf_input
-        else:
-            hrtf_input[:,[0, 1]] = hrtf_input[:,[1, 0]]
-            hrtf_block_dict_sp=hrtf_input
-        hrtf_max_gain_sp=[]
-        hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
-        hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
+            hrtf_max_gain_sp=[]
+            hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
+            hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
+
+
         return hrtf_block_dict_sp, hrtf_max_gain_sp
+
 
     # @author: Felix Pfreundtner
     def get_sp_block_dict(self, signal_dict_sp, wave_blockbeginend_dict_sp, sp_blocksize, error_list_sp):
