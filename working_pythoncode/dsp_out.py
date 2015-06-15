@@ -54,11 +54,11 @@ class DspOut:
         max_amplitude_output = 32767 # normalize spectrum to get int16 values
         max_amplitude_sp_magnitude_spectrum = np.amax(np.abs(sp_magnitude_spectrum))
         if max_amplitude_sp_magnitude_spectrum != 0:
-            sp_spectrum_dict_sp[:,1] = sp_magnitude_spectrum / (max_amplitude_sp_magnitude_spectrum / max_amplitude_output)
+            sp_spectrum_dict_sp[:,1] = sp_magnitude_spectrum / (max_amplitude_sp_magnitude_spectrum / sp_max_gain_sp * max_amplitude_output)
         hrtf_magnitude_spectrum = abs(hrtf_block_sp_fft[position_freq]) # get magnitude spectrum of hrtf block
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0:
-            hrtf_spectrum_dict_sp_l_r[:,1]  = hrtf_magnitude_spectrum / (max_amplitude_hrtf_magnitude_spectrum / max_amplitude_output)
+            hrtf_spectrum_dict_sp_l_r[:,1]  = hrtf_magnitude_spectrum / (max_amplitude_hrtf_magnitude_spectrum / hrtf_max_gain_sp_l_r * max_amplitude_output)
         sp_spectrum_dict_sp[0, 1] = 0
         hrtf_spectrum_dict_sp_l_r[0, 1] = 0
 

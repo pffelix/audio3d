@@ -32,8 +32,8 @@ class Dsp:
         self.DspOut_Object = dsp_out.DspOut(gui_dict_init, self.DspIn_Object.fft_blocksize, self.DspIn_Object.sp_blocksize)
         # Variable counts number of already convolved blocks, initialized with zero
         self.blockcounter = 0
-        self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.int16))
-        self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.int16), np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.int16)])
+        self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.float16))
+        self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.float16), np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.float16)])
 
         # Here a signal handler will be created
         # Usage:
