@@ -59,7 +59,7 @@ class DspIn:
         sp_blocksize = fft_blocksize-hrtf_blocksize+1
         sp_blocktime = sp_blocksize/wave_param_common[0]
         overlap = (fft_blocksize-sp_blocksize)/fft_blocksize # in decimal 0.
-        # overlap = 0
+        overlap = 0
         return sp_blocksize, sp_blocktime, overlap
 
 
@@ -203,6 +203,7 @@ class DspIn:
         sp_block_sp = sp_block_sp * windowsignal
         sp_block_sp = sp_block_sp.astype(np.int16, copy=False)
         return sp_block_sp
+
 
     # @author: Matthias Lederle
     def initialize_get_block(self, gui_dict):

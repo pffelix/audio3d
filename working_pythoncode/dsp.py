@@ -78,6 +78,7 @@ class Dsp:
                 # print("sp" + str(sp) + ": " + str(int(self.gui_dict[sp][0])) + ", " + str(self.gui_dict[sp][1]))
 
             # calculate range of frames to be read in iteration from wav files (float numbers needed for adding the correct framesizes to the next iteration)
+            #if self.blockcounter==0:
             self.DspIn_Object.set_block_begin_end()
 
             # iterate over all speakers sp
@@ -110,14 +111,16 @@ class Dsp:
                     self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.sp_max_gain_dict[sp]  = self.DspIn_Object.normalize(self.DspIn_Object.sp_block_dict[sp], self.gui_dict[sp][3])
 
                     # apply window to sp input in sp_block_dict
-                    self.DspIn_Object.sp_block_dict[sp]= self.DspIn_Object.apply_window(self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.hann)
+                    #self.DspIn_Object.sp_block_dict[sp]= self.DspIn_Object.apply_window(self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.hann)
 
                     # for the left an right ear channel
                     for l_r in range(2):
+
                         # convolve hrtf with speaker block input
                         self.DspOut_Object.binaural_block_dict[sp][0:self.DspIn_Object.fft_blocksize,l_r], self.sp_spectrum_dict[sp], self.hrtf_spectrum_dict[sp][l_r] = self.DspOut_Object.fft_convolve(self.DspIn_Object.sp_block_dict[sp],self.DspIn_Object.hrtf_block_dict[sp][:, l_r],self.DspIn_Object.fft_blocksize,self.DspIn_Object.sp_max_gain_dict[sp],self.DspIn_Object.hrtf_max_gain_dict[sp][l_r], self.DspIn_Object.wave_param_common[0], self.sp_spectrum_dict[sp], self.hrtf_spectrum_dict[sp][l_r], self.DspIn_Object.hrtf_database, self.DspIn_Object.kemar_inverse_filter, self.DspIn_Object.hrtf_blocksize, self.DspIn_Object.sp_blocksize)
 
                         # apply window to sp binaural block output left or right ear in binaural_block_dict
+                        #self.DspIn_Object.hann = self.DspIn_Object.build_hann_window(self.DspIn_Object.fft_blocksize)
                         #self.DspOut_Object.binaural_block_dict[sp][0:,l_r]= self.DspIn_Object.apply_window(self.DspOut_Object.binaural_block_dict[sp][0:,l_r], self.DspIn_Object.hann)
 
 
@@ -140,6 +143,8 @@ class Dsp:
                 self.DspOut_Object.binaural = self.DspOut_Object.add_to_binaural(self.DspOut_Object.binaural, self.DspOut_Object.binaural_block, self.blockcounter)
             finally:
                 self.DspOut_Object.lock.release()
+
+            #self.DspOut_Object.binaural = self.DspOut_Object.overlapp_add_window(self.DspOut_Object.binaural_block_dict[sp][0:,1], self.blockcounter, self.DspIn_Object.fft_blocksize, self.DspOut_Object.binaural)
 
 
             # Begin Audio Playback if specified Number of Bufferblocks has been convolved

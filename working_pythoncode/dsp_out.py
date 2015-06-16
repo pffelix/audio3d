@@ -9,12 +9,14 @@ import numpy as np
 from scipy.fftpack import fft, ifft, fftfreq
 import scipy.io.wavfile
 import pyaudio
+import matplotlib.pyplot as plt
 import time
 import math
 import ntpath
 import os
 import collections
 import threading
+from copy import deepcopy
 
 class DspOut:
     def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize):
@@ -73,14 +75,14 @@ class DspOut:
         binaural_block_sp = ifft(binaural_block_sp_frequency, fft_blocksize).real
 
         # normalize multiplied spectrum back to 16bit integer, consider maximum amplitude value of sp black and hrtf impulse to get dynamical volume output
-        binaural_block_sp_max_gain = int(np.amax(np.abs(binaural_block_sp))) # 421014006*10 #
+        binaural_block_sp_max_gain = 26825636157874 # int(np.amax(np.abs(binaural_block_sp))) # 421014006*10 #
         binaural_block_sp = binaural_block_sp / (binaural_block_sp_max_gain / sp_max_gain_sp / hrtf_max_gain_sp_l_r * 32767)
         binaural_block_sp = binaural_block_sp.astype(np.int16, copy=False)
         return binaural_block_sp, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r
 
     # @author: Felix Pfreundtner
     def overlap_add (self, binaural_block_dict_sp, binaural_block_dict_out_sp, binaural_block_dict_add_sp, fft_blocksize, sp_blocksize):
-        binaural_block_dict_out_sp = binaural_block_dict_sp[:sp_blocksize, :]
+        binaural_block_dict_out_sp = deepcopy(binaural_block_dict_sp[:sp_blocksize, :])
         binaural_block_dict_out_sp[:fft_blocksize - sp_blocksize] += binaural_block_dict_add_sp
         binaural_block_dict_add_sp = binaural_block_dict_sp[sp_blocksize:, :]
         return binaural_block_dict_out_sp, binaural_block_dict_add_sp
@@ -105,9 +107,14 @@ class DspOut:
 
     # Testfunction overlap
     def overlapp_add_window(self, binaural_block_dict_sp, blockcounter, fft_blocksize, binaural):
+
+        delay = 256
         if blockcounter == 0:
-            binaural = np.zeros((fft_blocksize*1000, 2), dtype=np.int16)
-        binaural[blockcounter*256:blockcounter*256+1024,0] += binaural_block_dict_sp
+            binaural = np.zeros((fft_blocksize*5, 2), dtype=np.int16)
+        if blockcounter % 2 != 0:
+            binaural[blockcounter*delay:blockcounter*delay+1024,1] += binaural_block_dict_sp
+        else:
+            binaural[blockcounter*delay:blockcounter*delay+1024,1] += binaural_block_dict_sp
         return binaural
 
     # @author: Felix Pfreundtner
