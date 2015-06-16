@@ -35,6 +35,12 @@ class MainWindow(QWidget):
         # set property window
         self.speaker_property = SpeakerProperty()
         self.speaker_property.closed.connect(self.property_closed)
+        
+        # set plot window
+        self.sequence_plot = SequencePlot()
+#        self.thread_plot = thread()
+        self.sequence_plot.plot_closed.connect(self.plot_closed)
+        self.sequence_plot.plot_on.connect(self.update_sequence_dicts)
 
         self.init_ui()
 
@@ -45,6 +51,8 @@ class MainWindow(QWidget):
         reset_button = QPushButton('Reset')
         control_button = QPushButton('Play/Stop')
         default_position_button = QPushButton('Default Position')
+        self.plot_button = QPushButton('Plot Sequence')
+        self.plot_button.setDisabled(True)
 
         # set layout
         layout = QVBoxLayout()
@@ -53,12 +61,14 @@ class MainWindow(QWidget):
         layout.addWidget(control_button)
         layout.addWidget(reset_button)
         layout.addWidget(default_position_button)
+        layout.addWidget(self.plot_button)
 
         # connect signal and slots
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
         control_button.clicked.connect(self.control)
         default_position_button.clicked.connect(self.positions)
+        self.plot_button.clicked.connect(self.plot_sequence)
 
         # set window
         self.setLayout(layout)
@@ -164,6 +174,7 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def control(self):
+        self.plot_button.setEnabled(True)
         self.dsp_object = Dsp(gui_dict)
         self.dsp_object.signal_handler.error_occur.connect(self.show_error)
         play = threading.Thread(target=self.dsp_object.run)
@@ -182,7 +193,26 @@ class MainWindow(QWidget):
             speaker_list[index].setPos(x,y)
             speaker_list[index].cal_rel_pos()
         else:
-            return        
+            return   
+    
+    def plot_sequence(self):
+#        print(self.dsp_object.sp_spectrum_dict)plot_sequence
+        from gui_utils import speaker_to_show
+        i = speaker_to_show
+        self.sequence_plot.axis0.plot(self.dsp_object.sp_spectrum_dict[i][:,0], self.dsp_object.sp_spectrum_dict[i][:,1])
+        self.sequence_plot.axis1.plot(self.dsp_object.hrtf_spectrum_dict[i][0][:,0], self.dsp_object.hrtf_spectrum_dict[i][0][:,1])
+        self.sequence_plot.axis2.plot(self.dsp_object.hrtf_spectrum_dict[i][1][:,0], self.dsp_object.hrtf_spectrum_dict[i][1][:,1])
+        self.plot = threading.Thread(target=self.sequence_plot.show())
+        self.plot.start()
+#        plot = threading.Thread(target=self.thread_plot.run())
+#        plot.start()
+        
+    def update_sequence_dicts(self):
+        self.dsp_object = Dsp(gui_dict)
+        self.plot_sequence()
+        
+    def plot_closed(self):
+        self.sequence_plot.plot_closed.disconnect()
 
     def closeEvent (self, eventQCloseEvent):
         self.room.clear()

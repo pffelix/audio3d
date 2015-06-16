@@ -1,5 +1,10 @@
 from PyQt4 import QtCore, QtGui
 
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+import numpy as np
+
 gui_dict = {}
 audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
@@ -321,3 +326,26 @@ class SpeakerProperty(QtGui.QWidget):
 
     def closeEvent(self, QCloseEvent):
         self.closed.emit()
+
+class SequencePlot(QtGui.QWidget):
+    plot_closed = QtCore.pyqtSignal()
+    plot_on = QtCore.pyqtSignal()
+   
+    def __init__(self):
+        super(SequencePlot, self).__init__()
+
+        self.figure = Figure()
+        self.canvas = FigureCanvasQTAgg(self.figure)
+        self.axis0 = self.figure.add_subplot(311)
+        self.axis1 = self.figure.add_subplot(312, ylabel='right HRTF')
+        self.axis2 = self.figure.add_subplot(313, ylabel='left HRTF')
+
+        self.layoutVertical = QtGui.QVBoxLayout(self)
+        self.layoutVertical.addWidget(self.canvas)
+
+        self.setWindowTitle('Sequence Plot')
+        self.plot_on.emit()
+
+    def closeEvent(self, QCloseEvent):
+        self.plot_closed.emit()
+
