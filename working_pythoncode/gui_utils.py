@@ -1,15 +1,23 @@
+"""
+Library for GUI of Audio 3D Project, Group B
+author: H. Zhu, M. Heiss
+"""
+
 from PyQt4 import QtCore, QtGui
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
-import numpy as np
+# import matplotlib.pyplot as plt
+# import numpy as np
 
+# initialization of variables
 gui_dict = {}
 audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
 speaker_to_show = 0
 
+
+# Headtracker - to be implemented
 class Headtracker(object):
 
     def __init__(self):
@@ -21,12 +29,18 @@ class Headtracker(object):
     def get_head_deg(self):
         return self.head_deg
 
+
+# Items inside the QGraphicsScene, including Speaker and Audience
 class Item(QtGui.QGraphicsPixmapItem):
 
     def __init__(self):
 
-        image = self.origin_image.scaled(50, 50, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        image = self.origin_image.scaled(
+                                    50, 50, QtCore.Qt.KeepAspectRatio,
+                                    QtCore.Qt.SmoothTransformation)
+
         super(Item, self).__init__(QtGui.QPixmap.fromImage(image))
+
         self.setCursor(QtCore.Qt.OpenHandCursor)
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
@@ -41,8 +55,10 @@ class Item(QtGui.QGraphicsPixmapItem):
 
     def mouseMoveEvent(self, event):
 
-        if QtCore.QLineF(QtCore.QPointF(event.screenPos()), QtCore.QPointF(event.buttonDownScreenPos(QtCore.Qt.LeftButton))).length() < QtGui.QApplication.startDragDistance():
-            return
+        if QtCore.QLineF(QtCore.QPointF(event.screenPos()),
+                         QtCore.QPointF(event.buttonDownScreenPos(
+                             QtCore.Qt.LeftButton))).length() < QtGui.QApplication.startDragDistance():
+                                 return
 
         drag = QtGui.QDrag(event.widget())
         mime = QtCore.QMimeData()
@@ -71,12 +87,12 @@ class Room(QtGui.QGraphicsScene):
         global audience_pos
         global speaker_list
         try:
-            self.current_item.setPos(e.scenePos().x()-25,e.scenePos().y()-25)
+            self.current_item.setPos(e.scenePos().x()-25, e.scenePos().y()-25)
             x = self.current_item.scenePos().x()
             y = self.current_item.scenePos().y()
 
             if x > 350:
-                self.current_item.setPos(350,y)
+                self.current_item.setPos(350, y)
                 if y > 350:
                     self.current_item.setPos(350, 350)
                 if y < 0:
@@ -113,6 +129,7 @@ class Room(QtGui.QGraphicsScene):
         except AttributeError:
             pass
 
+
 class View(QtGui.QGraphicsView):
 
     def dragEnterEvent(self, e):
@@ -134,7 +151,9 @@ class View(QtGui.QGraphicsView):
     def keyPressEvent(self, QKeyEvent):
         pass
 
-# Signal handler for QGraphicsItem which doesn't provide the signal/slot function
+
+# Signal handler for QGraphicsItem
+# which doesn't provide the signal/slot function
 class SignalHandler(QtCore.QObject):
 
     show_property = QtCore.pyqtSignal()
@@ -150,14 +169,14 @@ class Speaker(Item):
     type = 'speaker'
     path = 'unknown'
 
-    def __init__(self, index, path, posx=0,posy=0, norm=False):
+    def __init__(self, index, path, posx=0, posy=0, norm=False):
 
         global speaker_list
         self.index = index
         image_path = './image/speaker'+str(index+1)+'.png'
         self.origin_image = QtGui.QImage(image_path)
         super(Speaker, self).__init__()
-        self.setPos(posx,posy)
+        self.setPos(posx, posy)
         self.path = path
         self.norm = norm
         self.signal_handler = SignalHandler(self.index)
@@ -182,8 +201,8 @@ class Speaker(Item):
 
         if deg >= 360:
             deg %= 360
-        gui_dict[self.index] = [deg, dis/100, self.path,self.norm]
-        #print(gui_dict)
+        gui_dict[self.index] = [deg, dis/100, self.path, self.norm]
+        # print(gui_dict)
 
     def mouseDoubleClickEvent(self, event):
         global speaker_to_show
@@ -203,6 +222,7 @@ class Audience(Item):
         self.setPos(170, 170)
         audience_pos = self.scenePos()
 
+
 class SpeakerProperty(QtGui.QWidget):
 
     added = QtCore.pyqtSignal()
@@ -211,11 +231,12 @@ class SpeakerProperty(QtGui.QWidget):
     posy = 0
 
     def __init__(self):
-        super(SpeakerProperty,self).__init__()
+        super(SpeakerProperty, self).__init__()
 
         # set labels
         self.path_label = QtGui.QLabel('Audio Source:')
-        self.position_label = QtGui.QLabel('Relative Position to the Audience:')
+        self.position_label = QtGui.QLabel(
+                                    'Relative Position to the Audience:')
         self.azimuth_label = QtGui.QLabel('Azimuth:')
         self.distance_label = QtGui.QLabel('Distance:')
         self.ear_label = QtGui.QLabel('Ear Size:')
@@ -251,7 +272,7 @@ class SpeakerProperty(QtGui.QWidget):
         layout.addWidget(self.cancel_button, 6, 2, 1, 2)
         layout.addWidget(self.normalize_box, 3, 0, 1, 2)
         layout.addWidget(self.ear_label, 3, 2, 1, 2)
-        layout.addWidget(self.combo_box, 3, 3, 1, 2)        
+        layout.addWidget(self.combo_box, 3, 3, 1, 2)
 
         # connect signal and slots
         self.file_select_button.clicked.connect(self.browse)
@@ -273,13 +294,13 @@ class SpeakerProperty(QtGui.QWidget):
     def confirm(self):
         global ear
         ear = self.combo_box.currentText()
-#        print(ear)
+
         from math import cos, sin, degrees, radians
         x0 = audience_pos.x()
         y0 = audience_pos.y()
         azimuth = float(self.azimuth_line_edit.text())
         dist = 100*float(self.distance_line_edit.text())
-        #if azimuth < 360 and dist < 300.0:
+        # if azimuth < 360 and dist < 300.0:
         self.posx = x0 + dist*sin(radians(azimuth))
         self.posy = y0 - dist*cos(radians(azimuth))
 
@@ -310,12 +331,14 @@ class SpeakerProperty(QtGui.QWidget):
                 self.posx = 350
             if x < 0:
                 self.posx = 0
-        # if self.posx > 0 and self.posx < 350 and self.posy > 0 and self.posy < 350:
+        # if self.posx > 0 and self.posx < 350 and
+        #                      self.posy > 0 and self.posy < 350:
         #     self.added.emit()
         #     self.close()
         # else:
         #     QtGui.QMessageBox.question(self, 'Message',
-        #              'A value is out of range! Try again.', QtGui.QMessageBox.Ok)
+        #              'A value is out of range! Try again.',
+        #                  QtGui.QMessageBox.Ok)
 
         print(self.posx)
         print(self.posy)
@@ -338,10 +361,11 @@ class SpeakerProperty(QtGui.QWidget):
     def closeEvent(self, QCloseEvent):
         self.closed.emit()
 
+
 class SequencePlot(QtGui.QWidget):
     plot_closed = QtCore.pyqtSignal()
     plot_on = QtCore.pyqtSignal()
-   
+
     def __init__(self):
         super(SequencePlot, self).__init__()
 
@@ -357,7 +381,5 @@ class SequencePlot(QtGui.QWidget):
         self.setWindowTitle('Sequence Plot')
         self.timer = QtCore.QTimer(self)
 
-
     def closeEvent(self, QCloseEvent):
         self.plot_closed.emit()
-

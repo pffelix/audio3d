@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-A Simple sketch of the Gui
-author: H. Zhu
+GUI Main Window of Audio 3D Project, Group B
+author: H. Zhu, M. Heiss
 """
 
 from PyQt4.QtCore import *
@@ -12,35 +12,40 @@ from gui_utils import *
 from dsp import Dsp
 import threading
 
-default_position = [[50, 20],[290, 20],[170, 50],[50, 320],[290, 320],[290, 170]]
+default_position = [[50, 20], [290, 20], [170, 50],
+                    [50, 320], [290, 320], [290, 170]]
 settings_dict = {}
+
 
 class MainWindow(QWidget):
 
     def __init__(self):
-        super(MainWindow,self).__init__()
+        super(MainWindow, self).__init__()
         self.setAcceptDrops(True)
+
         # set items
         self.audience = Audience()
+
         # set scene and view
         self.room = Room()
-        self.room.setSceneRect(0,0,400,400)
+        self.room.setSceneRect(0, 0, 400, 400)
         self.room.addItem(self.audience)
+
         # set view
         self.view = View(self.room)
-        self.view.setFixedSize(400,400)
+        self.view.setFixedSize(400, 400)
         self.view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         # set property window
         self.speaker_property = SpeakerProperty()
         self.speaker_property.closed.connect(self.property_closed)
-        
+
         # set plot window
         self.sequence_plot = SequencePlot()
-
         self.sequence_plot.plot_closed.connect(self.plot_closed)
         self.sequence_plot.plot_on.connect(self.update_sequence_dicts)
+
         self.dsp_object = Dsp(gui_dict)
         self.init_ui()
 
@@ -53,8 +58,8 @@ class MainWindow(QWidget):
         default_position_button = QPushButton('Default Position')
         self.plot_button = QPushButton('Plot Sequence')
         self.plot_button.setDisabled(True)
-        
-        #set_properties
+
+        # set_properties
         self.combo_box = QtGui.QComboBox()
         self.combo_box.addItem('kemar_normal_ear')
         self.combo_box.addItem('kemar_big_ear')
@@ -94,7 +99,7 @@ class MainWindow(QWidget):
         self.setLayout(layout)
         self.setWindowTitle('3D Audio')
         self.show()
-    
+
     def inverse_disable(self):
         if self.combo_box.currentText() == 'kemar_compact':
             self.inverse_box.setCheckState(False)
@@ -134,7 +139,7 @@ class MainWindow(QWidget):
         if len(gui_dict) < 6:
             index = len(gui_dict)
             self.speaker_property.added.connect(self.add2scene)
-    
+
             # calculate current default position
             from gui_utils import audience_pos
             x = default_position[index][0]
@@ -142,16 +147,16 @@ class MainWindow(QWidget):
             dx = x - audience_pos.x()
             dy = audience_pos.y() - y
             dis = (dx**2+dy**2)**0.5
-    
+
             from math import acos, degrees
             deg = degrees(acos(dy/dis))
-    
+
             if dx < 0:
                 deg = 360 - deg
-    
+
             if deg >= 360:
                 deg %= 360
-    
+
             str_deg = "{:.0f}".format(deg)
             str_dis = "{:.2f}".format(dis/100)
             self.speaker_property.azimuth_line_edit.setText(str_deg)
@@ -170,19 +175,18 @@ class MainWindow(QWidget):
             path = self.speaker_property.path
             x = self.speaker_property.posx
             y = self.speaker_property.posy
-
             # create new speaker
             if self.speaker_property.normalize_box.isChecked():
                 new_speaker = Speaker(index, path, x, y, True)
-            else:   
+            else:
                 new_speaker = Speaker(index, path, x, y)
-            new_speaker.signal_handler.show_property.connect(self.show_property)
+            new_speaker.signal_handler.show_property.connect(
+                                                        self.show_property)
             self.room.addItem(speaker_list[-1])
             self.view.viewport().update()
-
-            # # clean up
-            # self.speaker_property.added.disconnect()
-            # self.speaker_property.clear()
+#             clean up
+#             self.speaker_property.added.disconnect()
+#             self.speaker_property.clear()
         else:
             return
 
@@ -190,23 +194,23 @@ class MainWindow(QWidget):
     def reset(self):
 
         self.room.clear()
-
         gui_dict.clear()
         del speaker_list[:]
-
         new_audience = Audience()
         self.room.addItem(new_audience)
         self.view.viewport().update()
 
     @pyqtSlot()
     def control(self):
-#        print(self.combo_box.currentText())
-#        print(self.inverse_box.isChecked())
-#        print(self.buffersize_spin_box.value())
-        settings_dict = {0 : self.combo_box.currentText(), 1 : self.inverse_box.isChecked(), 2 : self.buffersize_spin_box.value()}
+        # print(self.combo_box.currentText())
+        # print(self.inverse_box.isChecked())
+        # print(self.buffersize_spin_box.value())
+        settings_dict = {0: self.combo_box.currentText(),
+                         1: self.inverse_box.isChecked(),
+                         2: self.buffersize_spin_box.value()}
         self.plot_button.setEnabled(True)
         self.plot_button.setEnabled(True)
-        self.dsp_object.set_gui_dict(gui_dict)#, settings_dict)
+        self.dsp_object.set_gui_dict(gui_dict)  # , settings_dict)
         self.dsp_object.signal_handler.error_occur.connect(self.show_error)
         play = threading.Thread(target=self.dsp_object.run)
         play.start()
@@ -218,35 +222,43 @@ class MainWindow(QWidget):
 
     def positions(self):
 
-        for index,speaker in enumerate(speaker_list):
+        for index, speaker in enumerate(speaker_list):
             x = default_position[index][0]
             y = default_position[index][1]
-            speaker_list[index].setPos(x,y)
+            speaker_list[index].setPos(x, y)
             speaker_list[index].cal_rel_pos()
         else:
-            return   
-    
+            return
+
     def plot_sequence(self):
-#        print(self.dsp_object.sp_spectrum_dict)plot_sequence
+        # print(self.dsp_object.sp_spectrum_dict)plot_sequence
         from gui_utils import speaker_to_show
         i = speaker_to_show
 
-        self.line1, = self.sequence_plot.axis0.plot(self.dsp_object.sp_spectrum_dict[i][:,0], self.dsp_object.sp_spectrum_dict[i][:,1])
-        self.line2, = self.sequence_plot.axis1.plot(self.dsp_object.hrtf_spectrum_dict[i][0][:,0], self.dsp_object.hrtf_spectrum_dict[i][0][:,1])
-        self.line3, = self.sequence_plot.axis2.plot(self.dsp_object.hrtf_spectrum_dict[i][1][:,0], self.dsp_object.hrtf_spectrum_dict[i][1][:,1])
+        self.line1, = self.sequence_plot.axis0.plot(
+                          self.dsp_object.sp_spectrum_dict[i][:, 0],
+                          self.dsp_object.sp_spectrum_dict[i][:, 1])
+        self.line2, = self.sequence_plot.axis1.plot(
+                          self.dsp_object.hrtf_spectrum_dict[i][0][:, 0],
+                          self.dsp_object.hrtf_spectrum_dict[i][0][:, 1])
+        self.line3, = self.sequence_plot.axis2.plot(
+                          self.dsp_object.hrtf_spectrum_dict[i][1][:, 0],
+                          self.dsp_object.hrtf_spectrum_dict[i][1][:, 1])
 
         self.sequence_plot.show()
         self.sequence_plot.timer.timeout.connect(self.update_sequence_dicts)
         self.sequence_plot.timer.start(1000)
 
-        
     def update_sequence_dicts(self):
         from gui_utils import speaker_to_show
         i = speaker_to_show
         print('updating')
-        self.line1.set_data(self.dsp_object.sp_spectrum_dict[i][:,0], self.dsp_object.sp_spectrum_dict[i][:,1])
-        self.line2.set_data(self.dsp_object.hrtf_spectrum_dict[i][0][:,0], self.dsp_object.hrtf_spectrum_dict[i][0][:,1])
-        self.line3.set_data(self.dsp_object.hrtf_spectrum_dict[i][1][:,0], self.dsp_object.hrtf_spectrum_dict[i][1][:,1])
+        self.line1.set_data(self.dsp_object.sp_spectrum_dict[i][:, 0],
+                            self.dsp_object.sp_spectrum_dict[i][:, 1])
+        self.line2.set_data(self.dsp_object.hrtf_spectrum_dict[i][0][:, 0],
+                            self.dsp_object.hrtf_spectrum_dict[i][0][:, 1])
+        self.line3.set_data(self.dsp_object.hrtf_spectrum_dict[i][1][:, 0],
+                            self.dsp_object.hrtf_spectrum_dict[i][1][:, 1])
         self.sequence_plot.canvas.draw()
 
     def plot_closed(self):
@@ -256,6 +268,6 @@ class MainWindow(QWidget):
         self.sequence_plot.axis1.clear()
         self.sequence_plot.axis2.clear()
 
-    def closeEvent (self, eventQCloseEvent):
+    def closeEvent(self, eventQCloseEvent):
         self.room.clear()
         eventQCloseEvent.accept()
