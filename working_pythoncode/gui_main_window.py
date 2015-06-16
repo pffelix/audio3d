@@ -41,7 +41,7 @@ class MainWindow(QWidget):
 #        self.thread_plot = thread()
         self.sequence_plot.plot_closed.connect(self.plot_closed)
         self.sequence_plot.plot_on.connect(self.update_sequence_dicts)
-
+        self.dsp_object = Dsp(gui_dict)
         self.init_ui()
 
     def init_ui(self):
@@ -175,7 +175,7 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def control(self):
         self.plot_button.setEnabled(True)
-        self.dsp_object = Dsp(gui_dict)
+        self.dsp_object.set_gui_dict(gui_dict)
         self.dsp_object.signal_handler.error_occur.connect(self.show_error)
         play = threading.Thread(target=self.dsp_object.run)
         play.start()

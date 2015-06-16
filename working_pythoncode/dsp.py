@@ -51,6 +51,23 @@ class Dsp:
         #     self.DspIn_Object.wave_param_dict[5],
         #     self.DspIn_Object.wave_param_dict[6]
         # )
+    def set_gui_dict(self, gui_dict_init):
+
+        self.gui_dict = gui_dict_init
+        self.prior_head_angle_dict = dict.fromkeys(gui_dict_init, [])
+        self.error_list = dict.fromkeys(gui_dict_init, [])
+        self.outputsignal_sample_number = dict.fromkeys(gui_dict_init, [])
+        # Set number of bufferblocks between fft block convolution and audio block playback
+        self.number_of_bufferblocks = 10
+        # Create Input Object which contains mono input samples of sources and hrtf impulse responses samples
+        self.DspIn_Object = dsp_in.DspIn(gui_dict_init)
+        # Create Output Object which contains binaural output samples
+        self.DspOut_Object = dsp_out.DspOut(gui_dict_init, self.DspIn_Object.fft_blocksize, self.DspIn_Object.sp_blocksize)
+        # Variable counts number of already convolved blocks, initialized with zero
+        self.blockcounter = 0
+        self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.float16))
+        self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.float16), np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.float16)])
+
 
     def run(self):
         # start play buffer
