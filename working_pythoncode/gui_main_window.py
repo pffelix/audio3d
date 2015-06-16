@@ -199,20 +199,31 @@ class MainWindow(QWidget):
 #        print(self.dsp_object.sp_spectrum_dict)plot_sequence
         from gui_utils import speaker_to_show
         i = speaker_to_show
-        self.sequence_plot.axis0.plot(self.dsp_object.sp_spectrum_dict[i][:,0], self.dsp_object.sp_spectrum_dict[i][:,1])
-        self.sequence_plot.axis1.plot(self.dsp_object.hrtf_spectrum_dict[i][0][:,0], self.dsp_object.hrtf_spectrum_dict[i][0][:,1])
-        self.sequence_plot.axis2.plot(self.dsp_object.hrtf_spectrum_dict[i][1][:,0], self.dsp_object.hrtf_spectrum_dict[i][1][:,1])
-        self.plot = threading.Thread(target=self.sequence_plot.show())
-        self.plot.start()
-#        plot = threading.Thread(target=self.thread_plot.run())
-#        plot.start()
+
+        self.line1, = self.sequence_plot.axis0.plot(self.dsp_object.sp_spectrum_dict[i][:,0], self.dsp_object.sp_spectrum_dict[i][:,1])
+        self.line2, = self.sequence_plot.axis1.plot(self.dsp_object.hrtf_spectrum_dict[i][0][:,0], self.dsp_object.hrtf_spectrum_dict[i][0][:,1])
+        self.line3, = self.sequence_plot.axis2.plot(self.dsp_object.hrtf_spectrum_dict[i][1][:,0], self.dsp_object.hrtf_spectrum_dict[i][1][:,1])
+
+        self.sequence_plot.show()
+        self.sequence_plot.timer.timeout.connect(self.update_sequence_dicts)
+        self.sequence_plot.timer.start(1000)
+
         
     def update_sequence_dicts(self):
-        self.dsp_object = Dsp(gui_dict)
-        self.plot_sequence()
-        
+        from gui_utils import speaker_to_show
+        i = speaker_to_show
+        print('updating')
+        self.line1.set_data(self.dsp_object.sp_spectrum_dict[i][:,0], self.dsp_object.sp_spectrum_dict[i][:,1])
+        self.line2.set_data(self.dsp_object.hrtf_spectrum_dict[i][0][:,0], self.dsp_object.hrtf_spectrum_dict[i][0][:,1])
+        self.line3.set_data(self.dsp_object.hrtf_spectrum_dict[i][1][:,0], self.dsp_object.hrtf_spectrum_dict[i][1][:,1])
+        self.sequence_plot.canvas.draw()
+
     def plot_closed(self):
         self.sequence_plot.plot_closed.disconnect()
+        self.sequence_plot.timer.stop()
+        self.sequence_plot.axis0.clear()
+        self.sequence_plot.axis1.clear()
+        self.sequence_plot.axis2.clear()
 
     def closeEvent (self, eventQCloseEvent):
         self.room.clear()

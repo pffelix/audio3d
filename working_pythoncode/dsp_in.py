@@ -230,8 +230,8 @@ class DspIn:
         add[0:513,] = hann_window
         add[256:256+513,] += hann_window
         add[513:513+513,] += hann_window
-        plt.plot(add)
-        plt.show()
+        # plt.plot(add)
+        # plt.show()
         return hann_window
 
     # @author: Felix Pfreundtner

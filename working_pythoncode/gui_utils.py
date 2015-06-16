@@ -108,6 +108,8 @@ class Room(QtGui.QGraphicsScene):
 
             elif self.current_item.type == 'speaker':
                 self.current_item.cal_rel_pos()
+                global speaker_to_show
+                speaker_to_show = self.index
         except AttributeError:
             pass
 
@@ -353,7 +355,8 @@ class SequencePlot(QtGui.QWidget):
         self.layoutVertical.addWidget(self.canvas)
 
         self.setWindowTitle('Sequence Plot')
-        self.plot_on.emit()
+        self.timer = QtCore.QTimer(self)
+
 
     def closeEvent(self, QCloseEvent):
         self.plot_closed.emit()
