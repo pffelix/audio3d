@@ -13,7 +13,7 @@ from dsp import Dsp
 import threading
 
 default_position = [[50, 20],[290, 20],[170, 50],[50, 320],[290, 320],[290, 170]]
-
+settings_dict = {}
 
 class MainWindow(QWidget):
 
@@ -38,7 +38,7 @@ class MainWindow(QWidget):
         
         # set plot window
         self.sequence_plot = SequencePlot()
-#        self.thread_plot = thread()
+
         self.sequence_plot.plot_closed.connect(self.plot_closed)
         self.sequence_plot.plot_on.connect(self.update_sequence_dicts)
         self.dsp_object = Dsp(gui_dict)
@@ -53,15 +53,33 @@ class MainWindow(QWidget):
         default_position_button = QPushButton('Default Position')
         self.plot_button = QPushButton('Plot Sequence')
         self.plot_button.setDisabled(True)
+        
+        #set_properties
+        self.combo_box = QtGui.QComboBox()
+        self.combo_box.addItem('kemar_normal_ear')
+        self.combo_box.addItem('kemar_big_ear')
+        self.combo_box.addItem('kemar_compact')
+        self.database_label = QtGui.QLabel('Select Database:')
+        self.inverse_box = QtGui.QCheckBox('Inverse Filtering')
+        self.buffersize_label = QtGui.QLabel('Buffer Size:')
+        self.buffersize_spin_box = QtGui.QSpinBox()
+        self.buffersize_spin_box.setMinimum(0)
+        self.buffersize_spin_box.setMaximum(100)
+        self.buffersize_spin_box.setValue(5)
 
         # set layout
-        layout = QVBoxLayout()
-        layout.addWidget(self.view)
-        layout.addWidget(add_speaker_button)
-        layout.addWidget(control_button)
-        layout.addWidget(reset_button)
-        layout.addWidget(default_position_button)
-        layout.addWidget(self.plot_button)
+        layout = QtGui.QGridLayout()
+        layout.addWidget(self.view, 0, 0, 1, 4)
+        layout.addWidget(add_speaker_button, 1, 0, 1, 4)
+        layout.addWidget(control_button, 2, 0, 1, 4)
+        layout.addWidget(reset_button, 3, 0, 1, 4)
+        layout.addWidget(default_position_button, 4, 0, 1, 4)
+        layout.addWidget(self.plot_button, 5, 0, 1, 4)
+        layout.addWidget(self.database_label, 6, 0, 1, 1)
+        layout.addWidget(self.combo_box, 6, 1, 1, 2)
+        layout.addWidget(self.inverse_box, 6, 3, 1, 1)
+        layout.addWidget(self.buffersize_label, 7, 0, 1, 1)
+        layout.addWidget(self.buffersize_spin_box, 7, 1, 1, 1)
 
         # connect signal and slots
         add_speaker_button.clicked.connect(self.add_speaker)
@@ -69,11 +87,19 @@ class MainWindow(QWidget):
         control_button.clicked.connect(self.control)
         default_position_button.clicked.connect(self.positions)
         self.plot_button.clicked.connect(self.plot_sequence)
+        self.combo_box.currentIndexChanged.connect(self.inverse_disable)
+        self.inverse_box.stateChanged.connect(self.inverse_disable)
 
         # set window
         self.setLayout(layout)
         self.setWindowTitle('3D Audio')
         self.show()
+    
+    def inverse_disable(self):
+        if self.combo_box.currentText() == 'kemar_compact':
+            self.inverse_box.setCheckState(False)
+        else:
+            return
 
     @pyqtSlot()
     def show_property(self):
@@ -174,8 +200,13 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def control(self):
+#        print(self.combo_box.currentText())
+#        print(self.inverse_box.isChecked())
+#        print(self.buffersize_spin_box.value())
+        settings_dict = {0 : self.combo_box.currentText(), 1 : self.inverse_box.isChecked(), 2 : self.buffersize_spin_box.value()}
         self.plot_button.setEnabled(True)
-        self.dsp_object.set_gui_dict(gui_dict)
+        self.plot_button.setEnabled(True)
+        self.dsp_object.set_gui_dict(gui_dict)#, settings_dict)
         self.dsp_object.signal_handler.error_occur.connect(self.show_error)
         play = threading.Thread(target=self.dsp_object.run)
         play.start()
