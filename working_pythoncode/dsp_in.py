@@ -10,10 +10,11 @@ import struct
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+from dsp_signal_handler import DspSignalHandler
 
 class DspIn:
     def __init__(self, gui_dict_init):
-        self.wave_param_dict = dict.fromkeys(gui_dict_init, [])
+        self.sp_param = dict.fromkeys(gui_dict_init, [])
         self.hrtf_block_dict = dict.fromkeys(gui_dict_init, [])
         self.hrtf_max_gain_dict = dict.fromkeys(gui_dict_init, [])
         self.sp_max_gain_dict = dict.fromkeys(gui_dict_init, [])
@@ -30,22 +31,13 @@ class DspIn:
         self.kemar_inverse_filter, self.hrtf_blocksize = self.get_hrtf_param()
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
         self.sp_blocksize, self.sp_blocktime, self.overlap = self.get_block_param(self.wave_param_common, self.hrtf_blocksize, self.fft_blocksize)
-        for sp in self.wave_param_dict:
-            # Read in whole Wave File of Speaker sp into signal_dict[sp] and write Wave Parameter samplenumber, samplefrequency and bitdepth (Standard 16bit) into wave_param_dict[sp]
-            self.samplerate_sp, self.signal_dict[sp] = scipy.io.wavfile.read(gui_dict_init[sp][2])
-            self.wave_param_dict[sp].extend([len(self.signal_dict[sp]), self.samplerate_sp, 16, 1])
-            # get samplerate from header in .wav-file of all speakers
-            self.wave_param_dict[sp][1], self.wave_param_dict[sp][2], self.wave_param_dict[sp][3] = self.get_samplerate_bits_nochannels(gui_dict_init[sp][2])
-        self.wave_blockbeginend_dict = self.initialze_wave_blockbeginend(self.wave_blockbeginend_dict, self.sp_blocktime, self.wave_param_dict)
+        # get samplerate from header in .wav-file of all speakers
+        self.sp_param = self.initialize_get_block(gui_dict_init)
+        self.wave_blockbeginend_dict = self.initialze_wave_blockbeginend(self.wave_blockbeginend_dict, self.sp_blocktime, self.sp_param)
         self.hamming = self.buid_hamming_window(self.sp_blocksize)
         self.cosine = self.buid_cosine_window(self.sp_blocksize)
         self.hann = self.build_hann_window(self.sp_blocksize)
-        # @author Matthias Lederle
-        # self.wave_param_dict[sp][4], self.wave_param_dict[sp][5], self.wave_param_dict[sp][6] = \
-        #     self.get_params_of_file_once(
-        #     self.gui_dict_init[sp][2])
-        #wave_param_dict now looks like: ([sp][0 = ?, 1 = samplerate, 2 = bits, 3 = nochannels,
-        # 4 = fmt, 5 = total_header_size, 6 = data_chunk_size)
+
 
     # @author: Felix Pfreundtner
     # function does a normal school arithmetic round (Round half away from zero)
@@ -70,37 +62,18 @@ class DspIn:
         overlap = (fft_blocksize-sp_blocksize)/fft_blocksize*100 # in %
         return sp_blocksize, sp_blocktime, overlap
 
-        # @author: Matthias Lederle
-    def get_samplerate_bits_nochannels(self, filename):
-        file = open(filename, 'rb')
-        _big_endian = False
-        # check whether file is RIFX or RIFF
-        str1 = file.read(4)
-        if str1 == b'RIFX':
-            _big_endian = True
-        if _big_endian:
-            fmt = '>'
-        else:
-            fmt = '<'
-        file.seek(22)
-        nochannels = struct.unpack(fmt+"H", file.read(2))[0]
-        samplerate = struct.unpack(fmt+"I", file.read(4))[0]
-        file.seek(34)
-        bits = struct.unpack(fmt+"H", file.read(2))[0]
-        file.close()
-        return samplerate, bits, nochannels
 
     # @author: Felix Pfreundtner
-    def initialze_wave_blockbeginend(self, wave_blockbeginend_dict,sp_blocktime, wave_param_dict):
+    def initialze_wave_blockbeginend(self, wave_blockbeginend_dict,sp_blocktime, sp_param):
         for sp in wave_blockbeginend_dict:
-            wave_blockbeginend_dict[sp]=[-(sp_blocktime*wave_param_dict[sp][1]),0]
+            wave_blockbeginend_dict[sp]=[-(sp_blocktime*sp_param[sp][1]),0]
         return wave_blockbeginend_dict
 
     # @author: Felix Pfreundtner
-    def wave_blockbeginend(self, wave_blockbeginend_dict, wave_param_dict, sp_blocktime):
+    def wave_blockbeginend(self, wave_blockbeginend_dict, sp_param, sp_blocktime):
         for sp in wave_blockbeginend_dict:
-            wave_blockbeginend_dict[sp][0]=wave_blockbeginend_dict[sp][0] + (sp_blocktime*wave_param_dict[sp][1])
-            wave_blockbeginend_dict[sp][1]=wave_blockbeginend_dict[sp][0] + (sp_blocktime*wave_param_dict[sp][1])
+            wave_blockbeginend_dict[sp][0]=wave_blockbeginend_dict[sp][0] + (sp_blocktime*sp_param[sp][1])
+            wave_blockbeginend_dict[sp][1]=wave_blockbeginend_dict[sp][0] + (sp_blocktime*sp_param[sp][1])
         return wave_blockbeginend_dict
 
     # @author: Felix Pfreundtner
@@ -184,22 +157,6 @@ class DspIn:
 
 
     # @author: Felix Pfreundtner
-    def get_sp_block_dict(self, signal_dict_sp, wave_blockbeginend_dict_sp, sp_blocksize, error_list_sp):
-        sp_block_dict_sp=signal_dict_sp[int(self.rnd(wave_blockbeginend_dict_sp[0])):int(self.rnd(wave_blockbeginend_dict_sp[1]))]
-        # if last block of speaker input signal
-        if len(sp_block_dict_sp) == sp_blocksize:
-            error_list_sp.append("correct blocksize")
-
-        elif len(sp_block_dict_sp) < sp_blocksize:
-            error_list_sp.append("block smaller than correct blocksize")
-            add_zeros_to_block = np.zeros((sp_blocksize-len(sp_block_dict_sp),),dtype='int16')
-            sp_block_dict_sp = np.concatenate((sp_block_dict_sp, add_zeros_to_block))
-        else:
-            error_list_sp.append("error block size doesn't match")
-        return sp_block_dict_sp, error_list_sp
-
-
-    # @author: Felix Pfreundtner
     def normalize(self, sp_block_dict_sp, normalize_flag_sp):
         if normalize_flag_sp:
             # take maximum amplitude of original wave file of sp block
@@ -250,42 +207,72 @@ class DspIn:
         return sp_block_sp
 
     # @author: Matthias Lederle
-    def get_params_of_file_once(self, filename):
-        file = open(filename, 'rb')
-        _big_endian = False
-        # check endianness (whether file is RIFX or RIFF)
-        str1 = file.read(4)
-        if str1 == b'RIFX':
-            _big_endian = True
-        if _big_endian:
-            fmt = '>'
-        else:
-            fmt = '<'
-        # get to know where actual sample data begins and how big data-chunk is
-        file.seek(36)
-        counter = 0
-        checkbytes = b'aaaa'
-        # go to byte, where data actually starts
-        while checkbytes != b'data':
-            file.seek(-2, 1)
-            checkbytes = file.read(4)
-            counter += 1
-            # print(checkbytes, counter)
-        data_chunk_size = struct.unpack(fmt + 'i', file.read(4))[0]  # [data_chunk_size] = Bytes
-        total_header_size = 40 + (counter * 2)
-        file.close()
+    def initialize_get_block(self, gui_dict):
+        properties_of_speakers = dict.fromkeys(gui_dict, [None] *7)
+        for sp in gui_dict:
+            file = open(gui_dict[sp][2], 'rb')
+            _big_endian = False
+            # check whether file is RIFX or RIFF
+            str1 = file.read(4)
+            if str1 == b'RIFX':
+                _big_endian = True
+            if _big_endian:
+                fmt = '>'
+            else:
+                fmt = '<'
+            file.seek(22)
+            # properties_of_speakers[sp][0] is number of samples
+            properties_of_speakers[sp][3] = struct.unpack(fmt+"H", file.read(2))[0] #nochannels
+            properties_of_speakers[sp][1] = struct.unpack(fmt+"I", file.read(4))[0] #samplerate
+            file.seek(34)
+            properties_of_speakers[sp][2] = struct.unpack(fmt+"H", file.read(2))[0] #bits
+            #return samplerate, bits, nochannels
+            file.seek(0)
+            _big_endian = False
+            # check endianness (whether file is RIFX or RIFF)
+            str1 = file.read(4)
+            if str1 == b'RIFX':
+                _big_endian = True
+            if _big_endian:
+                properties_of_speakers[sp][4] = '>'
+            else:
+                properties_of_speakers[sp][4] = '<'
+            # get to know where actual sample data begins and how big data-chunk is
+            file.seek(36)
+            counter = 0
+            checkbytes = b'aaaa'
+            # go to byte, where data actually starts
+            while checkbytes != b'data':
+                file.seek(-2, 1)
+                checkbytes = file.read(4)
+                counter += 1
+                # print(checkbytes, counter)
+            properties_of_speakers[sp][5] = struct.unpack(properties_of_speakers[sp][4] + 'i',
+                                                          file.read(4))[0] # = data_chunk_size
+            properties_of_speakers[sp][0] = int(properties_of_speakers[sp][5] /
+                                               (properties_of_speakers[sp][
+                                                    2]/8*properties_of_speakers[sp][3]))
 
-        return fmt, total_header_size, data_chunk_size
 
-    def get_one_block_of_samples(self, filename, beginend_block_sp, fmt, bits, nochannels,
-                                 total_header_size, data_chunk_size):
+            properties_of_speakers[sp][6] = 40 + (counter * 2) #no of total header_size
+            file.close()
+
+        return properties_of_speakers
+
+    def get_block(self, filename, begin_block, end_block, properties_of_speakers_sp, blocklength):
+
+        fmt = properties_of_speakers_sp[4]
+        bits = properties_of_speakers_sp[2]
+        nochannels = properties_of_speakers_sp[3]
+        data_chunk_size = properties_of_speakers_sp[5]
+        total_header_size = properties_of_speakers_sp[6]
+
         file = open(filename, 'rb')
-        blocklength = beginend_block_sp[1] - beginend_block_sp[0] #blocklength is the number of samples
-        blocknumpy = np.zeros((blocklength, 1), dtype=np.int16)
+        blocknumpy = np.zeros((blocklength, ), dtype = np.int16)
         end_of_file = False
         bitfactor = int(bits / 8)
-        first_byte_of_block = total_header_size + (beginend_block_sp[0] * bitfactor * nochannels)
-        last_byte_of_block = total_header_size + (beginend_block_sp[1] * bitfactor * nochannels)
+        first_byte_of_block = total_header_size + (begin_block * bitfactor * nochannels)
+        last_byte_of_block = total_header_size + (end_block * bitfactor * nochannels)
         last_byte_of_file = total_header_size + data_chunk_size
         file.seek(first_byte_of_block)
         # choose correct specifier depending on bits/sample
@@ -300,13 +287,13 @@ class DspIn:
             if last_byte_of_block < last_byte_of_file:
                 i = 0
                 while i < blocklength:
-                    blocknumpy[i, 0] = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
+                    blocknumpy[i, ] = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
                     i += 1
             else: #last block to be filled individually
                 remaining_samples = int((last_byte_of_file - first_byte_of_block)/(bitfactor*nochannels))
                 i = 0
                 while i < remaining_samples:
-                    blocknumpy[i, 0] = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
+                    blocknumpy[i, ] = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
                     i += 1
                 end_of_file = True
         # If stereo, make mono and write blocknumpy
@@ -339,13 +326,13 @@ class DspIn:
                 i = 0
                 while i < blocklength:
                     mean_value = int((samplelist_of_one_block_left[i] + samplelist_of_one_block_right[i]) / 2)
-                    blocknumpy[i, 0] = mean_value
+                    blocknumpy[i, ] = mean_value
                     i += 1
             else:
                 i = 0
                 while i < remaining_samples:
                     mean_value = int((samplelist_of_one_block_left[i] + samplelist_of_one_block_right[i]) / 2)
-                    blocknumpy[i, 0] = mean_value
+                    blocknumpy[i, ] = mean_value
                     i += 1
                 end_of_file = True
         else:

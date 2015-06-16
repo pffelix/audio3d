@@ -45,11 +45,11 @@ class Dsp:
         # self.blocknumpy = self.DspIn_Object.get_one_block_of_samples(
         #     self.DspIn_Object.gui_dict_init[sp][2],
         #     self.DspIn_Object.wave_blockbeginend_dict[sp],
-        #     self.DspIn_Object.wave_param_dict[4],
-        #     self.DspIn_Object.wave_param_dict[sp][2],
-        #     self.DspIn_Object.wave_param_dict[sp][3],
-        #     self.DspIn_Object.wave_param_dict[5],
-        #     self.DspIn_Object.wave_param_dict[6]
+        #     self.DspIn_Object.sp_param[4],
+        #     self.DspIn_Object.sp_param[sp][2],
+        #     self.DspIn_Object.sp_param[sp][3],
+        #     self.DspIn_Object.sp_param[5],
+        #     self.DspIn_Object.sp_param[6]
         # )
     def set_gui_dict(self, gui_dict_init):
 
@@ -74,7 +74,7 @@ class Dsp:
         # play_output=deepcopy(standard_dict)
         # for sp in play_output:
         #    play_output[sp] = False
-        # audioutput = threading.Thread(target=alf.startaudio(wave_param_dict[3][0], wave_param_dict[1][0], fft_blocksize))
+        # audioutput = threading.Thread(target=alf.startaudio(sp_param[3][0], sp_param[1][0], fft_blocksize))
         # audioutput.start()
         # global gui_dict
         # global gui_dict
@@ -88,7 +88,7 @@ class Dsp:
 
             # range of frames to be read in iteration from wav files (float numbers needed for adding the correct framesizes to the next iteration)
             self.DspIn_Object.wave_blockbeginend_dict = self.DspIn_Object.wave_blockbeginend(
-                self.DspIn_Object.wave_blockbeginend_dict, self.DspIn_Object.wave_param_dict,
+                self.DspIn_Object.wave_blockbeginend_dict, self.DspIn_Object.sp_param,
                 self.DspIn_Object.sp_blocktime)
 
             # iterate over all speakers sp
@@ -97,8 +97,8 @@ class Dsp:
 
                 # check wheter this block is last block in speaker audio file, set ending of the block to last sample in speaker audio file
                 if self.DspIn_Object.rnd(self.DspIn_Object.wave_blockbeginend_dict[sp][1]) > float(
-                                self.DspIn_Object.wave_param_dict[sp][0] - 1):
-                    self.DspIn_Object.wave_blockbeginend_dict[sp][1] = float(self.DspIn_Object.wave_param_dict[sp][0])
+                                self.DspIn_Object.sp_param[sp][0] - 1):
+                    self.DspIn_Object.wave_blockbeginend_dict[sp][1] = float(self.DspIn_Object.sp_param[sp][0])
 
                 # if speaker audio file still has unplayed samples start convolution
                 if self.DspOut_Object.continue_convolution_dict[sp] == True:
@@ -111,12 +111,11 @@ class Dsp:
                         self.prior_head_angle_dict[sp] = self.gui_dict[sp][0]
 
                     # Load current wave block of speaker sp with speaker_blocksize (fft_blocksize-hrtf_blocksize+1)
-                    self.DspIn_Object.sp_block_dict[sp], self.error_list[sp]= self.DspIn_Object.get_sp_block_dict(
-                        self.DspIn_Object.signal_dict[sp], self.DspIn_Object.wave_blockbeginend_dict[sp],
-                        self.DspIn_Object.sp_blocksize, self.error_list[sp])
-                    #instead, now blockwise:
-                    # @author Matthias Lederle
-                    #self.DspIn_Object.sp_block_dict[sp] = self.blocknumpy
+                    self.DspIn_Object.sp_block_dict[sp] = self.DspIn_Object.get_block(
+                        self.gui_dict[sp][2], int(self.DspIn_Object.wave_blockbeginend_dict[sp][
+                                                      0]), int(self.DspIn_Object.wave_blockbeginend_dict[sp][
+                                                      1]), self.DspIn_Object.sp_param[sp], \
+                                                          self.DspIn_Object.sp_blocksize)
 
                     # normalize sp block if requested
                     self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.sp_max_gain_dict[sp]  = self.DspIn_Object.normalize(self.DspIn_Object.sp_block_dict[sp], self.gui_dict[sp][3])
@@ -130,7 +129,7 @@ class Dsp:
 
 
                 # check wheter this block is last block in speaker audio file and stop convolution of speaker audio file
-                if self.DspIn_Object.wave_blockbeginend_dict[sp][1] == float(self.DspIn_Object.wave_param_dict[sp][0]):
+                if self.DspIn_Object.wave_blockbeginend_dict[sp][1] == float(self.DspIn_Object.sp_param[sp][0]):
                     self.DspOut_Object.continue_convolution_dict[sp] = False
 
                 # model speaker position change about 1° per block (0.02s) in clockwise rotation
