@@ -19,7 +19,6 @@ class DspIn:
         self.hrtf_max_gain_dict = dict.fromkeys(gui_dict_init, [])
         self.sp_max_gain_dict = dict.fromkeys(gui_dict_init, [])
         self.wave_blockbeginend_dict_list = dict.fromkeys(gui_dict_init, [])
-        self.wave_blockbeginend_dict = dict.fromkeys(gui_dict_init, [])
         self.signal_dict = {}
         self.sp_block_dict = {}
         # Standard samplerate, sampledepth
@@ -33,7 +32,7 @@ class DspIn:
         self.sp_blocksize, self.sp_blocktime, self.overlap = self.get_block_param(self.wave_param_common, self.hrtf_blocksize, self.fft_blocksize)
         # get samplerate from header in .wav-file of all speakers
         self.sp_param = self.initialize_get_block(gui_dict_init)
-        self.wave_blockbeginend_dict = self.initialze_wave_blockbeginend(self.wave_blockbeginend_dict, self.sp_blocktime, self.sp_param)
+        self.block_begin_end = self.init_set_block_begin_end(gui_dict_init)
         self.hamming = self.buid_hamming_window(self.sp_blocksize)
         self.cosine = self.buid_cosine_window(self.sp_blocksize)
         self.hann = self.build_hann_window(self.sp_blocksize)
@@ -59,22 +58,36 @@ class DspIn:
     def get_block_param(self, wave_param_common, hrtf_blocksize, fft_blocksize):
         sp_blocksize = fft_blocksize-hrtf_blocksize+1
         sp_blocktime = sp_blocksize/wave_param_common[0]
-        overlap = (fft_blocksize-sp_blocksize)/fft_blocksize*100 # in %
+        overlap = (fft_blocksize-sp_blocksize)/fft_blocksize # in decimal 0.
+        # overlap = 0
         return sp_blocksize, sp_blocktime, overlap
 
 
     # @author: Felix Pfreundtner
-    def initialze_wave_blockbeginend(self, wave_blockbeginend_dict,sp_blocktime, sp_param):
-        for sp in wave_blockbeginend_dict:
-            wave_blockbeginend_dict[sp]=[-(sp_blocktime*sp_param[sp][1]),0]
-        return wave_blockbeginend_dict
+    def init_set_block_begin_end(self, gui_dict):
+        block_begin_end=[int(-(self.sp_blocksize)*(1-self.overlap)),int((self.sp_blocksize)*(self.overlap))]
+        return block_begin_end
 
     # @author: Felix Pfreundtner
-    def wave_blockbeginend(self, wave_blockbeginend_dict, sp_param, sp_blocktime):
-        for sp in wave_blockbeginend_dict:
-            wave_blockbeginend_dict[sp][0]=wave_blockbeginend_dict[sp][0] + (sp_blocktime*sp_param[sp][1])
-            wave_blockbeginend_dict[sp][1]=wave_blockbeginend_dict[sp][0] + (sp_blocktime*sp_param[sp][1])
-        return wave_blockbeginend_dict
+    def set_block_begin_end(self):
+        self.block_begin_end[0] = self.block_begin_end[0] + int(self.sp_blocksize*(1-self.overlap))
+        self.block_begin_end[1] = self.block_begin_end[1] + int(self.sp_blocksize*(1-self.overlap))
+
+    # @author: Felix Pfreundtner
+    def get_hrtf_param(self):
+        if self.hrtf_database == "kemar_full_normal_ear" or  self.hrtf_database == "kemar_full_big_ear":
+            # wave hrtf size 512 samples: zeropad hrtf to 513 samples to reach even sp_blocksize which is integer divisible by 2 (50% overlap needed -> sp_blocksize/2)
+            hrtf_blocksize = 513
+            # get inverse minimum phase impulse response response of kemar measurement speaker optimus pro 7 and truncate to fft_blocksize
+            _, kemar_inverse_filter = scipy.io.wavfile.read("./kemar/full/headphones+spkr/Opti-minphase.wav")
+            kemar_inverse_filter = kemar_inverse_filter[0:self.fft_blocksize, ]
+        if self.hrtf_database == "kemar_compact":
+            # wave hrtf size 128 samples: zeropad hrtf to 129 samples to reach even sp_blocksize which is integer divisible by 2 (50% overlap needed -> sp_blocksize/2)
+            hrtf_blocksize = 129
+            # no inverse speaker impulse response of measurement speaker needed (is already integrated in wave files of kemar compact hrtfs)
+            kemar_inverse_filter = np.zeros((self.fft_blocksize,), dtype = np.int16)
+        return kemar_inverse_filter, hrtf_blocksize
+
 
     # @author: Felix Pfreundtner
     def get_hrtfs(self, gui_dict_sp, hrtf_database):
@@ -101,12 +114,13 @@ class DspIn:
 
             # get samples of the relevant hrtf for each ear in numpy array (l,r)
             _, hrtf_input = scipy.io.wavfile.read(hrtf_filenames_dict_sp)
+            hrtf_block_dict_sp = np.zeros((self.hrtf_blocksize, 2), dtype = np.int16)
             if gui_dict_sp[0] <= 180:
-                hrtf_block_dict_sp=hrtf_input
+                hrtf_block_dict_sp[0:128,0] = hrtf_input
             else:
                 hrtf_input[:,[0, 1]] = hrtf_input[:,[1, 0]]
-                hrtf_block_dict_sp=hrtf_input
-            kemar_inv_filter = np.ones((1024,))
+                hrtf_block_dict_sp[0:128,0] = hrtf_input
+            self.kemar_inv_filter = np.ones((1024,))
             hrtf_max_gain_sp=[]
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
@@ -136,24 +150,13 @@ class DspIn:
             # get samples of the relevant hrtf for each ear in numpy array (l,r)
             _, hrtf_input_l = scipy.io.wavfile.read(hrtf_filenames_dict_sp_l)
             _, hrtf_input_r = scipy.io.wavfile.read(hrtf_filenames_dict_sp_r)
-            hrtf_block_dict_sp = np.transpose(np.array([hrtf_input_l]+[hrtf_input_r]))
+            hrtf_block_dict_sp = np.zeros((self.hrtf_blocksize, 2), dtype = np.int16)
+            hrtf_block_dict_sp[0:512,0] = hrtf_input_l[:,]
+            hrtf_block_dict_sp[0:512,1] = hrtf_input_r[:,]
             hrtf_max_gain_sp=[]
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
         return hrtf_block_dict_sp, hrtf_max_gain_sp
-
-    # @author: Felix Pfreundtner
-    def get_hrtf_param(self):
-        if self.hrtf_database == "kemar_full_normal_ear" or  self.hrtf_database == "kemar_full_big_ear":
-            hrtf_blocksize = 512
-            # get inverse minimum phase impulse response response of kemar measurement speaker optimus pro 7 and truncate to fft_blocksize
-            _, kemar_inverse_filter = scipy.io.wavfile.read("./kemar/full/headphones+spkr/Opti-minphase.wav")
-            kemar_inverse_filter = kemar_inverse_filter[0:self.fft_blocksize, ]
-        if self.hrtf_database == "kemar_compact":
-            hrtf_blocksize = 128
-            # no inverse speaker impulse response of measurement speaker needed (is already integrated in wave files of kemar compact hrtfs)
-            kemar_inverse_filter = np.zeros((self.fft_blocksize,), dtype = np.int16)
-        return kemar_inverse_filter, hrtf_blocksize
 
 
     # @author: Felix Pfreundtner
@@ -184,11 +187,6 @@ class DspIn:
         for n in range(N):
             hann_window[n,] = 0.5*(1 - math.cos(2*math.pi*n/(N)))
         add = np.zeros((2000,))
-        add[0:513,] = hann_window
-        add[256:256+513,] += hann_window
-        add[513:513+513,] += hann_window
-        # plt.plot(add)
-        # plt.show()
         return hann_window
 
     # @author: Felix Pfreundtner
