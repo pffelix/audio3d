@@ -216,6 +216,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.position_label = QtGui.QLabel('Relative Position to the Audience:')
         self.azimuth_label = QtGui.QLabel('Azimuth:')
         self.distance_label = QtGui.QLabel('Distance:')
+        self.ear_label = QtGui.QLabel('Ear Size:')
         # set line edit
         self.path_line_edit = QtGui.QLineEdit()
         self.azimuth_line_edit = QtGui.QLineEdit()
@@ -226,6 +227,9 @@ class SpeakerProperty(QtGui.QWidget):
         self.confirm_button = QtGui.QPushButton('Confirm')
         self.cancel_button = QtGui.QPushButton('Cancel')
         self.normalize_box = QtGui.QCheckBox('Normalize Audio')
+        self.combo_box = QtGui.QComboBox()
+        self.combo_box.addItem('Standard')
+        self.combo_box.addItem('Big')
         self.path = 'unknown'
         self.init_ui()
 
@@ -236,14 +240,16 @@ class SpeakerProperty(QtGui.QWidget):
         layout.addWidget(self.path_label, 0, 0, 1, 4)
         layout.addWidget(self.path_line_edit, 1, 0, 1, 3)
         layout.addWidget(self.file_select_button, 1, 3, 1, 1)
-        layout.addWidget(self.position_label, 3, 0, 1, 4)
-        layout.addWidget(self.azimuth_label, 4, 0, 1, 1)
-        layout.addWidget(self.azimuth_line_edit, 4, 1, 1, 1)
-        layout.addWidget(self.distance_label, 4, 2, 1, 1)
-        layout.addWidget(self.distance_line_edit, 4, 3, 1, 1)
-        layout.addWidget(self.confirm_button, 5, 0, 1, 2)
-        layout.addWidget(self.cancel_button, 5, 2, 1, 2)
-        layout.addWidget(self.normalize_box, 3, 3, 1, 2)
+        layout.addWidget(self.position_label, 4, 0, 1, 4)
+        layout.addWidget(self.azimuth_label, 5, 0, 1, 1)
+        layout.addWidget(self.azimuth_line_edit, 5, 1, 1, 1)
+        layout.addWidget(self.distance_label, 5, 2, 1, 1)
+        layout.addWidget(self.distance_line_edit, 5, 3, 1, 1)
+        layout.addWidget(self.confirm_button, 6, 0, 1, 2)
+        layout.addWidget(self.cancel_button, 6, 2, 1, 2)
+        layout.addWidget(self.normalize_box, 3, 0, 1, 2)
+        layout.addWidget(self.ear_label, 3, 2, 1, 2)
+        layout.addWidget(self.combo_box, 3, 3, 1, 2)        
 
         # connect signal and slots
         self.file_select_button.clicked.connect(self.browse)
@@ -263,6 +269,9 @@ class SpeakerProperty(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def confirm(self):
+        global ear
+        ear = self.combo_box.currentText()
+#        print(ear)
         from math import cos, sin, degrees, radians
         x0 = audience_pos.x()
         y0 = audience_pos.y()
