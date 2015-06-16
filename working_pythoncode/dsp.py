@@ -70,15 +70,6 @@ class Dsp:
 
 
     def run(self):
-        # start play buffer
-        # play_output=deepcopy(standard_dict)
-        # for sp in play_output:
-        #    play_output[sp] = False
-        # audioutput = threading.Thread(target=alf.startaudio(sp_param[3][0], sp_param[1][0], fft_blocksize))
-        # audioutput.start()
-        # global gui_dict
-        # global gui_dict
-        # Run convolution block by block iteration
         while any(self.DspOut_Object.continue_convolution_dict.values()) == True:
 
             # self.gui_dict = gui_utils.gui_dict
@@ -94,11 +85,11 @@ class Dsp:
                 self.DspOut_Object.binaural_block_dict[sp] = np.zeros((self.DspIn_Object.fft_blocksize, 2), dtype=np.int16)
 
                 # check whether this block is last block in speaker audio file, set ending of the block to last sample in speaker audio file
-                if self.DspIn_Object.rnd(self.DspIn_Object.block_begin_end[1]) > float(
+                if self.DspIn_Object.block_begin_end[1] > float(
                                 self.DspIn_Object.sp_param[sp][0] - 1):
                     self.DspIn_Object.block_begin_end[1] = float(self.DspIn_Object.sp_param[sp][0])
 
-                # if speaker audio file still has unplayed samples start convolution
+                # if speaker wave file still has unread samples start convolution, else skip convolution
                 if self.DspOut_Object.continue_convolution_dict[sp] == True:
 
                     # check whether head position to speaker sp has changed
@@ -109,10 +100,10 @@ class Dsp:
                         self.prior_head_angle_dict[sp] = self.gui_dict[sp][0]
 
                     # Load current wave block of speaker sp with speaker_blocksize (fft_blocksize-hrtf_blocksize+1)
-                    self.DspIn_Object.sp_block_dict[sp] = self.DspIn_Object.get_block(
-                        self.gui_dict[sp][2], int(self.DspIn_Object.block_begin_end[
-                                                      0]), int(self.DspIn_Object.block_begin_end[
-                                                      1]), self.DspIn_Object.sp_param[sp], \
+                    self.DspIn_Object.sp_block_dict[sp], self.DspOut_Object.continue_convolution_dict[sp] = self.DspIn_Object.get_block(
+                        self.gui_dict[sp][2], self.DspIn_Object.block_begin_end[
+                                                      0], self.DspIn_Object.block_begin_end[
+                                                      1], self.DspIn_Object.sp_param[sp], \
                                                           self.DspIn_Object.sp_blocksize)
 
                     # normalize sp block if requested
@@ -120,15 +111,15 @@ class Dsp:
 
                     # apply window to sp input in sp_block_dict
                     self.DspIn_Object.sp_block_dict[sp]= self.DspIn_Object.apply_window(self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.hann)
+
                     # for the left an right ear channel
                     for l_r in range(2):
                         # convolve hrtf with speaker block input
-                        self.DspOut_Object.binaural_block_dict[sp][0:self.DspIn_Object.fft_blocksize,l_r], self.sp_spectrum_dict[sp], self.hrtf_spectrum_dict[sp][l_r] = self.DspOut_Object.fft_convolve(self.DspIn_Object.sp_block_dict[sp],self.DspIn_Object.hrtf_block_dict[sp][:, l_r],self.DspIn_Object.fft_blocksize,self.DspIn_Object.sp_max_gain_dict[sp],self.DspIn_Object.hrtf_max_gain_dict[sp][l_r], self.DspIn_Object.wave_param_common[0], self.sp_spectrum_dict[sp], self.hrtf_spectrum_dict[sp][l_r], self.DspIn_Object.hrtf_database, self.DspIn_Object.kemar_inverse_filter)
+                        self.DspOut_Object.binaural_block_dict[sp][0:self.DspIn_Object.fft_blocksize,l_r], self.sp_spectrum_dict[sp], self.hrtf_spectrum_dict[sp][l_r] = self.DspOut_Object.fft_convolve(self.DspIn_Object.sp_block_dict[sp],self.DspIn_Object.hrtf_block_dict[sp][:, l_r],self.DspIn_Object.fft_blocksize,self.DspIn_Object.sp_max_gain_dict[sp],self.DspIn_Object.hrtf_max_gain_dict[sp][l_r], self.DspIn_Object.wave_param_common[0], self.sp_spectrum_dict[sp], self.hrtf_spectrum_dict[sp][l_r], self.DspIn_Object.hrtf_database, self.DspIn_Object.kemar_inverse_filter, self.DspIn_Object.hrtf_blocksize, self.DspIn_Object.sp_blocksize)
 
+                        # apply window to sp binaural block output left or right ear in binaural_block_dict
+                        #self.DspOut_Object.binaural_block_dict[sp][0:,l_r]= self.DspIn_Object.apply_window(self.DspOut_Object.binaural_block_dict[sp][0:,l_r], self.DspIn_Object.hann)
 
-                # check wheter this block is last block in speaker audio file and stop convolution of speaker audio file
-                if self.DspIn_Object.block_begin_end[1] == float(self.DspIn_Object.sp_param[sp][0]):
-                    self.DspOut_Object.continue_convolution_dict[sp] = False
 
                 # model speaker position change about 1° per block (0.02s) in clockwise rotation
                 #self.gui_dict[sp][0]+=30
@@ -165,7 +156,7 @@ class Dsp:
             self.blockcounter += 1
 
         # show plot of the output signal binaural_dict_scaled
-        #plt.plot(self.sp_spectrum_dict[sp][:,0], self.sp_spectrum_dict[sp][:,1])
+        #plt.plot(self.DspOut_Object.binaural)
         #plt.show()
         # Write generated output signal binaural_dict_scaled to file
         self.DspOut_Object.writebinauraloutput(self.DspOut_Object.binaural, self.DspIn_Object.wave_param_common, self.gui_dict)

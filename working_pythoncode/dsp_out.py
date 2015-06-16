@@ -32,13 +32,13 @@ class DspOut:
         self.lock = threading.Lock()
 
     # @author: Felix Pfreundtner
-    def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize, sp_max_gain_sp, hrtf_max_gain_sp_l_r, samplerate, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r, hrtf_database, kemar_inverse_filter):
+    def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize, sp_max_gain_sp, hrtf_max_gain_sp_l_r, samplerate, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r, hrtf_database, kemar_inverse_filter, hrtf_blocksize, sp_blocksize):
 
         # Do for speaker sp zeropadding: zeropad hrtf (left or right input) and speaker (mono input)
-        hrtf_zeros = np.zeros((fft_blocksize-len(hrtf_block_sp_l_r), ), dtype = 'int16')
-        hrtf_block_sp_zeropadded = np.concatenate((hrtf_block_sp_l_r, hrtf_zeros))
-        sp_zeros = np.zeros((fft_blocksize-len(sp_block_sp), ), dtype = 'int16')
-        sp_block_sp_zeropadded = np.concatenate((sp_block_sp, sp_zeros))
+        hrtf_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype = 'int16')
+        hrtf_block_sp_zeropadded[0:hrtf_blocksize, ] = hrtf_block_sp_l_r
+        sp_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype = 'int16')
+        sp_block_sp_zeropadded[0:sp_blocksize, ] = sp_block_sp
 
         # bring time domain input to to frequency domain
         hrtf_block_sp_fft = fft(hrtf_block_sp_zeropadded, fft_blocksize)
@@ -103,6 +103,12 @@ class DspOut:
         binaural_block = binaural_block.astype(np.int16, copy=False)
         return binaural_block
 
+    # Testfunction overlap
+    def overlapp_add_window(self, binaural_block_dict_sp, blockcounter, fft_blocksize, binaural):
+        if blockcounter == 0:
+            binaural = np.zeros((fft_blocksize*1000, 2), dtype=np.int16)
+        binaural[blockcounter*256:blockcounter*256+1024,0] += binaural_block_dict_sp
+        return binaural
 
     # @author: Felix Pfreundtner
     def add_to_binaural(self, binaural, binaural_block, blockcounter):

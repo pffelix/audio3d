@@ -267,7 +267,7 @@ class DspIn:
 
         file = open(filename, 'rb')
         blocknumpy = np.zeros((blocklength, ), dtype = np.int16)
-        end_of_file = False
+        continue_input = True
         bitfactor = int(bits / 8)
         first_byte_of_block = total_header_size + (begin_block * bitfactor * nochannels)
         last_byte_of_block = total_header_size + (end_block * bitfactor * nochannels)
@@ -293,7 +293,7 @@ class DspIn:
                 while i < remaining_samples:
                     blocknumpy[i, ] = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
                     i += 1
-                end_of_file = True
+                continue_input = False
         # If stereo, make mono and write blocknumpy
         elif nochannels == 2:
             # First: Write left and right signal in independent lists
@@ -317,7 +317,7 @@ class DspIn:
                     samplelist_of_one_block_left.append(left_int)
                     samplelist_of_one_block_right.append(right_int)
                     i += 1
-                end_of_file = True
+                continue_input = False
 
             # Second: Interpolate and merge the two lists and write in blocknumpy
             if remaining_samples == 10000:
@@ -332,10 +332,10 @@ class DspIn:
                     mean_value = int((samplelist_of_one_block_left[i] + samplelist_of_one_block_right[i]) / 2)
                     blocknumpy[i, ] = mean_value
                     i += 1
-                end_of_file = True
+                continue_input = False
         else:
             print("Signal is neither mono nor stereo (nochannels != 1 or 2) and can't be processed!")
 
         file.close()
 
-        return blocknumpy#, end_of_file <-- will be added later!!!
+        return blocknumpy, continue_input
