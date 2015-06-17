@@ -265,9 +265,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.position_label = QtGui.QLabel(
                                     'Relative Position to the Audience:')
         self.azimuth_label = QtGui.QLabel('Azimuth:')
-        self.distance_label = QtGui.QLabel('Distance:')
-        self.ear_label = QtGui.QLabel('Ear Size:')
-        # set line edit
+        self.distance_label = QtGui.QLabel('Distance:')        # set line edit
         self.path_line_edit = QtGui.QLineEdit()
         self.azimuth_line_edit = QtGui.QLineEdit()
         self.distance_line_edit = QtGui.QLineEdit()
@@ -297,9 +295,7 @@ class SpeakerProperty(QtGui.QWidget):
         layout.addWidget(self.distance_line_edit, 5, 3, 1, 1)
         layout.addWidget(self.confirm_button, 6, 0, 1, 2)
         layout.addWidget(self.cancel_button, 6, 2, 1, 2)
-        layout.addWidget(self.normalize_box, 3, 0, 1, 2)
-        layout.addWidget(self.ear_label, 3, 2, 1, 2)
-        layout.addWidget(self.combo_box, 3, 3, 1, 2)
+        layout.addWidget(self.normalize_box, 4, 3, 1, 1)
 
         # connect signal and slots
         self.file_select_button.clicked.connect(self.browse)

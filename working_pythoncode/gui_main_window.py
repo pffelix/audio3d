@@ -67,7 +67,7 @@ class MainWindow(QWidget):
         self.combo_box.addItem('kemar_big_ear')
         self.combo_box.addItem('kemar_compact')
         self.database_label = QtGui.QLabel('Select Database:')
-        self.inverse_box = QtGui.QCheckBox('Inverse Filtering')
+        self.inverse_box = QtGui.QCheckBox('Inverse Filter')
         self.buffersize_label = QtGui.QLabel('Buffer Size:')
         self.buffersize_spin_box = QtGui.QSpinBox()
         self.buffersize_spin_box.setMinimum(0)
