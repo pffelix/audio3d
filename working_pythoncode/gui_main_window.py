@@ -12,6 +12,7 @@ from gui_utils import *
 from dsp import Dsp
 import threading
 
+# initialization of variables
 default_position = [[50, 20], [290, 20], [170, 50],
                     [50, 320], [290, 320], [290, 170]]
 settings_dict = {}
@@ -202,6 +203,7 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def control(self):
+        global settings_dict
         # print(self.combo_box.currentText())
         # print(self.inverse_box.isChecked())
         # print(self.buffersize_spin_box.value())

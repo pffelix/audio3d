@@ -70,6 +70,7 @@ class Item(QtGui.QGraphicsPixmapItem):
         self.setCursor(QtCore.Qt.OpenHandCursor)
 
 
+# Room displays the relative Audience and Speaker items positions
 class Room(QtGui.QGraphicsScene):
 
     current_item = 0
@@ -163,6 +164,8 @@ class SignalHandler(QtCore.QObject):
         self.index = index
 
 
+# Speaker item represent the source positions in the QGraphicsScene
+# relative to the Audience item
 class Speaker(Item):
 
     index = 0
@@ -210,6 +213,7 @@ class Speaker(Item):
         self.signal_handler.show_property.emit()
 
 
+# Audience item represents the relative user position in the QGraphicsScene
 class Audience(Item):
 
     type = 'audience'
@@ -223,6 +227,7 @@ class Audience(Item):
         audience_pos = self.scenePos()
 
 
+# Widget window where speaker properties can be adjusted individually
 class SpeakerProperty(QtGui.QWidget):
 
     added = QtCore.pyqtSignal()
@@ -362,6 +367,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.closed.emit()
 
 
+# Additional window for plot of speaker and HRTF spectrum while .wav is played 
 class SequencePlot(QtGui.QWidget):
     plot_closed = QtCore.pyqtSignal()
     plot_on = QtCore.pyqtSignal()
