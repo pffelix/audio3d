@@ -381,6 +381,7 @@ class SequencePlot(QtGui.QWidget):
         self.axis1 = self.figure.add_subplot(312, ylabel='right HRTF')
         self.axis2 = self.figure.add_subplot(313, ylabel='left HRTF')
 
+
         self.layoutVertical = QtGui.QVBoxLayout(self)
         self.layoutVertical.addWidget(self.canvas)
 

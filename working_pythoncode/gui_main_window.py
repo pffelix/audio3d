@@ -265,6 +265,11 @@ class MainWindow(QWidget):
                             self.dsp_object.hrtf_spectrum_dict[i][0][:, 1])
         self.line3.set_data(self.dsp_object.hrtf_spectrum_dict[i][1][:, 0],
                             self.dsp_object.hrtf_spectrum_dict[i][1][:, 1])
+        self.sequence_plot.axis1.relim()
+        self.sequence_plot.axis2.relim()
+        self.sequence_plot.axis1.autoscale_view(None,False,True)
+        self.sequence_plot.axis2.autoscale_view(None,False,True)
+
         self.sequence_plot.canvas.draw()
 
     def plot_closed(self):
