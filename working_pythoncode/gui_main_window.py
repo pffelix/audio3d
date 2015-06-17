@@ -203,20 +203,24 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def control(self):
-        global settings_dict
-        # print(self.combo_box.currentText())
-        # print(self.inverse_box.isChecked())
-        # print(self.buffersize_spin_box.value())
-        settings_dict = {0: self.combo_box.currentText(),
-                         1: self.inverse_box.isChecked(),
-                         2: self.buffersize_spin_box.value()}
-        self.plot_button.setEnabled(True)
-        self.plot_button.setEnabled(True)
-        self.Dsp_Object.set_gui_dict(gui_dict)  # , settings_dict)
-        self.Dsp_Object.signal_handler.error_occur.connect(self.show_error)
-        play = threading.Thread(target=self.Dsp_Object.run)
-        play.start()
-        print()
+        if len(gui_dict)>0:
+            global settings_dict
+            # print(self.combo_box.currentText())
+            # print(self.inverse_box.isChecked())
+            # print(self.buffersize_spin_box.value())
+            settings_dict = {0: self.combo_box.currentText(),
+                             1: self.inverse_box.isChecked(),
+                             2: self.buffersize_spin_box.value()}
+            self.plot_button.setEnabled(True)
+            self.plot_button.setEnabled(True)
+            self.Dsp_Object.set_gui_dict(gui_dict)  # , settings_dict)
+            self.Dsp_Object.signal_handler.error_occur.connect(self.show_error)
+            play = threading.Thread(target=self.Dsp_Object.run)
+            play.start()
+        else:
+            msgBox = QMessageBox()
+            msgBox.setText("Please add a speaker.")
+            msgBox.exec_()
 
     @pyqtSlot()
     def show_error(self):
