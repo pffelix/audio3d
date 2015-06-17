@@ -206,8 +206,11 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def control(self):
+        global gui_stop
         if len(gui_dict) > 0:
-            if self.play is None:
+            gui_stop_init = switch_stop_playback()
+            print(gui_stop)
+            if gui_stop_init is False:
                 global settings_dict
                 # print(self.combo_box.currentText())
                 # print(self.inverse_box.isChecked())
@@ -221,11 +224,8 @@ class MainWindow(QWidget):
                     self.show_error)
                 self.play = threading.Thread(target=self.Dsp_Object.run)
                 self.play.start()
-            else:
-                if self.play.is_alive() is True:
-                    stop_playback()
-                    self.play = None
-
+            #else:
+                #self.play = None
         else:
             msgBox = QMessageBox()
             msgBox.setText("Please add a speaker.")
@@ -233,7 +233,8 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def pause(self):
-        pause_playback()
+        switch_pause_playback()
+        print (gui_pause)
 
     @pyqtSlot()
     def show_error(self):

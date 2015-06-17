@@ -12,7 +12,7 @@ from matplotlib.figure import Figure
 
 # initialization of variables
 gui_dict = {}
-gui_stop = False
+gui_stop = True
 gui_pause = False
 audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
@@ -20,12 +20,16 @@ speaker_to_show = 0
 
 
 # stop playback and convolution of dsp algorithm
-def stop_playback():
+def switch_stop_playback():
     global gui_stop
-    gui_stop = True
+    if gui_stop is False:
+        gui_stop = True
+    else:
+        gui_stop = False
+    print (gui_stop)
+    return gui_stop
 
-
-def pause_playback():
+def switch_pause_playback():
     global gui_pause
     # start pause
     if gui_pause is False:
@@ -33,6 +37,7 @@ def pause_playback():
     # end pause
     else:
         gui_pause = False
+    print (gui_pause)
 
 
 # Headtracker - to be implemented

@@ -148,8 +148,8 @@ class Dsp:
             if self.DspOut_Object.gui_stop is True:
                 break
         # show plot of the output signal binaural_dict_scaled
-        plt.plot(self.DspOut_Object.binaural)
-        plt.show()
+        # plt.plot(self.DspOut_Object.binaural)
+        # plt.show()
         # Write generated output signal binaural_dict_scaled to file
         self.DspOut_Object.writebinauraloutput(self.DspOut_Object.binaural, self.DspIn_Object.wave_param_common, self.gui_dict)
 
