@@ -167,7 +167,7 @@ class DspIn:
                 # normalize to have the maximum int16 amplitude
                 max_amplitude_output = 32767
                 self.sp_block_dict[sp] = self.sp_block_dict[sp] / (max_amplitude_input / max_amplitude_output)
-                self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16, copy=False)
+                self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16, copy = False)
         self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
 
 
@@ -199,7 +199,7 @@ class DspIn:
     # @author: Felix Pfreundtner
     def apply_window(self, sp_block_sp, windowsignal):
         sp_block_sp = sp_block_sp * windowsignal
-        sp_block_sp = sp_block_sp.astype(np.int16, copy=False)
+        sp_block_sp = sp_block_sp.astype(np.int16, copy = False)
         return sp_block_sp
 
     ## initialize_get_block

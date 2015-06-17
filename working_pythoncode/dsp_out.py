@@ -19,7 +19,7 @@ import threading
 from copy import deepcopy
 
 class DspOut:
-    def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize):
+    def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize, gui_stop_init, gui_pause_init):
         self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize/2, 2), dtype=np.float16))
         self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((fft_blocksize/2, 2), dtype=np.float16), np.zeros((fft_blocksize/2, 2), dtype=np.float16)])
         self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize, 2), dtype=np.int16))
@@ -28,6 +28,8 @@ class DspOut:
         self.binaural_block = np.zeros((sp_blocksize, 2), dtype=np.int16)
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
         self.continue_convolution_dict = dict.fromkeys(gui_dict_init, True)
+        self.gui_stop = gui_stop_init
+        self.gui_pause = gui_pause_init
         self.played_frames_end = 0
         self.continue_convolution_list = dict.fromkeys(gui_dict_init, [])
         self.get_new_block = True
@@ -79,7 +81,7 @@ class DspOut:
         # normalize multiplied spectrum back to 16bit integer, consider maximum amplitude value of sp black and hrtf impulse to get dynamical volume output
         binaural_block_sp_max_gain = 26825636157874 # int(np.amax(np.abs(binaural_block_sp))) # 421014006*10 #
         binaural_block_sp_time = binaural_block_sp_time / (binaural_block_sp_max_gain / sp_max_gain_sp / hrtf_max_gain_sp_l_r * 32767)
-        self.binaural_block_dict[sp][:,l_r] = binaural_block_sp_time.astype(np.int16, copy=False)
+        self.binaural_block_dict[sp][:,l_r] = binaural_block_sp_time.astype(np.int16, copy = False)
 
     # @author: Felix Pfreundtner
     def overlap_add (self, binaural_block_dict_sp, binaural_block_dict_out_sp, binaural_block_dict_add_sp, fft_blocksize, sp_blocksize):
@@ -103,7 +105,7 @@ class DspOut:
             sp_gain_factor = 1 - distance_sp/distance_max
             # add gained sp block output to a summarized block output of all speakers
             binaural_block += binaural_block_dict_out[sp]*sp_gain_factor / total_number_of_sp
-        binaural_block = binaural_block.astype(np.int16, copy=False)
+        binaural_block = binaural_block.astype(np.int16, copy = False)
         return binaural_block
 
     # Testfunction overlap
@@ -159,14 +161,22 @@ class DspOut:
                               stream_callback = self.callback,
                               )
         audiostream.start_stream()
-        while audiostream.is_active():
-            time.sleep(sp_blocksize/samplerate)
+        while audiostream.is_active() or audiostream.is_stopped():
+            time.sleep(0.1)
+            # handle playback pause
+            if self.gui_pause is True:
+                audiostream.stop_stream()
+            if audiostream.is_stopped() and self.gui_pause is False:
+                audiostream.start_stream()
+            # handle playblack stop
+            if self.gui_stop is True:
+                break
         audiostream.stop_stream()
         audiostream.close()
         pa.terminate()
-        if any(self.continue_convolution_dict.values()) == True:
+        if any(self.continue_convolution_dict.values()) is True and self.gui_stop is False:
             print("Error PC to slow - Playback Stopped")
             for sp in self.continue_convolution_dict:
                 #self.played_frames_end += sp_blocksize
-                self.continue_convolution_dict[sp] = False
+                self.continue_convolution_dict[sp] is False
         # return continue_convolution_dict

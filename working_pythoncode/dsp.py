@@ -13,13 +13,14 @@ import gui_utils
 import threading
 import matplotlib.pyplot as plt
 import multiprocessing
+import gui_utils
+
 from dsp_signal_handler import DspSignalHandler
 
 import time
 
 class Dsp:
-    def __init__(self, gui_dict_init):
-
+    def __init__(self, gui_dict_init, gui_stop_init, gui_pause_init):
         self.gui_dict = gui_dict_init
         self.prior_head_angle_dict = dict.fromkeys(gui_dict_init, [])
         self.error_list = dict.fromkeys(gui_dict_init, [])
@@ -29,7 +30,7 @@ class Dsp:
         # Create Input Object which contains mono input samples of sources and hrtf impulse responses samples
         self.DspIn_Object = dsp_in.DspIn(gui_dict_init)
         # Create Output Object which contains binaural output samples
-        self.DspOut_Object = dsp_out.DspOut(gui_dict_init, self.DspIn_Object.fft_blocksize, self.DspIn_Object.sp_blocksize)
+        self.DspOut_Object = dsp_out.DspOut(gui_dict_init, self.DspIn_Object.fft_blocksize, self.DspIn_Object.sp_blocksize, gui_stop_init, gui_pause_init)
         # Variable counts number of already convolved blocks, initialized with zero
         self.blockcounter = 0
 
@@ -49,27 +50,16 @@ class Dsp:
         #     self.DspIn_Object.sp_param[5],
         #     self.DspIn_Object.sp_param[6]
         # )
-    def set_gui_dict(self, gui_dict_init):
-
-        self.gui_dict = gui_dict_init
-        self.prior_head_angle_dict = dict.fromkeys(gui_dict_init, [])
-        self.error_list = dict.fromkeys(gui_dict_init, [])
-        self.outputsignal_sample_number = dict.fromkeys(gui_dict_init, [])
-        # Set number of bufferblocks between fft block convolution and audio block playback
-        self.number_of_bufferblocks = 10
-        # Create Input Object which contains mono input samples of sources and hrtf impulse responses samples
-        self.DspIn_Object = dsp_in.DspIn(gui_dict_init)
-        # Create Output Object which contains binaural output samples
-        self.DspOut_Object = dsp_out.DspOut(gui_dict_init, self.DspIn_Object.fft_blocksize, self.DspIn_Object.sp_blocksize)
-        # Variable counts number of already convolved blocks, initialized with zero
-        self.blockcounter = 0
-        self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.float16))
-        self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.float16), np.zeros((self.DspIn_Object.fft_blocksize/2, 2), dtype=np.float16)])
-
 
     def run(self):
         # run the main while loop as long as there a still samples to be read in from speaker wave files
-        while any(self.DspOut_Object.continue_convolution_dict.values()) == True:
+        while any(self.DspOut_Object.continue_convolution_dict.values()) is True:
+
+            # actualize variables with gui
+            self.gui_dict = gui_utils.gui_dict
+            self.DspOut_Object.gui_stop = gui_utils.gui_stop
+            self.DspOut_Object.gui_pause = gui_utils.gui_pause
+
             # print the number of already done FFT / Block iterations
             print("FFT Block " + str(self.blockcounter) + ":")
             # set the begin and end of the speaker wave block which needs to be read in this iteration
@@ -82,7 +72,7 @@ class Dsp:
                 self.DspOut_Object.binaural_block_dict[sp] = np.zeros((self.DspIn_Object.fft_blocksize, 2), dtype=np.int16)
 
                 # if speaker wave file still has unread samples start convolution, else skip convolution
-                if self.DspOut_Object.continue_convolution_dict[sp] == True:
+                if self.DspOut_Object.continue_convolution_dict[sp] is True:
                     # check whether head position to speaker sp has changed
                     if self.gui_dict[sp][0] != self.prior_head_angle_dict[sp]:
                         # if head position has changed load new fitting hrtf file as numpy array
@@ -143,16 +133,23 @@ class Dsp:
                 # startaudiooutput.join()
 
             # wait until audioplayback finished with current block
-            while self.blockcounter-self.DspOut_Object.play_counter > self.number_of_bufferblocks and not all(self.DspOut_Object.continue_convolution_dict.values()) == False:
+            while self.blockcounter-self.DspOut_Object.play_counter > self.number_of_bufferblocks and not all(self.DspOut_Object.continue_convolution_dict.values()) is False:
                  time.sleep(1/self.DspIn_Object.wave_param_common[0]*100)
+
 
             # increment number of already convolved blocks
             self.blockcounter += 1
 
+            # handle playback pause
+            while self.DspOut_Object.gui_pause is True:
+                time.sleep(0.1)
+                self.DspOut_Object.gui_pause = gui_utils.gui_pause
+            # handle playback stop
+            if self.DspOut_Object.gui_stop is True:
+                break
         # show plot of the output signal binaural_dict_scaled
         plt.plot(self.DspOut_Object.binaural)
         plt.show()
         # Write generated output signal binaural_dict_scaled to file
         self.DspOut_Object.writebinauraloutput(self.DspOut_Object.binaural, self.DspIn_Object.wave_param_common, self.gui_dict)
-
 

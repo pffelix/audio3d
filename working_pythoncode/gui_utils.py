@@ -12,10 +12,25 @@ from matplotlib.figure import Figure
 
 # initialization of variables
 gui_dict = {}
+gui_stop = False
+gui_pause = False
 audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
 speaker_to_show = 0
 
+# stop playback and convolution of dsp algorithm
+def stop_playback():
+    global gui_stop
+    gui_stop = True
+
+def pause_playback():
+    global gui_pause
+    # start pause
+    if gui_pause is False:
+        gui_pause = True
+    # end pause
+    else:
+        gui_pause = False
 
 # Headtracker - to be implemented
 class Headtracker(object):
@@ -164,6 +179,8 @@ class SignalHandler(QtCore.QObject):
         self.index = index
 
 
+
+
 # Speaker item represent the source positions in the QGraphicsScene
 # relative to the Audience item
 class Speaker(Item):
@@ -186,6 +203,7 @@ class Speaker(Item):
         speaker_list.append(self)
         self.cal_rel_pos()
 
+
     def cal_rel_pos(self):
         global gui_dict
         global audience_pos
@@ -207,6 +225,8 @@ class Speaker(Item):
         gui_dict[self.index] = [deg, dis/100, self.path, self.norm]
         # print(gui_dict)
 
+
+
     def mouseDoubleClickEvent(self, event):
         global speaker_to_show
         speaker_to_show = self.index
@@ -225,6 +245,8 @@ class Audience(Item):
         super(Audience, self).__init__()
         self.setPos(170, 170)
         audience_pos = self.scenePos()
+
+
 
 
 # Widget window where speaker properties can be adjusted individually
