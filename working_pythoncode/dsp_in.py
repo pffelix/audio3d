@@ -90,8 +90,8 @@ class DspIn:
 
 
     # @author: Felix Pfreundtner
-    def get_hrtfs(self, gui_dict_sp, hrtf_database):
-        if hrtf_database == "kemar_compact":
+    def get_hrtfs(self, gui_dict_sp, sp):
+        if self.hrtf_database == "kemar_compact":
             # get filmename of the relevant hrtf
             rounddifference = gui_dict_sp[0] % 5
             if rounddifference == 0:
@@ -125,7 +125,7 @@ class DspIn:
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
 
-        if hrtf_database == "kemar_full_normal_ear" or hrtf_database == "kemar_full_big_ear":
+        if self.hrtf_database == "kemar_full_normal_ear" or self.hrtf_database == "kemar_full_big_ear":
             # get filmename of the relevant hrtf for each ear
             rounddifference = gui_dict_sp[0] % 5
             if rounddifference == 0:
@@ -140,7 +140,7 @@ class DspIn:
             else:
                 azimuthangle_other_ear = azimuthangle_ear + 180
 
-            if hrtf_database == "kemar_full_normal_ear":
+            if self.hrtf_database == "kemar_full_normal_ear":
                 hrtf_filenames_dict_sp_l = "./kemar/full/elev0/L0e" + str(azimuthangle_ear).zfill(3) + "a.wav"
                 hrtf_filenames_dict_sp_r = "./kemar/full/elev0/L0e" + str(azimuthangle_other_ear).zfill(3) + "a.wav"
             else:
@@ -150,27 +150,25 @@ class DspIn:
             # get samples of the relevant hrtf for each ear in numpy array (l,r)
             _, hrtf_input_l = scipy.io.wavfile.read(hrtf_filenames_dict_sp_l)
             _, hrtf_input_r = scipy.io.wavfile.read(hrtf_filenames_dict_sp_r)
-            hrtf_block_dict_sp = np.zeros((self.hrtf_blocksize, 2), dtype = np.int16)
-            hrtf_block_dict_sp[0:512,0] = hrtf_input_l[:,]
-            hrtf_block_dict_sp[0:512,1] = hrtf_input_r[:,]
-            hrtf_max_gain_sp=[]
-            hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
-            hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
-        return hrtf_block_dict_sp, hrtf_max_gain_sp
+            self.hrtf_block_dict[sp] = np.zeros((self.hrtf_blocksize, 2), dtype = np.int16)
+            self.hrtf_block_dict[sp][0:512,0] = hrtf_input_l[:,]
+            self.hrtf_block_dict[sp][0:512,1] = hrtf_input_r[:,]
+            self.hrtf_max_gain_dict[sp]=[]
+            self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(self.hrtf_block_dict[sp][:, 0])))
+            self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(self.hrtf_block_dict[sp][:, 1])))
 
 
     # @author: Felix Pfreundtner
-    def normalize(self, sp_block_dict_sp, normalize_flag_sp):
+    def normalize(self, normalize_flag_sp, sp):
         if normalize_flag_sp:
             # take maximum amplitude of original wave file of sp block
-            max_amplitude_input = np.amax(np.abs(sp_block_dict_sp))
+            max_amplitude_input = np.amax(np.abs(self.sp_block_dict[sp]))
             if max_amplitude_input != 0:
                 # normalize to have the maximum int16 amplitude
                 max_amplitude_output = 32767
-                sp_block_dict_sp = sp_block_dict_sp / (max_amplitude_input / max_amplitude_output)
-                sp_block_dict_sp = sp_block_dict_sp.astype(np.int16, copy=False)
-        sp_max_gain_sp = np.amax(np.abs(sp_block_dict_sp[:,]))
-        return sp_block_dict_sp, sp_max_gain_sp
+                self.sp_block_dict[sp] = self.sp_block_dict[sp] / (max_amplitude_input / max_amplitude_output)
+                self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16, copy=False)
+        self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
 
 
     # @author: Felix Pfreundtner
