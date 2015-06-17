@@ -204,71 +204,88 @@ class DspIn:
         sp_block_sp = sp_block_sp.astype(np.int16, copy=False)
         return sp_block_sp
 
-
+    ## initialize_get_block
+    # This method gets all important data from the .wav files that will be 
+    # played by the speakers. Input is a gui_dict, containing the filename at
+    #  place [2]. The output is another dict called sp_prop, which holds one 
+    # of the properties as values for each speaker given by the gui_dict.
+    # The places are:
+    # sp_prop[sp][0] = total number of samples in the file
+    # sp_prop[sp][1] = sample-rate, default: 44100 (but adjustable later)
+    # sp_prop[sp][2] = number of bits per sample (8-/16-/??-int for one sample)
+    # sp_prop[sp][3] = number of channels (mono = 1, stereo = 2)
+    # sp_prop[sp][4] = format of file (< = RIFF, > = RIFX)
+    # sp_prop[sp][5] = size of data-chunk in bytes
+    # sp_prop[sp][6] = total-header-size (= number of bytes until data begins)
+    # sp_prop[sp][6] = bitfactor (8-bit --> 1, 16-bit --> 2)
     # @author: Matthias Lederle
     def initialize_get_block(self, gui_dict):
-        properties_of_speakers = dict.fromkeys(gui_dict, [None] *7)
+        # initialize dict with 8 (empty) values per key
+        sp_prop = dict.fromkeys(gui_dict, [None] *8)
+        # go through all speakers
         for sp in gui_dict:
-            file = open(gui_dict[sp][2], 'rb')
+            file = open(gui_dict[sp][2], 'rb') # opens the file
+            # checks whether file is RIFX or RIFF
             _big_endian = False
-            # check whether file is RIFX or RIFF
             str1 = file.read(4)
             if str1 == b'RIFX':
                 _big_endian = True
             if _big_endian:
-                fmt = '>'
+                sp_prop[sp][4] = '>'
             else:
-                fmt = '<'
+                sp_prop[sp][4] = '<'
+            # jump to byte number 22
             file.seek(22)
-            # properties_of_speakers[sp][0] is number of samples
-            properties_of_speakers[sp][3] = struct.unpack(fmt+"H", file.read(2))[0] #nochannels
-            properties_of_speakers[sp][1] = struct.unpack(fmt+"I", file.read(4))[0] #samplerate
-            file.seek(34)
-            properties_of_speakers[sp][2] = struct.unpack(fmt+"H", file.read(2))[0] #bits
-            #return samplerate, bits, nochannels
-            file.seek(0)
-            _big_endian = False
-            # check endianness (whether file is RIFX or RIFF)
-            str1 = file.read(4)
-            if str1 == b'RIFX':
-                _big_endian = True
-            if _big_endian:
-                properties_of_speakers[sp][4] = '>'
-            else:
-                properties_of_speakers[sp][4] = '<'
-            # get to know where actual sample data begins and how big data-chunk is
-            file.seek(36)
+            # get number of channels from header
+            sp_prop[sp][3] = struct.unpack(sp_prop[sp][4]+"H", file.read(2))[0]
+            # get samplerate from header (always 44100)
+            sp_prop[sp][1] = struct.unpack(sp_prop[sp][4]+"I", file.read(4))[0]
+            file.seek(34)   # got to byte 34
+            # get number of bits per sample from header
+            sp_prop[sp][2] = struct.unpack(sp_prop[sp][4]+"H", file.read(2))[0]
+            # check in 2-byte steps, where the actual data begins
+            # save distance from end of header in "counter"
             counter = 0
             checkbytes = b'aaaa'
-            # go to byte, where data actually starts
+            # go to byte where data-chunk begins and save distance in "counter"
             while checkbytes != b'data':
                 file.seek(-2, 1)
                 checkbytes = file.read(4)
                 counter += 1
-                # print(checkbytes, counter)
-            properties_of_speakers[sp][5] = struct.unpack(properties_of_speakers[sp][4] + 'i',
-                                                          file.read(4))[0] # = data_chunk_size
-            properties_of_speakers[sp][0] = int(properties_of_speakers[sp][5] /
-                                               (properties_of_speakers[sp][
-                                                    2]/8*properties_of_speakers[sp][3]))
+            # get data-chunk-size from the data-chunk-header
+            sp_prop[sp][5] = struct.unpack(sp_prop[sp][4] + 'i',
+                                           file.read(4))[0]
+            # calculate total-header-size (no. of bytes until data begins)
+            sp_prop[sp][6] = 40 + (counter * 2)
+            # calculate bitfactor
+            sp_prop[sp][7] = int(sp_prop[sp][2] / 8)
+            # calculate total number of samples of the file
+            sp_prop[sp][0] = int(sp_prop[sp][5] /
+                                 (sp_prop[sp][2]/8*sp_prop[sp][3]))
+            file.close()    # close file opened in the beginning
+        return sp_prop
 
+    ## get_block
+    # This method reads a block of samples of a .wav-file and returns 
+    # a numpyarray (containing one 16-bit-int for each sample) and a flag 
+    # that tells whether the end of the block is reached or not.
+    # This function will be applied in the while loop of the dsp-class:
+    # I.e. a optimum performance is required.
+    # @ author Matthias Lederle
+    def get_block(self, filename, begin_block, end_block, 
+                  sp_prop_sp, blocklength):
 
-            properties_of_speakers[sp][6] = 40 + (counter * 2) #no of total header_size
-            file.close()
+        fmt = sp_prop_sp[4]
+        bits = sp_prop_sp[2]
+        nochannels = sp_prop_sp[3]
+        data_chunk_size = sp_prop_sp[5]
+        total_header_size = sp_prop_sp[6]
 
-        return properties_of_speakers
-
-    def get_block(self, filename, begin_block, end_block, properties_of_speakers_sp, blocklength):
-
-        fmt = properties_of_speakers_sp[4]
-        bits = properties_of_speakers_sp[2]
-        nochannels = properties_of_speakers_sp[3]
-        data_chunk_size = properties_of_speakers_sp[5]
-        total_header_size = properties_of_speakers_sp[6]
-
-        file = open(filename, 'rb')
+        file = open(filename, 'rb')     # opens the file
         blocknumpy = np.zeros((blocklength, ), dtype = np.int16)
+            # initializes blocknumpy with zeros
         continue_input = True
+            # is a flag to tell whether its the last block of the file or not
         bitfactor = int(bits / 8)
         first_byte_of_block = total_header_size + (begin_block * bitfactor * nochannels)
         last_byte_of_block = total_header_size + (end_block * bitfactor * nochannels)
