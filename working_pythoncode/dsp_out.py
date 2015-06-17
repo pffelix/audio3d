@@ -35,14 +35,20 @@ class DspOut:
 
     # @author: Felix Pfreundtner
     def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize, sp_max_gain_sp, hrtf_max_gain_sp_l_r, samplerate, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r, hrtf_database, kemar_inverse_filter, hrtf_blocksize, sp_blocksize):
-
+        print("A")
         # Do for speaker sp zeropadding: zeropad hrtf (left or right input) and speaker (mono input)
-        hrtf_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype = 'int16')
+        hrtf_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype =
+        np.int16)
         hrtf_block_sp_zeropadded[0:hrtf_blocksize, ] = hrtf_block_sp_l_r
-        sp_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype = 'int16')
-        sp_block_sp_zeropadded[0:sp_blocksize, ] = sp_block_sp
-
+        #sp_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype = 'int16')
+        #b = [None] * sp_blocksize
+        #print(sp_block_sp_zeropadded)
+        # sp_block_sp_zeropadded[0:sp_blocksize, ] = sp_block_sp
+        #sp_block_sp_zeropadded = sp_block_sp_zeropadded + sp_block_sp
         # bring time domain input to to frequency domain
+        A = np.zeros((512, ), dtype = np.int16)
+        sp_block_sp_zeropadded = np.concatenate((sp_block_sp, A), )
+        print(sp_block_sp_zeropadded)
         hrtf_block_sp_fft = fft(hrtf_block_sp_zeropadded, fft_blocksize)
         sp_block_sp_fft = fft(sp_block_sp_zeropadded, fft_blocksize)
 

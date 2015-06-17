@@ -20,7 +20,6 @@ class DspIn:
         self.sp_max_gain_dict = dict.fromkeys(gui_dict_init, [])
         self.wave_blockbeginend_dict_list = dict.fromkeys(gui_dict_init, [])
         self.signal_dict = {}
-        self.sp_block_dict = {}
         # Standard samplerate, sampledepth
         self.wave_param_common = [44100, 16]
         # Determine number of output blocks per second
@@ -36,6 +35,14 @@ class DspIn:
         self.hamming = self.buid_hamming_window(self.sp_blocksize)
         self.cosine = self.buid_cosine_window(self.sp_blocksize)
         self.hann = self.build_hann_window(self.sp_blocksize)
+        #self.sp_block_dict must have shape of vector like (512)
+        self.sp_block_dict = {}
+        # #[None]*512 #dict.fromkeys(gui_dict_init,
+        # np.zeros((
+           # self.sp_blocksize), dtype=np.int16))
+        #{}
+        print(self.sp_blocksize)
+        #self.sp_block_dict = np.zeros((self.sp_blocksize), dtype=np.int16)
 
 
     # @author: Felix Pfreundtner
@@ -207,21 +214,23 @@ class DspIn:
     ## initialize_get_block
     # This method gets all important data from the .wav files that will be 
     # played by the speakers. Input is a gui_dict, containing the filename at
-    #  place [2]. The output is another dict called sp_prop, which holds one 
+    #  place [2]. The output is another dict called sp_prop, which holds one
     # of the properties as values for each speaker given by the gui_dict.
     # The places are:
     # sp_prop[sp][0] = total number of samples in the file
     # sp_prop[sp][1] = sample-rate, default: 44100 (but adjustable later)
-    # sp_prop[sp][2] = number of bits per sample (8-/16-/??-int for one sample)
+    # sp_prop[sp][2] = number of sp_prop_sp[2] per sample (8-/16-/??-int for one sample)
     # sp_prop[sp][3] = number of channels (mono = 1, stereo = 2)
     # sp_prop[sp][4] = format of file (< = RIFF, > = RIFX)
     # sp_prop[sp][5] = size of data-chunk in bytes
     # sp_prop[sp][6] = total-header-size (= number of bytes until data begins)
-    # sp_prop[sp][6] = bitfactor (8-bit --> 1, 16-bit --> 2)
+    # sp_prop[sp][7] = bitfactor (8-bit --> 1, 16-bit --> 2)
+    # sp_prop[sp][8] = total number of bytes until data-chunk ends
+    # sp_prop[sp][9] = sp_prop[sp][9] for correct encoding of data
     # @author: Matthias Lederle
     def initialize_get_block(self, gui_dict):
-        # initialize dict with 8 (empty) values per key
-        sp_prop = dict.fromkeys(gui_dict, [None] *8)
+        # initialize dict with 10 (empty) values per key
+        sp_prop = dict.fromkeys(gui_dict, [None] *10)
         # go through all speakers
         for sp in gui_dict:
             file = open(gui_dict[sp][2], 'rb') # opens the file
@@ -241,7 +250,7 @@ class DspIn:
             # get samplerate from header (always 44100)
             sp_prop[sp][1] = struct.unpack(sp_prop[sp][4]+"I", file.read(4))[0]
             file.seek(34)   # got to byte 34
-            # get number of bits per sample from header
+            # get number of sp_prop_sp[2] per sample from header
             sp_prop[sp][2] = struct.unpack(sp_prop[sp][4]+"H", file.read(2))[0]
             # check in 2-byte steps, where the actual data begins
             # save distance from end of header in "counter"
@@ -259,6 +268,16 @@ class DspIn:
             sp_prop[sp][6] = 40 + (counter * 2)
             # calculate bitfactor
             sp_prop[sp][7] = int(sp_prop[sp][2] / 8)
+            #calculate the total numbers of bytes until the end of data-chunk
+            sp_prop[sp][8] = sp_prop[sp][6] + sp_prop[sp][5]
+            # choose correct sp_prop[sp][9] depending on number of sp_prop_sp[2] per sample
+            if sp_prop[sp][7] == 1:     # if bitfactor == 1
+                sp_prop[sp][9] = "B"    # use sp_prop[sp][9] "B"
+            elif sp_prop[sp][7] == 2:   # if bitfactor == 2
+                sp_prop[sp][9] = "h"    # use sp_prop[sp][9] "h"
+            #else:
+            #    print("sp_prop[sp][9] for this number of sp_prop_sp[2]/sample is not
+            # defined!")
             # calculate total number of samples of the file
             sp_prop[sp][0] = int(sp_prop[sp][5] /
                                  (sp_prop[sp][2]/8*sp_prop[sp][3]))
@@ -272,66 +291,77 @@ class DspIn:
     # This function will be applied in the while loop of the dsp-class:
     # I.e. a optimum performance is required.
     # @ author Matthias Lederle
-    def get_block(self, filename, begin_block, end_block, 
-                  sp_prop_sp, blocklength):
-
-        fmt = sp_prop_sp[4]
-        bits = sp_prop_sp[2]
-        nochannels = sp_prop_sp[3]
-        data_chunk_size = sp_prop_sp[5]
-        total_header_size = sp_prop_sp[6]
-
+    def get_block(self, filename, begin_block, end_block,
+                  sp_prop_sp, blocknumpy, blocklength, continue_input):
+        # open file of current speaker here
         file = open(filename, 'rb')     # opens the file
-        blocknumpy = np.zeros((blocklength, ), dtype = np.int16)
-            # initializes blocknumpy with zeros
-        continue_input = True
-            # is a flag to tell whether its the last block of the file or not
-        bitfactor = int(bits / 8)
-        first_byte_of_block = total_header_size + (begin_block * bitfactor * nochannels)
-        last_byte_of_block = total_header_size + (end_block * bitfactor * nochannels)
-        last_byte_of_file = total_header_size + data_chunk_size
+
+        # calculate begin_block as byte-number
+        first_byte_of_block = sp_prop_sp[6] + (begin_block * sp_prop_sp[7] *
+                                               sp_prop_sp[3])
+        # calculate end_block as byte_number
+        last_byte_of_block = sp_prop_sp[6] + (end_block * sp_prop_sp[7] *
+                                              sp_prop_sp[3])
+
         file.seek(first_byte_of_block)
-        # choose correct specifier depending on bits/sample
-        if bitfactor == 1:
-            specifier = "B"
-        elif bitfactor == 2:
-            specifier = "h"
-        else:
-            print("Specifier for this number of bits/sample is not defined!")
-        # if mono, write blocknumpy
-        if nochannels == 1:
-            if last_byte_of_block < last_byte_of_file:
+
+        # if input file is mono, write blocknumpy in this part
+        if sp_prop_sp[3] == 1:
+            # if play is not yet at the end of the file use this simple loop do:
+            if last_byte_of_block < sp_prop_sp[8]:
                 i = 0
+                # while i < blocklength, read every loop one sample
                 while i < blocklength:
-                    blocknumpy[i, ] = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
+                    blocknumpy[i, ] = struct.unpack(sp_prop_sp[4] + sp_prop_sp[
+                        9], file.read(sp_prop_sp[7]))[0]
                     i += 1
-            else: #last block to be filled individually
-                remaining_samples = int((last_byte_of_file - first_byte_of_block)/(bitfactor*nochannels))
+            # if play has reached the last block of the file, do:
+            else:
+                # calculate remaining samples
+                remaining_samples = int((sp_prop_sp[8] - first_byte_of_block)/(
+                    bitfactor*sp_prop_sp[3]))
+                # initialize blocknumpy with zeroes again, because remaining 
+                # unwritten part should contain zeroes
+                blocknumpy = np.zeros((blocklength, ), dtype=np.int16)
                 i = 0
+                # read remaining samples to the end, then set continue_input 
+                # to "False"
                 while i < remaining_samples:
-                    blocknumpy[i, ] = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
+                    blocknumpy[i, ] = struct.unpack(sp_prop_sp[4] + sp_prop_sp[
+                        9], file.read(bitfactor))[0]
                     i += 1
                 continue_input = False
-        # If stereo, make mono and write blocknumpy
-        elif nochannels == 2:
+        # If input file is stereo, make mono and write blocknumpy
+        elif sp_prop_sp[3] == 2:
             # First: Write left and right signal in independent lists
             samplelist_of_one_block_left = []
             samplelist_of_one_block_right = []
-            remaining_samples = 10000  # random value that cant be reached by (data_chunk_size - current_last_byte, see below)
-            if last_byte_of_block < last_byte_of_file:
+            remaining_samples = 10000  # random value that cant be reached by (sp_prop_sp[5] - current_last_byte, see below)
+            if last_byte_of_block < sp_prop[sp][8]:
                 i = 0
+                # while i < blocklength, read every loop one sample                
                 while i < blocklength:
-                    left_int = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
-                    right_int = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
+                    # read one sample for left ear and one for right ear
+                    left_int = struct.unpack(sp_prop_sp[4] + sp_prop_sp[9],
+                                             file.read(bitfactor))[0]
+                    right_int = struct.unpack(sp_prop_sp[4] + sp_prop_sp[9],
+                                              file.read(bitfactor))[0]
                     samplelist_of_one_block_left.append(left_int)
                     samplelist_of_one_block_right.append(right_int)
                     i += 1
-            else:  # (if current_last_byte >= data_chunk_size:
-                remaining_samples = int((last_byte_of_file - first_byte_of_block)/(bitfactor*nochannels))
+            else:  # if we reached last block of file, do:
+                # calculate remaining samples
+                remaining_samples = int((sp_prop[sp][8] - first_byte_of_block)/(bitfactor*sp_prop_sp[3]))
+                # initialize blocknumpy with zeroes again, because remaining 
+                # unwritten part should contain zeroes
+                blocknumpy = np.zeros((blocklength, ), dtype=np.int16)
                 i = 0
+                # read remaining samples and write one to left and one to right
                 while i < remaining_samples:
-                    left_int = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
-                    right_int = struct.unpack(fmt + specifier, file.read(bitfactor))[0]
+                    left_int = struct.unpack(sp_prop_sp[4] + sp_prop_sp[9],
+                                             file.read(bitfactor))[0]
+                    right_int = struct.unpack(sp_prop_sp[4] + sp_prop_sp[9],
+                                              file.read(bitfactor))[0]
                     samplelist_of_one_block_left.append(left_int)
                     samplelist_of_one_block_right.append(right_int)
                     i += 1
@@ -352,7 +382,7 @@ class DspIn:
                     i += 1
                 continue_input = False
         else:
-            print("Signal is neither mono nor stereo (nochannels != 1 or 2) and can't be processed!")
+            print("Signal is neither mono nor stereo (sp_prop_sp[3] != 1 or 2) and can't be processed!")
 
         file.close()
 
