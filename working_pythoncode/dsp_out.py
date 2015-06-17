@@ -38,7 +38,7 @@ class DspOut:
         self.lock = threading.Lock()
 
     # @author: Felix Pfreundtner
-    def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize, sp_max_gain_sp, hrtf_max_gain_sp_l_r, samplerate, hrtf_database, kemar_inverse_filter, hrtf_blocksize, sp_blocksize, sp, l_r):
+    def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize, sp_max_gain_sp, hrtf_max_gain_sp_l_r, samplerate, inverse_filter_active, kemar_inverse_filter, hrtf_blocksize, sp_blocksize, sp, l_r):
 
         # Do for speaker sp zeropadding: zeropad hrtf (left or right input) and speaker (mono input)
         hrtf_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype = 'int16')
@@ -72,7 +72,7 @@ class DspOut:
         binaural_block_sp_frequency = sp_block_sp_fft * hrtf_block_sp_fft
 
         # if kemar full is selected furthermore convolve with ( approximated 1024 samples) inverse impulse response of optimus pro 7 speaker
-        if hrtf_database == "kemar_full_normal_ear" or hrtf_database == "kemar_full_big_ear":
+        if inverse_filter_active:
             binaural_block_sp_frequency = binaural_block_sp_frequency * fft(kemar_inverse_filter, fft_blocksize)
 
         # bring multiplied spectrum back to time domain, disneglected small complex time parts resulting from numerical fft approach

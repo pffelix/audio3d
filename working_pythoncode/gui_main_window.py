@@ -15,7 +15,6 @@ import threading
 # initialization of variables
 default_position = [[50, 20], [290, 20], [170, 50],
                     [50, 320], [290, 320], [290, 170]]
-settings_dict = {}
 
 
 class MainWindow(QWidget):
@@ -69,6 +68,7 @@ class MainWindow(QWidget):
         self.combo_box.addItem('kemar_compact')
         self.database_label = QtGui.QLabel('Select Database:')
         self.inverse_box = QtGui.QCheckBox('Inverse Filter')
+        self.inverse_box.nextCheckState()
         self.buffersize_label = QtGui.QLabel('Buffer Size:')
         self.buffersize_spin_box = QtGui.QSpinBox()
         self.buffersize_spin_box.setMinimum(0)
@@ -211,15 +211,15 @@ class MainWindow(QWidget):
             gui_stop_init = switch_stop_playback()
             print(gui_stop)
             if gui_stop_init is False:
-                global settings_dict
+                global gui_settings_dict
                 # print(self.combo_box.currentText())
                 # print(self.inverse_box.isChecked())
                 # print(self.buffersize_spin_box.value())
-                settings_dict = {0: self.combo_box.currentText(),
-                                 1: self.inverse_box.isChecked(),
-                                 2: self.buffersize_spin_box.value()}
+                gui_settings_dict = {"hrtf_database": self.combo_box.currentText(),
+                                     "inverse_filter_active": self.inverse_box.isChecked(),
+                                     "bufferblocks": self.buffersize_spin_box.value()}
                 self.plot_button.setEnabled(True)
-                self.Dsp_Object = Dsp(gui_dict, gui_stop, gui_pause)
+                self.Dsp_Object = Dsp(gui_dict, gui_stop, gui_pause, gui_settings_dict)
                 self.Dsp_Object.signal_handler.error_occur.connect(
                     self.show_error)
                 self.play = threading.Thread(target=self.Dsp_Object.run)

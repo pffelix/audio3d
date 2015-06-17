@@ -13,21 +13,19 @@ import matplotlib.pyplot as plt
 from dsp_signal_handler import DspSignalHandler
 
 class DspIn:
-    def __init__(self, gui_dict_init):
+    def __init__(self, gui_dict_init, gui_settings_dict_init):
         self.sp_param = dict.fromkeys(gui_dict_init, [])
         self.hrtf_block_dict = dict.fromkeys(gui_dict_init, [])
         self.hrtf_max_gain_dict = dict.fromkeys(gui_dict_init, [])
         self.sp_max_gain_dict = dict.fromkeys(gui_dict_init, [])
         self.wave_blockbeginend_dict_list = dict.fromkeys(gui_dict_init, [])
-        self.signal_dict = {}
         self.sp_block_dict = {}
         # Standard samplerate, sampledepth
         self.wave_param_common = [44100, 16]
         # Determine number of output blocks per second
         self.fft_blocksize = 1024
-        self.hrtf_databases = ["kemar_full_normal_ear", "kemar_full_big_ear", "kemar_compact"]
-        self.hrtf_database = self.hrtf_databases[0]
-        self.kemar_inverse_filter, self.hrtf_blocksize = self.get_hrtf_param()
+        self.hrtf_database = gui_settings_dict_init["hrtf_database"]
+        self.get_hrtf_param(gui_settings_dict_init)
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
         self.sp_blocksize, self.sp_blocktime, self.overlap = self.get_block_param(self.wave_param_common, self.hrtf_blocksize, self.fft_blocksize)
         # get samplerate from header in .wav-file of all speakers
@@ -74,19 +72,22 @@ class DspIn:
         self.block_begin_end[1] = self.block_begin_end[1] + int(self.sp_blocksize*(1-self.overlap))
 
     # @author: Felix Pfreundtner
-    def get_hrtf_param(self):
-        if self.hrtf_database == "kemar_full_normal_ear" or  self.hrtf_database == "kemar_full_big_ear":
+    def get_hrtf_param(self, settings_dict):
+        if settings_dict["hrtf_database"] == "kemar_normal_ear" or  self.hrtf_database == "kemar_big_ear":
             # wave hrtf size 512 samples: zeropad hrtf to 513 samples to reach even sp_blocksize which is integer divisible by 2 (50% overlap needed -> sp_blocksize/2)
-            hrtf_blocksize = 513
-            # get inverse minimum phase impulse response response of kemar measurement speaker optimus pro 7 and truncate to fft_blocksize
-            _, kemar_inverse_filter = scipy.io.wavfile.read("./kemar/full/headphones+spkr/Opti-minphase.wav")
-            kemar_inverse_filter = kemar_inverse_filter[0:self.fft_blocksize, ]
-        if self.hrtf_database == "kemar_compact":
+            self.hrtf_blocksize = 513
+            # if inverse filter is activated in gui
+            if settings_dict["inverse_filter_active"]:
+                # get inverse minimum phase impulse response response of kemar measurement speaker optimus pro 7 and truncate to fft_blocksize
+                _, kemar_inverse_filter = scipy.io.wavfile.read("./kemar/full/headphones+spkr/Opti-minphase.wav")
+                self.kemar_inverse_filter = kemar_inverse_filter[0:self.fft_blocksize, ]
+            else:
+                self.kemar_inverse_filter = np.zeros((self.fft_blocksize,), dtype = np.int16)
+        if settings_dict["hrtf_database"] == "kemar_compact":
             # wave hrtf size 128 samples: zeropad hrtf to 129 samples to reach even sp_blocksize which is integer divisible by 2 (50% overlap needed -> sp_blocksize/2)
-            hrtf_blocksize = 129
+            self.hrtf_blocksize = 129
             # no inverse speaker impulse response of measurement speaker needed (is already integrated in wave files of kemar compact hrtfs)
-            kemar_inverse_filter = np.zeros((self.fft_blocksize,), dtype = np.int16)
-        return kemar_inverse_filter, hrtf_blocksize
+            self.kemar_inverse_filter = np.zeros((self.fft_blocksize,), dtype = np.int16)
 
 
     # @author: Felix Pfreundtner
@@ -125,7 +126,7 @@ class DspIn:
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
 
-        if self.hrtf_database == "kemar_full_normal_ear" or self.hrtf_database == "kemar_full_big_ear":
+        if self.hrtf_database == "kemar_normal_ear" or self.hrtf_database == "kemar_big_ear":
             # get filmename of the relevant hrtf for each ear
             rounddifference = gui_dict_sp[0] % 5
             if rounddifference == 0:
