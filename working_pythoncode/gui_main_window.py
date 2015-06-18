@@ -189,9 +189,7 @@ class MainWindow(QWidget):
                 self.show_property)
             self.room.addItem(speaker_list[-1])
             self.view.viewport().update()
-#             clean up
-#             self.speaker_property.added.disconnect()
-#             self.speaker_property.clear()
+
         else:
             return
 
@@ -211,10 +209,8 @@ class MainWindow(QWidget):
             gui_stop_init = switch_stop_playback()
             print(gui_stop)
             if gui_stop_init is False:
+
                 global gui_settings_dict
-                # print(self.combo_box.currentText())
-                # print(self.inverse_box.isChecked())
-                # print(self.buffersize_spin_box.value())
                 gui_settings_dict = {
                     "hrtf_database": self.combo_box.currentText(),
                     "inverse_filter_active": self.inverse_box.isChecked(),
@@ -226,8 +222,7 @@ class MainWindow(QWidget):
                     self.show_error)
                 self.play = threading.Thread(target=self.Dsp_Object.run)
                 self.play.start()
-            # else:
-                # self.play = None
+
         else:
             msgBox = QMessageBox()
             msgBox.setText("Please add a speaker.")
