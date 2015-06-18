@@ -55,16 +55,16 @@ class Dsp:
                 is True:
 
 ############# actualize variables with gui
-            # self.gui_dict = gui_utils.gui_dict
-            # self.DspOut_Object.gui_stop = gui_utils.gui_stop
-            # self.DspOut_Object.gui_pause = gui_utils.gui_pause
-            # self.gui_settings_dict = gui_utils.gui_settings_dict
+            self.gui_dict = gui_utils.gui_dict
+            self.DspOut_Object.gui_stop = gui_utils.gui_stop
+            self.DspOut_Object.gui_pause = gui_utils.gui_pause
+            self.gui_settings_dict = gui_utils.gui_settings_dict
 
             # print the number of already done FFT / Block iterations
             print("FFT Block " + str(self.blockcounter) + ":")
             # set the begin and end of the speaker wave block which needs to
             # be read in this iteration
-#??? if self.blockcounter==0:
+            #For Test reasons: if self.blockcounter==0:
             self.DspIn_Object.set_block_begin_end()
             # iterate over all active speakers sp
             for sp in self.gui_dict:
