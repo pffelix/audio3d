@@ -150,12 +150,14 @@ class Room(QtGui.QGraphicsScene):
                     if dis < 50:
                         x, y = self.get_abs_pos(deg, 50)
                         speaker.setPos(x, y)
+                    speaker.cal_rel_pos()
 
             elif self.current_item.type == 'speaker':
                 deg, dis = self.current_item.cal_rel_pos()
                 if dis < 50:
                     x, y = self.get_abs_pos(deg, 50)
                     self.current_item.setPos(x, y)
+                self.current_item.cal_rel_pos()
 
 
                 global speaker_to_show
