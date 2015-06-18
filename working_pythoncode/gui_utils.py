@@ -146,7 +146,10 @@ class Room(QtGui.QGraphicsScene):
                 audience_pos = self.current_item.pos()
 
                 for speaker in speaker_list:
-                    speaker.cal_rel_pos()
+                    deg, dis = speaker.cal_rel_pos()
+                    if dis < 50:
+                        x, y = self.get_abs_pos(deg, 50)
+                        speaker.setPos(x, y)
 
             elif self.current_item.type == 'speaker':
                 deg, dis = self.current_item.cal_rel_pos()
