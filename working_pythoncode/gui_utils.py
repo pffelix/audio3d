@@ -12,9 +12,36 @@ from matplotlib.figure import Figure
 
 # initialization of variables
 gui_dict = {}
+gui_settings_dict = {"hrtf_database": "kemar_normal_ear",
+                     "inverse_filter_active": True,
+                     "bufferblocks": 5}
+gui_stop = True
+gui_pause = False
 audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
 speaker_to_show = 0
+
+
+# stop playback and convolution of dsp algorithm
+def switch_stop_playback():
+    global gui_stop
+    if gui_stop is False:
+        gui_stop = True
+    else:
+        gui_stop = False
+    print (gui_stop)
+    return gui_stop
+
+
+def switch_pause_playback():
+    global gui_pause
+    # start pause
+    if gui_pause is False:
+        gui_pause = True
+    # end pause
+    else:
+        gui_pause = False
+    print (gui_pause)
 
 
 # Headtracker - to be implemented
@@ -36,8 +63,7 @@ class Item(QtGui.QGraphicsPixmapItem):
     def __init__(self):
 
         image = self.origin_image.scaled(
-                                    50, 50, QtCore.Qt.KeepAspectRatio,
-                                    QtCore.Qt.SmoothTransformation)
+            50, 50, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
 
         super(Item, self).__init__(QtGui.QPixmap.fromImage(image))
 
@@ -58,7 +84,7 @@ class Item(QtGui.QGraphicsPixmapItem):
         if QtCore.QLineF(QtCore.QPointF(event.screenPos()),
                          QtCore.QPointF(event.buttonDownScreenPos(
                              QtCore.Qt.LeftButton))).length() < QtGui.QApplication.startDragDistance():
-                                 return
+                                return
 
         drag = QtGui.QDrag(event.widget())
         mime = QtCore.QMimeData()
@@ -241,11 +267,9 @@ class SpeakerProperty(QtGui.QWidget):
         # set labels
         self.path_label = QtGui.QLabel('Audio Source:')
         self.position_label = QtGui.QLabel(
-                                    'Relative Position to the Audience:')
+            'Relative Position to the Audience:')
         self.azimuth_label = QtGui.QLabel('Azimuth:')
-        self.distance_label = QtGui.QLabel('Distance:')
-        self.ear_label = QtGui.QLabel('Ear Size:')
-        # set line edit
+        self.distance_label = QtGui.QLabel('Distance:')        # set line edit
         self.path_line_edit = QtGui.QLineEdit()
         self.azimuth_line_edit = QtGui.QLineEdit()
         self.distance_line_edit = QtGui.QLineEdit()
@@ -275,9 +299,7 @@ class SpeakerProperty(QtGui.QWidget):
         layout.addWidget(self.distance_line_edit, 5, 3, 1, 1)
         layout.addWidget(self.confirm_button, 6, 0, 1, 2)
         layout.addWidget(self.cancel_button, 6, 2, 1, 2)
-        layout.addWidget(self.normalize_box, 3, 0, 1, 2)
-        layout.addWidget(self.ear_label, 3, 2, 1, 2)
-        layout.addWidget(self.combo_box, 3, 3, 1, 2)
+        layout.addWidget(self.normalize_box, 4, 3, 1, 1)
 
         # connect signal and slots
         self.file_select_button.clicked.connect(self.browse)
@@ -300,7 +322,7 @@ class SpeakerProperty(QtGui.QWidget):
         global ear
         ear = self.combo_box.currentText()
 
-        from math import cos, sin, degrees, radians
+        from math import cos, sin, radians
         x0 = audience_pos.x()
         y0 = audience_pos.y()
         azimuth = float(self.azimuth_line_edit.text())
@@ -367,7 +389,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.closed.emit()
 
 
-# Additional window for plot of speaker and HRTF spectrum while .wav is played 
+# Additional window for plot of speaker and HRTF spectrum while .wav is played
 class SequencePlot(QtGui.QWidget):
     plot_closed = QtCore.pyqtSignal()
     plot_on = QtCore.pyqtSignal()

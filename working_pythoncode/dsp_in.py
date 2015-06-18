@@ -13,37 +13,26 @@ import matplotlib.pyplot as plt
 from dsp_signal_handler import DspSignalHandler
 
 class DspIn:
-    def __init__(self, gui_dict_init):
+    def __init__(self, gui_dict_init, gui_settings_dict_init):
         self.sp_param = dict.fromkeys(gui_dict_init, [])
         self.hrtf_block_dict = dict.fromkeys(gui_dict_init, [])
         self.hrtf_max_gain_dict = dict.fromkeys(gui_dict_init, [])
         self.sp_max_gain_dict = dict.fromkeys(gui_dict_init, [])
         self.wave_blockbeginend_dict_list = dict.fromkeys(gui_dict_init, [])
-        self.signal_dict = {}
         # Standard samplerate, sampledepth
         self.wave_param_common = [44100, 16]
         # Determine number of output blocks per second
         self.fft_blocksize = 1024
-        self.hrtf_databases = ["kemar_full_normal_ear", "kemar_full_big_ear", "kemar_compact"]
-        self.hrtf_database = self.hrtf_databases[0]
-        self.kemar_inverse_filter, self.hrtf_blocksize = self.get_hrtf_param()
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
+        self.hrtf_database, self.hrtf_blocksize, self.kemar_inverse_filter = self.get_hrtf_param(gui_settings_dict_init)
         self.sp_blocksize, self.sp_blocktime, self.overlap = self.get_block_param(self.wave_param_common, self.hrtf_blocksize, self.fft_blocksize)
         # get samplerate from header in .wav-file of all speakers
-        self.sp_param = self.initialize_get_block(gui_dict_init)
+        self.sp_param = self.init_get_block(gui_dict_init)
         self.block_begin_end = self.init_set_block_begin_end(gui_dict_init)
         self.hamming = self.buid_hamming_window(self.sp_blocksize)
         self.cosine = self.buid_cosine_window(self.sp_blocksize)
         self.hann = self.build_hann_window(self.sp_blocksize)
-        #self.sp_block_dict must have shape of vector like (512)
-        self.sp_block_dict = {}
-        # #[None]*512 #dict.fromkeys(gui_dict_init,
-        # np.zeros((
-           # self.sp_blocksize), dtype=np.int16))
-        #{}
-        print(self.sp_blocksize)
-        #self.sp_block_dict = np.zeros((self.sp_blocksize), dtype=np.int16)
-
+        self.sp_block_dict = dict.fromkeys(gui_dict_init, np.zeros((self.sp_blocksize, ), dtype=np.float16))
 
     # @author: Felix Pfreundtner
     # function does a normal school arithmetic round (Round half away from zero)
@@ -81,24 +70,28 @@ class DspIn:
         self.block_begin_end[1] = self.block_begin_end[1] + int(self.sp_blocksize*(1-self.overlap))
 
     # @author: Felix Pfreundtner
-    def get_hrtf_param(self):
-        if self.hrtf_database == "kemar_full_normal_ear" or  self.hrtf_database == "kemar_full_big_ear":
+    def get_hrtf_param(self, gui_settings_dict):
+        hrtf_database = gui_settings_dict["hrtf_database"]
+        if hrtf_database == "kemar_normal_ear" or  self.hrtf_database == "kemar_big_ear":
             # wave hrtf size 512 samples: zeropad hrtf to 513 samples to reach even sp_blocksize which is integer divisible by 2 (50% overlap needed -> sp_blocksize/2)
             hrtf_blocksize = 513
-            # get inverse minimum phase impulse response response of kemar measurement speaker optimus pro 7 and truncate to fft_blocksize
-            _, kemar_inverse_filter = scipy.io.wavfile.read("./kemar/full/headphones+spkr/Opti-minphase.wav")
-            kemar_inverse_filter = kemar_inverse_filter[0:self.fft_blocksize, ]
-        if self.hrtf_database == "kemar_compact":
+            # if inverse filter is activated in gui
+            if gui_settings_dict["inverse_filter_active"]:
+                # get inverse minimum phase impulse response response of kemar measurement speaker optimus pro 7 and truncate to fft_blocksize
+                _, kemar_inverse_filter = scipy.io.wavfile.read("./kemar/full/headphones+spkr/Opti-minphase.wav")
+                kemar_inverse_filter = kemar_inverse_filter[0:self.fft_blocksize, ]
+            else:
+                kemar_inverse_filter = np.zeros((self.fft_blocksize,), dtype = np.int16)
+        if hrtf_database == "kemar_compact":
             # wave hrtf size 128 samples: zeropad hrtf to 129 samples to reach even sp_blocksize which is integer divisible by 2 (50% overlap needed -> sp_blocksize/2)
             hrtf_blocksize = 129
             # no inverse speaker impulse response of measurement speaker needed (is already integrated in wave files of kemar compact hrtfs)
             kemar_inverse_filter = np.zeros((self.fft_blocksize,), dtype = np.int16)
-        return kemar_inverse_filter, hrtf_blocksize
-
+        return hrtf_database, hrtf_blocksize, kemar_inverse_filter
 
     # @author: Felix Pfreundtner
-    def get_hrtfs(self, gui_dict_sp, hrtf_database):
-        if hrtf_database == "kemar_compact":
+    def get_hrtfs(self, gui_dict_sp, sp):
+        if self.hrtf_database == "kemar_compact":
             # get filmename of the relevant hrtf
             rounddifference = gui_dict_sp[0] % 5
             if rounddifference == 0:
@@ -132,7 +125,7 @@ class DspIn:
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
 
-        if hrtf_database == "kemar_full_normal_ear" or hrtf_database == "kemar_full_big_ear":
+        if self.hrtf_database == "kemar_normal_ear" or self.hrtf_database == "kemar_big_ear":
             # get filmename of the relevant hrtf for each ear
             rounddifference = gui_dict_sp[0] % 5
             if rounddifference == 0:
@@ -147,7 +140,7 @@ class DspIn:
             else:
                 azimuthangle_other_ear = azimuthangle_ear + 180
 
-            if hrtf_database == "kemar_full_normal_ear":
+            if self.hrtf_database == "kemar_full_normal_ear":
                 hrtf_filenames_dict_sp_l = "./kemar/full/elev0/L0e" + str(azimuthangle_ear).zfill(3) + "a.wav"
                 hrtf_filenames_dict_sp_r = "./kemar/full/elev0/L0e" + str(azimuthangle_other_ear).zfill(3) + "a.wav"
             else:
@@ -157,27 +150,25 @@ class DspIn:
             # get samples of the relevant hrtf for each ear in numpy array (l,r)
             _, hrtf_input_l = scipy.io.wavfile.read(hrtf_filenames_dict_sp_l)
             _, hrtf_input_r = scipy.io.wavfile.read(hrtf_filenames_dict_sp_r)
-            hrtf_block_dict_sp = np.zeros((self.hrtf_blocksize, 2), dtype = np.int16)
-            hrtf_block_dict_sp[0:512,0] = hrtf_input_l[:,]
-            hrtf_block_dict_sp[0:512,1] = hrtf_input_r[:,]
-            hrtf_max_gain_sp=[]
-            hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
-            hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
-        return hrtf_block_dict_sp, hrtf_max_gain_sp
+            self.hrtf_block_dict[sp] = np.zeros((self.hrtf_blocksize, 2), dtype = np.int16)
+            self.hrtf_block_dict[sp][0:512,0] = hrtf_input_l[:,]
+            self.hrtf_block_dict[sp][0:512,1] = hrtf_input_r[:,]
+            self.hrtf_max_gain_dict[sp]=[]
+            self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(self.hrtf_block_dict[sp][:, 0])))
+            self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(self.hrtf_block_dict[sp][:, 1])))
 
 
     # @author: Felix Pfreundtner
-    def normalize(self, sp_block_dict_sp, normalize_flag_sp):
+    def normalize(self, normalize_flag_sp, sp):
         if normalize_flag_sp:
             # take maximum amplitude of original wave file of sp block
-            max_amplitude_input = np.amax(np.abs(sp_block_dict_sp))
+            max_amplitude_input = np.amax(np.abs(self.sp_block_dict[sp]))
             if max_amplitude_input != 0:
                 # normalize to have the maximum int16 amplitude
                 max_amplitude_output = 32767
-                sp_block_dict_sp = sp_block_dict_sp / (max_amplitude_input / max_amplitude_output)
-                sp_block_dict_sp = sp_block_dict_sp.astype(np.int16, copy=False)
-        sp_max_gain_sp = np.amax(np.abs(sp_block_dict_sp[:,]))
-        return sp_block_dict_sp, sp_max_gain_sp
+                self.sp_block_dict[sp] = self.sp_block_dict[sp] / (max_amplitude_input / max_amplitude_output)
+                self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16, copy = False)
+        self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
 
 
     # @author: Felix Pfreundtner
@@ -208,11 +199,11 @@ class DspIn:
     # @author: Felix Pfreundtner
     def apply_window(self, sp_block_sp, windowsignal):
         sp_block_sp = sp_block_sp * windowsignal
-        sp_block_sp = sp_block_sp.astype(np.int16, copy=False)
+        sp_block_sp = sp_block_sp.astype(np.int16, copy = False)
         return sp_block_sp
 
-    ## initialize_get_block
-    # This method gets all important data from the .wav files that will be 
+   ## init_get_block
+    # This method gets all important data from the .wav files that will be
     # played by the speakers. Input is a gui_dict, containing the filename at
     #  place [2]. The output is another dict called sp_prop, which holds one
     # of the properties as values for each speaker given by the gui_dict.
@@ -228,7 +219,7 @@ class DspIn:
     # sp_prop[sp][8] = total number of bytes until data-chunk ends
     # sp_prop[sp][9] = sp_prop[sp][9] for correct encoding of data
     # @author: Matthias Lederle
-    def initialize_get_block(self, gui_dict):
+    def init_get_block(self, gui_dict):
         # initialize dict with 10 (empty) values per key
         sp_prop = dict.fromkeys(gui_dict, [None] *10)
         # go through all speakers
@@ -285,14 +276,14 @@ class DspIn:
         return sp_prop
 
     ## get_block
-    # This method reads a block of samples of a .wav-file and returns 
-    # a numpyarray (containing one 16-bit-int for each sample) and a flag 
+    # This method reads a block of samples of a .wav-file and returns
+    # a numpyarray (containing one 16-bit-int for each sample) and a flag
     # that tells whether the end of the block is reached or not.
     # This function will be applied in the while loop of the dsp-class:
     # I.e. a optimum performance is required.
     # @ author Matthias Lederle
-    def get_block(self, filename, begin_block, end_block,
-                  sp_prop_sp, blocknumpy, blocklength, continue_input):
+    def get_block(self, filename, begin_block, end_block, sp_prop_sp, blocknumpy, blocklength):
+        continue_input = True
         # open file of current speaker here
         file = open(filename, 'rb')     # opens the file
 
@@ -319,16 +310,16 @@ class DspIn:
             else:
                 # calculate remaining samples
                 remaining_samples = int((sp_prop_sp[8] - first_byte_of_block)/(
-                    bitfactor*sp_prop_sp[3]))
-                # initialize blocknumpy with zeroes again, because remaining 
+                    sp_prop_sp[7]*sp_prop_sp[3]))
+                # initialize blocknumpy with zeroes again, because remaining
                 # unwritten part should contain zeroes
                 blocknumpy = np.zeros((blocklength, ), dtype=np.int16)
                 i = 0
-                # read remaining samples to the end, then set continue_input 
+                # read remaining samples to the end, then set continue_input
                 # to "False"
                 while i < remaining_samples:
                     blocknumpy[i, ] = struct.unpack(sp_prop_sp[4] + sp_prop_sp[
-                        9], file.read(bitfactor))[0]
+                        9], file.read(sp_prop_sp[7]))[0]
                     i += 1
                 continue_input = False
         # If input file is stereo, make mono and write blocknumpy
@@ -337,31 +328,34 @@ class DspIn:
             samplelist_of_one_block_left = []
             samplelist_of_one_block_right = []
             remaining_samples = 10000  # random value that cant be reached by (sp_prop_sp[5] - current_last_byte, see below)
-            if last_byte_of_block < sp_prop[sp][8]:
+
+            if last_byte_of_block < sp_prop_sp[8]:
                 i = 0
-                # while i < blocklength, read every loop one sample                
+                # while i < blocklength, read every loop one sample
                 while i < blocklength:
                     # read one sample for left ear and one for right ear
                     left_int = struct.unpack(sp_prop_sp[4] + sp_prop_sp[9],
-                                             file.read(bitfactor))[0]
+                                             file.read(sp_prop_sp[7]))[0]
                     right_int = struct.unpack(sp_prop_sp[4] + sp_prop_sp[9],
-                                              file.read(bitfactor))[0]
+                                              file.read(sp_prop_sp[7]))[0]
+
                     samplelist_of_one_block_left.append(left_int)
                     samplelist_of_one_block_right.append(right_int)
                     i += 1
             else:  # if we reached last block of file, do:
                 # calculate remaining samples
-                remaining_samples = int((sp_prop[sp][8] - first_byte_of_block)/(bitfactor*sp_prop_sp[3]))
-                # initialize blocknumpy with zeroes again, because remaining 
+
+                remaining_samples = int((sp_prop_sp[8] - first_byte_of_block)/(sp_prop_sp[7]*sp_prop_sp[3]))
+                # initialize blocknumpy with zeroes again, because remaining
                 # unwritten part should contain zeroes
                 blocknumpy = np.zeros((blocklength, ), dtype=np.int16)
                 i = 0
                 # read remaining samples and write one to left and one to right
                 while i < remaining_samples:
                     left_int = struct.unpack(sp_prop_sp[4] + sp_prop_sp[9],
-                                             file.read(bitfactor))[0]
+                                             file.read(sp_prop_sp[7]))[0]
                     right_int = struct.unpack(sp_prop_sp[4] + sp_prop_sp[9],
-                                              file.read(bitfactor))[0]
+                                              file.read(sp_prop_sp[7]))[0]
                     samplelist_of_one_block_left.append(left_int)
                     samplelist_of_one_block_right.append(right_int)
                     i += 1
@@ -382,6 +376,7 @@ class DspIn:
                     i += 1
                 continue_input = False
         else:
+            # an Matthias: Hier bitte eine Fehlerausgabe über DspSignalHandler() schreiben (Fragen zu der Funktion -> Huaijiang )
             print("Signal is neither mono nor stereo (sp_prop_sp[3] != 1 or 2) and can't be processed!")
 
         file.close()

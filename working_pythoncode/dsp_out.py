@@ -19,23 +19,27 @@ import threading
 from copy import deepcopy
 
 class DspOut:
-    def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize):
+    def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize, gui_stop_init, gui_pause_init):
+        self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize/2, 2), dtype=np.float16))
+        self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((fft_blocksize/2, 2), dtype=np.float16), np.zeros((fft_blocksize/2, 2), dtype=np.float16)])
         self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize, 2), dtype=np.int16))
         self.binaural_block_dict_out = dict.fromkeys(gui_dict_init, np.zeros((sp_blocksize, 2), dtype=np.int16))
         self.binaural_block_dict_add = dict.fromkeys(gui_dict_init, np.zeros((fft_blocksize - sp_blocksize, 2), dtype=np.int16))
         self.binaural_block = np.zeros((sp_blocksize, 2), dtype=np.int16)
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
+        self.continue_convolution_dict = dict.fromkeys(gui_dict_init, True)
+        self.gui_stop = gui_stop_init
+        self.gui_pause = gui_pause_init
         self.played_frames_end = 0
         self.continue_convolution_list = dict.fromkeys(gui_dict_init, [])
-        self.continue_convolution_dict = dict.fromkeys(gui_dict_init, True)
         self.get_new_block = True
         self.play_counter = 0
         self.playbuffer = collections.deque()
         self.lock = threading.Lock()
 
     # @author: Felix Pfreundtner
-    def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize, sp_max_gain_sp, hrtf_max_gain_sp_l_r, samplerate, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r, hrtf_database, kemar_inverse_filter, hrtf_blocksize, sp_blocksize):
-        print("A")
+    def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize, sp_max_gain_sp, hrtf_max_gain_sp_l_r, samplerate, inverse_filter_active, kemar_inverse_filter, hrtf_blocksize, sp_blocksize, sp, l_r):
+
         # Do for speaker sp zeropadding: zeropad hrtf (left or right input) and speaker (mono input)
         hrtf_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype =
         np.int16)
@@ -56,35 +60,34 @@ class DspOut:
         freq_all = fftfreq(fft_blocksize, 1/samplerate) # array of all calculated FFT frequencies
         position_freq = np.where(freq_all>=0) # position of only positive frequencies (negative frequencies redundant)
         freqs = freq_all[position_freq] # array of only positive FFT frequencies (negative frequencies redundant)
-        sp_spectrum_dict_sp[:, 0] = freqs
-        hrtf_spectrum_dict_sp_l_r[:, 0] = freqs
+        self.sp_spectrum_dict[sp][:, 0] = freqs
+        self.hrtf_spectrum_dict[sp][l_r][:, 0] = freqs
         sp_magnitude_spectrum = abs(sp_block_sp_fft[position_freq]) # get magnitude spectrum of sp block
         max_amplitude_output = 32767 # normalize spectrum to get int16 values
         max_amplitude_sp_magnitude_spectrum = np.amax(np.abs(sp_magnitude_spectrum))
         if max_amplitude_sp_magnitude_spectrum != 0:
-            sp_spectrum_dict_sp[:,1] = sp_magnitude_spectrum / (max_amplitude_sp_magnitude_spectrum / sp_max_gain_sp * max_amplitude_output)
+            self.sp_spectrum_dict[sp][:,1] = sp_magnitude_spectrum / (max_amplitude_sp_magnitude_spectrum / sp_max_gain_sp * max_amplitude_output)
         hrtf_magnitude_spectrum = abs(hrtf_block_sp_fft[position_freq]) # get magnitude spectrum of hrtf block
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0:
-            hrtf_spectrum_dict_sp_l_r[:,1]  = hrtf_magnitude_spectrum / (max_amplitude_hrtf_magnitude_spectrum / hrtf_max_gain_sp_l_r * max_amplitude_output)
-        sp_spectrum_dict_sp[0, 1] = 0
-        hrtf_spectrum_dict_sp_l_r[0, 1] = 0
+            self.hrtf_spectrum_dict[sp][l_r][:,1]  = hrtf_magnitude_spectrum / (max_amplitude_hrtf_magnitude_spectrum / hrtf_max_gain_sp_l_r * max_amplitude_output)
+        self.sp_spectrum_dict[sp][0, 1] = 0
+        self.hrtf_spectrum_dict[sp][l_r][0, 1] = 0
 
         # execute convolution of speaker input and hrtf input: multiply complex frequency domain vectors
         binaural_block_sp_frequency = sp_block_sp_fft * hrtf_block_sp_fft
 
         # if kemar full is selected furthermore convolve with ( approximated 1024 samples) inverse impulse response of optimus pro 7 speaker
-        if hrtf_database == "kemar_full_normal_ear" or hrtf_database == "kemar_full_big_ear":
+        if inverse_filter_active:
             binaural_block_sp_frequency = binaural_block_sp_frequency * fft(kemar_inverse_filter, fft_blocksize)
 
         # bring multiplied spectrum back to time domain, disneglected small complex time parts resulting from numerical fft approach
-        binaural_block_sp = ifft(binaural_block_sp_frequency, fft_blocksize).real
+        binaural_block_sp_time  = ifft(binaural_block_sp_frequency, fft_blocksize).real
 
         # normalize multiplied spectrum back to 16bit integer, consider maximum amplitude value of sp black and hrtf impulse to get dynamical volume output
         binaural_block_sp_max_gain = 26825636157874 # int(np.amax(np.abs(binaural_block_sp))) # 421014006*10 #
-        binaural_block_sp = binaural_block_sp / (binaural_block_sp_max_gain / sp_max_gain_sp / hrtf_max_gain_sp_l_r * 32767)
-        binaural_block_sp = binaural_block_sp.astype(np.int16, copy=False)
-        return binaural_block_sp, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r
+        binaural_block_sp_time = binaural_block_sp_time / (binaural_block_sp_max_gain / sp_max_gain_sp / hrtf_max_gain_sp_l_r * 32767)
+        self.binaural_block_dict[sp][:,l_r] = binaural_block_sp_time.astype(np.int16, copy = False)
 
     # @author: Felix Pfreundtner
     def overlap_add (self, binaural_block_dict_sp, binaural_block_dict_out_sp, binaural_block_dict_add_sp, fft_blocksize, sp_blocksize):
@@ -108,7 +111,7 @@ class DspOut:
             sp_gain_factor = 1 - distance_sp/distance_max
             # add gained sp block output to a summarized block output of all speakers
             binaural_block += binaural_block_dict_out[sp]*sp_gain_factor / total_number_of_sp
-        binaural_block = binaural_block.astype(np.int16, copy=False)
+        binaural_block = binaural_block.astype(np.int16, copy = False)
         return binaural_block
 
     # Testfunction overlap
@@ -164,14 +167,22 @@ class DspOut:
                               stream_callback = self.callback,
                               )
         audiostream.start_stream()
-        while audiostream.is_active():
-            time.sleep(sp_blocksize/samplerate)
+        while audiostream.is_active() or audiostream.is_stopped():
+            time.sleep(0.1)
+            # handle playback pause
+            if self.gui_pause is True:
+                audiostream.stop_stream()
+            if audiostream.is_stopped() and self.gui_pause is False:
+                audiostream.start_stream()
+            # handle playblack stop
+            if self.gui_stop is True:
+                break
         audiostream.stop_stream()
         audiostream.close()
         pa.terminate()
-        if any(self.continue_convolution_dict.values()) == True:
+        if any(self.continue_convolution_dict.values()) is True and self.gui_stop is False:
             print("Error PC to slow - Playback Stopped")
             for sp in self.continue_convolution_dict:
                 #self.played_frames_end += sp_blocksize
-                self.continue_convolution_dict[sp] = False
+                self.continue_convolution_dict[sp] is False
         # return continue_convolution_dict

@@ -15,7 +15,6 @@ import threading
 # initialization of variables
 default_position = [[50, 20], [290, 20], [170, 50],
                     [50, 320], [290, 320], [290, 170]]
-settings_dict = {}
 
 
 class MainWindow(QWidget):
@@ -47,7 +46,8 @@ class MainWindow(QWidget):
         self.sequence_plot.plot_closed.connect(self.plot_closed)
         self.sequence_plot.plot_on.connect(self.update_sequence_dicts)
 
-        self.dsp_object = Dsp(gui_dict)
+        self.Dsp_Object = None
+        self.play = None
         self.init_ui()
 
     def init_ui(self):
@@ -56,6 +56,7 @@ class MainWindow(QWidget):
         add_speaker_button = QPushButton('Add Speaker')
         reset_button = QPushButton('Reset')
         control_button = QPushButton('Play/Stop')
+        pause_button = QPushButton('Pause')
         default_position_button = QPushButton('Default Position')
         self.plot_button = QPushButton('Plot Sequence')
         self.plot_button.setDisabled(True)
@@ -66,7 +67,8 @@ class MainWindow(QWidget):
         self.combo_box.addItem('kemar_big_ear')
         self.combo_box.addItem('kemar_compact')
         self.database_label = QtGui.QLabel('Select Database:')
-        self.inverse_box = QtGui.QCheckBox('Inverse Filtering')
+        self.inverse_box = QtGui.QCheckBox('Inverse Filter')
+        self.inverse_box.nextCheckState()
         self.buffersize_label = QtGui.QLabel('Buffer Size:')
         self.buffersize_spin_box = QtGui.QSpinBox()
         self.buffersize_spin_box.setMinimum(0)
@@ -78,19 +80,21 @@ class MainWindow(QWidget):
         layout.addWidget(self.view, 0, 0, 1, 4)
         layout.addWidget(add_speaker_button, 1, 0, 1, 4)
         layout.addWidget(control_button, 2, 0, 1, 4)
-        layout.addWidget(reset_button, 3, 0, 1, 4)
-        layout.addWidget(default_position_button, 4, 0, 1, 4)
-        layout.addWidget(self.plot_button, 5, 0, 1, 4)
-        layout.addWidget(self.database_label, 6, 0, 1, 1)
-        layout.addWidget(self.combo_box, 6, 1, 1, 2)
-        layout.addWidget(self.inverse_box, 6, 3, 1, 1)
-        layout.addWidget(self.buffersize_label, 7, 0, 1, 1)
-        layout.addWidget(self.buffersize_spin_box, 7, 1, 1, 1)
+        layout.addWidget(pause_button, 3, 0, 1, 4)
+        layout.addWidget(reset_button, 4, 0, 1, 4)
+        layout.addWidget(default_position_button, 5, 0, 1, 4)
+        layout.addWidget(self.plot_button, 6, 0, 1, 4)
+        layout.addWidget(self.database_label, 7, 0, 1, 1)
+        layout.addWidget(self.combo_box, 7, 1, 1, 2)
+        layout.addWidget(self.inverse_box, 7, 3, 1, 1)
+        layout.addWidget(self.buffersize_label, 8, 0, 1, 1)
+        layout.addWidget(self.buffersize_spin_box, 8, 1, 1, 1)
 
         # connect signal and slots
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
         control_button.clicked.connect(self.control)
+        pause_button.clicked.connect(self.pause)
         default_position_button.clicked.connect(self.positions)
         self.plot_button.clicked.connect(self.plot_sequence)
         self.combo_box.currentIndexChanged.connect(self.inverse_disable)
@@ -182,7 +186,7 @@ class MainWindow(QWidget):
             else:
                 new_speaker = Speaker(index, path, x, y)
             new_speaker.signal_handler.show_property.connect(
-                                                        self.show_property)
+                self.show_property)
             self.room.addItem(speaker_list[-1])
             self.view.viewport().update()
 #             clean up
@@ -193,7 +197,6 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def reset(self):
-
         self.room.clear()
         gui_dict.clear()
         del speaker_list[:]
@@ -203,24 +206,41 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def control(self):
-        global settings_dict
-        # print(self.combo_box.currentText())
-        # print(self.inverse_box.isChecked())
-        # print(self.buffersize_spin_box.value())
-        settings_dict = {0: self.combo_box.currentText(),
-                         1: self.inverse_box.isChecked(),
-                         2: self.buffersize_spin_box.value()}
-        self.plot_button.setEnabled(True)
-        self.plot_button.setEnabled(True)
-        self.dsp_object.set_gui_dict(gui_dict)  # , settings_dict)
-        self.dsp_object.signal_handler.error_occur.connect(self.show_error)
-        play = threading.Thread(target=self.dsp_object.run)
-        play.start()
-        print()
+        global gui_stop
+        if len(gui_dict) > 0:
+            gui_stop_init = switch_stop_playback()
+            print(gui_stop)
+            if gui_stop_init is False:
+                global gui_settings_dict
+                # print(self.combo_box.currentText())
+                # print(self.inverse_box.isChecked())
+                # print(self.buffersize_spin_box.value())
+                gui_settings_dict = {
+                    "hrtf_database": self.combo_box.currentText(),
+                    "inverse_filter_active": self.inverse_box.isChecked(),
+                    "bufferblocks": self.buffersize_spin_box.value()}
+                self.plot_button.setEnabled(True)
+                self.Dsp_Object = Dsp(gui_dict, gui_stop, gui_pause,
+                                      gui_settings_dict)
+                self.Dsp_Object.signal_handler.error_occur.connect(
+                    self.show_error)
+                self.play = threading.Thread(target=self.Dsp_Object.run)
+                self.play.start()
+            # else:
+                # self.play = None
+        else:
+            msgBox = QMessageBox()
+            msgBox.setText("Please add a speaker.")
+            msgBox.exec_()
+
+    @pyqtSlot()
+    def pause(self):
+        switch_pause_playback()
+        print (gui_pause)
 
     @pyqtSlot()
     def show_error(self):
-        print(self.dsp_object.signal_handler.error_message)
+        print(self.Dsp_Object.signal_handler.error_message)
 
     def positions(self):
 
@@ -233,20 +253,20 @@ class MainWindow(QWidget):
             return
 
     def plot_sequence(self):
-        # print(self.dsp_object.sp_spectrum_dict)plot_sequence
+        # print(self.Dsp_Object.DspOut_Object.sp_spectrum_dict)plot_sequence
         from gui_utils import speaker_to_show
         i = speaker_to_show
+        print ("initialize")
 
         self.line1, = self.sequence_plot.axis0.plot(
-                          self.dsp_object.sp_spectrum_dict[i][:, 0],
-                          self.dsp_object.sp_spectrum_dict[i][:, 1])
+            self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 0],
+            self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
         self.line2, = self.sequence_plot.axis1.plot(
-                          self.dsp_object.hrtf_spectrum_dict[i][0][:, 0],
-                          self.dsp_object.hrtf_spectrum_dict[i][0][:, 1])
+            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 0],
+            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
         self.line3, = self.sequence_plot.axis2.plot(
-                          self.dsp_object.hrtf_spectrum_dict[i][1][:, 0],
-                          self.dsp_object.hrtf_spectrum_dict[i][1][:, 1])
-
+            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 0],
+            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
         self.sequence_plot.show()
         self.sequence_plot.timer.timeout.connect(self.update_sequence_dicts)
         self.sequence_plot.timer.start(1000)
@@ -254,13 +274,20 @@ class MainWindow(QWidget):
     def update_sequence_dicts(self):
         from gui_utils import speaker_to_show
         i = speaker_to_show
-        print('updating')
-        self.line1.set_data(self.dsp_object.sp_spectrum_dict[i][:, 0],
-                            self.dsp_object.sp_spectrum_dict[i][:, 1])
-        self.line2.set_data(self.dsp_object.hrtf_spectrum_dict[i][0][:, 0],
-                            self.dsp_object.hrtf_spectrum_dict[i][0][:, 1])
-        self.line3.set_data(self.dsp_object.hrtf_spectrum_dict[i][1][:, 0],
-                            self.dsp_object.hrtf_spectrum_dict[i][1][:, 1])
+        self.line1.set_data(
+            self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 0],
+            self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
+        self.line2.set_data(
+            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 0],
+            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
+        self.line3.set_data(
+            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 0],
+            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
+
+        self.sequence_plot.axis1.relim()
+        self.sequence_plot.axis2.relim()
+        self.sequence_plot.axis1.autoscale_view(None, False, True)
+        self.sequence_plot.axis2.autoscale_view(None, False, True)
         self.sequence_plot.canvas.draw()
 
     def plot_closed(self):
