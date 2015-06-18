@@ -40,10 +40,11 @@ class DspIn:
             dict.fromkeys(gui_dict_init, np.zeros((
                 self.sp_blocksize, ), dtype=np.float16))
 
+    ## rnd
+    # This function does a normal school arithmetic round (choose lower int
+    # until .4 and higher int from .5 on) and returns the rounded value.
+    # It is NOT equal to pythons round() method.
     # @author: Felix Pfreundtner
-    # function does a normal school arithmetic round (Round half away from
-    # zero)
-    # different to pythons round() method (Round half to even)
     def rnd(self, value):
         if value >=0:
            if  value-math.floor(value) < 0.5:
@@ -57,6 +58,13 @@ class DspIn:
                value=math.ceil(value)
         return value
 
+    ## get_block_param
+    # This method uses the inputs
+    # - wave_param_common (default list in constructor of this class),
+    # - hrtf_blocksize (from function get_hrtf_param) and
+    # - fft_blocksize (default int 1024 in constructor) to
+    # return sp_blocksize, sp_blocktime and overlap.
+#Explanation of outputs may be added here
     # @author: Felix Pfreundtner
     def get_block_param(self, wave_param_common, hrtf_blocksize,
                         fft_blocksize):
@@ -66,7 +74,10 @@ class DspIn:
         overlap = 0
         return sp_blocksize, sp_blocktime, overlap
 
-
+    ## init_set_block_begin_end
+    # This function calculates a list called block_begin_end containing two
+    # elements: [0] is the first sample of the block,
+    # [1] is the last sample of the block that is currently read.
     # @author: Felix Pfreundtner
     def init_set_block_begin_end(self, gui_dict):
         block_begin_end = [int(-(self.sp_blocksize)*(1-self.overlap)),
@@ -101,7 +112,7 @@ class DspIn:
                     kemar_inverse_filter[0:self.fft_blocksize, ]
             else:
                 kemar_inverse_filter = np.zeros((self.fft_blocksize,),
-                                                 dtype = np.int16)
+                                                 dtype=np.int16)
         if hrtf_database == "kemar_compact":
             # wave hrtf size 128 samples: zeropad hrtf to 129 samples to
             # reach even sp_blocksize which is integer divisible by 2 (50%
@@ -114,8 +125,11 @@ class DspIn:
             np.int16)
         return hrtf_database, hrtf_blocksize, kemar_inverse_filter
 
+    ## get_hrtfs
+    # This function
     # @author: Felix Pfreundtner
     def get_hrtfs(self, gui_dict_sp, sp):
+
         if self.hrtf_database == "kemar_compact":
             # get filmename of the relevant hrtf
             rounddifference = gui_dict_sp[0] % 5
@@ -145,12 +159,12 @@ class DspIn:
             # get samples of the relevant hrtf for each ear in numpy array (
             # l,r)
             _, hrtf_input = scipy.io.wavfile.read(hrtf_filenames_dict_sp)
-            hrtf_block_dict_sp = np.zeros((self.hrtf_blocksize, 2), dtype =
-            np.int16)
+            hrtf_block_dict_sp = np.zeros((self.hrtf_blocksize, 2),
+                                          dtype=np.int16)
             if gui_dict_sp[0] <= 180:
                 hrtf_block_dict_sp[0:128,0] = hrtf_input
             else:
-                hrtf_input[:,[0, 1]] = hrtf_input[:,[1, 0]]
+                hrtf_input[:,[0, 1]] = hrtf_input[:, [1, 0]]
                 hrtf_block_dict_sp[0:128,0] = hrtf_input
             self.kemar_inv_filter = np.ones((1024,))
             hrtf_max_gain_sp=[]

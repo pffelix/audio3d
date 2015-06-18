@@ -42,6 +42,45 @@ def switch_pause_playback():
         gui_pause = False
     print (gui_pause)
 
+def get_bound_pos(x, y):
+
+    if x > 350:
+        x = 350
+        if y > 350:
+            y = 350
+        if y < 0:
+            y = 0
+    if x < 0:
+        x = 0
+        if y < 0:
+            y = 0
+        if y > 350:
+            y = 350
+    if y < 0:
+        y = 0
+        if x < 0:
+            x = 0
+        if x > 350:
+            x = 350
+    if y > 350:
+        y = 350
+        if x > 350:
+            x = 350
+        if x < 0:
+            x = 0
+    return x, y
+
+def get_abs_pos(azimuth, dist):
+    global audience_pos
+
+    from math import cos, sin, radians
+    x0 = audience_pos.x()
+    y0 = audience_pos.y()
+
+    x = x0 + dist*sin(radians(azimuth))
+    y = y0 - dist*cos(radians(azimuth))
+
+    return x, y
 
 # Headtracker - to be implemented
 class Headtracker(object):
@@ -95,6 +134,7 @@ class Item(QtGui.QGraphicsPixmapItem):
         self.setCursor(QtCore.Qt.OpenHandCursor)
 
 
+
 # Room displays the relative Audience and Speaker items positions
 class Room(QtGui.QGraphicsScene):
 
@@ -114,33 +154,8 @@ class Room(QtGui.QGraphicsScene):
         global speaker_list
         try:
             self.current_item.setPos(e.scenePos().x()-25, e.scenePos().y()-25)
-            x = self.current_item.scenePos().x()
-            y = self.current_item.scenePos().y()
-
-            if x > 350:
-                self.current_item.setPos(350, y)
-                if y > 350:
-                    self.current_item.setPos(350, 350)
-                if y < 0:
-                    self.current_item.setPos(350, 0)
-            if x < 0:
-                self.current_item.setPos(0, y)
-                if y < 0:
-                    self.current_item.setPos(0, 0)
-                if y > 350:
-                    self.current_item.setPos(0, 350)
-            if y < 0:
-                self.current_item.setPos(x, 0)
-                if x < 0:
-                    self.current_item.setPos(0, 0)
-                if x > 350:
-                    self.current_item.setPos(350, 0)
-            if y > 350:
-                self.current_item.setPos(x, 350)
-                if x > 350:
-                    self.current_item.setPos(350, 350)
-                if x < 0:
-                    self.current_item.setPos(0, 350)
+            bounded_x,bounded_y = get_bound_pos(e.scenePos().x()-25, e.scenePos().y()-25)
+            self.current_item.setPos(bounded_x, bounded_y)
 
             if self.current_item.type == 'audience':
                 audience_pos = self.current_item.pos()
@@ -148,17 +163,17 @@ class Room(QtGui.QGraphicsScene):
                 for speaker in speaker_list:
                     deg, dis = speaker.cal_rel_pos()
                     if dis < 50:
-                        x, y = self.get_abs_pos(deg, 50)
+                        x, y = get_abs_pos(deg, 50)
+                        x, y = get_bound_pos(x, y)
                         speaker.setPos(x, y)
                     speaker.cal_rel_pos()
 
             elif self.current_item.type == 'speaker':
                 deg, dis = self.current_item.cal_rel_pos()
                 if dis < 50:
-                    x, y = self.get_abs_pos(deg, 50)
+                    x, y = get_abs_pos(deg, 50)
                     self.current_item.setPos(x, y)
                 self.current_item.cal_rel_pos()
-
 
                 global speaker_to_show
                 speaker_to_show = self.index
@@ -166,17 +181,7 @@ class Room(QtGui.QGraphicsScene):
         except AttributeError:
             pass
 
-    def get_abs_pos(self, azimuth, dist):
-        global audience_pos
 
-        from math import cos, sin, radians
-        x0 = audience_pos.x()
-        y0 = audience_pos.y()
-
-        x = x0 + dist*sin(radians(azimuth))
-        y = y0 - dist*cos(radians(azimuth))
-
-        return x, y
 
 
 class View(QtGui.QGraphicsView):
@@ -358,30 +363,7 @@ class SpeakerProperty(QtGui.QWidget):
         x = self.posx
         y = self.posy
 
-        if x > 350:
-            self.posx = 350
-            if y > 350:
-                self.posy = 350
-            if y < 0:
-                self.posy = 0
-        elif x < 0:
-            self.posx = 0
-            if y < 0:
-                self.posy = 0
-            if y > 350:
-                self.posy = 350
-        elif y < 0:
-            self.posy = 0
-            if x < 0:
-                self.posx = 0
-            if x > 350:
-                self.posx = 350
-        elif y > 350:
-            self.posy = 350
-            if x > 350:
-                self.posx = 350
-            if x < 0:
-                self.posx = 0
+        self.posx, self.posy = get_bound_pos(x,y)
 
         print(self.posx)
         print(self.posy)
