@@ -23,9 +23,7 @@ class DspOut:
                  gui_stop_init, gui_pause_init):
         self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((
             fft_blocksize/2, 2), dtype=np.float16))
-        self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((
-            fft_blocksize/2, 2), dtype=np.float16), np.zeros((
-            fft_blocksize/2, 2), dtype=np.float16)])
+        self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init,[ np.zeros((fft_blocksize/2, 2), dtype=np.float16),  np.zeros((fft_blocksize/2, 2), dtype=np.float16)])
         self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
             fft_blocksize, 2), dtype=np.int16))
         self.binaural_block_dict_out = dict.fromkeys(gui_dict_init,
@@ -54,15 +52,10 @@ class DspOut:
         # and speaker (mono input)
         hrtf_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype=np.int16)
         hrtf_block_sp_zeropadded[0:hrtf_blocksize, ] = hrtf_block_sp_l_r
-        #sp_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype = 'int16')
-        #b = [None] * sp_blocksize
-        #print(sp_block_sp_zeropadded)
-        # sp_block_sp_zeropadded[0:sp_blocksize, ] = sp_block_sp
-        #sp_block_sp_zeropadded = sp_block_sp_zeropadded + sp_block_sp
+        sp_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype = 'int16')
+        sp_block_sp_zeropadded[0:sp_blocksize, ] = sp_block_sp
+
         # bring time domain input to to frequency domain
-        A = np.zeros((512, ), dtype=np.int16)
-        sp_block_sp_zeropadded = np.concatenate((sp_block_sp, A), )
-        print(sp_block_sp_zeropadded)
         hrtf_block_sp_fft = fft(hrtf_block_sp_zeropadded, fft_blocksize)
         sp_block_sp_fft = fft(sp_block_sp_zeropadded, fft_blocksize)
 
@@ -84,16 +77,14 @@ class DspOut:
             sp_magnitude_spectrum))
         if max_amplitude_sp_magnitude_spectrum != 0:
             # get magnitude spectrum of hrtf block
-            self.sp_spectrum_dict[sp][:,1] = sp_magnitude_spectrum / (
+            self.sp_spectrum_dict[sp][:, 1] = sp_magnitude_spectrum / (
                 max_amplitude_sp_magnitude_spectrum / sp_max_gain_sp *
                 max_amplitude_output)
         hrtf_magnitude_spectrum = abs(hrtf_block_sp_fft[position_freq])
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(
             hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0:
-            self.hrtf_spectrum_dict[sp][l_r][:,1] =  hrtf_magnitude_spectrum(
-                max_amplitude_hrtf_magnitude_spectrum / hrtf_max_gain_sp_l_r
-                * max_amplitude_output)
+            self.hrtf_spectrum_dict[sp][l_r][:, 1] =  hrtf_magnitude_spectrum / (max_amplitude_hrtf_magnitude_spectrum / hrtf_max_gain_sp_l_r * max_amplitude_output)
         self.sp_spectrum_dict[sp][0, 1] = 0
         self.hrtf_spectrum_dict[sp][l_r][0, 1] = 0
 
