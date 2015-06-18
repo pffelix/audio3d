@@ -24,18 +24,25 @@ class DspIn:
         # Determine number of output blocks per second
         self.fft_blocksize = 1024
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
-        self.hrtf_database, self.hrtf_blocksize, self.kemar_inverse_filter = self.get_hrtf_param(gui_settings_dict_init)
-        self.sp_blocksize, self.sp_blocktime, self.overlap = self.get_block_param(self.wave_param_common, self.hrtf_blocksize, self.fft_blocksize)
+        self.hrtf_database, self.hrtf_blocksize, self.kemar_inverse_filter = \
+            self.get_hrtf_param(gui_settings_dict_init)
+        self.sp_blocksize, self.sp_blocktime, self.overlap = \
+            self.get_block_param(self.wave_param_common,
+                                 self.hrtf_blocksize,
+                                 self.fft_blocksize)
         # get samplerate from header in .wav-file of all speakers
         self.sp_param = self.init_get_block(gui_dict_init)
         self.block_begin_end = self.init_set_block_begin_end(gui_dict_init)
         self.hamming = self.buid_hamming_window(self.sp_blocksize)
         self.cosine = self.buid_cosine_window(self.sp_blocksize)
         self.hann = self.build_hann_window(self.sp_blocksize)
-        self.sp_block_dict = dict.fromkeys(gui_dict_init, np.zeros((self.sp_blocksize, ), dtype=np.float16))
+        self.sp_block_dict = \
+            dict.fromkeys(gui_dict_init, np.zeros((
+                self.sp_blocksize, ), dtype=np.float16))
 
     # @author: Felix Pfreundtner
-    # function does a normal school arithmetic round (Round half away from zero)
+    # function does a normal school arithmetic round (Round half away from
+    # zero)
     # different to pythons round() method (Round half to even)
     def rnd(self, value):
         if value >=0:
@@ -51,7 +58,8 @@ class DspIn:
         return value
 
     # @author: Felix Pfreundtner
-    def get_block_param(self, wave_param_common, hrtf_blocksize, fft_blocksize):
+    def get_block_param(self, wave_param_common, hrtf_blocksize, 
+                        fft_blocksize):
         sp_blocksize = fft_blocksize-hrtf_blocksize+1
         sp_blocktime = sp_blocksize/wave_param_common[0]
         overlap = (fft_blocksize-sp_blocksize)/fft_blocksize # in decimal 0.
@@ -61,32 +69,49 @@ class DspIn:
 
     # @author: Felix Pfreundtner
     def init_set_block_begin_end(self, gui_dict):
-        block_begin_end=[int(-(self.sp_blocksize)*(1-self.overlap)),int((self.sp_blocksize)*(self.overlap))]
+        block_begin_end = [int(-(self.sp_blocksize)*(1-self.overlap)),
+                          int((self.sp_blocksize)*(self.overlap))]
         return block_begin_end
 
     # @author: Felix Pfreundtner
     def set_block_begin_end(self):
-        self.block_begin_end[0] = self.block_begin_end[0] + int(self.sp_blocksize*(1-self.overlap))
-        self.block_begin_end[1] = self.block_begin_end[1] + int(self.sp_blocksize*(1-self.overlap))
+        self.block_begin_end[0] = \
+            self.block_begin_end[0] + int(self.sp_blocksize*(1-self.overlap))
+        self.block_begin_end[1] = \
+            self.block_begin_end[1] + int(self.sp_blocksize*(1-self.overlap))
 
     # @author: Felix Pfreundtner
     def get_hrtf_param(self, gui_settings_dict):
         hrtf_database = gui_settings_dict["hrtf_database"]
-        if hrtf_database == "kemar_normal_ear" or  self.hrtf_database == "kemar_big_ear":
-            # wave hrtf size 512 samples: zeropad hrtf to 513 samples to reach even sp_blocksize which is integer divisible by 2 (50% overlap needed -> sp_blocksize/2)
+        if hrtf_database == "kemar_normal_ear" or  \
+                self.hrtf_database == "kemar_big_ear":
+            # wave hrtf size 512 samples: zeropad hrtf to 513 samples to
+            # reach even sp_blocksize which is integer divisible by 2 (50%
+            # overlap needed -> sp_blocksize/2)
             hrtf_blocksize = 513
             # if inverse filter is activated in gui
             if gui_settings_dict["inverse_filter_active"]:
-                # get inverse minimum phase impulse response response of kemar measurement speaker optimus pro 7 and truncate to fft_blocksize
-                _, kemar_inverse_filter = scipy.io.wavfile.read("./kemar/full/headphones+spkr/Opti-minphase.wav")
-                kemar_inverse_filter = kemar_inverse_filter[0:self.fft_blocksize, ]
+                # get inverse minimum phase impulse response response of
+                # kemar measurement speaker optimus pro 7 and truncate to
+                # fft_blocksize
+                _, kemar_inverse_filter = \
+                    scipy.io.wavfile.read(
+                        "./kemar/full/headphones+spkr/Opti-minphase.wav")
+                kemar_inverse_filter = \
+                    kemar_inverse_filter[0:self.fft_blocksize, ]
             else:
-                kemar_inverse_filter = np.zeros((self.fft_blocksize,), dtype = np.int16)
+                kemar_inverse_filter = np.zeros((self.fft_blocksize,),
+                                                 dtype = np.int16)
         if hrtf_database == "kemar_compact":
-            # wave hrtf size 128 samples: zeropad hrtf to 129 samples to reach even sp_blocksize which is integer divisible by 2 (50% overlap needed -> sp_blocksize/2)
+            # wave hrtf size 128 samples: zeropad hrtf to 129 samples to
+            # reach even sp_blocksize which is integer divisible by 2 (50%
+            # overlap needed -> sp_blocksize/2)
             hrtf_blocksize = 129
-            # no inverse speaker impulse response of measurement speaker needed (is already integrated in wave files of kemar compact hrtfs)
-            kemar_inverse_filter = np.zeros((self.fft_blocksize,), dtype = np.int16)
+            # no inverse speaker impulse response of measurement speaker
+            # needed (is already integrated in wave files of kemar compact
+            # hrtfs)
+            kemar_inverse_filter = np.zeros((self.fft_blocksize,), dtype =
+            np.int16)
         return hrtf_database, hrtf_blocksize, kemar_inverse_filter
 
     # @author: Felix Pfreundtner
@@ -102,19 +127,26 @@ class DspIn:
             else:
                 if gui_dict_sp[0] <= 180:
                     if rounddifference < 2.5:
-                        azimuthangle = self.rnd(gui_dict_sp[0] - rounddifference)
+                        azimuthangle = self.rnd(gui_dict_sp[0] -
+                                                rounddifference)
                     else:
-                        azimuthangle = self.rnd(gui_dict_sp[0] + 5 - rounddifference)
+                        azimuthangle = self.rnd(gui_dict_sp[0] + 5 -
+                                                rounddifference)
                 else:
                     if rounddifference < 2.5:
-                        azimuthangle = 360 - self.rnd(gui_dict_sp[0] - rounddifference)
+                        azimuthangle = 360 - self.rnd(gui_dict_sp[0] -
+                                                      rounddifference)
                     else:
-                        azimuthangle = 360 - self.rnd(gui_dict_sp[0] + 5 - rounddifference)
-            hrtf_filenames_dict_sp = "./kemar/compact/elev0/H0e" + str(azimuthangle).zfill(3) + "a.wav"
+                        azimuthangle = 360 - self.rnd(gui_dict_sp[0] + 5 -
+                                                       rounddifference)
+            hrtf_filenames_dict_sp = "./kemar/compact/elev0/H0e" + str(
+                azimuthangle).zfill(3) + "a.wav"
 
-            # get samples of the relevant hrtf for each ear in numpy array (l,r)
+            # get samples of the relevant hrtf for each ear in numpy array (
+            # l,r)
             _, hrtf_input = scipy.io.wavfile.read(hrtf_filenames_dict_sp)
-            hrtf_block_dict_sp = np.zeros((self.hrtf_blocksize, 2), dtype = np.int16)
+            hrtf_block_dict_sp = np.zeros((self.hrtf_blocksize, 2), dtype =
+            np.int16)
             if gui_dict_sp[0] <= 180:
                 hrtf_block_dict_sp[0:128,0] = hrtf_input
             else:
@@ -125,37 +157,48 @@ class DspIn:
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
 
-        if self.hrtf_database == "kemar_normal_ear" or self.hrtf_database == "kemar_big_ear":
+        if self.hrtf_database == "kemar_normal_ear" or \
+                        self.hrtf_database == "kemar_big_ear":
             # get filmename of the relevant hrtf for each ear
             rounddifference = gui_dict_sp[0] % 5
             if rounddifference == 0:
                 azimuthangle_ear = self.rnd(gui_dict_sp[0])
             else:
                 if rounddifference < 2.5:
-                    azimuthangle_ear = self.rnd(gui_dict_sp[0] - rounddifference)
+                    azimuthangle_ear = self.rnd(gui_dict_sp[0] -
+                                                rounddifference)
                 else:
-                    azimuthangle_ear = self.rnd(gui_dict_sp[0] + 5 - rounddifference)
+                    azimuthangle_ear = self.rnd(gui_dict_sp[0] + 5 -
+                                                rounddifference)
             if azimuthangle_ear >= 180:
                 azimuthangle_other_ear = azimuthangle_ear - 180
             else:
                 azimuthangle_other_ear = azimuthangle_ear + 180
 
             if self.hrtf_database == "kemar_full_normal_ear":
-                hrtf_filenames_dict_sp_l = "./kemar/full/elev0/L0e" + str(azimuthangle_ear).zfill(3) + "a.wav"
-                hrtf_filenames_dict_sp_r = "./kemar/full/elev0/L0e" + str(azimuthangle_other_ear).zfill(3) + "a.wav"
+                hrtf_filenames_dict_sp_l = "./kemar/full/elev0/L0e" + str(
+                    azimuthangle_ear).zfill(3) + "a.wav"
+                hrtf_filenames_dict_sp_r = "./kemar/full/elev0/L0e" + str(
+                    azimuthangle_other_ear).zfill(3) + "a.wav"
             else:
-                hrtf_filenames_dict_sp_r = "./kemar/full/elev0/R0e" + str(azimuthangle_ear).zfill(3) + "a.wav"
-                hrtf_filenames_dict_sp_l = "./kemar/full/elev0/R0e" + str(azimuthangle_other_ear).zfill(3) + "a.wav"
+                hrtf_filenames_dict_sp_r = "./kemar/full/elev0/R0e" + str(
+                    azimuthangle_ear).zfill(3) + "a.wav"
+                hrtf_filenames_dict_sp_l = "./kemar/full/elev0/R0e" + str(
+                    azimuthangle_other_ear).zfill(3) + "a.wav"
 
-            # get samples of the relevant hrtf for each ear in numpy array (l,r)
+            # get samples of the relevant hrtf for each ear in numpy array (
+            # l,r)
             _, hrtf_input_l = scipy.io.wavfile.read(hrtf_filenames_dict_sp_l)
             _, hrtf_input_r = scipy.io.wavfile.read(hrtf_filenames_dict_sp_r)
-            self.hrtf_block_dict[sp] = np.zeros((self.hrtf_blocksize, 2), dtype = np.int16)
+            self.hrtf_block_dict[sp] = np.zeros((self.hrtf_blocksize, 2),
+                                                 dtype = np.int16)
             self.hrtf_block_dict[sp][0:512,0] = hrtf_input_l[:,]
             self.hrtf_block_dict[sp][0:512,1] = hrtf_input_r[:,]
             self.hrtf_max_gain_dict[sp]=[]
-            self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(self.hrtf_block_dict[sp][:, 0])))
-            self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(self.hrtf_block_dict[sp][:, 1])))
+            self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(
+                self.hrtf_block_dict[sp][:, 0])))
+            self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(
+                self.hrtf_block_dict[sp][:, 1])))
 
 
     # @author: Felix Pfreundtner
@@ -166,8 +209,10 @@ class DspIn:
             if max_amplitude_input != 0:
                 # normalize to have the maximum int16 amplitude
                 max_amplitude_output = 32767
-                self.sp_block_dict[sp] = self.sp_block_dict[sp] / (max_amplitude_input / max_amplitude_output)
-                self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16, copy = False)
+                self.sp_block_dict[sp] = self.sp_block_dict[sp] / (
+                    max_amplitude_input / max_amplitude_output)
+                self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(
+                    np.int16, copy = False)
         self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
 
 
@@ -210,7 +255,8 @@ class DspIn:
     # The places are:
     # sp_prop[sp][0] = total number of samples in the file
     # sp_prop[sp][1] = sample-rate, default: 44100 (but adjustable later)
-    # sp_prop[sp][2] = number of sp_prop_sp[2] per sample (8-/16-/??-int for one sample)
+    # sp_prop[sp][2] = number of sp_prop_sp[2] per sample (8-/16-/??-int for
+    # one sample)
     # sp_prop[sp][3] = number of channels (mono = 1, stereo = 2)
     # sp_prop[sp][4] = format of file (< = RIFF, > = RIFX)
     # sp_prop[sp][5] = size of data-chunk in bytes
@@ -261,13 +307,15 @@ class DspIn:
             sp_prop[sp][7] = int(sp_prop[sp][2] / 8)
             #calculate the total numbers of bytes until the end of data-chunk
             sp_prop[sp][8] = sp_prop[sp][6] + sp_prop[sp][5]
-            # choose correct sp_prop[sp][9] depending on number of sp_prop_sp[2] per sample
+            # choose correct sp_prop[sp][9] depending on number of
+            # sp_prop_sp[2] per sample
             if sp_prop[sp][7] == 1:     # if bitfactor == 1
                 sp_prop[sp][9] = "B"    # use sp_prop[sp][9] "B"
             elif sp_prop[sp][7] == 2:   # if bitfactor == 2
                 sp_prop[sp][9] = "h"    # use sp_prop[sp][9] "h"
             #else:
-            #    print("sp_prop[sp][9] for this number of sp_prop_sp[2]/sample is not
+            #    print("sp_prop[sp][9] for this number of sp_prop_sp[
+            # 2]/sample is not
             # defined!")
             # calculate total number of samples of the file
             sp_prop[sp][0] = int(sp_prop[sp][5] /
@@ -282,7 +330,8 @@ class DspIn:
     # This function will be applied in the while loop of the dsp-class:
     # I.e. a optimum performance is required.
     # @ author Matthias Lederle
-    def get_block(self, filename, begin_block, end_block, sp_prop_sp, blocknumpy, blocklength):
+    def get_block(self, filename, begin_block, end_block, sp_prop_sp,
+                  blocknumpy, blocklength):
         continue_input = True
         # open file of current speaker here
         file = open(filename, 'rb')
@@ -325,7 +374,9 @@ class DspIn:
             # First: Write left and right signal in independent lists
             samplelist_of_one_block_left = []
             samplelist_of_one_block_right = []
-            remaining_samples = 10000  # random value that cant be reached by (sp_prop_sp[5] - current_last_byte, see below)
+            # set random value that cant be reached by (sp_prop_sp[5] -
+            # current_last_byte (see below)
+            remaining_samples = 10000
 
             if last_byte_of_block < sp_prop_sp[8]:
                 i = 0
@@ -377,8 +428,11 @@ class DspIn:
                     i += 1
                 continue_input = False
         else:
-            # an Matthias: Hier bitte eine Fehlerausgabe über DspSignalHandler() schreiben (Fragen zu der Funktion -> Huaijiang )
-            print("Signal is neither mono nor stereo (sp_prop_sp[3] != 1 or 2) and can't be processed!")
+            # an Matthias: Hier bitte eine Fehlerausgabe über
+            # DspSignalHandler() schreiben (Fragen zu der Funktion ->
+            # Huaijiang) --> Wird gemacht!
+            print("Signal is neither mono nor stereo (sp_prop_sp[3] != 1 or "
+                  "2) and can't be processed!")
 
         file.close()
 

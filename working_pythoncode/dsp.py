@@ -51,7 +51,8 @@ class Dsp:
     def run(self):
         # run the main while loop as long as there are still samples to be
         # read from speaker wave files
-        while any(self.DspOut_Object.continue_convolution_dict.values()) is True:
+        while any(self.DspOut_Object.continue_convolution_dict.values()) \
+                is True:
 
 ############# actualize variables with gui
             # self.gui_dict = gui_utils.gui_dict
@@ -68,8 +69,10 @@ class Dsp:
             # iterate over all active speakers sp
             for sp in self.gui_dict:
                 # fill binaural block output array of speaker sp with zeros
-                self.DspOut_Object.binaural_block_dict[sp] = np.zeros((self.DspIn_Object.fft_blocksize, 2), dtype=np.int16)
-                # if speaker wave file still has unread samples start convolution, else skip convolution
+                self.DspOut_Object.binaural_block_dict[sp] = np.zeros((
+                    self.DspIn_Object.fft_blocksize, 2), dtype=np.int16)
+                # if speaker wave file still has unread samples start
+                # convolution, else skip convolution
                 if self.DspOut_Object.continue_convolution_dict[sp] is True:
                     # check whether head position to speaker sp has changed
                     if self.gui_dict[sp][0] != self.prior_head_angle_dict[sp]:
@@ -86,7 +89,8 @@ class Dsp:
                         self.prior_head_angle_dict[sp] = self.gui_dict[sp][0]
 
                     # Load wave block of speaker sp with speaker_blocksize (
-                    # fft_blocksize-hrtf_blocksize+1) and current block begin_end
+                    # fft_blocksize-hrtf_blocksize+1) and current block
+                    # begin_end
                     self.DspIn_Object.sp_block_dict[sp], \
                     self.DspOut_Object.continue_convolution_dict[sp] = \
                         self.DspIn_Object.get_block(
@@ -104,7 +108,8 @@ class Dsp:
                     # apply window to sp input in sp_block_dict
                     # self.DspIn_Object.sp_block_dict[sp]=
                     # self.DspIn_Object.apply_window(
-                    # self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.hann)
+                    # self.DspIn_Object.sp_block_dict[sp],
+                    # self.DspIn_Object.hann)
 
                     # for the left and the right ear channel
                     for l_r in range(2):
@@ -132,13 +137,17 @@ class Dsp:
                         # self.DspIn_Object.hann)
 
 
-                # model speaker position change about 1° per block (0.02s) in clockwise rotation
-                #self.gui_dict[sp][0]+=30
-                #if self.gui_dict[sp][0] >= 360:
+                # model speaker position change about 1° per block (0.02s) in
+                # clockwise rotation
+                # self.gui_dict[sp][0]+=30
+                # if self.gui_dict[sp][0] >= 360:
                     #self.gui_dict[sp][0] -= 360
 
-                # overlap samples [0: fft_block_size-sp_block_size] sp block with prior sp block samples [sp_block_size: fft_block_size] and save in binaural_block_dict_out
-                # save end of block [sp_block_size: fft_block_size] in binaural_block_dict_add to overlap in the next iteration
+                # overlap samples [0: fft_block_size-sp_block_size] sp block
+                #  with prior sp block samples [sp_block_size:
+                # fft_block_size]  and save in binaural_block_dict_out
+                # save end of block [sp_block_size: fft_block_size] in
+                # binaural_block_dict_add to overlap in the next iteration
                 self.DspOut_Object.binaural_block_dict_out[sp], \
                 self.DspOut_Object.binaural_block_dict_add[sp] = \
                     self.DspOut_Object.overlap_add(
@@ -148,7 +157,8 @@ class Dsp:
                         self.DspIn_Object.fft_blocksize,
                         self.DspIn_Object.sp_blocksize)
 
-            # Mix binaural stereo blockoutput of every speaker to one binaural stereo block having regard to speaker distances
+            # Mix binaural stereo blockoutput of every speaker to one
+            # binaural stereo block having regard to speaker distances
             self.DspOut_Object.binaural_block = \
                 self.DspOut_Object.mix_binaural_block(
                     self.DspOut_Object.binaural_block_dict_out,
@@ -187,7 +197,8 @@ class Dsp:
             # wait until audioplayback finished with current block
             while self.blockcounter-self.DspOut_Object.play_counter > \
                 self.bufferblocks and not all(
-                self.DspOut_Object.continue_convolution_dict.values()) is False:
+                self.DspOut_Object.continue_convolution_dict.values()) \
+                    is False:
                 time.sleep(1/self.DspIn_Object.wave_param_common[0]*100)
 
 
