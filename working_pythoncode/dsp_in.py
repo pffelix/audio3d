@@ -44,7 +44,7 @@ class DspIn:
     # This function does a normal school arithmetic round (choose lower int
     # until .4 and higher int from .5 on) and returns the rounded value.
     # It is NOT equal to pythons round() method.
-    # @author: Felix Pfreundtner
+    # @author Felix Pfreundtner
     def rnd(self, value):
         if value >=0:
            if  value-math.floor(value) < 0.5:
@@ -261,12 +261,15 @@ class DspIn:
         sp_block_sp = sp_block_sp.astype(np.int16, copy = False)
         return sp_block_sp
 
-   ## init_get_block
+    ## @brief {get 10 important parameters of the files to be played by the
+    # get_block_function}
+    # @details {
     # This method gets all important data from the .wav files that will be
     # played by the speakers. Input is a gui_dict, containing the filename at
     #  place [2]. The output is another dict called sp_prop, which holds one
-    # of the properties as values for each speaker given by the gui_dict.
-    # The places are:
+    # of the properties as values for each speaker given by the gui_dict.}
+    # @retval <sp_prop> {Returns a dictionary.
+    # The values of key [sp] are:
     # sp_prop[sp][0] = total number of samples in the file
     # sp_prop[sp][1] = sample-rate, default: 44100 (but adjustable later)
     # sp_prop[sp][2] = number of sp_prop_sp[2] per sample (8-/16-/??-int for
@@ -277,7 +280,7 @@ class DspIn:
     # sp_prop[sp][6] = total-header-size (= number of bytes until data begins)
     # sp_prop[sp][7] = bitfactor (8-bit --> 1, 16-bit --> 2)
     # sp_prop[sp][8] = total number of bytes until data-chunk ends
-    # sp_prop[sp][9] = sp_prop[sp][9] for correct encoding of data
+    # sp_prop[sp][9] = sp_prop[sp][9] for correct encoding of data}
     # @author: Matthias Lederle
     def init_get_block(self, gui_dict):
         # initialize dict with 10 (empty) values per key
@@ -337,13 +340,17 @@ class DspIn:
             file.close()    # close file opened in the beginning
         return sp_prop
 
-    ## get_block
-    # This method reads a block of samples of a .wav-file and returns
+    ## @brief {reads one block of samples}
+    # @details {This method reads a block of samples of a .wav-file and returns
     # a numpyarray (containing one 16-bit-int for each sample) and a flag
     # that tells whether the end of the block is reached or not.
     # This function will be applied in the while loop of the dsp-class:
-    # I.e. a optimum performance is required.
-    # @ author Matthias Lederle
+    # I.e. a optimum performance is required.}
+    # @retval <blocknumpy> {returns a numpy-array with one block of 16-int
+    # values, each representing one sample of data}
+    # @retval <continue_output> {boolean value whether the last block of file
+    # was read or any other block}
+    # @author Matthias Lederle
     def get_block(self, filename, begin_block, end_block, sp_prop_sp,
                   blocknumpy, blocklength):
         continue_input = True

@@ -188,7 +188,7 @@ class Dsp:
             # has been convolved
             if self.blockcounter == self.bufferblocks:
                 startaudiooutput = threading.Thread(
-                    target=self.DspOut_Object.audiooutput, args = (
+                    target=self.DspOut_Object.audiooutput, args=(
                         2, self.DspIn_Object.wave_param_common[0],
                         self.DspIn_Object.sp_blocksize))
                 startaudiooutput.start()
