@@ -45,7 +45,7 @@ class Dsp:
         # run the main while loop as long as there a still samples to be read in from speaker wave files
         while any(self.DspOut_Object.continue_convolution_dict.values()) is True:
 
-            # actualize variables with gui
+############# actualize variables with gui
             # self.gui_dict = gui_utils.gui_dict
             # self.DspOut_Object.gui_stop = gui_utils.gui_stop
             # self.DspOut_Object.gui_pause = gui_utils.gui_pause

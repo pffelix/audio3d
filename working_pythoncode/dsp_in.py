@@ -285,20 +285,18 @@ class DspIn:
     def get_block(self, filename, begin_block, end_block, sp_prop_sp, blocknumpy, blocklength):
         continue_input = True
         # open file of current speaker here
-        file = open(filename, 'rb')     # opens the file
-
+        file = open(filename, 'rb')
         # calculate begin_block as byte-number
         first_byte_of_block = sp_prop_sp[6] + (begin_block * sp_prop_sp[7] *
                                                sp_prop_sp[3])
         # calculate end_block as byte_number
         last_byte_of_block = sp_prop_sp[6] + (end_block * sp_prop_sp[7] *
                                               sp_prop_sp[3])
-
+        # go to first byte of block and start "reading"
         file.seek(first_byte_of_block)
-
         # if input file is mono, write blocknumpy in this part
         if sp_prop_sp[3] == 1:
-            # if play is not yet at the end of the file use this simple loop do:
+            # if play is not yet at the end of the file use this simple loop:
             if last_byte_of_block < sp_prop_sp[8]:
                 i = 0
                 # while i < blocklength, read every loop one sample
@@ -344,8 +342,8 @@ class DspIn:
                     i += 1
             else:  # if we reached last block of file, do:
                 # calculate remaining samples
-
-                remaining_samples = int((sp_prop_sp[8] - first_byte_of_block)/(sp_prop_sp[7]*sp_prop_sp[3]))
+                remaining_samples = int((sp_prop_sp[8] - first_byte_of_block)/(
+                    sp_prop_sp[7]*sp_prop_sp[3]))
                 # initialize blocknumpy with zeroes again, because remaining
                 # unwritten part should contain zeroes
                 blocknumpy = np.zeros((blocklength, ), dtype=np.int16)
@@ -361,17 +359,20 @@ class DspIn:
                     i += 1
                 continue_input = False
 
-            # Second: Interpolate and merge the two lists and write in blocknumpy
+            # Second: Get mean value and merge the two lists and write in
+            # blocknumpy
             if remaining_samples == 10000:
                 i = 0
                 while i < blocklength:
-                    mean_value = int((samplelist_of_one_block_left[i] + samplelist_of_one_block_right[i]) / 2)
+                    mean_value = int((samplelist_of_one_block_left[i] +
+                                      samplelist_of_one_block_right[i]) / 2)
                     blocknumpy[i, ] = mean_value
                     i += 1
             else:
                 i = 0
                 while i < remaining_samples:
-                    mean_value = int((samplelist_of_one_block_left[i] + samplelist_of_one_block_right[i]) / 2)
+                    mean_value = int((samplelist_of_one_block_left[i] +
+                                      samplelist_of_one_block_right[i]) / 2)
                     blocknumpy[i, ] = mean_value
                     i += 1
                 continue_input = False
