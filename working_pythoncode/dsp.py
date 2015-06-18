@@ -24,7 +24,6 @@ class Dsp:
         self.gui_dict = gui_dict_init
         self.gui_settings_dict = gui_settings_dict_init
         self.prior_head_angle_dict = dict.fromkeys(gui_dict_init, [])
-        self.error_list = dict.fromkeys(gui_dict_init, [])
         self.outputsignal_sample_number = dict.fromkeys(gui_dict_init, [])
         # Set number of bufferblocks between fft block convolution and audio block playback
         self.bufferblocks = gui_settings_dict_init["bufferblocks"]
@@ -68,18 +67,14 @@ class Dsp:
                     # check whether head position to speaker sp has changed
                     if self.gui_dict[sp][0] != self.prior_head_angle_dict[sp]:
                         # if head position has changed load new hrtf settings
-                        self.DspIn_Object.get_hrtf_param(self.gui_settings_dict)
+                        self.DspIn_Object.hrtf_database, self.DspIn_Object.hrtf_blocksize, self.DspIn_Object.kemar_inverse_filter = self.DspIn_Object.get_hrtf_param(self.gui_settings_dict)
                         # and load fitting hrtf file as numpy array
                         self.DspIn_Object.get_hrtfs(self.gui_dict[sp], sp)
                         # save head position to speaker of this block in prior_head_angle dict
                         self.prior_head_angle_dict[sp] = self.gui_dict[sp][0]
 
                     # Load wave block of speaker sp with speaker_blocksize (fft_blocksize-hrtf_blocksize+1) and current block begin_end
-                    self.DspIn_Object.sp_block_dict[sp], self.DspOut_Object.continue_convolution_dict[sp] = self.DspIn_Object.get_block(
-                        self.gui_dict[sp][2], self.DspIn_Object.block_begin_end[
-                                                      0], self.DspIn_Object.block_begin_end[
-                                                      1], self.DspIn_Object.sp_param[sp], \
-                                                          self.DspIn_Object.sp_blocksize)
+                    self.DspIn_Object.sp_block_dict[sp], self.DspOut_Object.continue_convolution_dict[sp] = self.DspIn_Object.get_block(self.gui_dict[sp][2], self.DspIn_Object.block_begin_end[0], self.DspIn_Object.block_begin_end[1], self.DspIn_Object.sp_param[sp], self.DspIn_Object.sp_block_dict[sp], self.DspIn_Object.sp_blocksize)
 
                     # normalize sp block if requested
                     self.DspIn_Object.normalize(self.gui_dict[sp][3], sp)

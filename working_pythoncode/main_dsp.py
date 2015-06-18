@@ -16,7 +16,7 @@ def main():
                       }
     gui_settings_dict_mockup = {"hrtf_database": "kemar_normal_ear",
                      "inverse_filter_active": True,
-                     "buffersize": 5}
+                     "bufferblocks": 5}
 
     dsp_object = dsp.Dsp(gui_dict_mockup, False, False, gui_settings_dict_mockup)
     dsp_object.run()
