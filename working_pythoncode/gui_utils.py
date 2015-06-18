@@ -7,8 +7,7 @@ from PyQt4 import QtCore, QtGui
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
-# import matplotlib.pyplot as plt
-# import numpy as np
+
 
 # initialization of variables
 gui_dict = {}
@@ -22,7 +21,7 @@ speaker_list = []
 speaker_to_show = 0
 
 
-# stop playback and convolution of dsp algorithm
+# Stop playback and convolution of dsp algorithm
 def switch_stop_playback():
     global gui_stop
     if gui_stop is False:
@@ -150,11 +149,29 @@ class Room(QtGui.QGraphicsScene):
                     speaker.cal_rel_pos()
 
             elif self.current_item.type == 'speaker':
-                self.current_item.cal_rel_pos()
+                deg, dis = self.current_item.cal_rel_pos()
+                if dis < 50:
+                    x, y = self.get_abs_pos(deg, 50)
+                    self.current_item.setPos(x, y)
+
+
                 global speaker_to_show
                 speaker_to_show = self.index
+
         except AttributeError:
             pass
+
+    def get_abs_pos(self, azimuth, dist):
+        global audience_pos
+
+        from math import cos, sin, radians
+        x0 = audience_pos.x()
+        y0 = audience_pos.y()
+
+        x = x0 + dist*sin(radians(azimuth))
+        y = y0 - dist*cos(radians(azimuth))
+
+        return x, y
 
 
 class View(QtGui.QGraphicsView):
@@ -218,6 +235,8 @@ class Speaker(Item):
         dx = self.x() - audience_pos.x()
         dy = audience_pos.y() - self.y()
         dis = (dx**2+dy**2)**0.5
+        if dis == 0:
+            dis+=0.1
 
         from math import acos, degrees
         deg = degrees(acos(dy/dis))
@@ -230,8 +249,9 @@ class Speaker(Item):
 
         if deg >= 360:
             deg %= 360
+
         gui_dict[self.index] = [deg, dis/100, self.path, self.norm]
-        # print(gui_dict)
+        return deg, dis
 
     def mouseDoubleClickEvent(self, event):
         global speaker_to_show
@@ -327,7 +347,6 @@ class SpeakerProperty(QtGui.QWidget):
         y0 = audience_pos.y()
         azimuth = float(self.azimuth_line_edit.text())
         dist = 100*float(self.distance_line_edit.text())
-        # if azimuth < 360 and dist < 300.0:
         self.posx = x0 + dist*sin(radians(azimuth))
         self.posy = y0 - dist*cos(radians(azimuth))
 
@@ -358,14 +377,6 @@ class SpeakerProperty(QtGui.QWidget):
                 self.posx = 350
             if x < 0:
                 self.posx = 0
-        # if self.posx > 0 and self.posx < 350 and
-        #                      self.posy > 0 and self.posy < 350:
-        #     self.added.emit()
-        #     self.close()
-        # else:
-        #     QtGui.QMessageBox.question(self, 'Message',
-        #              'A value is out of range! Try again.',
-        #                  QtGui.QMessageBox.Ok)
 
         print(self.posx)
         print(self.posy)
