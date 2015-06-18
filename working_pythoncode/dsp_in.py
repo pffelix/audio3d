@@ -58,7 +58,7 @@ class DspIn:
         return value
 
     # @author: Felix Pfreundtner
-    def get_block_param(self, wave_param_common, hrtf_blocksize, 
+    def get_block_param(self, wave_param_common, hrtf_blocksize,
                         fft_blocksize):
         sp_blocksize = fft_blocksize-hrtf_blocksize+1
         sp_blocktime = sp_blocksize/wave_param_common[0]
