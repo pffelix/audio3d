@@ -84,14 +84,14 @@ class DspOut:
             sp_magnitude_spectrum))
         if max_amplitude_sp_magnitude_spectrum != 0:
             # get magnitude spectrum of hrtf block
-            self.sp_spectrum_dict[sp][:,1] = sp_magnitude_spectrum / (
+            self.sp_spectrum_dict[sp][:, 1] = sp_magnitude_spectrum / (
                 max_amplitude_sp_magnitude_spectrum / sp_max_gain_sp *
                 max_amplitude_output)
         hrtf_magnitude_spectrum = abs(hrtf_block_sp_fft[position_freq])
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(
             hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0:
-            self.hrtf_spectrum_dict[sp][l_r][:,1] =  hrtf_magnitude_spectrum(
+            self.hrtf_spectrum_dict[sp][l_r][:, 1] = hrtf_magnitude_spectrum(
                 max_amplitude_hrtf_magnitude_spectrum / hrtf_max_gain_sp_l_r
                 * max_amplitude_output)
         self.sp_spectrum_dict[sp][0, 1] = 0
@@ -120,8 +120,8 @@ class DspOut:
         binaural_block_sp_time = binaural_block_sp_time / (
             binaural_block_sp_max_gain / sp_max_gain_sp /
             hrtf_max_gain_sp_l_r * 32767)
-        self.binaural_block_dict[sp][:,l_r] = binaural_block_sp_time.astype(
-            np.int16, copy = False)
+        self.binaural_block_dict[sp][:, l_r] = binaural_block_sp_time.astype(
+            np.int16, copy=False)
 
     # @author: Felix Pfreundtner
     def overlap_add (self, binaural_block_dict_sp,
@@ -141,7 +141,7 @@ class DspOut:
         # maximum distance of a speaker to head in window with borderlength
         # 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
         # max([gui_dict[sp][1] for sp in gui_dict])
-        distance_max = 3.5*math.sqrt(2)
+        distance_max = 3.5 * math.sqrt(2)
         # get total number of speakers from gui_dict
         total_number_of_sp = len(gui_dict)
         for sp in binaural_block_dict_out:
@@ -151,9 +151,9 @@ class DspOut:
             sp_gain_factor = 1 - distance_sp/distance_max
             # add gained sp block output to a summarized block output of all
             #  speakers
-            binaural_block += binaural_block_dict_out[sp]*sp_gain_factor / \
+            binaural_block += binaural_block_dict_out[sp] * sp_gain_factor / \
                               total_number_of_sp
-        binaural_block = binaural_block.astype(np.int16, copy = False)
+        binaural_block = binaural_block.astype(np.int16, copy=False)
         return binaural_block
 
     # Testfunction overlap
@@ -164,10 +164,10 @@ class DspOut:
         if blockcounter == 0:
             binaural = np.zeros((fft_blocksize*5, 2), dtype=np.int16)
         if blockcounter % 2 != 0:
-            binaural[blockcounter*delay:blockcounter*delay+1024,1] += \
+            binaural[blockcounter * delay:blockcounter * delay + 1024, 1] += \
                 binaural_block_dict_sp
         else:
-            binaural[blockcounter*delay:blockcounter*delay+1024,1] += \
+            binaural[blockcounter * delay:blockcounter * delay + 1024, 1] += \
                 binaural_block_dict_sp
         return binaural
 
