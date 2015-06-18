@@ -3,7 +3,7 @@ Library for GUI of Audio 3D Project, Group B
 author: H. Zhu, M. Heiss
 """
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, QtOpenGL
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
@@ -185,6 +185,11 @@ class Room(QtGui.QGraphicsScene):
 
 
 class View(QtGui.QGraphicsView):
+
+    def __init__(self, scene):
+        super(View, self).__init__(scene)
+        viewport = QtOpenGL.QGLWidget(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers))
+        self.setViewport(viewport)
 
     def dragEnterEvent(self, e):
         e.acceptProposedAction()
