@@ -215,17 +215,19 @@ class MainWindow(QWidget):
                 # print(self.combo_box.currentText())
                 # print(self.inverse_box.isChecked())
                 # print(self.buffersize_spin_box.value())
-                gui_settings_dict = {"hrtf_database": self.combo_box.currentText(),
-                                     "inverse_filter_active": self.inverse_box.isChecked(),
-                                     "bufferblocks": self.buffersize_spin_box.value()}
+                gui_settings_dict = {
+                    "hrtf_database": self.combo_box.currentText(),
+                    "inverse_filter_active": self.inverse_box.isChecked(),
+                    "bufferblocks": self.buffersize_spin_box.value()}
                 self.plot_button.setEnabled(True)
-                self.Dsp_Object = Dsp(gui_dict, gui_stop, gui_pause, gui_settings_dict)
+                self.Dsp_Object = Dsp(gui_dict, gui_stop, gui_pause,
+                                      gui_settings_dict)
                 self.Dsp_Object.signal_handler.error_occur.connect(
                     self.show_error)
                 self.play = threading.Thread(target=self.Dsp_Object.run)
                 self.play.start()
-            #else:
-                #self.play = None
+            # else:
+                # self.play = None
         else:
             msgBox = QMessageBox()
             msgBox.setText("Please add a speaker.")

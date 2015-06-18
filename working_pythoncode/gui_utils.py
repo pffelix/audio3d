@@ -32,6 +32,7 @@ def switch_stop_playback():
     print (gui_stop)
     return gui_stop
 
+
 def switch_pause_playback():
     global gui_pause
     # start pause
