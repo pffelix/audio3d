@@ -144,30 +144,21 @@ class Dsp:
             finally:
                 self.DspOut_Object.lock.release()
 
-            #self.DspOut_Object.binaural = \
-            #self.DspOut_Object.overlapp_add_window(
-            #self.DspOut_Object.binaural_block_dict[sp][0:,1],
-            #self.blockcounter, self.DspIn_Object.fft_blocksize,
-            #self.DspOut_Object.binaural)
-
-
-            # Begin Audio Playback if specified Number of Bufferblocks
+            # Begin audio playback if specified number of bufferblocks
             # has been convolved
             if self.blockcounter == self.bufferblocks:
                 startaudiooutput = threading.Thread(
                     target=self.DspOut_Object.audiooutput, args=(
-                        2, self.DspIn_Object.wave_param_common[0],
+                        self.DspIn_Object.wave_param_common[0],
                         self.DspIn_Object.hopsize))
                 startaudiooutput.start()
-                # startaudiooutput.join()
 
             # wait until audioplayback finished with current block
-            while self.blockcounter-self.DspOut_Object.play_counter > \
+            while self.blockcounter - self.DspOut_Object.played_block_counter > \
                 self.bufferblocks and not all(
                 self.DspOut_Object.continue_convolution_dict.values()) \
                     is False:
-                time.sleep(1/self.DspIn_Object.wave_param_common[0]*100)
-
+                time.sleep(1/self.DspIn_Object.wave_param_common[0])
 
             # increment number of already convolved blocks
             self.blockcounter += 1
@@ -179,6 +170,7 @@ class Dsp:
             # handle playback stop
             if self.DspOut_Object.gui_stop is True:
                 break
+
         # show plot of the output signal binaural_dict_scaled
         #plt.plot(self.DspIn_Object[sp])
         #plt.show()

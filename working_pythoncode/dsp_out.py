@@ -37,7 +37,7 @@ class DspOut:
         self.gui_pause = gui_pause_init
         self.played_frames_end = 0
         self.continue_convolution_list = dict.fromkeys(gui_dict_init, [])
-        self.play_counter = 0
+        self.played_block_counter = 0
         self.playbuffer = collections.deque()
         self.lock = threading.Lock()
 
@@ -190,15 +190,15 @@ class DspOut:
             data = self.binaural[played_frames_begin:self.played_frames_end, :]
         finally:
             self.lock.release()
-        print("Played Block: " + str(self.play_counter))
-        self.play_counter+=1
+        print("Played Block: " + str(self.played_block_counter))
+        self.played_block_counter+=1
         return data, pyaudio.paContinue
 
     # @author: Felix Pfreundtner
-    def audiooutput(self, channels, samplerate, hopsize):
+    def audiooutput(self, samplerate, hopsize):
         pa = pyaudio.PyAudio()
         audiostream = pa.open(format = pyaudio.paInt16,
-                              channels = channels,
+                              channels = 2,
                               rate = samplerate,
                               output = True,
                               frames_per_buffer = hopsize,
