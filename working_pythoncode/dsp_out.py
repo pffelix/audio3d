@@ -132,26 +132,24 @@ class DspOut:
         self.binaural_block_dict_add[sp] = binaural_block_dict_add_sp_new
 
     # @author: Felix Pfreundtner
-    def mix_binaural_block(self, binaural_block_dict_out, hopsize,
-                           gui_dict):
-        binaural_block = np.zeros((hopsize, 2))
+    def mix_binaural_block(self, hopsize, gui_dict):
+        self.binaural_block = np.zeros((hopsize, 2), dtype = np.float32)
         # maximum distance of a speaker to head in window with borderlength
         # 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
         # max([gui_dict[sp][1] for sp in gui_dict])
         distance_max = 3.5 * math.sqrt(2)
         # get total number of speakers from gui_dict
         total_number_of_sp = len(gui_dict)
-        for sp in binaural_block_dict_out:
+        for sp in self.binaural_block_dict_out:
             # get distance speaker to head from gui_dict
             distance_sp = gui_dict[sp][1]
             # sound pressure decreases with distance 1/r
             sp_gain_factor = 1 - distance_sp/distance_max
             # add gained sp block output to a summarized block output of all
             #  speakers
-            binaural_block += binaural_block_dict_out[sp] * sp_gain_factor / \
+            self.binaural_block += self.binaural_block_dict_out[sp] * sp_gain_factor / \
                               total_number_of_sp
-        binaural_block = binaural_block.astype(np.int16, copy=False)
-        return binaural_block
+        self.binaural_block = self.binaural_block.astype(np.int16, copy=False)
 
     # Testfunction overlap
     def overlapp_add_window(self, binaural_block_dict_sp, blockcounter,

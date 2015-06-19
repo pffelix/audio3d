@@ -131,9 +131,7 @@ class Dsp:
 
             # Mix binaural stereo blockoutput of every speaker to one
             # binaural stereo block output having regard to speaker distances
-            self.DspOut_Object.binaural_block = \
-                self.DspOut_Object.mix_binaural_block(
-                    self.DspOut_Object.binaural_block_dict_out,
+            self.DspOut_Object.mix_binaural_block(
                     self.DspIn_Object.hopsize,
                     self.gui_dict)
 
