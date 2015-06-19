@@ -92,16 +92,10 @@ class Dsp:
                     # Load wave block of speaker sp with speaker_blocksize (
                     # fft_blocksize-hrtf_blocksize+1) and current block
                     # begin_end
-                    self.DspIn_Object.sp_block_dict[sp], \
                     self.DspOut_Object.continue_convolution_dict[sp] = \
-                        self.DspIn_Object.get_block(
-                            self.gui_dict[sp][2],
-                            self.DspIn_Object.block_begin_end[0],
-                            self.DspIn_Object.block_begin_end[1],
-                            self.DspIn_Object.sp_param[sp],
-                            self.DspIn_Object.sp_block_dict[sp],
-                            self.DspIn_Object.sp_blocksize)
-
+                    self.DspIn_Object.get_block(self.gui_dict[sp][2], sp)
+                    #plt.plot(self.DspIn_Object.sp_block_dict[sp])
+                    #plt.show()
                     # normalize sp block if requested
                     self.DspIn_Object.normalize(self.gui_dict[sp][3], sp)
                     # apply window to sp input in sp_block_dict
@@ -208,7 +202,7 @@ class Dsp:
             if self.DspOut_Object.gui_stop is True:
                 break
         # show plot of the output signal binaural_dict_scaled
-        #plt.plot(self.DspOut_Object.binaural[:, l_r])
+        #plt.plot(self.DspIn_Object[sp])
         #plt.show()
         # Write generated output signal binaural_dict_scaled to file
         self.DspOut_Object.writebinauraloutput(
