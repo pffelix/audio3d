@@ -152,19 +152,26 @@ class DspIn:
                                             dtype=np.int16)
         return hrtf_database, hrtf_blocksize, kemar_inverse_filter
 
-    ## get_hrtfs
-    # This function
+    ## @brief Gets and reads the correct hrtf-file from database
+    # @details The function creates the correct string to call the right
+    # hrtf-data from the kemar-files. It then reads the file and passes it on
+    # to the variables further used by the Dsp.run-function.
     # @author Felix Pfreundtner
     def get_hrtfs(self, gui_dict_sp, sp):
-
+        # get the filename of the kemar-file that needs to be
+        # called
+        # the if-statement differentiates between "compact" and "normal/big"
+        # version according to settings in gui
         if self.hrtf_database == "kemar_compact":
-            # get filmename of the relevant hrtf
             rounddifference = gui_dict_sp[0] % 5
+            # if angle from gui exactly matches angle of the file
             if rounddifference == 0:
                 if gui_dict_sp[0] <= 180:
                     azimuthangle = self.rnd(gui_dict_sp[0])
                 else:
                     azimuthangle = self.rnd(360 - gui_dict_sp[0])
+            # If gui's angle doesn't exactly match, go to closest angle
+            # available in database
             else:
                 if gui_dict_sp[0] <= 180:
                     if rounddifference < 2.5:
@@ -183,24 +190,29 @@ class DspIn:
             hrtf_filenames_dict_sp = "./kemar/compact/elev0/H0e" + str(
                 azimuthangle).zfill(3) + "a.wav"
 
-            # get samples of the relevant hrtf for each ear in numpy array (
-            # l,r)
+            # write relevant hrtf to numpy array hrtf_block_dict_sp
             _, hrtf_input = scipy.io.wavfile.read(hrtf_filenames_dict_sp)
             hrtf_block_dict_sp = np.zeros((self.hrtf_blocksize, 2),
                                           dtype=np.int16)
+            # if speaker is on the right half of listener, simply write in dict
             if gui_dict_sp[0] <= 180:
-                hrtf_block_dict_sp[0:128,0] = hrtf_input
+                hrtf_block_dict_sp[0:128, 0] = hrtf_input
+            # if speaker is on left half of the listener, first exchange
+            # signals of left and right ear
             else:
-                hrtf_input[:,[0, 1]] = hrtf_input[:, [1, 0]]
-                hrtf_block_dict_sp[0:128,0] = hrtf_input
+                hrtf_input[:, [0, 1]] = hrtf_input[:, [1, 0]]
+                hrtf_block_dict_sp[0:128, 0] = hrtf_input
+            #initialize kemar_inv_filter numpy array
             self.kemar_inv_filter = np.ones((1024,))
+            # initialize an array containing the absolute maximum int for
+            # ear of each numpy
             hrtf_max_gain_sp=[]
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
 
         if self.hrtf_database == "kemar_normal_ear" or \
                         self.hrtf_database == "kemar_big_ear":
-            # get filmename of the relevant hrtf for each ear
+            # get filename of the relevant hrtf for each ear
             rounddifference = gui_dict_sp[0] % 5
             if rounddifference == 0:
                 azimuthangle_ear = self.rnd(gui_dict_sp[0])
@@ -232,10 +244,10 @@ class DspIn:
             _, hrtf_input_l = scipy.io.wavfile.read(hrtf_filenames_dict_sp_l)
             _, hrtf_input_r = scipy.io.wavfile.read(hrtf_filenames_dict_sp_r)
             self.hrtf_block_dict[sp] = np.zeros((self.hrtf_blocksize, 2),
-                                                 dtype = np.int16)
-            self.hrtf_block_dict[sp][0:512,0] = hrtf_input_l[:,]
-            self.hrtf_block_dict[sp][0:512,1] = hrtf_input_r[:,]
-            self.hrtf_max_gain_dict[sp]=[]
+                                                 dtype=np.int16)
+            self.hrtf_block_dict[sp][0:512, 0] = hrtf_input_l[:, ]
+            self.hrtf_block_dict[sp][0:512, 1] = hrtf_input_r[:, ]
+            self.hrtf_max_gain_dict[sp] = []
             self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(
                 self.hrtf_block_dict[sp][:, 0])))
             self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(
