@@ -275,8 +275,8 @@ class DspIn:
             self.hrtf_block_dict[sp][0:512, 1] = hrtf_input_r[:, ]
             # initialize an array containing the absolute maximum int for
             # ear of each numpy
-            self.hrtf_max_gain_dict[sp] = []
-            self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(
+            self.hrtf_max_amp_dict[sp] = []
+            self.hrtf_max_amp_dict[sp].append(np.amax(np.abs(
                 self.hrtf_block_dict[sp][:, 0])))
             self.hrtf_max_amp_dict[sp].append(np.amax(np.abs(
                 self.hrtf_block_dict[sp][:, 1])))
