@@ -20,16 +20,16 @@ from copy import deepcopy
 
 class DspOut:
     def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize,
-                 gui_stop_init, gui_pause_init):
+                 hopsize, gui_stop_init, gui_pause_init):
         self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((
             fft_blocksize/2, 2), dtype=np.float16))
         self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init,[ np.zeros((fft_blocksize/2, 2), dtype=np.float16),  np.zeros((fft_blocksize/2, 2), dtype=np.float16)])
         self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
             fft_blocksize, 2), dtype=np.int16))
         self.binaural_block_dict_out = dict.fromkeys(gui_dict_init,
-            np.zeros((sp_blocksize, 2), dtype=np.int16))
+            np.zeros((hopsize, 2), dtype=np.int16))
         self.binaural_block_dict_add = dict.fromkeys(gui_dict_init,
-            np.zeros((fft_blocksize - sp_blocksize, 2), dtype=np.int16))
+            np.zeros((fft_blocksize - hopsize, 2), dtype=np.int16))
         self.binaural_block = np.zeros((sp_blocksize, 2), dtype=np.int16)
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
         self.continue_convolution_dict = dict.fromkeys(gui_dict_init, True)
@@ -114,20 +114,20 @@ class DspOut:
             np.int16, copy=False)
 
     # @author: Felix Pfreundtner
-    def overlap_add (self, binaural_block_dict_sp,
-                     binaural_block_dict_out_sp, binaural_block_dict_add_sp,
-                     fft_blocksize, sp_blocksize):
-        binaural_block_dict_out_sp = deepcopy(binaural_block_dict_sp[
-                                               :sp_blocksize, :])
-        binaural_block_dict_out_sp[:fft_blocksize - sp_blocksize] += \
-            binaural_block_dict_add_sp
-        binaural_block_dict_add_sp = binaural_block_dict_sp[sp_blocksize:, :]
-        return binaural_block_dict_out_sp, binaural_block_dict_add_sp
+    def overlap_add (self, binaural_block_dict_sp, binaural_block_dict_add_sp, fft_blocksize, hopsize):
+        binaural_block_dict_out_sp = deepcopy(binaural_block_dict_sp[0:hopsize, :])
+        binaural_block_dict_out_sp[:, :] += \
+            deepcopy(binaural_block_dict_add_sp[0:hopsize, :])
+        add_sp_arraysize = (fft_blocksize - hopsize)
+        binaural_block_dict_add_sp_new = np.zeros((add_sp_arraysize, 2), dtype = np.int16)
+        binaural_block_dict_add_sp_new[0:add_sp_arraysize - hopsize, :] = deepcopy(binaural_block_dict_add_sp[hopsize:, :])
+        binaural_block_dict_add_sp_new[:, :] += deepcopy(binaural_block_dict_sp[hopsize:, :])
+        return binaural_block_dict_out_sp, binaural_block_dict_add_sp_new
 
     # @author: Felix Pfreundtner
-    def mix_binaural_block(self, binaural_block_dict_out, sp_blocksize,
+    def mix_binaural_block(self, binaural_block_dict_out, hopsize,
                            gui_dict):
-        binaural_block = np.zeros((sp_blocksize, 2))
+        binaural_block = np.zeros((hopsize, 2))
         # maximum distance of a speaker to head in window with borderlength
         # 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
         # max([gui_dict[sp][1] for sp in gui_dict])
@@ -149,10 +149,9 @@ class DspOut:
     # Testfunction overlap
     def overlapp_add_window(self, binaural_block_dict_sp, blockcounter,
                             fft_blocksize, binaural):
-
-        delay = 512
+        delay = 256
         if blockcounter == 0:
-            binaural = np.zeros((fft_blocksize*5, 2), dtype=np.int16)
+            binaural = np.zeros((fft_blocksize*1500, 2), dtype=np.int16)
         if blockcounter % 2 != 0:
             binaural[blockcounter * delay:blockcounter * delay + 1024, 1] += \
                 binaural_block_dict_sp
@@ -193,13 +192,13 @@ class DspOut:
         return data, pyaudio.paContinue
 
     # @author: Felix Pfreundtner
-    def audiooutput(self, channels, samplerate, sp_blocksize):
+    def audiooutput(self, channels, samplerate, hopsize):
         pa = pyaudio.PyAudio()
         audiostream = pa.open(format = pyaudio.paInt16,
                               channels = channels,
                               rate = samplerate,
                               output = True,
-                              frames_per_buffer = sp_blocksize,
+                              frames_per_buffer = hopsize,
                               stream_callback = self.callback,
                               )
         audiostream.start_stream()

@@ -26,7 +26,7 @@ class DspIn:
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
         self.hrtf_database, self.hrtf_blocksize, self.kemar_inverse_filter = \
             self.get_hrtf_param(gui_settings_dict_init)
-        self.sp_blocksize, self.sp_blocktime, self.overlap = \
+        self.sp_blocksize, self.sp_blocktime, self.overlap, self.hopsize = \
             self.get_block_param(self.wave_param_common,
                                  self.hrtf_blocksize,
                                  self.fft_blocksize)
@@ -71,8 +71,9 @@ class DspIn:
         sp_blocksize = fft_blocksize-hrtf_blocksize+1
         sp_blocktime = sp_blocksize/wave_param_common[0]
         overlap = (fft_blocksize-sp_blocksize)/fft_blocksize # in decimal 0.
-        overlap = 0
-        return sp_blocksize, sp_blocktime, overlap
+        #overlap = 0
+        hopsize = self.rnd((1-overlap)*sp_blocksize)
+        return sp_blocksize, sp_blocktime, overlap, hopsize
 
     ## init_set_block_begin_end
     # This function calculates a list called block_begin_end containing two

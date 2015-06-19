@@ -36,6 +36,7 @@ class Dsp:
         self.DspOut_Object = dsp_out.DspOut(gui_dict_init,
                                             self.DspIn_Object.fft_blocksize,
                                             self.DspIn_Object.sp_blocksize,
+                                            self.DspIn_Object.hopsize,
                                             gui_stop_init, gui_pause_init)
         # Blockcounter initialized to count number of already convolved
         # blocks
@@ -104,10 +105,10 @@ class Dsp:
                     # normalize sp block if requested
                     self.DspIn_Object.normalize(self.gui_dict[sp][3], sp)
                     # apply window to sp input in sp_block_dict
-                    # self.DspIn_Object.sp_block_dict[sp]=
-                    # self.DspIn_Object.apply_window(
-                    # self.DspIn_Object.sp_block_dict[sp],
-                    # self.DspIn_Object.hann)
+                    self.DspIn_Object.sp_block_dict[sp]= \
+                    self.DspIn_Object.apply_window(
+                    self.DspIn_Object.sp_block_dict[sp],
+                    self.DspIn_Object.hann)
 
                     # for the left and the right ear channel
                     for l_r in range(2):
@@ -150,17 +151,16 @@ class Dsp:
                 self.DspOut_Object.binaural_block_dict_add[sp] = \
                     self.DspOut_Object.overlap_add(
                         self.DspOut_Object.binaural_block_dict[sp],
-                        self.DspOut_Object.binaural_block_dict_out[sp],
                         self.DspOut_Object.binaural_block_dict_add[sp],
                         self.DspIn_Object.fft_blocksize,
-                        self.DspIn_Object.sp_blocksize)
+                        self.DspIn_Object.hopsize)
 
             # Mix binaural stereo blockoutput of every speaker to one
             # binaural stereo block having regard to speaker distances
             self.DspOut_Object.binaural_block = \
                 self.DspOut_Object.mix_binaural_block(
                     self.DspOut_Object.binaural_block_dict_out,
-                    self.DspIn_Object.sp_blocksize,
+                    self.DspIn_Object.hopsize,
                     self.gui_dict)
 
             # Add mixed binaural stereo blocks to a time continuing binaural
@@ -188,7 +188,7 @@ class Dsp:
                 startaudiooutput = threading.Thread(
                     target=self.DspOut_Object.audiooutput, args=(
                         2, self.DspIn_Object.wave_param_common[0],
-                        self.DspIn_Object.sp_blocksize))
+                        self.DspIn_Object.hopsize))
                 startaudiooutput.start()
                 # startaudiooutput.join()
 
@@ -211,7 +211,7 @@ class Dsp:
             if self.DspOut_Object.gui_stop is True:
                 break
         # show plot of the output signal binaural_dict_scaled
-        #plt.plot(self.DspIn_Object.sp_block_dict[sp])
+        #plt.plot(self.DspOut_Object.binaural[:, l_r])
         #plt.show()
         # Write generated output signal binaural_dict_scaled to file
         self.DspOut_Object.writebinauraloutput(
