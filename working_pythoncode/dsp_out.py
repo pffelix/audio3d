@@ -37,7 +37,6 @@ class DspOut:
         self.gui_pause = gui_pause_init
         self.played_frames_end = 0
         self.continue_convolution_list = dict.fromkeys(gui_dict_init, [])
-        self.get_new_block = True
         self.play_counter = 0
         self.playbuffer = collections.deque()
         self.lock = threading.Lock()
@@ -151,7 +150,7 @@ class DspOut:
     def overlapp_add_window(self, binaural_block_dict_sp, blockcounter,
                             fft_blocksize, binaural):
 
-        delay = 256
+        delay = 512
         if blockcounter == 0:
             binaural = np.zeros((fft_blocksize*5, 2), dtype=np.int16)
         if blockcounter % 2 != 0:
