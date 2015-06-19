@@ -7,6 +7,5 @@ var searchData=
   ['confirm_5fbutton',['confirm_button',['../classgui__utils_1_1_speaker_property.html#aeffeb6895313de87189fd75d3fd19b22',1,'gui_utils::SpeakerProperty']]],
   ['continue_5fconvolution_5fdict',['continue_convolution_dict',['../classdsp__out_1_1_dsp_out.html#a9626efd0085fd3f6a4c8c38a54e6a099',1,'dsp_out::DspOut']]],
   ['continue_5fconvolution_5flist',['continue_convolution_list',['../classdsp__out_1_1_dsp_out.html#a60daa6996e38c38b10075fad7075a852',1,'dsp_out::DspOut']]],
-  ['cosine',['cosine',['../classdsp__in_1_1_dsp_in.html#afce0581a2a6256429ba23ced44ad2428',1,'dsp_in::DspIn']]],
   ['current_5fitem',['current_item',['../classgui__utils_1_1_room.html#a6e5ed3b4b1ba89eaa83c9300e7efb9f8',1,'gui_utils.Room.current_item()'],['../classgui__utils_1_1_room.html#a512343a8f354a6bfd1005d42fc650493',1,'gui_utils.Room.current_item()']]]
 ];

@@ -13,12 +13,12 @@ import matplotlib.pyplot as plt
 from dsp_signal_handler import DspSignalHandler
 
 ## @class <DspIn> This class contains all functions executed before the
-# convolution in the run-thread of the Dsp-class. This includes particularly
+# convolution in the run-function of the Dsp-class. This includes particularly
 # to read parameters of blocks and hrtfs, to read blocks and hrtfs from
 # their databases, to normalize hrtfs, round numbers and to create all
 # necessary kinds of windows.
 class DspIn:
-    
+
     ## Constructor of the DspIn class.
     def __init__(self, gui_dict_init, gui_settings_dict_init):
         # Initialize a dict for the hrtf-values to be stored in.
@@ -43,14 +43,14 @@ class DspIn:
         self.sp_blocksize, self.sp_blocktime, self.overlap, self.hopsize = \
             self.get_block_param(self.wave_param_common,
                                  self.hrtf_blocksize, self.fft_blocksize)
-        # get samplerate from header in .wav-file of all speakers
+        # Get samplerate from header in .wav-file of all speakers
         self.sp_param = self.init_get_block(gui_dict_init)
         self.block_begin_end = self.init_set_block_begin_end(gui_dict_init)
         self.hann = self.build_hann_window(self.sp_blocksize)
         self.sp_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
                 self.sp_blocksize, ), dtype=np.int16))
 
-    ## @brief function rounds any input value to the closest integer
+    ## @brief #function rounds any input value to the closest integer
     # @details This function does a normal school arithmetic round (choose
     # lower int until .4 and higher int from .5 on) and returns the rounded
     # value. It is NOT equal to pythons round() method.
@@ -97,8 +97,8 @@ class DspIn:
                         fft_blocksize):
         sp_blocksize = fft_blocksize - hrtf_blocksize + 1
         sp_blocktime = sp_blocksize/wave_param_common[0]
-        overlap = (fft_blocksize - sp_blocksize) / fft_blocksize    # in
-        # decimal 0.
+        # overlap in decimal 0
+        overlap = (fft_blocksize - sp_blocksize) / fft_blocksize
         #overlap = 0
         hopsize = self.rnd((1-overlap)*sp_blocksize)
         return sp_blocksize, sp_blocktime, overlap, hopsize
@@ -125,10 +125,8 @@ class DspIn:
     # values are replaced, there are no input and output variables.
     # @author Felix Pfreundtner
     def set_block_begin_end(self):
-        self.block_begin_end[0] = \
-            self.block_begin_end[0] + int(self.sp_blocksize*(1-self.overlap))
-        self.block_begin_end[1] = \
-            self.block_begin_end[1] + int(self.sp_blocksize*(1-self.overlap))
+        self.block_begin_end[0] += int(self.sp_blocksize * (1 - self.overlap))
+        self.block_begin_end[1] += int(self.sp_blocksize * (1 - self.overlap))
 
     ## @brief Get all parameters for the hrtf set by the settings in gui
     # @details This function calculates all necessary parameters of the hrtf
@@ -161,7 +159,7 @@ class DspIn:
                     kemar_inverse_filter[0:self.fft_blocksize, ]
             else:
                 kemar_inverse_filter = np.zeros((self.fft_blocksize,),
-                                                 dtype=np.int16)
+                                                dtype=np.int16)
         if hrtf_database == "kemar_compact":
             # wave hrtf size 128 samples: zeropad hrtf to 129 samples to
             # reach even sp_blocksize which is integer divisible by 2 (50%
@@ -270,7 +268,7 @@ class DspIn:
             _, hrtf_input_l = scipy.io.wavfile.read(hrtf_filenames_dict_sp_l)
             _, hrtf_input_r = scipy.io.wavfile.read(hrtf_filenames_dict_sp_r)
             self.hrtf_block_dict[sp] = np.zeros((self.hrtf_blocksize, 2),
-                                                 dtype=np.int16)
+                                                dtype=np.int16)
             self.hrtf_block_dict[sp][0:512, 0] = hrtf_input_l[:, ]
             self.hrtf_block_dict[sp][0:512, 1] = hrtf_input_r[:, ]
             # initialize an array containing the absolute maximum int for
@@ -280,7 +278,6 @@ class DspIn:
                 self.hrtf_block_dict[sp][:, 0])))
             self.hrtf_max_amp_dict[sp].append(np.amax(np.abs(
                 self.hrtf_block_dict[sp][:, 1])))
-
 
     ## @brief get 10 important parameters of the files to be played by the
     # get_block_function
@@ -308,7 +305,8 @@ class DspIn:
         sp_param = dict.fromkeys(gui_dict, [None] *10)
         # go through all speakers
         for sp in gui_dict:
-            file = open(gui_dict[sp][2], 'rb') # opens the file
+            # open the file
+            file = open(gui_dict[sp][2], 'rb')
             # checks whether file is RIFX or RIFF
             _big_endian = False
             str1 = file.read(4)
@@ -321,14 +319,14 @@ class DspIn:
             # jump to byte number 22
             file.seek(22)
             # get number of channels from header
-            sp_param[sp][3] = struct.unpack(sp_param[sp][4]+"H", file.read(
+            sp_param[sp][3] = struct.unpack(sp_param[sp][4] + "H", file.read(
                 2))[0]
             # get samplerate from header (always 44100)
-            sp_param[sp][1] = struct.unpack(sp_param[sp][4]+"I", file.read(
+            sp_param[sp][1] = struct.unpack(sp_param[sp][4] + "I", file.read(
                 4))[0]
             file.seek(34)   # got to byte 34
             # get number of sp_param_sp[2] per sample from header
-            sp_param[sp][2] = struct.unpack(sp_param[sp][4]+"H", file.read(
+            sp_param[sp][2] = struct.unpack(sp_param[sp][4] + "H", file.read(
                 2))[0]
             # check in 2-byte steps, where the actual data begins
             # save distance from end of header in "counter"
@@ -355,12 +353,12 @@ class DspIn:
             elif sp_param[sp][7] == 2:   # if bitfactor == 2
                 sp_param[sp][9] = "h"    # use sp_param[sp][9] "h"
             #else:
-            #    print("sp_param[sp][9] for this number of sp_param_sp[
+            # print("sp_param[sp][9] for this number of sp_param_sp[
             # 2]/sample is not
             # defined!")
             # calculate total number of samples of the file
             sp_param[sp][0] = int(sp_param[sp][5] /
-                                 (sp_param[sp][2]/8*sp_param[sp][3]))
+                                 (sp_param[sp][2] / 8 * sp_param[sp][3]))
             file.close()    # close file opened in the beginning
         return sp_param
 
@@ -384,10 +382,12 @@ class DspIn:
         file = open(filename, 'rb')
         # calculate begin_block as byte-number
         first_byte_of_block = self.sp_param[sp][6] + (begin_block *
-            self.sp_param[sp][7] * self.sp_param[sp][3])
+                                                      self.sp_param[sp][7] *
+                                                      self.sp_param[sp][3])
         # calculate end_block as byte_number
         last_byte_of_block = self.sp_param[sp][6] + (end_block *
-            self.sp_param[sp][7] * self.sp_param[sp][3])
+                                                     self.sp_param[sp][7] *
+                                                     self.sp_param[sp][3])
         # go to first byte of block and start "reading"
         file.seek(first_byte_of_block)
         # if input file is mono, write sp_block_dict[sp] in this part
@@ -405,8 +405,8 @@ class DspIn:
             else:
                 # calculate remaining samples
                 remaining_samples = int((self.sp_param[sp][8] -
-                    first_byte_of_block) / (self.sp_param[sp][7]
-                                          * self.sp_param[sp][3]))
+                    first_byte_of_block) / (self.sp_param[sp][7] *
+                                            self.sp_param[sp][3]))
                 i = 0
                 # read remaining samples to the end, then set continue_input
                 # to "False"

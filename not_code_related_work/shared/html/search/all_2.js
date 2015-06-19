@@ -11,7 +11,5 @@ var searchData=
   ['bufferblocks',['bufferblocks',['../classdsp_1_1_dsp.html#acdd39ca449c3d26bbdfcd1dc18a4002c',1,'dsp::Dsp']]],
   ['buffersize_5flabel',['buffersize_label',['../classgui__main__window_1_1_main_window.html#a0094ad623eab10c2b23d339beee3fbe5',1,'gui_main_window::MainWindow']]],
   ['buffersize_5fspin_5fbox',['buffersize_spin_box',['../classgui__main__window_1_1_main_window.html#a19b1fc0aa9f4c13f611e1b1bb052db42',1,'gui_main_window::MainWindow']]],
-  ['buid_5fcosine_5fwindow',['buid_cosine_window',['../classdsp__in_1_1_dsp_in.html#ae0e23d784bb76c2628fd8bf47db41934',1,'dsp_in::DspIn']]],
-  ['buid_5fhamming_5fwindow',['buid_hamming_window',['../classdsp__in_1_1_dsp_in.html#af9b6ac893761f69f90ec4566064e8bab',1,'dsp_in::DspIn']]],
   ['build_5fhann_5fwindow',['build_hann_window',['../classdsp__in_1_1_dsp_in.html#a55a654bfaf3bd9d59842223b6b7ef495',1,'dsp_in::DspIn']]]
 ];

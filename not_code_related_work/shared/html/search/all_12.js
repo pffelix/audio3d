@@ -9,7 +9,7 @@ var searchData=
   ['signal_5fhandler',['signal_handler',['../classdsp_1_1_dsp.html#a274a048015dc3f79a03155ee8200d033',1,'dsp.Dsp.signal_handler()'],['../classgui__utils_1_1_speaker.html#a37118ce3385b23ffa08c955119e6442c',1,'gui_utils.Speaker.signal_handler()']]],
   ['signalhandler',['SignalHandler',['../classgui__utils_1_1_signal_handler.html',1,'gui_utils']]],
   ['sp_5fblock_5fdict',['sp_block_dict',['../classdsp__in_1_1_dsp_in.html#abe36721aee121a0f6210c1043db02044',1,'dsp_in::DspIn']]],
-  ['sp_5fmax_5fgain_5fdict',['sp_max_gain_dict',['../classdsp__in_1_1_dsp_in.html#ae4dfc9f38e039d9428f02f4950759499',1,'dsp_in::DspIn']]],
+  ['sp_5fmax_5famp_5fdict',['sp_max_amp_dict',['../classdsp__in_1_1_dsp_in.html#a13dc04f9ea67d4635b0be60d15b23b41',1,'dsp_in::DspIn']]],
   ['sp_5fparam',['sp_param',['../classdsp__in_1_1_dsp_in.html#aa398f1072d41b98fdffa5b9b29782492',1,'dsp_in::DspIn']]],
   ['sp_5fspectrum_5fdict',['sp_spectrum_dict',['../classdsp__out_1_1_dsp_out.html#a10ca2d11822d77758128f8cd2b5a2d27',1,'dsp_out::DspOut']]],
   ['speaker',['Speaker',['../classgui__utils_1_1_speaker.html',1,'gui_utils']]],

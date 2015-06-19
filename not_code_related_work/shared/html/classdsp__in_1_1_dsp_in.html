@@ -95,54 +95,56 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">dsp_in.DspIn Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>contains all functions executed before the convolution in the run-thread of the Dsp-class.  
+ <a href="classdsp__in_1_1_dsp_in.html#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:abf4808d42d8e5cab74e41431306ea0f5"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#abf4808d42d8e5cab74e41431306ea0f5">__init__</a> (self, gui_dict_init, gui_settings_dict_init)</td></tr>
+<tr class="memdesc:abf4808d42d8e5cab74e41431306ea0f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor of the <a class="el" href="classdsp__in_1_1_dsp_in.html" title="contains all functions executed before the convolution in the run-thread of the Dsp-class. ">DspIn</a> class.  <a href="#abf4808d42d8e5cab74e41431306ea0f5">More...</a><br /></td></tr>
 <tr class="separator:abf4808d42d8e5cab74e41431306ea0f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa84732cae588a788b4156f145d98d6fe"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#aa84732cae588a788b4156f145d98d6fe">rnd</a> (self, value)</td></tr>
-<tr class="memdesc:aa84732cae588a788b4156f145d98d6fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">rnd This function does a normal school arithmetic round (choose lower int until .4 and higher int from .5 on) and returns the rounded value.  <a href="#aa84732cae588a788b4156f145d98d6fe">More...</a><br /></td></tr>
+<tr class="memdesc:aa84732cae588a788b4156f145d98d6fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">function rounds any input value to the closest integer  <a href="#aa84732cae588a788b4156f145d98d6fe">More...</a><br /></td></tr>
 <tr class="separator:aa84732cae588a788b4156f145d98d6fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55a654bfaf3bd9d59842223b6b7ef495"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a55a654bfaf3bd9d59842223b6b7ef495">build_hann_window</a> (self, sp_blocksize)</td></tr>
+<tr class="memdesc:a55a654bfaf3bd9d59842223b6b7ef495"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate and construct the hann window in dependency of sp_blocksize.  <a href="#a55a654bfaf3bd9d59842223b6b7ef495">More...</a><br /></td></tr>
+<tr class="separator:a55a654bfaf3bd9d59842223b6b7ef495"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7aa0529994430ad29da446f38067e1c2"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a7aa0529994430ad29da446f38067e1c2">get_block_param</a> (self, <a class="el" href="classdsp__in_1_1_dsp_in.html#a1a7fa3a685fc4c58992769207a6104b8">wave_param_common</a>, hrtf_blocksize, <a class="el" href="classdsp__in_1_1_dsp_in.html#a6c5834f3d7c15a2b6ef1fc442b6310ca">fft_blocksize</a>)</td></tr>
-<tr class="memdesc:a7aa0529994430ad29da446f38067e1c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">get_block_param This method uses the inputs  <a href="#a7aa0529994430ad29da446f38067e1c2">More...</a><br /></td></tr>
+<tr class="memdesc:a7aa0529994430ad29da446f38067e1c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function calculates the three block parameters necessary for the while-loop of the run-function.  <a href="#a7aa0529994430ad29da446f38067e1c2">More...</a><br /></td></tr>
 <tr class="separator:a7aa0529994430ad29da446f38067e1c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91cb8ba3befd8fe6d418ec241f4f9de4"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a91cb8ba3befd8fe6d418ec241f4f9de4">init_set_block_begin_end</a> (self, gui_dict)</td></tr>
-<tr class="memdesc:a91cb8ba3befd8fe6d418ec241f4f9de4"><td class="mdescLeft">&#160;</td><td class="mdescRight">init_set_block_begin_end This function calculates a list called block_begin_end containing two elements: [0] is the first sample of the block, [1] is the last sample of the block that is currently read.  <a href="#a91cb8ba3befd8fe6d418ec241f4f9de4">More...</a><br /></td></tr>
+<tr class="memdesc:a91cb8ba3befd8fe6d418ec241f4f9de4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes a list with the number of the first and last sample of the first block.  <a href="#a91cb8ba3befd8fe6d418ec241f4f9de4">More...</a><br /></td></tr>
 <tr class="separator:a91cb8ba3befd8fe6d418ec241f4f9de4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a29886082d52b67d14eca8044ec2cdd77"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a29886082d52b67d14eca8044ec2cdd77">set_block_begin_end</a> (self)</td></tr>
+<tr class="memdesc:a29886082d52b67d14eca8044ec2cdd77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Every while-loop the number of the first and last sample is calculated.  <a href="#a29886082d52b67d14eca8044ec2cdd77">More...</a><br /></td></tr>
 <tr class="separator:a29886082d52b67d14eca8044ec2cdd77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af11ec57d2abf7f8ba1219f14c999f8a8"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#af11ec57d2abf7f8ba1219f14c999f8a8">get_hrtf_param</a> (self, gui_settings_dict)</td></tr>
+<tr class="memdesc:af11ec57d2abf7f8ba1219f14c999f8a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get all parameters for the hrtf set by the settings in gui.  <a href="#af11ec57d2abf7f8ba1219f14c999f8a8">More...</a><br /></td></tr>
 <tr class="separator:af11ec57d2abf7f8ba1219f14c999f8a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a57486169e27b4c44ed6634cbd9790f86"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a57486169e27b4c44ed6634cbd9790f86">get_hrtfs</a> (self, gui_dict_sp, sp)</td></tr>
-<tr class="memdesc:a57486169e27b4c44ed6634cbd9790f86"><td class="mdescLeft">&#160;</td><td class="mdescRight">get_hrtfs This function  <a href="#a57486169e27b4c44ed6634cbd9790f86">More...</a><br /></td></tr>
+<tr class="memdesc:a57486169e27b4c44ed6634cbd9790f86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets and reads the correct hrtf-file from database.  <a href="#a57486169e27b4c44ed6634cbd9790f86">More...</a><br /></td></tr>
 <tr class="separator:a57486169e27b4c44ed6634cbd9790f86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2ffbb5c5e6cceddae38bca0525a419ee"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a2ffbb5c5e6cceddae38bca0525a419ee">normalize</a> (self, normalize_flag_sp, sp)</td></tr>
-<tr class="separator:a2ffbb5c5e6cceddae38bca0525a419ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af9b6ac893761f69f90ec4566064e8bab"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#af9b6ac893761f69f90ec4566064e8bab">buid_hamming_window</a> (self, sp_blocksize)</td></tr>
-<tr class="separator:af9b6ac893761f69f90ec4566064e8bab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a55a654bfaf3bd9d59842223b6b7ef495"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a55a654bfaf3bd9d59842223b6b7ef495">build_hann_window</a> (self, sp_blocksize)</td></tr>
-<tr class="separator:a55a654bfaf3bd9d59842223b6b7ef495"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae0e23d784bb76c2628fd8bf47db41934"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#ae0e23d784bb76c2628fd8bf47db41934">buid_cosine_window</a> (self, sp_blocksize)</td></tr>
-<tr class="separator:ae0e23d784bb76c2628fd8bf47db41934"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa21b116601fe42f1ad16e43c1723ed87"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#aa21b116601fe42f1ad16e43c1723ed87">apply_window</a> (self, sp_block_sp, windowsignal)</td></tr>
-<tr class="separator:aa21b116601fe42f1ad16e43c1723ed87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71feaa0c81a1a2852f08493fb5d5a09b"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a71feaa0c81a1a2852f08493fb5d5a09b">init_get_block</a> (self, gui_dict)</td></tr>
-<tr class="memdesc:a71feaa0c81a1a2852f08493fb5d5a09b"><td class="mdescLeft">&#160;</td><td class="mdescRight">{get 10 important parameters of the files to be played by the get_block_function}  <a href="#a71feaa0c81a1a2852f08493fb5d5a09b">More...</a><br /></td></tr>
+<tr class="memdesc:a71feaa0c81a1a2852f08493fb5d5a09b"><td class="mdescLeft">&#160;</td><td class="mdescRight">get 10 important parameters of the files to be played by the get_block_function  <a href="#a71feaa0c81a1a2852f08493fb5d5a09b">More...</a><br /></td></tr>
 <tr class="separator:a71feaa0c81a1a2852f08493fb5d5a09b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c38a069093ae015788e17380908ea12"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a8c38a069093ae015788e17380908ea12">get_block</a> (self, filename, begin_block, end_block, sp_prop_sp, blocknumpy, blocklength)</td></tr>
-<tr class="memdesc:a8c38a069093ae015788e17380908ea12"><td class="mdescLeft">&#160;</td><td class="mdescRight">{reads one block of samples}  <a href="#a8c38a069093ae015788e17380908ea12">More...</a><br /></td></tr>
-<tr class="separator:a8c38a069093ae015788e17380908ea12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c0fc731dd935a38627604123b0ef0e0"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a1c0fc731dd935a38627604123b0ef0e0">get_block</a> (self, filename, sp)</td></tr>
+<tr class="memdesc:a1c0fc731dd935a38627604123b0ef0e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">reads one block of samples  <a href="#a1c0fc731dd935a38627604123b0ef0e0">More...</a><br /></td></tr>
+<tr class="separator:a1c0fc731dd935a38627604123b0ef0e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a110c4bcb69271e8223ccabbce09edf60"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a110c4bcb69271e8223ccabbce09edf60">normalize</a> (self, normalize_bool, sp)</td></tr>
+<tr class="memdesc:a110c4bcb69271e8223ccabbce09edf60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Normalize the .wav-signal to have maximum of int16 amplitude.  <a href="#a110c4bcb69271e8223ccabbce09edf60">More...</a><br /></td></tr>
+<tr class="separator:a110c4bcb69271e8223ccabbce09edf60"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c362dfefc26b8b533ea5a2d017d573a"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a9c362dfefc26b8b533ea5a2d017d573a">apply_window_on_sp_block</a> (self, sp)</td></tr>
+<tr class="separator:a9c362dfefc26b8b533ea5a2d017d573a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:aa398f1072d41b98fdffa5b9b29782492"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#aa398f1072d41b98fdffa5b9b29782492">sp_param</a></td></tr>
-<tr class="separator:aa398f1072d41b98fdffa5b9b29782492"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a55123131b17eccef31d37cfdeb772f69"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a55123131b17eccef31d37cfdeb772f69">hrtf_block_dict</a></td></tr>
 <tr class="separator:a55123131b17eccef31d37cfdeb772f69"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f1b8cc64690a7acc0de413284dee8b0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a0f1b8cc64690a7acc0de413284dee8b0">hrtf_max_gain_dict</a></td></tr>
-<tr class="separator:a0f1b8cc64690a7acc0de413284dee8b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae4dfc9f38e039d9428f02f4950759499"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#ae4dfc9f38e039d9428f02f4950759499">sp_max_gain_dict</a></td></tr>
-<tr class="separator:ae4dfc9f38e039d9428f02f4950759499"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0cfd4692cebd9e0cc9926fce11c95867"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a0cfd4692cebd9e0cc9926fce11c95867">hrtf_max_amp_dict</a></td></tr>
+<tr class="separator:a0cfd4692cebd9e0cc9926fce11c95867"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13dc04f9ea67d4635b0be60d15b23b41"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a13dc04f9ea67d4635b0be60d15b23b41">sp_max_amp_dict</a></td></tr>
+<tr class="separator:a13dc04f9ea67d4635b0be60d15b23b41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7ade075f79e888d0afb8d74fe79c77c4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a7ade075f79e888d0afb8d74fe79c77c4">wave_blockbeginend_dict_list</a></td></tr>
 <tr class="separator:a7ade075f79e888d0afb8d74fe79c77c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a7fa3a685fc4c58992769207a6104b8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a1a7fa3a685fc4c58992769207a6104b8">wave_param_common</a></td></tr>
@@ -151,14 +153,12 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a6c5834f3d7c15a2b6ef1fc442b6310ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba5c3e1dbb5bad2f802ca58b6eb6f7e9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#aba5c3e1dbb5bad2f802ca58b6eb6f7e9">kemar_inverse_filter</a></td></tr>
 <tr class="separator:aba5c3e1dbb5bad2f802ca58b6eb6f7e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aef20a19228cb2aef2f4a7f65f87f6f82"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#aef20a19228cb2aef2f4a7f65f87f6f82">overlap</a></td></tr>
-<tr class="separator:aef20a19228cb2aef2f4a7f65f87f6f82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7c2739ef7fd38d98c062fb35e624efd"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#ac7c2739ef7fd38d98c062fb35e624efd">hopsize</a></td></tr>
+<tr class="separator:ac7c2739ef7fd38d98c062fb35e624efd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa398f1072d41b98fdffa5b9b29782492"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#aa398f1072d41b98fdffa5b9b29782492">sp_param</a></td></tr>
+<tr class="separator:aa398f1072d41b98fdffa5b9b29782492"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa588c8421d36a66a8e9f696b20af3563"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#aa588c8421d36a66a8e9f696b20af3563">block_begin_end</a></td></tr>
 <tr class="separator:aa588c8421d36a66a8e9f696b20af3563"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a11783537c0186cf9d438ed418d226ebc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#a11783537c0186cf9d438ed418d226ebc">hamming</a></td></tr>
-<tr class="separator:a11783537c0186cf9d438ed418d226ebc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afce0581a2a6256429ba23ced44ad2428"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#afce0581a2a6256429ba23ced44ad2428">cosine</a></td></tr>
-<tr class="separator:afce0581a2a6256429ba23ced44ad2428"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abe51c483d5da628740b31c03b6c18e5b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#abe51c483d5da628740b31c03b6c18e5b">hann</a></td></tr>
 <tr class="separator:abe51c483d5da628740b31c03b6c18e5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abe36721aee121a0f6210c1043db02044"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classdsp__in_1_1_dsp_in.html#abe36721aee121a0f6210c1043db02044">sp_block_dict</a></td></tr>
@@ -169,8 +169,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a7f0a212471f39cae0004ea4fce0f4c44"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00015">15</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
+<div class="textblock"><p>contains all functions executed before the convolution in the run-thread of the Dsp-class. </p>
+<p>This includes particularly to read parameters of blocks and hrtfs, to read blocks and hrtfs from their databases, to normalize hrtfs, round numbers and to create all necessary kinds of windows. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="abf4808d42d8e5cab74e41431306ea0f5"></a>
 <div class="memitem">
@@ -202,17 +202,17 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00016">16</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
+<p>Constructor of the <a class="el" href="classdsp__in_1_1_dsp_in.html" title="contains all functions executed before the convolution in the run-thread of the Dsp-class. ">DspIn</a> class. </p>
 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="aa21b116601fe42f1ad16e43c1723ed87"></a>
+<a class="anchor" id="a9c362dfefc26b8b533ea5a2d017d573a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">def dsp_in.DspIn.apply_window </td>
+          <td class="memname">def dsp_in.DspIn.apply_window_on_sp_block </td>
           <td>(</td>
           <td class="paramtype">&#160;</td>
           <td class="paramname"><em>self</em>, </td>
@@ -221,13 +221,7 @@ Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>sp_block_sp</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>windowsignal</em>&#160;</td>
+          <td class="paramname"><em>sp</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -236,64 +230,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00259">259</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="ae0e23d784bb76c2628fd8bf47db41934"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def dsp_in.DspIn.buid_cosine_window </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>self</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>sp_blocksize</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00250">250</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="af9b6ac893761f69f90ec4566064e8bab"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def dsp_in.DspIn.buid_hamming_window </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>self</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>sp_blocksize</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00234">234</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
 
 </div>
 </div>
@@ -321,11 +257,18 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00241">241</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
+<p>Calculate and construct the hann window in dependency of sp_blocksize. </p>
+<dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">&lt;hann_window&gt;</td><td>Numpy-array of the length of sp_blocksize </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section author"><dt>Author</dt><dd>Felix Pfreundtner </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a8c38a069093ae015788e17380908ea12"></a>
+<a class="anchor" id="a1c0fc731dd935a38627604123b0ef0e0"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -345,31 +288,7 @@ Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>begin_block</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>end_block</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>sp_prop_sp</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>blocknumpy</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>blocklength</em>&#160;</td>
+          <td class="paramname"><em>sp</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -379,17 +298,14 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>{reads one block of samples} </p>
-<p>{This method reads a block of samples of a .wav-file and returns a numpyarray (containing one 16-bit-int for each sample) and a flag that tells whether the end of the block is reached or not. This function will be applied in the while loop of the dsp-class: I.e. a optimum performance is required.} </p><dl class="retval"><dt>Return values</dt><dd>
+<p>reads one block of samples </p>
+<p>This method reads a block of samples of a speaker .wav-file and writes in a numpyarray sp_block_dict[sp] (containing one 16-bit-int for each sample) and a flag that tells whether the end of the file is reached or not. This function will be applied in the while loop of the dsp-class: I.e. a optimum performance is required. </p><dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">&lt;blocknumpy&gt;</td><td>{returns a numpy-array with one block of 16-int values, each representing one sample of data} </td></tr>
-    <tr><td class="paramname">&lt;continue_output&gt;</td><td>{boolean value whether the last block of file was read or any other block} </td></tr>
+    <tr><td class="paramname">&lt;continue_output&gt;</td><td>boolean value whether the last block of file was read or any other block </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section author"><dt>Author</dt><dd>Matthias Lederle </dd></dl>
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00355">355</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
 
 </div>
 </div>
@@ -429,15 +345,16 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>get_block_param This method uses the inputs </p>
-<ul>
-<li>wave_param_common (default list in constructor of this class),</li>
-<li>hrtf_blocksize (from function get_hrtf_param) and</li>
-<li>fft_blocksize (default int 1024 in constructor) to return sp_blocksize, sp_blocktime and overlap. Explanation of outputs may be added here <dl class="section author"><dt>Author</dt><dd>: Felix Pfreundtner </dd></dl>
-</li>
-</ul>
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00070">70</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
+<p>This function calculates the three block parameters necessary for the while-loop of the run-function. </p>
+<p>This method uses the parameters of the input .wav-file and the blocksizes of the fft and the hrtf to calculate the blocksize and blocktime needed from the speaker. </p><dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">&lt;sp_blocksize&gt;</td><td>Amount of samples taken from the input file per block ???? </td></tr>
+    <tr><td class="paramname">&lt;sp_blocktime&gt;</td><td>Time it takes to play one block of sp_blocksize [in ms] (assuming sample-rate is a variable) </td></tr>
+    <tr><td class="paramname">&lt;overlap&gt;</td><td>Contains a number that tells the relative "distance" between the blocksize of the fft and the blocksize taken from sp-file </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section author"><dt>Author</dt><dd>Felix Pfreundtner </dd></dl>
 
 </div>
 </div>
@@ -465,7 +382,16 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00095">95</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
+<p>Get all parameters for the hrtf set by the settings in gui. </p>
+<p>This function calculates all necessary parameters of the hrtf to be later able to get the correct hrtf-files for the convolution with the speaker-file signal. </p><dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">&lt;hrtf_database&gt;</td><td>Tells which database the listener has chosen ( available are: normal ear, big ear and a compact version) </td></tr>
+    <tr><td class="paramname">&lt;hrtf_blocksize&gt;</td><td>Simply set to default value 513 since fft_blocksize is defaulted to 1024 </td></tr>
+    <tr><td class="paramname">&lt;kemar_inverse_filter&gt;</td><td>Boolean value that tells whether check-box in gui was activated or not </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section author"><dt>Author</dt><dd>Felix Pfreundtner </dd></dl>
 
 </div>
 </div>
@@ -499,10 +425,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>get_hrtfs This function </p>
-<dl class="section author"><dt>Author</dt><dd>: Felix Pfreundtner </dd></dl>
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00131">131</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
+<p>Gets and reads the correct hrtf-file from database. </p>
+<p>The function creates the correct string to call the right hrtf-data from the kemar-files. It then reads the file and passes it on to the variables further used by the Dsp.run-function. </p><dl class="section author"><dt>Author</dt><dd>Felix Pfreundtner </dd></dl>
 
 </div>
 </div>
@@ -530,16 +454,14 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>{get 10 important parameters of the files to be played by the get_block_function} </p>
-<p>{ This method gets all important data from the .wav files that will be played by the speakers. Input is a gui_dict, containing the filename at place [2]. The output is another dict called sp_prop, which holds one of the properties as values for each speaker given by the gui_dict.} </p><dl class="retval"><dt>Return values</dt><dd>
+<p>get 10 important parameters of the files to be played by the get_block_function </p>
+<p>This method gets all important data from the .wav files that will be played by the speakers. Input is a gui_dict, containing the filename at place [2]. The output is another dict called sp_param, which holds one of the properties as values for each speaker given by the gui_dict. </p><dl class="retval"><dt>Return values</dt><dd>
   <table class="retval">
-    <tr><td class="paramname">&lt;sp_prop&gt;</td><td>{Returns a dictionary. The values of key [sp] are: sp_prop[sp][0] = total number of samples in the file sp_prop[sp][1] = sample-rate, default: 44100 (but adjustable later) sp_prop[sp][2] = number of sp_prop_sp[2] per sample (8-/16-/??-int for one sample) sp_prop[sp][3] = number of channels (mono = 1, stereo = 2) sp_prop[sp][4] = format of file (&lt; = RIFF, &gt; = RIFX) sp_prop[sp][5] = size of data-chunk in bytes sp_prop[sp][6] = total-header-size (= number of bytes until data begins) sp_prop[sp][7] = bitfactor (8-bit &ndash;&gt; 1, 16-bit &ndash;&gt; 2) sp_prop[sp][8] = total number of bytes until data-chunk ends sp_prop[sp][9] = sp_prop[sp][9] for correct encoding of data} </td></tr>
+    <tr><td class="paramname">&lt;sp_param&gt;</td><td>Returns a dictionary containing following values for each key [sp]. sp_param[sp][0] = total number of samples in the file sp_param[sp][1] = sample-rate, default: 44100 (but adjustable later) sp_param[sp][2] = number of sp_param_sp[2] per sample (8-/16-/??-int for one sample) sp_param[sp][3] = number of channels (mono = 1, stereo = 2) sp_param[sp][4] = format of file (&lt; = RIFF, &gt; = RIFX) sp_param[sp][5] = size of data-chunk in bytes sp_param[sp][6] = total-header-size (= number of bytes until data begins) sp_param[sp][7] = bitfactor (8-bit &ndash;&gt; 1, 16-bit &ndash;&gt; 2) sp_param[sp][8] = total number of bytes until data-chunk ends sp_param[sp][9] = sp_param[sp][9] for correct encoding of data} </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section author"><dt>Author</dt><dd>: Matthias Lederle </dd></dl>
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00285">285</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
+<dl class="section author"><dt>Author</dt><dd>Matthias Lederle </dd></dl>
 
 </div>
 </div>
@@ -567,14 +489,18 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>init_set_block_begin_end This function calculates a list called block_begin_end containing two elements: [0] is the first sample of the block, [1] is the last sample of the block that is currently read. </p>
-<dl class="section author"><dt>Author</dt><dd>: Felix Pfreundtner </dd></dl>
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00082">82</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
+<p>Initializes a list with the number of the first and last sample of the first block. </p>
+<p>This function calculates a list called block_begin_end containing two elements: [0] is the first sample of the first block, [1] is the last sample of the first block; The entries of following block will then be calculated by the set_block_begin_end-function. </p><dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">&lt;block_begin_end&gt;</td><td>List of the first ([0]) and last ([0]) sample of the FIRST block. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section author"><dt>Author</dt><dd>Felix Pfreundtner </dd></dl>
 
 </div>
 </div>
-<a class="anchor" id="a2ffbb5c5e6cceddae38bca0525a419ee"></a>
+<a class="anchor" id="a110c4bcb69271e8223ccabbce09edf60"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -588,7 +514,7 @@ Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>normalize_flag_sp</em>, </td>
+          <td class="paramname"><em>normalize_bool</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -604,7 +530,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00219">219</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
+<p>Normalize the .wav-signal to have maximum of int16 amplitude. </p>
+<p>If the input-flag normalize_flag_sp is True, measure the maximum amplitude occurring in the .wav-file. After that, reduce all entries of sp_block_dict by the ratio that decreases the max value to 2^15-1 </p><dl class="section author"><dt>Author</dt><dd>Felix Pfreundtner </dd></dl>
 
 </div>
 </div>
@@ -632,10 +559,14 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>rnd This function does a normal school arithmetic round (choose lower int until .4 and higher int from .5 on) and returns the rounded value. </p>
-<p>It is NOT equal to pythons round() method. </p><dl class="section author"><dt>Author</dt><dd>Felix Pfreundtner </dd></dl>
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00048">48</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
+<p>function rounds any input value to the closest integer </p>
+<p>This function does a normal school arithmetic round (choose lower int until .4 and higher int from .5 on) and returns the rounded value. It is NOT equal to pythons round() method. </p><dl class="retval"><dt>Return values</dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">&lt;value&gt;</td><td>Is the rounded int of any input number. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section author"><dt>Author</dt><dd>Felix Pfreundtner </dd></dl>
 
 </div>
 </div>
@@ -653,7 +584,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00088">88</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
+<p>Every while-loop the number of the first and last sample is calculated. </p>
+<p>This function replaces the values set by the init_set_block_begin_end-function every while-loop according to the current location in the speaker-file that needs to be read. Since the values are replaced, there are no input and output variables. </p><dl class="section author"><dt>Author</dt><dd>Felix Pfreundtner </dd></dl>
 
 </div>
 </div>
@@ -668,22 +600,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00035">35</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="afce0581a2a6256429ba23ced44ad2428"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">dsp_in.DspIn.cosine</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00037">37</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a6c5834f3d7c15a2b6ef1fc442b6310ca"></a>
@@ -695,22 +611,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00025">25</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a11783537c0186cf9d438ed418d226ebc"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">dsp_in.DspIn.hamming</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00036">36</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
 
 </div>
 </div>
@@ -724,7 +624,17 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00038">38</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
+</div>
+</div>
+<a class="anchor" id="ac7c2739ef7fd38d98c062fb35e624efd"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">dsp_in.DspIn.hopsize</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -738,8 +648,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00018">18</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a34102a109a8ad8060e6836baea37e56a"></a>
@@ -752,21 +660,17 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00098">98</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
-
 </div>
 </div>
-<a class="anchor" id="a0f1b8cc64690a7acc0de413284dee8b0"></a>
+<a class="anchor" id="a0cfd4692cebd9e0cc9926fce11c95867"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">dsp_in.DspIn.hrtf_max_gain_dict</td>
+          <td class="memname">dsp_in.DspIn.hrtf_max_amp_dict</td>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00019">19</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
 
 </div>
 </div>
@@ -780,8 +684,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00169">169</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="aba5c3e1dbb5bad2f802ca58b6eb6f7e9"></a>
@@ -793,22 +695,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00027">27</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="aef20a19228cb2aef2f4a7f65f87f6f82"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">dsp_in.DspIn.overlap</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00029">29</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
 
 </div>
 </div>
@@ -822,21 +708,17 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00039">39</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
-
 </div>
 </div>
-<a class="anchor" id="ae4dfc9f38e039d9428f02f4950759499"></a>
+<a class="anchor" id="a13dc04f9ea67d4635b0be60d15b23b41"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">dsp_in.DspIn.sp_max_gain_dict</td>
+          <td class="memname">dsp_in.DspIn.sp_max_amp_dict</td>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00020">20</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
 
 </div>
 </div>
@@ -850,8 +732,6 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00017">17</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
-
 </div>
 </div>
 <a class="anchor" id="a7ade075f79e888d0afb8d74fe79c77c4"></a>
@@ -863,8 +743,6 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00021">21</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
 
 </div>
 </div>
@@ -878,17 +756,15 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="dsp__in_8py_source.html#l00023">23</a> of file <a class="el" href="dsp__in_8py_source.html">dsp_in.py</a>.</p>
-
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li><a class="el" href="dsp__in_8py_source.html">dsp_in.py</a></li>
+<li>working_pythoncode/<a class="el" href="dsp__in_8py.html">dsp_in.py</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Jun 18 2015 18:08:16 for 3D Audio by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Jun 19 2015 19:55:29 for 3D Audio by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>
