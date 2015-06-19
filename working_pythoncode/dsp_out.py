@@ -37,13 +37,13 @@ class DspOut:
         self.gui_pause = gui_pause_init
         self.played_frames_end = 0
         self.continue_convolution_list = dict.fromkeys(gui_dict_init, [])
-        self.play_counter = 0
+        self.played_block_counter = 0
         self.playbuffer = collections.deque()
         self.lock = threading.Lock()
 
     # @author: Felix Pfreundtner
     def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize,
-                     sp_max_gain_sp, hrtf_max_gain_sp_l_r, samplerate,
+                     sp_max_amp_sp, hrtf_max_amp_sp_l_r, samplerate,
                      inverse_filter_active, kemar_inverse_filter,
                      hrtf_blocksize, sp_blocksize, sp, l_r):
 
@@ -77,13 +77,13 @@ class DspOut:
         if max_amplitude_sp_magnitude_spectrum != 0:
             # get magnitude spectrum of hrtf block
             self.sp_spectrum_dict[sp][:, 1] = sp_magnitude_spectrum / (
-                max_amplitude_sp_magnitude_spectrum / sp_max_gain_sp *
+                max_amplitude_sp_magnitude_spectrum / sp_max_amp_sp *
                 max_amplitude_output)
         hrtf_magnitude_spectrum = abs(hrtf_block_sp_fft[position_freq])
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(
             hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0:
-            self.hrtf_spectrum_dict[sp][l_r][:, 1] =  hrtf_magnitude_spectrum / (max_amplitude_hrtf_magnitude_spectrum / hrtf_max_gain_sp_l_r * max_amplitude_output)
+            self.hrtf_spectrum_dict[sp][l_r][:, 1] =  hrtf_magnitude_spectrum / (max_amplitude_hrtf_magnitude_spectrum / hrtf_max_amp_sp_l_r * max_amplitude_output)
         self.sp_spectrum_dict[sp][0, 1] = 0
         self.hrtf_spectrum_dict[sp][l_r][0, 1] = 0
 
@@ -103,55 +103,52 @@ class DspOut:
                                        fft_blocksize).real
 
         # normalize multiplied spectrum back to 16bit integer, consider
-        # maximum amplitude value of sp black and hrtf impulse to get
+        # maximum amplitude value of sp block and hrtf impulse to get
         # dynamical volume output
-        binaural_block_sp_max_gain = 26825636157874 # int(np.amax(np.abs(
-        # binaural_block_sp))) # 421014006*10 #
+        binaural_block_sp_time_max_amp = int(np.amax(np.abs(binaural_block_sp_time)))
         binaural_block_sp_time = binaural_block_sp_time / (
-            binaural_block_sp_max_gain / sp_max_gain_sp /
-            hrtf_max_gain_sp_l_r * 32767)
+            binaural_block_sp_time_max_amp / sp_max_amp_sp /
+            hrtf_max_amp_sp_l_r * 32767)
         self.binaural_block_dict[sp][:, l_r] = binaural_block_sp_time.astype(
             np.int16, copy=False)
 
     # @author: Felix Pfreundtner
-    def overlap_add (self, binaural_block_dict_sp, binaural_block_dict_add_sp, fft_blocksize, hopsize):
+    def overlap_add (self, fft_blocksize, hopsize, sp):
         # get current binaural block output of sp
         # 1. take binaural block output of current fft which don't overlap with next blocks
-        binaural_block_dict_out_sp = deepcopy(binaural_block_dict_sp[0:hopsize, :])
+        self.binaural_block_dict_out[sp] = deepcopy(self.binaural_block_dict[sp][0:hopsize, :])
         # 2. add relevant still remaining block output of prior ffts to binaural block output of current block
-        binaural_block_dict_out_sp[:, :] += \
-            deepcopy(binaural_block_dict_add_sp[0:hopsize, :])
+        self.binaural_block_dict_out[sp][:, :] += \
+            deepcopy(self.binaural_block_dict_add[sp][0:hopsize, :])
         # create a new array to save remaining block output of current fft and add it to the still remaining block output of prior ffts
         # 1. create new array binaural_block_dict_add_sp_new with size (fft_blocksize - hopsize)
         add_sp_arraysize = (fft_blocksize - hopsize)
         binaural_block_dict_add_sp_new = np.zeros((add_sp_arraysize, 2), dtype = np.int16)
         # 2. take still remaining block output of prior ffts and add it to the zero array on front position
-        binaural_block_dict_add_sp_new[0:add_sp_arraysize - hopsize, :] = deepcopy(binaural_block_dict_add_sp[hopsize:, :])
+        binaural_block_dict_add_sp_new[0:add_sp_arraysize - hopsize, :] = deepcopy(self.binaural_block_dict_add[sp][hopsize:, :])
         # 3. take remaining block output of current fft and add it to the array on back position
-        binaural_block_dict_add_sp_new[:, :] += deepcopy(binaural_block_dict_sp[hopsize:, :])
-        return binaural_block_dict_out_sp, binaural_block_dict_add_sp_new
+        binaural_block_dict_add_sp_new[:, :] += deepcopy(self.binaural_block_dict[sp][hopsize:, :])
+        self.binaural_block_dict_add[sp] = binaural_block_dict_add_sp_new
 
     # @author: Felix Pfreundtner
-    def mix_binaural_block(self, binaural_block_dict_out, hopsize,
-                           gui_dict):
-        binaural_block = np.zeros((hopsize, 2))
+    def mix_binaural_block(self, hopsize, gui_dict):
+        self.binaural_block = np.zeros((hopsize, 2), dtype = np.float32)
         # maximum distance of a speaker to head in window with borderlength
         # 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
         # max([gui_dict[sp][1] for sp in gui_dict])
         distance_max = 3.5 * math.sqrt(2)
         # get total number of speakers from gui_dict
         total_number_of_sp = len(gui_dict)
-        for sp in binaural_block_dict_out:
+        for sp in self.binaural_block_dict_out:
             # get distance speaker to head from gui_dict
             distance_sp = gui_dict[sp][1]
             # sound pressure decreases with distance 1/r
             sp_gain_factor = 1 - distance_sp/distance_max
             # add gained sp block output to a summarized block output of all
             #  speakers
-            binaural_block += binaural_block_dict_out[sp] * sp_gain_factor / \
+            self.binaural_block += self.binaural_block_dict_out[sp] * sp_gain_factor / \
                               total_number_of_sp
-        binaural_block = binaural_block.astype(np.int16, copy=False)
-        return binaural_block
+        self.binaural_block = self.binaural_block.astype(np.int16, copy=False)
 
     # Testfunction overlap
     def overlapp_add_window(self, binaural_block_dict_sp, blockcounter,
@@ -168,12 +165,11 @@ class DspOut:
         return binaural
 
     # @author: Felix Pfreundtner
-    def add_to_binaural(self, binaural, binaural_block, blockcounter):
+    def add_to_binaural(self, blockcounter):
         if blockcounter == 0:
-            binaural = binaural_block
+            self.binaural = self.binaural_block
         else:
-            binaural = np.concatenate((binaural, binaural_block))
-        return binaural
+            self.binaural = np.concatenate((self.binaural, self.binaural_block))
 
     # @author: Felix Pfreundtner
     def writebinauraloutput(self, binaural, wave_param_common, gui_dict):
@@ -181,7 +177,6 @@ class DspOut:
             os.makedirs("./audio_out/")
         scipy.io.wavfile.write("./audio_out/binauralmix.wav",
                                wave_param_common[0], binaural)
-
 
     # @author: Felix Pfreundtner
     def callback(self, in_data, frame_count, time_info, status):
@@ -194,15 +189,15 @@ class DspOut:
             data = self.binaural[played_frames_begin:self.played_frames_end, :]
         finally:
             self.lock.release()
-        print("Played Block: " + str(self.play_counter))
-        self.play_counter+=1
+        print("Played Block: " + str(self.played_block_counter))
+        self.played_block_counter+=1
         return data, pyaudio.paContinue
 
     # @author: Felix Pfreundtner
-    def audiooutput(self, channels, samplerate, hopsize):
+    def audiooutput(self, samplerate, hopsize):
         pa = pyaudio.PyAudio()
         audiostream = pa.open(format = pyaudio.paInt16,
-                              channels = channels,
+                              channels = 2,
                               rate = samplerate,
                               output = True,
                               frames_per_buffer = hopsize,
