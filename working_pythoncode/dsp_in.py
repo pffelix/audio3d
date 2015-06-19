@@ -40,10 +40,11 @@ class DspIn:
             dict.fromkeys(gui_dict_init, np.zeros((
                 self.sp_blocksize, ), dtype=np.float16))
 
-    ## rnd
-    # This function does a normal school arithmetic round (choose lower int
-    # until .4 and higher int from .5 on) and returns the rounded value.
-    # It is NOT equal to pythons round() method.
+    ## @brief function rounds any input value to the closest integer
+    # @details This function does a normal school arithmetic round (choose
+    # lower int until .4 and higher int from .5 on) and returns the rounded
+    # value. It is NOT equal to pythons round() method.
+    # @retval <value> Is the rounded int of any input number.
     # @author Felix Pfreundtner
     def rnd(self, value):
         if value >=0:
@@ -58,40 +59,65 @@ class DspIn:
                value=math.ceil(value)
         return value
 
-    ## get_block_param
-    # This method uses the inputs
-    # - wave_param_common (default list in constructor of this class),
-    # - hrtf_blocksize (from function get_hrtf_param) and
-    # - fft_blocksize (default int 1024 in constructor) to
-    # return sp_blocksize, sp_blocktime and overlap.
-#Explanation of outputs may be added here
-    # @author: Felix Pfreundtner
+    ## @brief This function calculates the three block parameters necessary
+    # for the while-loop of the run-function.
+    # @details This method uses the parameters of the input .wav-file and the
+    #  blocksizes of the fft and the hrtf to calculate the blocksize and
+    # blocktime needed from the speaker.
+    # @retval <sp_blocksize> Amount of samples taken from the input file per
+    # block
+#???? @retval <sp_blocktime> Time it takes to play one block of sp_blocksize
+    # [in ms] (assuming sample-rate is a variable)
+    # @retval <overlap> Contains a number that tells the relative "distance"
+    # between the blocksize of the fft and the blocksize taken from sp-file
+    # @author Felix Pfreundtner
     def get_block_param(self, wave_param_common, hrtf_blocksize,
                         fft_blocksize):
-        sp_blocksize = fft_blocksize-hrtf_blocksize+1
-        sp_blocktime = sp_blocksize/wave_param_common[0]
-        overlap = (fft_blocksize-sp_blocksize)/fft_blocksize # in decimal 0.
+        sp_blocksize = fft_blocksize - hrtf_blocksize + 1
+        sp_blocktime = sp_blocksize / wave_param_common[0]
+# ???? next line: isnt overlap=0 anyways????
+        overlap = (fft_blocksize - sp_blocksize) / fft_blocksize # in decimal 0.
         overlap = 0
         return sp_blocksize, sp_blocktime, overlap
 
-    ## init_set_block_begin_end
-    # This function calculates a list called block_begin_end containing two
-    # elements: [0] is the first sample of the block,
-    # [1] is the last sample of the block that is currently read.
-    # @author: Felix Pfreundtner
+    ## @brief Initializes a list with the number of the first and last sample
+    #  of the first block
+    # @details This function calculates a list called block_begin_end containing
+    #  two elements: [0] is the first sample of the first block,
+    # [1] is the last sample of the first block; The entries of following
+    # block will then be calculated by the set_block_begin_end-function.
+    # @retval <block_begin_end> List of the first ([0]) and last ([0]) sample
+    #  of the FIRST block.
+    # @author Felix Pfreundtner
     def init_set_block_begin_end(self, gui_dict):
         block_begin_end = [int(-(self.sp_blocksize)*(1-self.overlap)),
                           int((self.sp_blocksize)*(self.overlap))]
         return block_begin_end
 
-    # @author: Felix Pfreundtner
+    ## @brief Every while-loop the number of the first and last sample is
+    # calculated
+    # @details This function replaces the values set by the
+    # init_set_block_begin_end-function every while-loop according to the
+    # current location in the speaker-file that needs to be read. Since the
+    # values are replaced, there are no input and output variables.
+    # @author Felix Pfreundtner
     def set_block_begin_end(self):
         self.block_begin_end[0] = \
             self.block_begin_end[0] + int(self.sp_blocksize*(1-self.overlap))
         self.block_begin_end[1] = \
             self.block_begin_end[1] + int(self.sp_blocksize*(1-self.overlap))
 
-    # @author: Felix Pfreundtner
+    ## @brief Get all parameters for the hrtf set by the settings in gui
+    # @details This function calculates all necessary parameters of the hrtf
+    # to be later able to get the correct hrtf-files for the convolution with
+    #  the speaker-file signal.
+    # @retval <hrtf_database> Tells which database the listener has chosen (
+    # available are: normal ear, big ear and a compact version)
+    # @retval <hrtf_blocksize> Simply set to default value 513 since
+    # fft_blocksize is defaulted to 1024
+    # @retval <kemar_inverse_filter> Boolean value that tells whether
+    # check-box in gui was activated or not
+    # @author Felix Pfreundtner
     def get_hrtf_param(self, gui_settings_dict):
         hrtf_database = gui_settings_dict["hrtf_database"]
         if hrtf_database == "kemar_normal_ear" or  \
@@ -121,13 +147,13 @@ class DspIn:
             # no inverse speaker impulse response of measurement speaker
             # needed (is already integrated in wave files of kemar compact
             # hrtfs)
-            kemar_inverse_filter = np.zeros((self.fft_blocksize,), dtype =
-            np.int16)
+            kemar_inverse_filter = np.zeros((self.fft_blocksize,),
+                                            dtype=np.int16)
         return hrtf_database, hrtf_blocksize, kemar_inverse_filter
 
     ## get_hrtfs
     # This function
-    # @author: Felix Pfreundtner
+    # @author Felix Pfreundtner
     def get_hrtfs(self, gui_dict_sp, sp):
 
         if self.hrtf_database == "kemar_compact":
@@ -215,7 +241,7 @@ class DspIn:
                 self.hrtf_block_dict[sp][:, 1])))
 
 
-    # @author: Felix Pfreundtner
+    # @author Felix Pfreundtner
     def normalize(self, normalize_flag_sp, sp):
         if normalize_flag_sp:
             # take maximum amplitude of original wave file of sp block
@@ -230,7 +256,7 @@ class DspIn:
         self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
 
 
-    # @author: Felix Pfreundtner
+    # @author Felix Pfreundtner
     def buid_hamming_window(self, sp_blocksize):
         N = sp_blocksize
         hamming_window = np.zeros((N,), dtype=np.float16)
@@ -246,7 +272,7 @@ class DspIn:
         add = np.zeros((2000,))
         return hann_window
 
-    # @author: Felix Pfreundtner
+    # @author Felix Pfreundtner
     def buid_cosine_window(self, sp_blocksize):
         N = sp_blocksize
         cosine_window = np.zeros((N,), dtype=np.float16)
@@ -255,21 +281,21 @@ class DspIn:
         return cosine_window
 
 
-    # @author: Felix Pfreundtner
+    # @author Felix Pfreundtner
     def apply_window(self, sp_block_sp, windowsignal):
         sp_block_sp = sp_block_sp * windowsignal
         sp_block_sp = sp_block_sp.astype(np.int16, copy = False)
         return sp_block_sp
 
-    ## @brief {get 10 important parameters of the files to be played by the
-    # get_block_function}
-    # @details {
-    # This method gets all important data from the .wav files that will be
-    # played by the speakers. Input is a gui_dict, containing the filename at
-    #  place [2]. The output is another dict called sp_prop, which holds one
-    # of the properties as values for each speaker given by the gui_dict.}
-    # @retval <sp_prop> {Returns a dictionary.
-    # The values of key [sp] are:
+    ## @brief get 10 important parameters of the files to be played by the
+    # get_block_function
+    # @details This method gets all important data from the .wav files that
+    # will be played by the speakers. Input is a gui_dict, containing the
+    # filename at place [2]. The output is another dict called sp_prop,
+    # which holds one of the properties as values for each speaker given by
+    # the gui_dict.
+    # @retval <sp_prop> Returns a dictionary containing following values for
+    # each key [sp].
     # sp_prop[sp][0] = total number of samples in the file
     # sp_prop[sp][1] = sample-rate, default: 44100 (but adjustable later)
     # sp_prop[sp][2] = number of sp_prop_sp[2] per sample (8-/16-/??-int for
@@ -281,7 +307,7 @@ class DspIn:
     # sp_prop[sp][7] = bitfactor (8-bit --> 1, 16-bit --> 2)
     # sp_prop[sp][8] = total number of bytes until data-chunk ends
     # sp_prop[sp][9] = sp_prop[sp][9] for correct encoding of data}
-    # @author: Matthias Lederle
+    # @author Matthias Lederle
     def init_get_block(self, gui_dict):
         # initialize dict with 10 (empty) values per key
         sp_prop = dict.fromkeys(gui_dict, [None] *10)
@@ -340,16 +366,16 @@ class DspIn:
             file.close()    # close file opened in the beginning
         return sp_prop
 
-    ## @brief {reads one block of samples}
-    # @details {This method reads a block of samples of a .wav-file and returns
+    ## @brief reads one block of samples
+    # @details This method reads a block of samples of a .wav-file and returns
     # a numpyarray (containing one 16-bit-int for each sample) and a flag
     # that tells whether the end of the block is reached or not.
     # This function will be applied in the while loop of the dsp-class:
-    # I.e. a optimum performance is required.}
-    # @retval <blocknumpy> {returns a numpy-array with one block of 16-int
-    # values, each representing one sample of data}
-    # @retval <continue_output> {boolean value whether the last block of file
-    # was read or any other block}
+    # I.e. a optimum performance is required.
+    # @retval <blocknumpy> returns a numpy-array with one block of 16-int
+    # values, each representing one sample of data
+    # @retval <continue_output> boolean value whether the last block of file
+    # was read or any other block
     # @author Matthias Lederle
     def get_block(self, filename, begin_block, end_block, sp_prop_sp,
                   blocknumpy, blocklength):

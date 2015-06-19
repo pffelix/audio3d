@@ -150,7 +150,6 @@ class DspOut:
     # Testfunction overlap
     def overlapp_add_window(self, binaural_block_dict_sp, blockcounter,
                             fft_blocksize, binaural):
-
         delay = 256
         if blockcounter == 0:
             binaural = np.zeros((fft_blocksize*5, 2), dtype=np.int16)

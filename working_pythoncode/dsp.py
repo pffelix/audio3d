@@ -76,16 +76,16 @@ class Dsp:
                 if self.DspOut_Object.continue_convolution_dict[sp] is True:
                     # check whether head position to speaker sp has changed
                     if self.gui_dict[sp][0] != self.prior_head_angle_dict[sp]:
-                        # if head position has changed load new hrtf settings
+                        # if head position has changed load new hrtf-settings
                         self.DspIn_Object.hrtf_database, \
                         self.DspIn_Object.hrtf_blocksize, \
                         self.DspIn_Object.kemar_inverse_filter = \
                             self.DspIn_Object.get_hrtf_param(
                                 self.gui_settings_dict)
-                        # and load fitting hrtf file as numpy array
+                        # and load fitting hrtf-file as numpy array
                         self.DspIn_Object.get_hrtfs(self.gui_dict[sp], sp)
                         # save head position to speaker of this block in
-                        # prior_head_angle dict
+                        # prior_head_angle_dict
                         self.prior_head_angle_dict[sp] = self.gui_dict[sp][0]
 
                     # Load wave block of speaker sp with speaker_blocksize (
