@@ -50,6 +50,12 @@ class DspIn:
         self.sp_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
                 self.sp_blocksize, ), dtype=np.int16))
 
+        # Here a signal handler will be created
+        # Usage:
+        # When error occurs, call the function self.signal_handler.send_error()
+        # The only parameter (A String!) is the message you want to send
+        self.signal_handler = DspSignalHandler()
+
     ## @brief #function rounds any input value to the closest integer
     # @details This function does a normal school arithmetic round (choose
     # lower int until .4 and higher int from .5 on) and returns the rounded

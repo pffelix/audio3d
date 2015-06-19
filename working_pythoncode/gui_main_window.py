@@ -220,6 +220,11 @@ class MainWindow(QWidget):
                                       gui_settings_dict)
                 self.Dsp_Object.signal_handler.error_occur.connect(
                     self.show_error)
+                self.Dsp_Object.DspIn_Object.signal_handler.error_occur.connect(
+                    self.show_error)
+                self.Dsp_Object.DspOut_Object.signal_handler.error_occur.connect(
+                    self.show_error)
+
                 self.play = threading.Thread(target=self.Dsp_Object.run)
                 self.play.start()
 
@@ -235,7 +240,8 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def show_error(self):
-        print(self.Dsp_Object.signal_handler.error_message)
+        sender = self.sender()
+        print(sender.error_message)
 
     def positions(self):
 
