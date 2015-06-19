@@ -38,7 +38,7 @@ class DspIn:
         self.hann = self.build_hann_window(self.sp_blocksize)
         self.sp_block_dict = \
             dict.fromkeys(gui_dict_init, np.zeros((
-                self.sp_blocksize, ), dtype=np.float16))
+                self.sp_blocksize, ), dtype=np.int16))
 
     ## @brief function rounds any input value to the closest integer
     # @details This function does a normal school arithmetic round (choose
@@ -239,6 +239,7 @@ class DspIn:
                 self.hrtf_block_dict[sp][:, 0])))
             self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(
                 self.hrtf_block_dict[sp][:, 1])))
+
 
 
     # @author Felix Pfreundtner
@@ -484,3 +485,50 @@ class DspIn:
         file.close()
 
         return blocknumpy, continue_input
+
+    # @author: Felix Pfreundtner
+    def normalize(self, normalize_flag_sp, sp):
+        if normalize_flag_sp:
+            # take maximum amplitude of original wave file of sp block
+            max_amplitude_input = np.amax(np.abs(self.sp_block_dict[sp]))
+            if max_amplitude_input != 0:
+                # normalize to have the maximum int16 amplitude
+                max_amplitude_output = 32767
+                self.sp_block_dict[sp] = self.sp_block_dict[sp] / (
+                    max_amplitude_input / max_amplitude_output)
+                self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(
+                    np.int16, copy = False)
+        self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
+
+
+    # @author: Felix Pfreundtner
+    def buid_hamming_window(self, sp_blocksize):
+        N = sp_blocksize
+        hamming_window = np.zeros((N,), dtype=np.float16)
+        for n in range(N):
+            hamming_window[n,] = 0.54 - 0.46*math.cos(2*math.pi*n/ (N+1))
+        return hamming_window
+
+    def build_hann_window(self, sp_blocksize):
+        N = sp_blocksize
+        hann_window = np.zeros((N,), dtype=np.float16)
+        for n in range(N):
+            hann_window[n,] = 0.5*(1 - math.cos(2*math.pi*n/(N)))
+        add = np.zeros((2000,))
+        return hann_window
+
+    # @author: Felix Pfreundtner
+    def buid_cosine_window(self, sp_blocksize):
+        N = sp_blocksize
+        cosine_window = np.zeros((N,), dtype=np.float16)
+        for n in range(N):
+            cosine_window[n,] = math.sin(math.pi*n / (N - 1))
+        return cosine_window
+
+
+    # @author: Felix Pfreundtner
+    def apply_window(self, sp_block_sp, windowsignal):
+        sp_block_sp = sp_block_sp * windowsignal
+        sp_block_sp = sp_block_sp.astype(np.int16, copy = False)
+        return sp_block_sp
+

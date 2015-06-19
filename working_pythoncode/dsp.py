@@ -101,10 +101,8 @@ class Dsp:
                             self.DspIn_Object.sp_block_dict[sp],
                             self.DspIn_Object.sp_blocksize)
 
-
                     # normalize sp block if requested
                     self.DspIn_Object.normalize(self.gui_dict[sp][3], sp)
-
                     # apply window to sp input in sp_block_dict
                     # self.DspIn_Object.sp_block_dict[sp]=
                     # self.DspIn_Object.apply_window(
@@ -177,11 +175,11 @@ class Dsp:
             finally:
                 self.DspOut_Object.lock.release()
 
-            # self.DspOut_Object.binaural =
-            # self.DspOut_Object.overlapp_add_window(
-            # self.DspOut_Object.binaural_block_dict[sp][0:,1],
-            # self.blockcounter, self.DspIn_Object.fft_blocksize,
-            # self.DspOut_Object.binaural)
+            #self.DspOut_Object.binaural = \
+            #self.DspOut_Object.overlapp_add_window(
+            #self.DspOut_Object.binaural_block_dict[sp][0:,1],
+            #self.blockcounter, self.DspIn_Object.fft_blocksize,
+            #self.DspOut_Object.binaural)
 
 
             # Begin Audio Playback if specified Number of Bufferblocks
@@ -213,8 +211,8 @@ class Dsp:
             if self.DspOut_Object.gui_stop is True:
                 break
         # show plot of the output signal binaural_dict_scaled
-        # plt.plot(self.DspOut_Object.binaural)
-        # plt.show()
+        #plt.plot(self.DspIn_Object.sp_block_dict[sp])
+        #plt.show()
         # Write generated output signal binaural_dict_scaled to file
         self.DspOut_Object.writebinauraloutput(
             self.DspOut_Object.binaural,
