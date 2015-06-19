@@ -96,8 +96,10 @@ class Dsp:
                     self.DspIn_Object.get_block(self.gui_dict[sp][2], sp)
                     #plt.plot(self.DspIn_Object.sp_block_dict[sp])
                     #plt.show()
+
                     # normalize sp block if requested
                     self.DspIn_Object.normalize(self.gui_dict[sp][3], sp)
+
                     # apply window to sp input in sp_block_dict
                     self.DspIn_Object.apply_window_on_sp_block(sp)
 
@@ -109,8 +111,8 @@ class Dsp:
                             self.DspIn_Object.sp_block_dict[sp],
                             self.DspIn_Object.hrtf_block_dict[sp][:, l_r],
                             self.DspIn_Object.fft_blocksize,
-                            self.DspIn_Object.sp_max_gain_dict[sp],
-                            self.DspIn_Object.hrtf_max_gain_dict[sp][l_r],
+                            self.DspIn_Object.sp_max_amp_dict[sp],
+                            self.DspIn_Object.hrtf_max_amp_dict[sp][l_r],
                             self.DspIn_Object.wave_param_common[0],
                             self.gui_settings_dict["inverse_filter_active"],
                             self.DspIn_Object.kemar_inverse_filter,

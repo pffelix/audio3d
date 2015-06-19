@@ -15,8 +15,8 @@ from dsp_signal_handler import DspSignalHandler
 class DspIn:
     def __init__(self, gui_dict_init, gui_settings_dict_init):
         self.hrtf_block_dict = dict.fromkeys(gui_dict_init, [])
-        self.hrtf_max_gain_dict = dict.fromkeys(gui_dict_init, [])
-        self.sp_max_gain_dict = dict.fromkeys(gui_dict_init, [])
+        self.hrtf_max_amp_dict = dict.fromkeys(gui_dict_init, [])
+        self.sp_max_amp_dict = dict.fromkeys(gui_dict_init, [])
         self.wave_blockbeginend_dict_list = dict.fromkeys(gui_dict_init, [])
         # Standard samplerate, sampledepth
         self.wave_param_common = [44100, 16]
@@ -212,9 +212,9 @@ class DspIn:
             self.kemar_inv_filter = np.ones((1024,))
             # initialize an array containing the absolute maximum int for
             # ear of each numpy
-            hrtf_max_gain_sp=[]
-            hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
-            hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
+            hrtf_max_amp_sp=[]
+            hrtf_max_amp_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
+            hrtf_max_amp_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
 
         if self.hrtf_database == "kemar_normal_ear" or \
                         self.hrtf_database == "kemar_big_ear":
@@ -253,10 +253,10 @@ class DspIn:
                                                  dtype=np.int16)
             self.hrtf_block_dict[sp][0:512, 0] = hrtf_input_l[:, ]
             self.hrtf_block_dict[sp][0:512, 1] = hrtf_input_r[:, ]
-            self.hrtf_max_gain_dict[sp] = []
-            self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(
+            self.hrtf_max_amp_dict[sp] = []
+            self.hrtf_max_amp_dict[sp].append(np.amax(np.abs(
                 self.hrtf_block_dict[sp][:, 0])))
-            self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(
+            self.hrtf_max_amp_dict[sp].append(np.amax(np.abs(
                 self.hrtf_block_dict[sp][:, 1])))
 
     ## @brief get 10 important parameters of the files to be played by the
@@ -449,12 +449,12 @@ class DspIn:
                   "2) and can't be processed!")
 
         file.close()
-
+        self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
         return continue_input
 
     # @author Felix Pfreundtner
-    def normalize(self, normalize_flag_sp, sp):
-        if normalize_flag_sp:
+    def normalize(self, normalize_bool, sp):
+        if normalize_bool is True:
             # take maximum amplitude of original wave file of sp block
             max_amplitude_input = np.amax(np.abs(self.sp_block_dict[sp]))
             if max_amplitude_input != 0:
@@ -464,7 +464,7 @@ class DspIn:
                     max_amplitude_input / max_amplitude_output)
                 self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(
                     np.int16, copy = False)
-        self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
+        self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
 
     # @author Felix Pfreundtner
     def apply_window_on_sp_block(self, sp):

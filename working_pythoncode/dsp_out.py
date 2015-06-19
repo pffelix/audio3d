@@ -43,7 +43,7 @@ class DspOut:
 
     # @author: Felix Pfreundtner
     def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize,
-                     sp_max_gain_sp, hrtf_max_gain_sp_l_r, samplerate,
+                     sp_max_amp_sp, hrtf_max_amp_sp_l_r, samplerate,
                      inverse_filter_active, kemar_inverse_filter,
                      hrtf_blocksize, sp_blocksize, sp, l_r):
 
@@ -77,13 +77,13 @@ class DspOut:
         if max_amplitude_sp_magnitude_spectrum != 0:
             # get magnitude spectrum of hrtf block
             self.sp_spectrum_dict[sp][:, 1] = sp_magnitude_spectrum / (
-                max_amplitude_sp_magnitude_spectrum / sp_max_gain_sp *
+                max_amplitude_sp_magnitude_spectrum / sp_max_amp_sp *
                 max_amplitude_output)
         hrtf_magnitude_spectrum = abs(hrtf_block_sp_fft[position_freq])
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(
             hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0:
-            self.hrtf_spectrum_dict[sp][l_r][:, 1] =  hrtf_magnitude_spectrum / (max_amplitude_hrtf_magnitude_spectrum / hrtf_max_gain_sp_l_r * max_amplitude_output)
+            self.hrtf_spectrum_dict[sp][l_r][:, 1] =  hrtf_magnitude_spectrum / (max_amplitude_hrtf_magnitude_spectrum / hrtf_max_amp_sp_l_r * max_amplitude_output)
         self.sp_spectrum_dict[sp][0, 1] = 0
         self.hrtf_spectrum_dict[sp][l_r][0, 1] = 0
 
@@ -105,10 +105,10 @@ class DspOut:
         # normalize multiplied spectrum back to 16bit integer, consider
         # maximum amplitude value of sp block and hrtf impulse to get
         # dynamical volume output
-        binaural_block_sp_time_max_gain = int(np.amax(np.abs(binaural_block_sp_time)))
+        binaural_block_sp_time_max_amp = int(np.amax(np.abs(binaural_block_sp_time)))
         binaural_block_sp_time = binaural_block_sp_time / (
-            binaural_block_sp_time_max_gain / sp_max_gain_sp /
-            hrtf_max_gain_sp_l_r * 32767)
+            binaural_block_sp_time_max_amp / sp_max_amp_sp /
+            hrtf_max_amp_sp_l_r * 32767)
         self.binaural_block_dict[sp][:, l_r] = binaural_block_sp_time.astype(
             np.int16, copy=False)
 
@@ -148,7 +148,6 @@ class DspOut:
             #  speakers
             self.binaural_block += self.binaural_block_dict_out[sp] * sp_gain_factor / \
                               total_number_of_sp
-
         self.binaural_block = self.binaural_block.astype(np.int16, copy=False)
 
     # Testfunction overlap
