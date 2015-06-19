@@ -28,7 +28,7 @@ class DspOut:
         self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((
             fft_blocksize / 2, 2), dtype=np.float16), np.zeros((fft_blocksize
                                                                 / 2, 2),
-                                                            dtype=np.float16)])
+                                                               dtype=np.float16)])
         self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
             fft_blocksize, 2), dtype=np.int16))
         self.binaural_block_dict_out = dict.fromkeys(gui_dict_init, np.zeros(
@@ -111,8 +111,8 @@ class DspOut:
 
         # bring multiplied spectrum back to time domain, disneglected small
         # complex time parts resulting from numerical fft approach
-        binaural_block_sp_time  = ifft(binaural_block_sp_frequency,
-                                       fft_blocksize).real
+        binaural_block_sp_time = ifft(binaural_block_sp_frequency,
+                                      fft_blocksize).real
 
         # normalize multiplied spectrum back to 16bit integer, consider
         # maximum amplitude value of sp block and hrtf impulse to get
@@ -126,11 +126,11 @@ class DspOut:
             np.int16, copy=False)
 
     # @author: Felix Pfreundtner
-    def overlap_add (self, fft_blocksize, hopsize, sp):
+    def overlap_add(self, fft_blocksize, hopsize, sp):
         # get current binaural block output of sp
         # 1. take binaural block output of current fft which don't overlap
         # with next blocks
-        self.binaural_block_dict_out[sp] =  deepcopy(
+        self.binaural_block_dict_out[sp] = deepcopy(
             self.binaural_block_dict[sp][0:hopsize, :])
         # 2. add relevant still remaining block output of prior ffts to
         # binaural block output of current block
@@ -142,7 +142,7 @@ class DspOut:
         # fft_blocksize - hopsize)
         add_sp_arraysize = (fft_blocksize - hopsize)
         binaural_block_dict_add_sp_new = np.zeros((add_sp_arraysize, 2),
-                                                  dtype = np.int16)
+                                                  dtype=np.int16)
         # 2. take still remaining block output of prior ffts and add it to
         # the zero array on front position
         binaural_block_dict_add_sp_new[0:add_sp_arraysize - hopsize,
@@ -155,7 +155,7 @@ class DspOut:
 
     # @author: Felix Pfreundtner
     def mix_binaural_block(self, hopsize, gui_dict):
-        self.binaural_block = np.zeros((hopsize, 2), dtype = np.float32)
+        self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         # maximum distance of a speaker to head in window with borderlength
         # 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
         # max([gui_dict[sp][1] for sp in gui_dict])
@@ -166,12 +166,11 @@ class DspOut:
             # get distance speaker to head from gui_dict
             distance_sp = gui_dict[sp][1]
             # sound pressure decreases with distance 1/r
-            sp_gain_factor = 1 - distance_sp/distance_max
+            sp_gain_factor = 1 - distance_sp / distance_max
             # add gained sp block output to a summarized block output of all
             #  speakers
             self.binaural_block += self.binaural_block_dict_out[sp] * \
-                                   sp_gain_factor / \
-                              total_number_of_sp
+                                   sp_gain_factor / total_number_of_sp
         self.binaural_block = self.binaural_block.astype(np.int16, copy=False)
 
     # Testfunction overlap
@@ -179,7 +178,7 @@ class DspOut:
                             fft_blocksize, binaural):
         delay = 256
         if blockcounter == 0:
-            binaural = np.zeros((fft_blocksize*1500, 2), dtype=np.int16)
+            binaural = np.zeros((fft_blocksize * 1500, 2), dtype=np.int16)
         if blockcounter % 2 != 0:
             binaural[blockcounter * delay:blockcounter * delay + 1024, 1] += \
                 binaural_block_dict_sp
@@ -214,18 +213,18 @@ class DspOut:
         finally:
             self.lock.release()
         print("Played Block: " + str(self.played_block_counter))
-        self.played_block_counter+=1
+        self.played_block_counter += 1
         return data, pyaudio.paContinue
 
     # @author: Felix Pfreundtner
     def audiooutput(self, samplerate, hopsize):
         pa = pyaudio.PyAudio()
-        audiostream = pa.open(format = pyaudio.paInt16,
-                              channels = 2,
-                              rate = samplerate,
-                              output = True,
-                              frames_per_buffer = hopsize,
-                              stream_callback = self.callback,
+        audiostream = pa.open(format=pyaudio.paInt16,
+                              channels=2,
+                              rat=samplerate,
+                              output=True,
+                              frames_per_buffer=hopsize,
+                              stream_callback=self.callback,
                               )
         audiostream.start_stream()
         while audiostream.is_active() or audiostream.is_stopped():
@@ -242,7 +241,7 @@ class DspOut:
         audiostream.close()
         pa.terminate()
         if any(self.continue_convolution_dict.values()) is True and \
-                        self.gui_stop is False:
+                self.gui_stop is False:
             print("Error PC to slow - Playback Stopped")
             for sp in self.continue_convolution_dict:
                 #self.played_frames_end += sp_blocksize

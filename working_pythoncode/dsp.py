@@ -19,6 +19,7 @@ from dsp_signal_handler import DspSignalHandler
 
 import time
 
+
 class Dsp:
     def __init__(self, gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init):
@@ -48,14 +49,13 @@ class Dsp:
         # The only parameter (A String!) is the message you want to send
         self.signal_handler = DspSignalHandler()
 
-
     def run(self):
         # run the main while loop as long as there are still samples to be
         # read from speaker wave files
         while any(self.DspOut_Object.continue_convolution_dict.values()) \
                 is True:
 
-############# actualize variables with gui
+            ######## actualize variables with gui
             self.gui_dict = gui_utils.gui_dict
             self.DspOut_Object.gui_stop = gui_utils.gui_stop
             self.DspOut_Object.gui_pause = gui_utils.gui_pause
@@ -69,7 +69,8 @@ class Dsp:
             self.DspIn_Object.set_block_begin_end()
             # iterate over all active speakers sp
             for sp in self.gui_dict:
-                # reset binaural block output array of speaker sp by filling it with zeros
+                # reset binaural block output array of speaker sp by filling
+                #  it with zeros
                 self.DspOut_Object.binaural_block_dict[sp] = np.zeros((
                     self.DspIn_Object.fft_blocksize, 2), dtype=np.int16)
                 # if speaker wave file still has unread samples start
@@ -79,8 +80,8 @@ class Dsp:
                     if self.gui_dict[sp][0] != self.prior_head_angle_dict[sp]:
                         # if head position has changed load new hrtf-settings
                         self.DspIn_Object.hrtf_database, \
-                        self.DspIn_Object.hrtf_blocksize, \
-                        self.DspIn_Object.kemar_inverse_filter = \
+                            self.DspIn_Object.hrtf_blocksize, \
+                            self.DspIn_Object.kemar_inverse_filter = \
                             self.DspIn_Object.get_hrtf_param(
                                 self.gui_settings_dict)
                         # and load fitting hrtf-file as numpy array
@@ -93,7 +94,7 @@ class Dsp:
                     # fft_blocksize-hrtf_blocksize+1) and current block
                     # begin_end
                     self.DspOut_Object.continue_convolution_dict[sp] = \
-                    self.DspIn_Object.get_block(self.gui_dict[sp][2], sp)
+                        self.DspIn_Object.get_block(self.gui_dict[sp][2], sp)
                     #plt.plot(self.DspIn_Object.sp_block_dict[sp])
                     #plt.show()
 
@@ -125,7 +126,8 @@ class Dsp:
                 # if self.gui_dict[sp][0] >= 360:
                     #self.gui_dict[sp][0] -= 360
 
-                # overlap and add binaural stereo block output of speaker sp to prior
+                # overlap and add binaural stereo block output of speaker sp
+                #  to prior
                 # binaural stereo block output of speaker sp
                     self.DspOut_Object.overlap_add(
                         self.DspIn_Object.fft_blocksize,
@@ -158,9 +160,9 @@ class Dsp:
             # wait until audioplayback finished with current block
             while self.blockcounter - self.DspOut_Object.played_block_counter > \
                 self.bufferblocks and not all(
-                self.DspOut_Object.continue_convolution_dict.values()) \
+                    self.DspOut_Object.continue_convolution_dict.values()) \
                     is False:
-                time.sleep(1/self.DspIn_Object.wave_param_common[0])
+                time.sleep(1 / self.DspIn_Object.wave_param_common[0])
 
             # increment number of already convolved blocks
             self.blockcounter += 1
@@ -181,4 +183,3 @@ class Dsp:
             self.DspOut_Object.binaural,
             self.DspIn_Object.wave_param_common,
             self.gui_dict)
-
