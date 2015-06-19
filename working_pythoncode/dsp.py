@@ -132,18 +132,15 @@ class Dsp:
             # Mix binaural stereo blockoutput of every speaker to one
             # binaural stereo block output having regard to speaker distances
             self.DspOut_Object.mix_binaural_block(
-                    self.DspIn_Object.hopsize,
-                    self.gui_dict)
+                self.DspIn_Object.hopsize,
+                self.gui_dict)
 
             # Add mixed binaural stereo block to a time continuing binaural
             # output of all blocks
             self.DspOut_Object.lock.acquire()
             try:
-                self.DspOut_Object.binaural = \
-                    self.DspOut_Object.add_to_binaural(
-                        self.DspOut_Object.binaural,
-                        self.DspOut_Object.binaural_block,
-                        self.blockcounter)
+                self.DspOut_Object.add_to_binaural(
+                    self.blockcounter)
             finally:
                 self.DspOut_Object.lock.release()
 

@@ -166,12 +166,11 @@ class DspOut:
         return binaural
 
     # @author: Felix Pfreundtner
-    def add_to_binaural(self, binaural, binaural_block, blockcounter):
+    def add_to_binaural(self, blockcounter):
         if blockcounter == 0:
-            binaural = binaural_block
+            self.binaural = self.binaural_block
         else:
-            binaural = np.concatenate((binaural, binaural_block))
-        return binaural
+            self.binaural = np.concatenate((self.binaural, self.binaural_block))
 
     # @author: Felix Pfreundtner
     def writebinauraloutput(self, binaural, wave_param_common, gui_dict):
@@ -179,7 +178,6 @@ class DspOut:
             os.makedirs("./audio_out/")
         scipy.io.wavfile.write("./audio_out/binauralmix.wav",
                                wave_param_common[0], binaural)
-
 
     # @author: Felix Pfreundtner
     def callback(self, in_data, frame_count, time_info, status):
