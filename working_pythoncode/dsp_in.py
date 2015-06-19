@@ -17,8 +17,9 @@ from dsp_signal_handler import DspSignalHandler
 # to read parameters of blocks and hrtfs, to read blocks and hrtfs from
 # their databases, to normalize hrtfs, round numbers and to create all
 # necessary kinds of windows.
-class DspIn:
 
+
+class DspIn:
     ## Constructor of the DspIn class.
     def __init__(self, gui_dict_init, gui_settings_dict_init):
         # Initialize a dict for the hrtf-values to be stored in.
@@ -48,7 +49,7 @@ class DspIn:
         self.block_begin_end = self.init_set_block_begin_end(gui_dict_init)
         self.hann = self.build_hann_window(self.sp_blocksize)
         self.sp_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
-                self.sp_blocksize, ), dtype=np.int16))
+            self.sp_blocksize,), dtype=np.int16))
 
     ## @brief #function rounds any input value to the closest integer
     # @details This function does a normal school arithmetic round (choose
@@ -57,16 +58,16 @@ class DspIn:
     # @retval <value> Is the rounded int of any input number.
     # @author Felix Pfreundtner
     def rnd(self, value):
-        if value >=0:
-           if  value-math.floor(value) < 0.5:
-               value=math.floor(value)
-           else:
-               value=math.ceil(value)
+        if value >= 0:
+            if value - math.floor(value) < 0.5:
+                value = math.floor(value)
+            else:
+                value = math.ceil(value)
         else:
-           if  value-math.floor(value) <= 0.5:
-               value=math.floor(value)
-           else:
-               value=math.ceil(value)
+            if value - math.floor(value) <= 0.5:
+                value = math.floor(value)
+            else:
+                value = math.ceil(value)
         return value
 
     ## @brief Calculate and construct the hann window in dependency of
@@ -75,20 +76,22 @@ class DspIn:
     # @author Felix Pfreundtner
     def build_hann_window(self, sp_blocksize):
         x = sp_blocksize
-        hann_window = np.zeros((x, ), dtype=np.float16)
+        hann_window = np.zeros((x,), dtype=np.float16)
         for n in range(x):
             hann_window[n, ] = 0.5 * (1 - math.cos(2 * math.pi * n / (x)))
-        add = np.zeros((2000, ))
+        add = np.zeros((2000,))
         return hann_window
 
-    ## @brief This function calculates the three block parameters necessary
-    # for the while-loop of the run-function.
-    # @details This method uses the parameters of the input .wav-file and the
-    #  blocksizes of the fft and the hrtf to calculate the blocksize and
-    # blocktime needed from the speaker.
-    # @retval <sp_blocksize> Amount of samples taken from the input file per
-    # block
-#???? @retval <sp_blocktime> Time it takes to play one block of sp_blocksize
+        ## @brief This function calculates the three block parameters necessary
+        # for the while-loop of the run-function.
+        # @details This method uses the parameters of the input .wav-file and
+        # the blocksizes of the fft and the hrtf to calculate the blocksize and
+        # blocktime needed from the speaker.
+        # @retval <sp_blocksize> Amount of samples taken from the input file per
+        # block
+
+    # ???? @retval <sp_blocktime> Time it takes to play one block of
+    # sp_blocksize
     # [in ms] (assuming sample-rate is a variable)
     # @retval <overlap> Contains a number that tells the relative "distance"
     # between the blocksize of the fft and the blocksize taken from sp-file
@@ -96,11 +99,11 @@ class DspIn:
     def get_block_param(self, wave_param_common, hrtf_blocksize,
                         fft_blocksize):
         sp_blocksize = fft_blocksize - hrtf_blocksize + 1
-        sp_blocktime = sp_blocksize/wave_param_common[0]
+        sp_blocktime = sp_blocksize / wave_param_common[0]
         # overlap in decimal 0
         overlap = (fft_blocksize - sp_blocksize) / fft_blocksize
-        #overlap = 0
-        hopsize = self.rnd((1-overlap)*sp_blocksize)
+        # overlap = 0
+        hopsize = self.rnd((1 - overlap) * sp_blocksize)
         return sp_blocksize, sp_blocktime, overlap, hopsize
 
     ## @brief Initializes a list with the number of the first and last sample
@@ -113,8 +116,8 @@ class DspIn:
     #  of the FIRST block.
     # @author Felix Pfreundtner
     def init_set_block_begin_end(self, gui_dict):
-        block_begin_end = [int(-(self.sp_blocksize)*(1-self.overlap)),
-                          int((self.sp_blocksize)*(self.overlap))]
+        block_begin_end = [int(-(self.sp_blocksize) * (1 - self.overlap)),
+                           int((self.sp_blocksize) * (self.overlap))]
         return block_begin_end
 
     ## @brief Every while-loop the number of the first and last sample is
@@ -141,8 +144,8 @@ class DspIn:
     # @author Felix Pfreundtner
     def get_hrtf_param(self, gui_settings_dict):
         hrtf_database = gui_settings_dict["hrtf_database"]
-        if hrtf_database == "kemar_normal_ear" or  \
-                self.hrtf_database == "kemar_big_ear":
+        if hrtf_database == "kemar_normal_ear" or self.hrtf_database == \
+                "kemar_big_ear":
             # wave hrtf size 512 samples: zeropad hrtf to 513 samples to
             # reach even sp_blocksize which is integer divisible by 2 (50%
             # overlap needed -> sp_blocksize/2)
@@ -205,7 +208,7 @@ class DspIn:
                                                       rounddifference)
                     else:
                         azimuthangle = 360 - self.rnd(gui_dict_sp[0] + 5 -
-                                                       rounddifference)
+                                                      rounddifference)
             hrtf_filenames_dict_sp = "./kemar/compact/elev0/H0e" + str(
                 azimuthangle).zfill(3) + "a.wav"
 
@@ -221,18 +224,19 @@ class DspIn:
             else:
                 hrtf_input[:, [0, 1]] = hrtf_input[:, [1, 0]]
                 hrtf_block_dict_sp[0:128, 0] = hrtf_input
-            #initialize kemar_inv_filter numpy array
+            # initialize kemar_inv_filter numpy array
             self.kemar_inv_filter = np.ones((1024,))
             # initialize an array containing the absolute maximum int for
             # ear of each numpy
-            hrtf_max_amp_sp=[]
+            hrtf_max_amp_sp = []
             hrtf_max_amp_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
             hrtf_max_amp_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
 
         # if  "normal" or "big" ear are set, determine filepath and -name here
-        if self.hrtf_database == "kemar_normal_ear" or \
-                        self.hrtf_database == "kemar_big_ear":
-            #check, whether angle from gui matches angle of a kemar-file exactly
+        if self.hrtf_database == "kemar_normal_ear" or self.hrtf_database \
+                == "kemar_big_ear":
+            # check, whether angle from gui matches angle of a kemar-file
+            # exactly
             rounddifference = gui_dict_sp[0] % 5
             # if angle in gui matches a file directly, simply do:
             if rounddifference == 0:
@@ -263,7 +267,6 @@ class DspIn:
                     azimuthangle_ear).zfill(3) + "a.wav"
                 hrtf_filenames_dict_sp_l = "./kemar/full/elev0/R0e" + str(
                     azimuthangle_other_ear).zfill(3) + "a.wav"
-
 
             _, hrtf_input_l = scipy.io.wavfile.read(hrtf_filenames_dict_sp_l)
             _, hrtf_input_r = scipy.io.wavfile.read(hrtf_filenames_dict_sp_r)
@@ -302,7 +305,7 @@ class DspIn:
     # @author Matthias Lederle
     def init_get_block(self, gui_dict):
         # initialize dict with 10 (empty) values per key
-        sp_param = dict.fromkeys(gui_dict, [None] *10)
+        sp_param = dict.fromkeys(gui_dict, [None] * 10)
         # go through all speakers
         for sp in gui_dict:
             # open the file
@@ -324,7 +327,7 @@ class DspIn:
             # get samplerate from header (always 44100)
             sp_param[sp][1] = struct.unpack(sp_param[sp][4] + "I", file.read(
                 4))[0]
-            file.seek(34)   # got to byte 34
+            file.seek(34)  # got to byte 34
             # get number of sp_param_sp[2] per sample from header
             sp_param[sp][2] = struct.unpack(sp_param[sp][4] + "H", file.read(
                 2))[0]
@@ -338,28 +341,28 @@ class DspIn:
                 checkbytes = file.read(4)
                 counter += 1
             # get data-chunk-size from the data-chunk-header
-            sp_param[sp][5] = struct.unpack(sp_param[sp][4] + 'i',
-                                           file.read(4))[0]
+            sp_param[sp][5] = struct.unpack(sp_param[sp][4] + 'i', file.read(
+                4))[0]
             # calculate total-header-size (no. of bytes until data begins)
             sp_param[sp][6] = 40 + (counter * 2)
             # calculate bitfactor
             sp_param[sp][7] = int(sp_param[sp][2] / 8)
-            #calculate the total numbers of bytes until the end of data-chunk
+            # calculate the total numbers of bytes until the end of data-chunk
             sp_param[sp][8] = sp_param[sp][6] + sp_param[sp][5]
             # choose correct sp_param[sp][9] depending on number of
             # sp_param_sp[2] per sample
-            if sp_param[sp][7] == 1:     # if bitfactor == 1
-                sp_param[sp][9] = "B"    # use sp_param[sp][9] "B"
-            elif sp_param[sp][7] == 2:   # if bitfactor == 2
-                sp_param[sp][9] = "h"    # use sp_param[sp][9] "h"
-            #else:
+            if sp_param[sp][7] == 1:  # if bitfactor == 1
+                sp_param[sp][9] = "B"  # use sp_param[sp][9] "B"
+            elif sp_param[sp][7] == 2:  # if bitfactor == 2
+                sp_param[sp][9] = "h"  # use sp_param[sp][9] "h"
+            # else:
             # print("sp_param[sp][9] for this number of sp_param_sp[
             # 2]/sample is not
             # defined!")
             # calculate total number of samples of the file
-            sp_param[sp][0] = int(sp_param[sp][5] /
-                                 (sp_param[sp][2] / 8 * sp_param[sp][3]))
-            file.close()    # close file opened in the beginning
+            sp_param[sp][0] = int(sp_param[sp][5] / (sp_param[sp][2] / 8 *
+                                                     sp_param[sp][3]))
+            file.close()  # close file opened in the beginning
         return sp_param
 
     ## @brief reads one block of samples
@@ -374,7 +377,7 @@ class DspIn:
     def get_block(self, filename, sp):
         # initialize an empty array sp_block_dict[sp] with blocksize
         # sp_blocksize
-        self.sp_block_dict[sp] = np.zeros((self.sp_blocksize, ), dtype=np.int16)
+        self.sp_block_dict[sp] = np.zeros((self.sp_blocksize,), dtype=np.int16)
         begin_block = self.block_begin_end[0]
         end_block = self.block_begin_end[1]
         continue_input = True
@@ -405,8 +408,9 @@ class DspIn:
             else:
                 # calculate remaining samples
                 remaining_samples = int((self.sp_param[sp][8] -
-                    first_byte_of_block) / (self.sp_param[sp][7] *
-                                            self.sp_param[sp][3]))
+                                         first_byte_of_block) / (
+                    self.sp_param[sp][7] *
+                    self.sp_param[sp][3]))
                 i = 0
                 # read remaining samples to the end, then set continue_input
                 # to "False"
@@ -431,11 +435,12 @@ class DspIn:
                 while i < self.sp_blocksize:
                     # read one sample for left ear and one for right ear
                     left_int = struct.unpack(self.sp_param[sp][4] +
-                                            self.sp_param[sp][9],
-                                            file.read(self.sp_param[sp][7]))[0]
+                                             self.sp_param[sp][9], file.read(
+                        self.sp_param[sp][7]))[0]
                     right_int = struct.unpack(self.sp_param[sp][4] +
-                                            self.sp_param[sp][9],
-                                            file.read(self.sp_param[sp][7]))[0]
+                                              self.sp_param[sp][9],
+                                              file.read(self.sp_param[sp][7]))[
+                        0]
 
                     samplelist_of_one_block_left.append(left_int)
                     samplelist_of_one_block_right.append(right_int)
@@ -443,17 +448,18 @@ class DspIn:
             else:  # if we reached last block of file, do:
                 # calculate remaining samples
                 remaining_samples = int((self.sp_param[sp][8] -
-                    first_byte_of_block) / (self.sp_param[sp][7]
-                    * self.sp_param[sp][3]))
+                                         first_byte_of_block) / (
+                    self.sp_param[sp][7] *
+                    self.sp_param[sp][3]))
                 i = 0
                 # read remaining samples and write one to left and one to right
                 while i < remaining_samples:
                     left_int = struct.unpack(self.sp_param[sp][4] +
-                                        self.sp_param[sp][9],
-                                        file.read(self.sp_param[sp][7]))[0]
+                                             self.sp_param[sp][9], file.read(
+                        self.sp_param[sp][7]))[0]
                     right_int = struct.unpack(self.sp_param[sp][4] +
-                                        self.sp_param[sp][9],
-                                        file.read(self.sp_param[sp][7]))[0]
+                                              self.sp_param[sp][9],
+                                              file.read(self.sp_param[sp][7]))[0]
                     samplelist_of_one_block_left.append(left_int)
                     samplelist_of_one_block_right.append(right_int)
                     i += 1
@@ -475,17 +481,16 @@ class DspIn:
                     self.sp_block_dict[sp][i, ] = mean_value
                     i += 1
                 continue_input = False
-        #else:
-            # an Matthias: Hier bitte eine Fehlerausgabe über
-            # DspSignalHandler() schreiben (Fragen zu der Funktion ->
-            # Huaijiang) --> Wird gemacht!
-            # print("Signal is neither mono nor stereo (self.sp_param[sp][3]
-            #       "!= 1" or "2") and can't be processed!")
+                # else:
+                # an Matthias: Hier bitte eine Fehlerausgabe über
+                # DspSignalHandler() schreiben (Fragen zu der Funktion ->
+                # Huaijiang) --> Wird gemacht!
+                # print("Signal is neither mono nor stereo (self.sp_param[sp][3]
+                #       "!= 1" or "2") and can't be processed!")
 
         file.close()
-        self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
+        self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))
         return continue_input
-
 
     ## @brief Normalize the .wav-signal to have maximum of int16 amplitude
     # @details If the input-flag normalize_flag_sp is True, measure the
@@ -500,8 +505,8 @@ class DspIn:
             if max_amplitude_input != 0:
                 # normalize to have the maximum int16 amplitude
                 max_amplitude_output = 32767
-                self.sp_block_dict[sp] = self.sp_block_dict[sp] / (
-                    max_amplitude_input / max_amplitude_output)
+                self.sp_block_dict[sp] /= (max_amplitude_input /
+                                           max_amplitude_output)
                 self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(
                     np.int16, copy=False)
         self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))

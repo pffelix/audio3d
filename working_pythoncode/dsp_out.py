@@ -18,18 +18,22 @@ import collections
 import threading
 from copy import deepcopy
 
+
 class DspOut:
     def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize,
                  hopsize, gui_stop_init, gui_pause_init):
         self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((
-            fft_blocksize/2, 2), dtype=np.float16))
-        self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init,[ np.zeros((fft_blocksize/2, 2), dtype=np.float16),  np.zeros((fft_blocksize/2, 2), dtype=np.float16)])
+            fft_blocksize / 2, 2), dtype=np.float16))
+        self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((
+            fft_blocksize / 2, 2), dtype=np.float16), np.zeros((fft_blocksize
+                                                                / 2, 2),
+                                                            dtype=np.float16)])
         self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
             fft_blocksize, 2), dtype=np.int16))
-        self.binaural_block_dict_out = dict.fromkeys(gui_dict_init,
-            np.zeros((hopsize, 2), dtype=np.int16))
-        self.binaural_block_dict_add = dict.fromkeys(gui_dict_init,
-            np.zeros((fft_blocksize - hopsize, 2), dtype=np.int16))
+        self.binaural_block_dict_out = dict.fromkeys(gui_dict_init, np.zeros(
+            (hopsize, 2), dtype=np.int16))
+        self.binaural_block_dict_add = dict.fromkeys(gui_dict_init, np.zeros(
+            (fft_blocksize - hopsize, 2), dtype=np.int16))
         self.binaural_block = np.zeros((sp_blocksize, 2), dtype=np.int16)
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
         self.continue_convolution_dict = dict.fromkeys(gui_dict_init, True)
@@ -51,7 +55,7 @@ class DspOut:
         # and speaker (mono input)
         hrtf_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype=np.int16)
         hrtf_block_sp_zeropadded[0:hrtf_blocksize, ] = hrtf_block_sp_l_r
-        sp_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype = 'int16')
+        sp_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype='int16')
         sp_block_sp_zeropadded[0:sp_blocksize, ] = sp_block_sp
 
         # bring time domain input to to frequency domain
@@ -61,9 +65,9 @@ class DspOut:
         # save fft magnitude spectrum of sp_block in sp_spectrum and
         # hrtf_block in hrtf_spectrum to be shown by gui
         # create array of all calculated FFT frequencies
-        freq_all = fftfreq(fft_blocksize, 1/samplerate)
+        freq_all = fftfreq(fft_blocksize, 1 / samplerate)
         # set position of only positive frequencies (neg. frequencies redundant)
-        position_freq = np.where(freq_all>=0)
+        position_freq = np.where(freq_all >= 0)
         # set array of only positive FFT frequencies (neg. frequ. redundant)
         freqs = freq_all[position_freq]
         self.sp_spectrum_dict[sp][:, 0] = freqs
@@ -83,7 +87,9 @@ class DspOut:
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(
             hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0:
-            self.hrtf_spectrum_dict[sp][l_r][:, 1] =  hrtf_magnitude_spectrum / (max_amplitude_hrtf_magnitude_spectrum / hrtf_max_amp_sp_l_r * max_amplitude_output)
+            self.hrtf_spectrum_dict[sp][l_r][:, 1] = hrtf_magnitude_spectrum\
+                / (max_amplitude_hrtf_magnitude_spectrum /
+                   hrtf_max_amp_sp_l_r * max_amplitude_output)
         self.sp_spectrum_dict[sp][0, 1] = 0
         self.hrtf_spectrum_dict[sp][l_r][0, 1] = 0
 
@@ -105,7 +111,8 @@ class DspOut:
         # normalize multiplied spectrum back to 16bit integer, consider
         # maximum amplitude value of sp block and hrtf impulse to get
         # dynamical volume output
-        binaural_block_sp_time_max_amp = int(np.amax(np.abs(binaural_block_sp_time)))
+        binaural_block_sp_time_max_amp = int(np.amax(np.abs(
+            binaural_block_sp_time)))
         binaural_block_sp_time = binaural_block_sp_time / (
             binaural_block_sp_time_max_amp / sp_max_amp_sp /
             hrtf_max_amp_sp_l_r * 32767)
@@ -115,19 +122,29 @@ class DspOut:
     # @author: Felix Pfreundtner
     def overlap_add (self, fft_blocksize, hopsize, sp):
         # get current binaural block output of sp
-        # 1. take binaural block output of current fft which don't overlap with next blocks
-        self.binaural_block_dict_out[sp] = deepcopy(self.binaural_block_dict[sp][0:hopsize, :])
-        # 2. add relevant still remaining block output of prior ffts to binaural block output of current block
+        # 1. take binaural block output of current fft which don't overlap
+        # with next blocks
+        self.binaural_block_dict_out[sp] =  deepcopy(
+            self.binaural_block_dict[sp][0:hopsize, :])
+        # 2. add relevant still remaining block output of prior ffts to
+        # binaural block output of current block
         self.binaural_block_dict_out[sp][:, :] += \
             deepcopy(self.binaural_block_dict_add[sp][0:hopsize, :])
-        # create a new array to save remaining block output of current fft and add it to the still remaining block output of prior ffts
-        # 1. create new array binaural_block_dict_add_sp_new with size (fft_blocksize - hopsize)
+        # create a new array to save remaining block output of current fft
+        # and add it to the still remaining block output of prior ffts
+        # 1. create new array binaural_block_dict_add_sp_new with size (
+        # fft_blocksize - hopsize)
         add_sp_arraysize = (fft_blocksize - hopsize)
-        binaural_block_dict_add_sp_new = np.zeros((add_sp_arraysize, 2), dtype = np.int16)
-        # 2. take still remaining block output of prior ffts and add it to the zero array on front position
-        binaural_block_dict_add_sp_new[0:add_sp_arraysize - hopsize, :] = deepcopy(self.binaural_block_dict_add[sp][hopsize:, :])
-        # 3. take remaining block output of current fft and add it to the array on back position
-        binaural_block_dict_add_sp_new[:, :] += deepcopy(self.binaural_block_dict[sp][hopsize:, :])
+        binaural_block_dict_add_sp_new = np.zeros((add_sp_arraysize, 2),
+                                                  dtype = np.int16)
+        # 2. take still remaining block output of prior ffts and add it to
+        # the zero array on front position
+        binaural_block_dict_add_sp_new[0:add_sp_arraysize - hopsize,
+        :] = deepcopy(self.binaural_block_dict_add[sp][hopsize:, :])
+        # 3. take remaining block output of current fft and add it to the
+        # array on back position
+        binaural_block_dict_add_sp_new[:, :] += deepcopy(
+            self.binaural_block_dict[sp][hopsize:, :])
         self.binaural_block_dict_add[sp] = binaural_block_dict_add_sp_new
 
     # @author: Felix Pfreundtner
@@ -146,7 +163,8 @@ class DspOut:
             sp_gain_factor = 1 - distance_sp/distance_max
             # add gained sp block output to a summarized block output of all
             #  speakers
-            self.binaural_block += self.binaural_block_dict_out[sp] * sp_gain_factor / \
+            self.binaural_block += self.binaural_block_dict_out[sp] * \
+                                   sp_gain_factor / \
                               total_number_of_sp
         self.binaural_block = self.binaural_block.astype(np.int16, copy=False)
 
