@@ -12,16 +12,30 @@ import math
 import matplotlib.pyplot as plt
 from dsp_signal_handler import DspSignalHandler
 
+## @class <DspIn> This class contains all functions executed before the
+# convolution in the run-thread of the Dsp-class. This includes particularly
+# to read parameters of blocks and hrtfs, to read blocks and hrtfs from
+# their databases, to normalize hrtfs, round numbers and to create all
+# necessary kinds of windows.
 class DspIn:
+    ## Constructor of the DspIn class.
     def __init__(self, gui_dict_init, gui_settings_dict_init):
+        # initialize a dict for the parameters of the speaker-files
         self.sp_param = dict.fromkeys(gui_dict_init, [])
+        # initialize a dict for the hrtf-values to be stored in
         self.hrtf_block_dict = dict.fromkeys(gui_dict_init, [])
+        # Dict with a key for every hrtf to be fetched from the
+        # database and two values. These are the max. values of the hrtfs of
+        # each ear.
         self.hrtf_max_gain_dict = dict.fromkeys(gui_dict_init, [])
+        # Dict with a key for every speaker and two values. These
+        # are the max. values fetched from the speaker-file.
         self.sp_max_gain_dict = dict.fromkeys(gui_dict_init, [])
+        # Dict with first and last sample of the block currently read
         self.wave_blockbeginend_dict_list = dict.fromkeys(gui_dict_init, [])
         # Standard samplerate, sampledepth
         self.wave_param_common = [44100, 16]
-        # Determine number of output blocks per second
+        # Set number of output blocks per second
         self.fft_blocksize = 1024
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
         self.hrtf_database, self.hrtf_blocksize, self.kemar_inverse_filter = \
@@ -33,8 +47,8 @@ class DspIn:
         # get samplerate from header in .wav-file of all speakers
         self.sp_param = self.init_get_block(gui_dict_init)
         self.block_begin_end = self.init_set_block_begin_end(gui_dict_init)
-        self.hamming = self.buid_hamming_window(self.sp_blocksize)
-        self.cosine = self.buid_cosine_window(self.sp_blocksize)
+        self.hamming = self.build_hamming_window(self.sp_blocksize)
+        self.cosine = self.build_cosine_window(self.sp_blocksize)
         self.hann = self.build_hann_window(self.sp_blocksize)
         self.sp_block_dict = \
             dict.fromkeys(gui_dict_init, np.zeros((
@@ -59,30 +73,39 @@ class DspIn:
                value=math.ceil(value)
         return value
 
-
-    # @author: Felix Pfreundtner
-    def buid_hamming_window(self, sp_blocksize):
-        N = sp_blocksize
-        hamming_window = np.zeros((N,), dtype=np.float16)
-        for n in range(N):
-            hamming_window[n,] = 0.54 - 0.46*math.cos(2*math.pi*n/ (N+1))
+    ## @brief Calculate and construct the hamming window in dependency of
+    # sp_blocksize
+    # @retval <hamming_window> Numpy-array of the length of sp_blocksize
+    # @author Felix Pfreundtner
+    def build_hamming_window(self, sp_blocksize):
+        x = sp_blocksize
+        hamming_window = np.zeros((x, ), dtype=np.float16)
+        for n in range(x):
+            hamming_window[n, ] = 0.54 - 0.46 * math.cos(2 * math.pi * n / (
+                x + 1))
         return hamming_window
 
-    # @author: Felix Pfreundtner
+    ## @brief Calculate and construct the hann window in dependency of
+    # sp_blocksize
+    # @retval <hann_window> Numpy-array of the length of sp_blocksize
+    # @author Felix Pfreundtner
     def build_hann_window(self, sp_blocksize):
-        N = sp_blocksize
-        hann_window = np.zeros((N,), dtype=np.float16)
-        for n in range(N):
-            hann_window[n,] = 0.5*(1 - math.cos(2*math.pi*n/(N)))
-        add = np.zeros((2000,))
+        x = sp_blocksize
+        hann_window = np.zeros((x, ), dtype=np.float16)
+        for n in range(x):
+            hann_window[n, ] = 0.5 * (1 - math.cos(2 * math.pi * n / (x)))
+        add = np.zeros((2000, ))
         return hann_window
 
-    # @author: Felix Pfreundtner
-    def buid_cosine_window(self, sp_blocksize):
-        N = sp_blocksize
-        cosine_window = np.zeros((N,), dtype=np.float16)
-        for n in range(N):
-            cosine_window[n,] = math.sin(math.pi*n / (N - 1))
+    ## @brief Calculate and construct the cosine window in dependency of
+    # sp_blocksize
+    # @retval <cosine_window> Numpy-array of the length of sp_blocksize
+    # @author Felix Pfreundtner
+    def build_cosine_window(self, sp_blocksize):
+        x = sp_blocksize
+        cosine_window = np.zeros((x,), dtype=np.float16)
+        for n in range(x):
+            cosine_window[n, ] = math.sin(math.pi * n / (x - 1))
         return cosine_window
 
     ## @brief This function calculates the three block parameters necessary
@@ -184,8 +207,7 @@ class DspIn:
     # to the variables further used by the Dsp.run-function.
     # @author Felix Pfreundtner
     def get_hrtfs(self, gui_dict_sp, sp):
-        # get the filename of the kemar-file that needs to be
-        # called
+        # get filename of the relevant hrtf for each ear
         # the if-statement differentiates between "compact" and "normal/big"
         # version according to settings in gui
         if self.hrtf_database == "kemar_compact":
@@ -236,12 +258,15 @@ class DspIn:
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 0])))
             hrtf_max_gain_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
 
+        # if  "normal" or "big" ear are set, determine filepath and -name here
         if self.hrtf_database == "kemar_normal_ear" or \
                         self.hrtf_database == "kemar_big_ear":
-            # get filename of the relevant hrtf for each ear
+            #check, whether angle from gui matches angle of a kemar-file exactly
             rounddifference = gui_dict_sp[0] % 5
+            # if angle in gui matches a file directly, simply do:
             if rounddifference == 0:
                 azimuthangle_ear = self.rnd(gui_dict_sp[0])
+            # if it doesn't match exactly, choose kemar-file of closest angle
             else:
                 if rounddifference < 2.5:
                     azimuthangle_ear = self.rnd(gui_dict_sp[0] -
@@ -249,11 +274,14 @@ class DspIn:
                 else:
                     azimuthangle_ear = self.rnd(gui_dict_sp[0] + 5 -
                                                 rounddifference)
+            # For non-compact-versions, two kemar files of oppositely angle
+            # are required, therefore here the other angle is calculated
             if azimuthangle_ear >= 180:
                 azimuthangle_other_ear = azimuthangle_ear - 180
             else:
                 azimuthangle_other_ear = azimuthangle_ear + 180
-
+            # create correct filenames to be called from kemar database
+            # if-clause to differentiate between "normal" and "big" ear versions
             if self.hrtf_database == "kemar_full_normal_ear":
                 hrtf_filenames_dict_sp_l = "./kemar/full/elev0/L0e" + str(
                     azimuthangle_ear).zfill(3) + "a.wav"
@@ -265,22 +293,30 @@ class DspIn:
                 hrtf_filenames_dict_sp_l = "./kemar/full/elev0/R0e" + str(
                     azimuthangle_other_ear).zfill(3) + "a.wav"
 
-            # get samples of the relevant hrtf for each ear in numpy array (
-            # l,r)
+
             _, hrtf_input_l = scipy.io.wavfile.read(hrtf_filenames_dict_sp_l)
             _, hrtf_input_r = scipy.io.wavfile.read(hrtf_filenames_dict_sp_r)
             self.hrtf_block_dict[sp] = np.zeros((self.hrtf_blocksize, 2),
                                                  dtype=np.int16)
             self.hrtf_block_dict[sp][0:512, 0] = hrtf_input_l[:, ]
             self.hrtf_block_dict[sp][0:512, 1] = hrtf_input_r[:, ]
+            # initialize an array containing the absolute maximum int for
+            # ear of each numpy
             self.hrtf_max_gain_dict[sp] = []
             self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(
                 self.hrtf_block_dict[sp][:, 0])))
             self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(
                 self.hrtf_block_dict[sp][:, 1])))
 
-
-
+    ## @brief Normalize the .wav-signal to have maximum of int16 amplitude
+    # @details If the input-flag normalize_flag_sp is True, measure the
+    # maximum amplitude occurring in the .wav-file. After that, reduce all
+    # entries of sp_block_dict by the ratio that decreases the max value to
+    # 2^15-1
+    # function measures the
+    # maximum
+    # amplitude
+    # of a .wav-file
     # @author Felix Pfreundtner
     def normalize(self, normalize_flag_sp, sp):
         if normalize_flag_sp:
@@ -289,17 +325,18 @@ class DspIn:
             if max_amplitude_input != 0:
                 # normalize to have the maximum int16 amplitude
                 max_amplitude_output = 32767
-                self.sp_block_dict[sp] = self.sp_block_dict[sp] / (
-                    max_amplitude_input / max_amplitude_output)
+                self.sp_block_dict[sp] /= (max_amplitude_input /
+                                           max_amplitude_output)
                 self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(
-                    np.int16, copy = False)
-        self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
+                    np.int16, copy=False)
+        self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))
 
-
+##???????? @brief Change sp_block_dict to a expanded size
     # @author Felix Pfreundtner
     def apply_window_on_sp_block(self, sp):
         self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
-        self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16, copy = False)
+        self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16,
+                                                               copy=False)
 
     ## @brief get 10 important parameters of the files to be played by the
     # get_block_function
@@ -499,6 +536,7 @@ class DspIn:
 
         return blocknumpy, continue_input
 
+##??????? Copy of the normalize-function of above?
     # @author: Felix Pfreundtner
     def normalize(self, normalize_flag_sp, sp):
         if normalize_flag_sp:
@@ -510,8 +548,8 @@ class DspIn:
                 self.sp_block_dict[sp] = self.sp_block_dict[sp] / (
                     max_amplitude_input / max_amplitude_output)
                 self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(
-                    np.int16, copy = False)
-        self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
+                    np.int16, copy=False)
+        self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))
 
 
 
