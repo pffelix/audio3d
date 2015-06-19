@@ -17,6 +17,7 @@ import os
 import collections
 import threading
 from copy import deepcopy
+from dsp_signal_handler import DspSignalHandler
 
 
 class DspOut:
@@ -44,6 +45,11 @@ class DspOut:
         self.played_block_counter = 0
         self.playbuffer = collections.deque()
         self.lock = threading.Lock()
+        # Here a signal handler will be created
+        # Usage:
+        # When error occurs, call the function self.signal_handler.send_error()
+        # The only parameter (A String!) is the message you want to send
+        self.signal_handler = DspSignalHandler()
 
     # @author: Felix Pfreundtner
     def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize,
