@@ -103,12 +103,11 @@ class DspOut:
                                        fft_blocksize).real
 
         # normalize multiplied spectrum back to 16bit integer, consider
-        # maximum amplitude value of sp black and hrtf impulse to get
+        # maximum amplitude value of sp block and hrtf impulse to get
         # dynamical volume output
-        binaural_block_sp_max_gain = 26825636157874 # int(np.amax(np.abs(
-        # binaural_block_sp))) # 421014006*10 #
+        binaural_block_sp_time_max_gain = int(np.amax(np.abs(binaural_block_sp_time)))
         binaural_block_sp_time = binaural_block_sp_time / (
-            binaural_block_sp_max_gain / sp_max_gain_sp /
+            binaural_block_sp_time_max_gain / sp_max_gain_sp /
             hrtf_max_gain_sp_l_r * 32767)
         self.binaural_block_dict[sp][:, l_r] = binaural_block_sp_time.astype(
             np.int16, copy=False)
@@ -149,6 +148,7 @@ class DspOut:
             #  speakers
             self.binaural_block += self.binaural_block_dict_out[sp] * sp_gain_factor / \
                               total_number_of_sp
+
         self.binaural_block = self.binaural_block.astype(np.int16, copy=False)
 
     # Testfunction overlap
