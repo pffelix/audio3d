@@ -59,6 +59,32 @@ class DspIn:
                value=math.ceil(value)
         return value
 
+
+    # @author: Felix Pfreundtner
+    def buid_hamming_window(self, sp_blocksize):
+        N = sp_blocksize
+        hamming_window = np.zeros((N,), dtype=np.float16)
+        for n in range(N):
+            hamming_window[n,] = 0.54 - 0.46*math.cos(2*math.pi*n/ (N+1))
+        return hamming_window
+
+    # @author: Felix Pfreundtner
+    def build_hann_window(self, sp_blocksize):
+        N = sp_blocksize
+        hann_window = np.zeros((N,), dtype=np.float16)
+        for n in range(N):
+            hann_window[n,] = 0.5*(1 - math.cos(2*math.pi*n/(N)))
+        add = np.zeros((2000,))
+        return hann_window
+
+    # @author: Felix Pfreundtner
+    def buid_cosine_window(self, sp_blocksize):
+        N = sp_blocksize
+        cosine_window = np.zeros((N,), dtype=np.float16)
+        for n in range(N):
+            cosine_window[n,] = math.sin(math.pi*n / (N - 1))
+        return cosine_window
+
     ## @brief This function calculates the three block parameters necessary
     # for the while-loop of the run-function.
     # @details This method uses the parameters of the input .wav-file and the
@@ -271,35 +297,9 @@ class DspIn:
 
 
     # @author Felix Pfreundtner
-    def buid_hamming_window(self, sp_blocksize):
-        N = sp_blocksize
-        hamming_window = np.zeros((N,), dtype=np.float16)
-        for n in range(N):
-            hamming_window[n,] = 0.54 - 0.46*math.cos(2*math.pi*n/ (N+1))
-        return hamming_window
-
-    def build_hann_window(self, sp_blocksize):
-        N = sp_blocksize
-        hann_window = np.zeros((N,), dtype=np.float16)
-        for n in range(N):
-            hann_window[n,] = 0.5*(1 - math.cos(2*math.pi*n/(N)))
-        add = np.zeros((2000,))
-        return hann_window
-
-    # @author Felix Pfreundtner
-    def buid_cosine_window(self, sp_blocksize):
-        N = sp_blocksize
-        cosine_window = np.zeros((N,), dtype=np.float16)
-        for n in range(N):
-            cosine_window[n,] = math.sin(math.pi*n / (N - 1))
-        return cosine_window
-
-
-    # @author Felix Pfreundtner
-    def apply_window(self, sp_block_sp, windowsignal):
-        sp_block_sp = sp_block_sp * windowsignal
-        sp_block_sp = sp_block_sp.astype(np.int16, copy = False)
-        return sp_block_sp
+    def apply_window_on_sp_block(self, sp):
+        self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
+        self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16, copy = False)
 
     ## @brief get 10 important parameters of the files to be played by the
     # get_block_function
@@ -514,34 +514,4 @@ class DspIn:
         self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
 
 
-    # @author: Felix Pfreundtner
-    def buid_hamming_window(self, sp_blocksize):
-        N = sp_blocksize
-        hamming_window = np.zeros((N,), dtype=np.float16)
-        for n in range(N):
-            hamming_window[n,] = 0.54 - 0.46*math.cos(2*math.pi*n/ (N+1))
-        return hamming_window
-
-    def build_hann_window(self, sp_blocksize):
-        N = sp_blocksize
-        hann_window = np.zeros((N,), dtype=np.float16)
-        for n in range(N):
-            hann_window[n,] = 0.5*(1 - math.cos(2*math.pi*n/(N)))
-        add = np.zeros((2000,))
-        return hann_window
-
-    # @author: Felix Pfreundtner
-    def buid_cosine_window(self, sp_blocksize):
-        N = sp_blocksize
-        cosine_window = np.zeros((N,), dtype=np.float16)
-        for n in range(N):
-            cosine_window[n,] = math.sin(math.pi*n / (N - 1))
-        return cosine_window
-
-
-    # @author: Felix Pfreundtner
-    def apply_window(self, sp_block_sp, windowsignal):
-        sp_block_sp = sp_block_sp * windowsignal
-        sp_block_sp = sp_block_sp.astype(np.int16, copy = False)
-        return sp_block_sp
 

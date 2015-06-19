@@ -105,10 +105,7 @@ class Dsp:
                     # normalize sp block if requested
                     self.DspIn_Object.normalize(self.gui_dict[sp][3], sp)
                     # apply window to sp input in sp_block_dict
-                    self.DspIn_Object.sp_block_dict[sp]= \
-                    self.DspIn_Object.apply_window(
-                    self.DspIn_Object.sp_block_dict[sp],
-                    self.DspIn_Object.hann)
+                    self.DspIn_Object.apply_window_on_sp_block(sp)
 
                     # for the left and the right ear channel
                     for l_r in range(2):
