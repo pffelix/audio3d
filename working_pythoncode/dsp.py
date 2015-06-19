@@ -172,7 +172,7 @@ class Dsp:
                 break
 
         # show plot of the output signal binaural_dict_scaled
-        #plt.plot(self.DspIn_Object[sp])
+        #plt.plot(self.DspOut_Object.binaural[:, l_r])
         #plt.show()
         # Write generated output signal binaural_dict_scaled to file
         self.DspOut_Object.writebinauraloutput(

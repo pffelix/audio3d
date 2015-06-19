@@ -32,8 +32,6 @@ class DspIn:
         # get samplerate from header in .wav-file of all speakers
         self.sp_param = self.init_get_block(gui_dict_init)
         self.block_begin_end = self.init_set_block_begin_end(gui_dict_init)
-        self.hamming = self.buid_hamming_window(self.sp_blocksize)
-        self.cosine = self.buid_cosine_window(self.sp_blocksize)
         self.hann = self.build_hann_window(self.sp_blocksize)
         self.sp_block_dict = \
             dict.fromkeys(gui_dict_init, np.zeros((
@@ -60,14 +58,6 @@ class DspIn:
 
 
     # @author: Felix Pfreundtner
-    def buid_hamming_window(self, sp_blocksize):
-        N = sp_blocksize
-        hamming_window = np.zeros((N,), dtype=np.float16)
-        for n in range(N):
-            hamming_window[n,] = 0.54 - 0.46*math.cos(2*math.pi*n/ (N+1))
-        return hamming_window
-
-    # @author: Felix Pfreundtner
     def build_hann_window(self, sp_blocksize):
         N = sp_blocksize
         hann_window = np.zeros((N,), dtype=np.float16)
@@ -75,14 +65,6 @@ class DspIn:
             hann_window[n,] = 0.5*(1 - math.cos(2*math.pi*n/(N)))
         add = np.zeros((2000,))
         return hann_window
-
-    # @author: Felix Pfreundtner
-    def buid_cosine_window(self, sp_blocksize):
-        N = sp_blocksize
-        cosine_window = np.zeros((N,), dtype=np.float16)
-        for n in range(N):
-            cosine_window[n,] = math.sin(math.pi*n / (N - 1))
-        return cosine_window
 
     ## @brief This function calculates the three block parameters necessary
     # for the while-loop of the run-function.
@@ -104,7 +86,6 @@ class DspIn:
         #overlap = 0
         hopsize = self.rnd((1-overlap)*sp_blocksize)
         return sp_blocksize, sp_blocktime, overlap, hopsize
-
 
     ## @brief Initializes a list with the number of the first and last sample
     #  of the first block
@@ -277,28 +258,6 @@ class DspIn:
                 self.hrtf_block_dict[sp][:, 0])))
             self.hrtf_max_gain_dict[sp].append(np.amax(np.abs(
                 self.hrtf_block_dict[sp][:, 1])))
-
-
-
-    # @author Felix Pfreundtner
-    def normalize(self, normalize_flag_sp, sp):
-        if normalize_flag_sp:
-            # take maximum amplitude of original wave file of sp block
-            max_amplitude_input = np.amax(np.abs(self.sp_block_dict[sp]))
-            if max_amplitude_input != 0:
-                # normalize to have the maximum int16 amplitude
-                max_amplitude_output = 32767
-                self.sp_block_dict[sp] = self.sp_block_dict[sp] / (
-                    max_amplitude_input / max_amplitude_output)
-                self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(
-                    np.int16, copy = False)
-        self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
-
-
-    # @author Felix Pfreundtner
-    def apply_window_on_sp_block(self, sp):
-        self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
-        self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16, copy = False)
 
     ## @brief get 10 important parameters of the files to be played by the
     # get_block_function
@@ -493,7 +452,7 @@ class DspIn:
 
         return continue_input
 
-    # @author: Felix Pfreundtner
+    # @author Felix Pfreundtner
     def normalize(self, normalize_flag_sp, sp):
         if normalize_flag_sp:
             # take maximum amplitude of original wave file of sp block
@@ -507,5 +466,7 @@ class DspIn:
                     np.int16, copy = False)
         self.sp_max_gain_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:,]))
 
-
-
+    # @author Felix Pfreundtner
+    def apply_window_on_sp_block(self, sp):
+        self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
+        self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16, copy = False)
