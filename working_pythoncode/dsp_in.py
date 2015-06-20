@@ -31,8 +31,6 @@ class DspIn:
         # Dict with a key for every speaker and two values. These
         # are the max. values fetched from the speaker-file.
         self.sp_max_amp_dict = dict.fromkeys(gui_dict_init, [])
-        # Dict with first and last sample of the block currently read
-        self.wave_blockbeginend_dict_list = dict.fromkeys(gui_dict_init, [])
         # Standard samplerate, sampledepth
         self.wave_param_common = [44100, 16]
         # Set number of output blocks per second
@@ -90,7 +88,6 @@ class DspIn:
         hann_window = np.zeros((x,), dtype=np.float16)
         for n in range(x):
             hann_window[n,] = 0.5 * (1 - math.cos(2 * math.pi * n / (x)))
-        add = np.zeros((2000,))
         return hann_window
 
         ## @brief This function calculates the three block parameters necessary
@@ -431,7 +428,7 @@ class DspIn:
         print("timer scipy in ms: " + str(int((time.time() - start) * 1000)))
 
         start = time.time()
-        # iterate over all speakers to read in all speaker wave files
+        # # iterate over all speakers to read in all speaker wave files
         for sp in sp_dict:
             # start reading at sample 0 in speaker wave file
             begin_block = 0
@@ -550,7 +547,7 @@ class DspIn:
         file.close()
         # print runtime in milliseconds
         print("timer get_sp in ms: " + str(int((time.time() - start) * 1000)))
-        return sp_dict
+        return scipy_sp_dict
 
     # @author Matthias Lederle
     def get_sp_block(self, sp):
@@ -560,12 +557,13 @@ class DspIn:
             self.block_begin_end[1], ]
             continue_input = True
         else:
-            self.sp_block_dict = np.zeros((self.sp_param[sp][0] -
-                                           self.block_begin_end[0]),
-                                          dtype=np.int16)
+            self.sp_block_dict[sp] = np.zeros((self.sp_blocksize),
+                                           dtype=np.int16)
             self.sp_block_dict[sp][0:self.sp_param[sp][0] -
                                      self.block_begin_end[0], ] = \
-                self.sp_dict[sp][self.block_begin_end[0]:self.sp_param[sp][0], ]
+                                     self.sp_dict[sp][
+                                     self.block_begin_end[0]:
+                                     self.sp_param[sp][0], ]
             continue_input = False
         self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))
         return continue_input

@@ -14,6 +14,8 @@ import threading
 import matplotlib.pyplot as plt
 import multiprocessing
 import gui_utils
+import time
+import copyreg
 
 from dsp_signal_handler import DspSignalHandler
 
@@ -54,7 +56,6 @@ class Dsp:
         # read from speaker wave files
         while any(self.DspOut_Object.continue_convolution_dict.values()) \
                 is True:
-
             ######## actualize variables with gui
             self.gui_dict = gui_utils.gui_dict
             self.DspOut_Object.gui_stop = gui_utils.gui_stop
@@ -102,7 +103,6 @@ class Dsp:
 
                     # apply window to sp input in sp_block_dict
                     self.DspIn_Object.apply_window_on_sp_block(sp)
-
                     # for the left and the right ear channel
                     for l_r in range(2):
                         # convolve hrtf with speaker block input to get
@@ -118,7 +118,6 @@ class Dsp:
                             self.DspIn_Object.kemar_inverse_filter,
                             self.DspIn_Object.hrtf_blocksize,
                             self.DspIn_Object.sp_blocksize, sp, l_r)
-
                 # model speaker position change about 1° per block (0.02s) in
                 # clockwise rotation
                 # self.gui_dict[sp][0]+=30
@@ -126,8 +125,7 @@ class Dsp:
                     #self.gui_dict[sp][0] -= 360
 
                 # overlap and add binaural stereo block output of speaker sp
-                #  to prior
-                # binaural stereo block output of speaker sp
+                #  to prior binaural stereo block output of speaker sp
                     self.DspOut_Object.overlap_add(
                         self.DspIn_Object.fft_blocksize,
                         self.DspIn_Object.hopsize, sp)
@@ -146,7 +144,6 @@ class Dsp:
                     self.blockcounter)
             finally:
                 self.DspOut_Object.lock.release()
-
             # Begin audio playback if specified number of bufferblocks
             # has been convolved
             if self.blockcounter == self.bufferblocks:
@@ -157,10 +154,10 @@ class Dsp:
                 startaudiooutput.start()
 
             # wait until audioplayback finished with current block
-            while self.blockcounter - self.DspOut_Object.played_block_counter > \
-                self.bufferblocks and not all(
-                    self.DspOut_Object.continue_convolution_dict.values()) \
-                    is False:
+            while self.blockcounter - self.DspOut_Object.played_block_counter\
+                    > self.bufferblocks and not all(
+                self.DspOut_Object.continue_convolution_dict.values()) \
+                is False:
                 time.sleep(1 / self.DspIn_Object.wave_param_common[0])
 
             # increment number of already convolved blocks
@@ -182,3 +179,21 @@ class Dsp:
             self.DspOut_Object.binaural,
             self.DspIn_Object.wave_param_common,
             self.gui_dict)
+
+
+    def run_multi(self):
+        processes = {}
+        args = {}
+        cargs ={}
+        cargs["fft_blocksize"]
+
+        for sp in self.gui_dict:
+            args[sp] = {}
+            args[sp]["sp"] = sp
+            args[sp][""]
+        for sp in self.gui_dict:
+            processes[sp] = multiprocessing.Process(target=block_routine,
+                                                    args=(cargs, args,))
+            processes[sp].start()
+def block_routine(sp):
+    print()
