@@ -221,7 +221,7 @@ class DspOut:
         pa = pyaudio.PyAudio()
         audiostream = pa.open(format=pyaudio.paInt16,
                               channels=2,
-                              rat=samplerate,
+                              rate=samplerate,
                               output=True,
                               frames_per_buffer=hopsize,
                               stream_callback=self.callback,

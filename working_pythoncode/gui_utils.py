@@ -186,8 +186,7 @@ class View(QtGui.QGraphicsView):
 
     def __init__(self, scene):
         super(View, self).__init__(scene)
-        viewport = QtOpenGL.QGLWidget(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers))
-        self.setViewport(viewport)
+
 
     def dragEnterEvent(self, e):
         e.acceptProposedAction()
@@ -401,12 +400,16 @@ class SequencePlot(QtGui.QWidget):
 
 
         # initialize the GL widget
-        self.widget = GLPlotWidget()
+        self.speaker_spec = GLPlotWidget()
+        self.lhrtf_spec = GLPlotWidget()
+        self.rhrtf_spec = GLPlotWidget()
+
 
         self.layoutVertical = QtGui.QVBoxLayout(self)
-        self.layoutVertical.addWidget(self.widget)
-        # put the window at the screen position (100, 100)
-        self.setGeometry(100, 100, self.widget.width, self.widget.height)
+        self.layoutVertical.addWidget(self.speaker_spec)
+        self.layoutVertical.addWidget(self.lhrtf_spec)
+        self.layoutVertical.addWidget(self.rhrtf_spec)
+        self.setGeometry(100, 100, self.speaker_spec.width, 2*self.speaker_spec.height)
 
         self.setWindowTitle('Sequence Plot')
         self.timer = QtCore.QTimer(self)

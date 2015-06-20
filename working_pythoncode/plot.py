@@ -6,12 +6,12 @@ import numpy as np
 
 
 class GLPlotWidget(QGLWidget):
-    width, height = 600, 600
+    width, height = 400, 200
 
     def set_data(self, ydata):
 
         self.xdata = np.array(np.linspace(-1,1,512), dtype=np.float32)
-        self.ydata = ydata
+        self.ydata = ydata/np.max(ydata)
         self.size = self.xdata.size+ydata.size
         self.data = np.array(np.zeros(self.size), dtype=np.float32)
 
@@ -47,15 +47,11 @@ class GLPlotWidget(QGLWidget):
     def resizeGL(self, width, height):
         """Called upon window resizing: reinitialize the viewport.
         """
-        # update the window size
         self.width, self.height = width, height
-        # paint within the whole window
         gl.glViewport(0, 0, width, height)
-        # set orthographic projection (2D only)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
-        # the window corner OpenGL coordinates are (-+1, -+1)
-        gl.glOrtho(-1, 1, -1, 1, -1, 1)
+        gl.glOrtho(-1, 1, -0.2, 1, -1, 1)
 
 
 
