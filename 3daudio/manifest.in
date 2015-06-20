@@ -1,0 +1,2 @@
+include 3daudio/image/*
+recursive-include 3daudio/kemar *.wav
