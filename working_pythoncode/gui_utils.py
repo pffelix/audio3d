@@ -289,13 +289,12 @@ class Audience(Item):
 class SpeakerProperty(QtGui.QWidget):
 
     added = QtCore.pyqtSignal()
-    closed = QtCore.pyqtSignal()
     posx = 0
     posy = 0
 
     def __init__(self):
         super(SpeakerProperty, self).__init__()
-
+        self.is_on = False
         # set labels
         self.path_label = QtGui.QLabel('Audio Source:')
         self.position_label = QtGui.QLabel(
@@ -386,24 +385,24 @@ class SpeakerProperty(QtGui.QWidget):
         self.posy = 0
 
     def closeEvent(self, QCloseEvent):
-        self.closed.emit()
+        self.is_on = False
+        self.added.disconnect()
+        self.clear()
 
 
 # Additional window for plot of speaker and HRTF spectrum while .wav is played
 class SequencePlot(QtGui.QWidget):
 
-    plot_closed = QtCore.pyqtSignal()
     plot_on = QtCore.pyqtSignal()
 
-    def __init__(self):
-        super(SequencePlot, self).__init__()
-
+    def __init__(self, parent=None):
+        super(SequencePlot, self).__init__(parent)
+        self.is_on = False
 
         # initialize the GL widget
         self.speaker_spec = GLPlotWidget()
         self.lhrtf_spec = GLPlotWidget()
         self.rhrtf_spec = GLPlotWidget()
-
 
         self.layoutVertical = QtGui.QVBoxLayout(self)
         self.layoutVertical.addWidget(self.speaker_spec)
@@ -414,5 +413,7 @@ class SequencePlot(QtGui.QWidget):
         self.setWindowTitle('Sequence Plot')
         self.timer = QtCore.QTimer(self)
 
-    def closeEvent(self, QCloseEvent):
-        self.plot_closed.emit()
+    def closeEvent(self, event):
+        self.timer.timeout.disconnect()
+        self.timer.stop()
+        self.is_on = False
