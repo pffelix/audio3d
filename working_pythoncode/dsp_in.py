@@ -237,8 +237,8 @@ class DspIn:
         # if  "normal" or "big" ear are set, determine filepath and -name here
         if self.hrtf_database == "kemar_normal_ear" or self.hrtf_database \
                 == "kemar_big_ear":
-            # check, whether angle from gui matches angle of a kemar-file
-            # exactly
+            # check, whether horizontal head position angle from gui
+            # matches horizontal angle of a kemar-file exactly
             rounddifference = gui_dict_sp[0] % 5
             # if angle in gui matches a file directly, simply do:
             if rounddifference == 0:
@@ -251,6 +251,10 @@ class DspIn:
                 else:
                     azimuthangle_ear = self.rnd(gui_dict_sp[0] + 5 -
                                                 rounddifference)
+            # If rounding leads to an horizontal head position angle of 360° set
+            # it to 0 as angle of 360° ist equivalent to 0° in the hrtf
+            if azimuthangle_ear == 360:
+                azimuthangle_ear = 0
             # For non-compact-versions, two kemar files of oppositely angle
             # are required, therefore here the other angle is calculated
             if azimuthangle_ear >= 180:
