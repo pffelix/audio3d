@@ -270,6 +270,7 @@ class MainWindow(QWidget):
         self.sequence_plot.timer.start(20)
 
     def update_sequence_dicts(self):
+
         from gui_utils import speaker_to_show
         i = speaker_to_show
         self.sequence_plot.speaker_spec.update_data(self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
