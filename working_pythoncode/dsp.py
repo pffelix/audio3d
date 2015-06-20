@@ -212,11 +212,23 @@ class Dsp:
             # Add mixed binaural stereo block to a time continuing binaural
             # output of all blocks
             self.DspOut_Object.add_to_binaural(self.blockcounter)
+
+            # Begin audio playback if specified number of bufferblocks
+            # has been convolved
+            if self.blockcounter == self.bufferblocks:
+                startaudiooutput = threading.Thread(
+                    target=self.DspOut_Object.audiooutput, args=(
+                        self.DspIn_Object.wave_param_common[0],
+                        self.DspIn_Object.hopsize))
+                startaudiooutput.start()
             blockcounter_sync.value += 1
+
             self.blockcounter += 1
             print(self.blockcounter)
-        plt.plot(self.DspOut_Object.binaural[:, :])
-        plt.show()
+        #plt.plot(self.DspOut_Object.binaural[:, :])
+        #plt.show()
+
+
 
 
 def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
@@ -300,6 +312,6 @@ def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
             dsp_obj_sp.blockcounter += 1
 
         else:
-            time.sleep(0.001)
+            time.sleep(1/dsp_obj_sp.DspIn_Object.wave_param_common[0]*10)
 
     print ("sp: " + str(sp) + " finished")
