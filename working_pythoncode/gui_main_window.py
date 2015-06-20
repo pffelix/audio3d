@@ -71,7 +71,7 @@ class MainWindow(QWidget):
         self.buffersize_label = QtGui.QLabel('Buffer Size:')
         self.buffersize_spin_box = QtGui.QSpinBox()
         self.buffersize_spin_box.setMinimum(0)
-        self.buffersize_spin_box.setMaximum(100)
+        self.buffersize_spin_box.setMaximum(1000)
         self.buffersize_spin_box.setValue(5)
 
         # set layout
