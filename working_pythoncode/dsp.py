@@ -179,21 +179,26 @@ class Dsp:
     def run_multiprocessed(self, gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init):
         processes = {}
-        binaural_block_dict_out_q = {}
+        binaural_block_dict_out_ex = {}
+        cotinue_output_ex = {}
 
         for sp in self.gui_dict:
-            binaural_block_dict_out_q[sp] = multiprocessing.Queue()
+            binaural_block_dict_out_ex[sp] = multiprocessing.Queue()
+            cotinue_output_ex[sp] = multiprocessing.Value('b', True)
             processes[sp] = multiprocessing.Process(target=sp_block_iteration,
                                                     args=(gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init, sp, binaural_block_dict_out_q[sp], ))
+                 gui_settings_dict_init, sp, binaural_block_dict_out_ex[sp], cotinue_output_ex[sp]))
         for sp in processes:
             processes[sp].start()
 
-        time.sleep(1)
-        while self.blockcounter < 100:
-            for sp in binaural_block_dict_out_q:
+        #time.sleep(5)
+        while any(self.DspOut_Object.continue_convolution_dict.values()) \
+                is True:
+            for sp in processes:
                 self.DspOut_Object.binaural_block_dict_out[sp] = \
-                    binaural_block_dict_out_q[sp].get()
+                    binaural_block_dict_out_ex[sp].get()
+                self.DspOut_Object.continue_convolution_dict[sp] = \
+                    cotinue_output_ex[sp].value
             # Mix binaural stereo blockoutput of every speaker to one
             # binaural stereo block output having regard to speaker distances
             self.DspOut_Object.mix_binaural_block(
@@ -209,18 +214,18 @@ class Dsp:
             finally:
                 self.DspOut_Object.lock.release()
             self.blockcounter += 1
-
         plt.plot(self.DspOut_Object.binaural[:, :])
         plt.show()
 
+
 def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init, sp, binaural_block_dict_out_q_sp):
+                 gui_settings_dict_init, sp, binaural_block_dict_out_ex_sp,
+                       cotinue_output_ex_sp):
 
     dsp_obj_sp = dsp.Dsp(gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init)
 
-    while dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] is True \
-            and dsp_obj_sp.blockcounter <100:
+    while dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] is True:
         print("sp " + str(sp) + ": FFT Block " + str(
             dsp_obj_sp.blockcounter) + ":")
         dsp_obj_sp.DspIn_Object.set_block_begin_end()
@@ -285,6 +290,9 @@ def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
                 dsp_obj_sp.DspIn_Object.fft_blocksize,
                 dsp_obj_sp.DspIn_Object.hopsize, sp)
 
-        binaural_block_dict_out_q_sp.put(
+        binaural_block_dict_out_ex_sp.put(
             dsp_obj_sp.DspOut_Object.binaural_block_dict_out[sp])
+        cotinue_output_ex_sp.value = \
+            dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp]
         dsp_obj_sp.blockcounter += 1
+    print ("sp: " + str(sp) + " finished")
