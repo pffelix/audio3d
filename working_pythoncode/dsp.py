@@ -189,20 +189,29 @@ class Dsp:
         for sp in processes:
             processes[sp].start()
 
-        # Mix binaural stereo blockoutput of every speaker to one
-        # binaural stereo block output having regard to speaker distances
-        self.DspOut_Object.mix_binaural_block(
-            self.DspIn_Object.hopsize,
-            self.gui_dict)
+        time.sleep(1)
+        while self.blockcounter < 100:
+            for sp in binaural_block_dict_out_q:
+                self.DspOut_Object.binaural_block_dict_out[sp] = \
+                    binaural_block_dict_out_q[sp].get()
+            # Mix binaural stereo blockoutput of every speaker to one
+            # binaural stereo block output having regard to speaker distances
+            self.DspOut_Object.mix_binaural_block(
+                self.DspIn_Object.hopsize,
+                self.gui_dict)
 
-        # Add mixed binaural stereo block to a time continuing binaural
-        # output of all blocks
-        self.DspOut_Object.lock.acquire()
-        try:
-            self.DspOut_Object.add_to_binaural(
-                self.blockcounter)
-        finally:
-            self.DspOut_Object.lock.release()
+            # Add mixed binaural stereo block to a time continuing binaural
+            # output of all blocks
+            self.DspOut_Object.lock.acquire()
+            try:
+                self.DspOut_Object.add_to_binaural(
+                    self.blockcounter)
+            finally:
+                self.DspOut_Object.lock.release()
+            self.blockcounter += 1
+
+        plt.plot(self.DspOut_Object.binaural[:, :])
+        plt.show()
 
 def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init, sp, binaural_block_dict_out_q_sp):
@@ -275,8 +284,7 @@ def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
             dsp_obj_sp.DspOut_Object.overlap_add(
                 dsp_obj_sp.DspIn_Object.fft_blocksize,
                 dsp_obj_sp.DspIn_Object.hopsize, sp)
-        #plt.plot(dsp_obj_sp.DspOut_Object.binaural_block_dict_add[sp][:, :])
-        #plt.show()
+
         binaural_block_dict_out_q_sp.put(
             dsp_obj_sp.DspOut_Object.binaural_block_dict_out[sp])
         dsp_obj_sp.blockcounter += 1
