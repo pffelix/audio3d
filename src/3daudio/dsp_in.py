@@ -12,6 +12,7 @@ import math
 import matplotlib.pyplot as plt
 from .error_handler import send_error
 import time
+from pkg_resources import resource_filename, Requirement
 
 
 ## @class <DspIn> This class contains all functions executed before the
@@ -157,9 +158,13 @@ class DspIn:
                 # get inverse minimum phase impulse response response of
                 # kemar measurement speaker optimus pro 7 and truncate to
                 # fft_blocksize
+                pathtest = resource_filename(Requirement.parse("3daudio"),
+                    "3daudio/kemar/full/headphones+spkr/Opti-minphase.wav")
+                print(pathtest)
                 _, kemar_inverse_filter = \
                     scipy.io.wavfile.read(
-                        "3daudio/kemar/full/headphones+spkr/Opti-minphase.wav")
+                    resource_filename(Requirement.parse("3daudio"),
+                    "3daudio/kemar/full/headphones+spkr/Opti-minphase.wav"))
                 kemar_inverse_filter = \
                     kemar_inverse_filter[0:self.fft_blocksize, ]
             else:
@@ -211,7 +216,9 @@ class DspIn:
                     else:
                         azimuthangle = 360 - self.rnd(gui_dict_sp[0] + 5 -
                                                       rounddifference)
-            hrtf_filenames_dict_sp = "3daudio/kemar/compact/elev0/H0e" + str(
+            hrtf_filenames_dict_sp = \
+                resource_filename(Requirement.parse("3daudio"),
+                "3daudio/kemar/compact/elev0/H0e") + str(
                 azimuthangle).zfill(3) + "a.wav"
 
             # write relevant hrtf to numpy array hrtf_block_dict_sp
@@ -264,14 +271,22 @@ class DspIn:
             # create correct filenames to be called from kemar database
             # if-clause to differentiate between "normal" and "big" ear versions
             if self.hrtf_database == "kemar_full_normal_ear":
-                hrtf_filenames_dict_sp_l = "3daudio/kemar/full/elev0/L0e" + str(
+                hrtf_filenames_dict_sp_l = \
+                resource_filename(Requirement.parse("3daudio"),
+                "3daudio/kemar/full/elev0/L0e") + str(
                     azimuthangle_ear).zfill(3) + "a.wav"
-                hrtf_filenames_dict_sp_r = "3daudio/kemar/full/elev0/L0e" + str(
+                hrtf_filenames_dict_sp_r = \
+                resource_filename(Requirement.parse("3daudio"),
+                "3daudio/kemar/full/elev0/L0e") + str(
                     azimuthangle_other_ear).zfill(3) + "a.wav"
             else:
-                hrtf_filenames_dict_sp_r = "3daudio/kemar/full/elev0/R0e" + str(
+                hrtf_filenames_dict_sp_r = \
+                resource_filename(Requirement.parse("3daudio"),
+                "3daudio/kemar/full/elev0/R0e") + str(
                     azimuthangle_ear).zfill(3) + "a.wav"
-                hrtf_filenames_dict_sp_l = "3daudio/kemar/full/elev0/R0e" + str(
+                hrtf_filenames_dict_sp_l = \
+                resource_filename(Requirement.parse("3daudio"),
+                "3daudio/kemar/full/elev0/R0e") + str(
                     azimuthangle_other_ear).zfill(3) + "a.wav"
 
             _, hrtf_input_l = scipy.io.wavfile.read(hrtf_filenames_dict_sp_l)

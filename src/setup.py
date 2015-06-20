@@ -5,7 +5,7 @@ setup(
     packages = find_packages(),
     include_package_data = True,
     package_data = {
-        '3daudio': ['image/*','kemar/*'],
+        '3daudio': ['*.png','*.wav','*.jpg'],
     },
     install_requires = ['pyopengl','pyaudio','python-qt'],
     entry_points={
