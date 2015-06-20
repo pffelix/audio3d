@@ -181,13 +181,17 @@ class Dsp:
         processes = {}
         binaural_block_dict_out_ex = {}
         cotinue_output_ex = {}
+        blockcounter_sync = multiprocessing.Value('i', 0)
 
         for sp in self.gui_dict:
             binaural_block_dict_out_ex[sp] = multiprocessing.Queue()
             cotinue_output_ex[sp] = multiprocessing.Value('b', True)
             processes[sp] = multiprocessing.Process(target=sp_block_iteration,
                                                     args=(gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init, sp, binaural_block_dict_out_ex[sp], cotinue_output_ex[sp]))
+                 gui_settings_dict_init, sp, binaural_block_dict_out_ex[sp],
+                                                          cotinue_output_ex[
+                                                              sp],
+                                                          blockcounter_sync, ))
         for sp in processes:
             processes[sp].start()
 
@@ -207,92 +211,95 @@ class Dsp:
 
             # Add mixed binaural stereo block to a time continuing binaural
             # output of all blocks
-            self.DspOut_Object.lock.acquire()
-            try:
-                self.DspOut_Object.add_to_binaural(
-                    self.blockcounter)
-            finally:
-                self.DspOut_Object.lock.release()
+            self.DspOut_Object.add_to_binaural(self.blockcounter)
+            blockcounter_sync.value += 1
             self.blockcounter += 1
+            print(self.blockcounter)
         plt.plot(self.DspOut_Object.binaural[:, :])
         plt.show()
 
 
 def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init, sp, binaural_block_dict_out_ex_sp,
-                       cotinue_output_ex_sp):
+                       cotinue_output_ex_sp, blockcounter_sync):
 
     dsp_obj_sp = dsp.Dsp(gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init)
 
     while dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] is True:
-        print("sp " + str(sp) + ": FFT Block " + str(
-            dsp_obj_sp.blockcounter) + ":")
-        dsp_obj_sp.DspIn_Object.set_block_begin_end()
-        # reset binaural block output array of speaker sp by filling
-        #  it with zeros
-        dsp_obj_sp.DspOut_Object.binaural_block_dict[sp] = np.zeros((
-            dsp_obj_sp.DspIn_Object.fft_blocksize, 2), dtype=np.int16)
-        # if speaker wave file still has unread samples start
-        # convolution, else skip convolution
-        if dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] is True:
-            # check whether head position to speaker sp has changed
-            if dsp_obj_sp.gui_dict[sp][0] != dsp_obj_sp.prior_head_angle_dict[sp]:
-                # if head position has changed load new hrtf-settings
-                dsp_obj_sp.DspIn_Object.hrtf_database, \
-                    dsp_obj_sp.DspIn_Object.hrtf_blocksize, \
-                    dsp_obj_sp.DspIn_Object.kemar_inverse_filter = \
-                    dsp_obj_sp.DspIn_Object.get_hrtf_param(
-                        dsp_obj_sp.gui_settings_dict)
-                # and load fitting hrtf-file as numpy array
-                dsp_obj_sp.DspIn_Object.get_hrtfs(dsp_obj_sp.gui_dict[sp], sp)
-                # save head position to speaker of this block in
-                # prior_head_angle_dict
-                dsp_obj_sp.prior_head_angle_dict[sp] = dsp_obj_sp.gui_dict[sp][0]
+        if  dsp_obj_sp.blockcounter <= blockcounter_sync.value:
 
-            # Load wave block of speaker sp with speaker_blocksize (
-            # fft_blocksize-hrtf_blocksize+1) and current block
-            # begin_end
-            dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] = \
-                dsp_obj_sp.DspIn_Object.get_sp_block(sp)
-            #plt.plot(dsp_obj_sp.DspIn_Object.sp_block_dict[sp])
-            #plt.show()
+            print("sp " + str(sp) + ": FFT Block " + str(
+                dsp_obj_sp.blockcounter) + ":")
+            dsp_obj_sp.DspIn_Object.set_block_begin_end()
+            # reset binaural block output array of speaker sp by filling
+            #  it with zeros
+            dsp_obj_sp.DspOut_Object.binaural_block_dict[sp] = np.zeros((
+                dsp_obj_sp.DspIn_Object.fft_blocksize, 2), dtype=np.int16)
+            # if speaker wave file still has unread samples start
+            # convolution, else skip convolution
+            if dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] is True:
+                # check whether head position to speaker sp has changed
+                if dsp_obj_sp.gui_dict[sp][0] != dsp_obj_sp.prior_head_angle_dict[sp]:
+                    # if head position has changed load new hrtf-settings
+                    dsp_obj_sp.DspIn_Object.hrtf_database, \
+                        dsp_obj_sp.DspIn_Object.hrtf_blocksize, \
+                        dsp_obj_sp.DspIn_Object.kemar_inverse_filter = \
+                        dsp_obj_sp.DspIn_Object.get_hrtf_param(
+                            dsp_obj_sp.gui_settings_dict)
+                    # and load fitting hrtf-file as numpy array
+                    dsp_obj_sp.DspIn_Object.get_hrtfs(dsp_obj_sp.gui_dict[sp], sp)
+                    # save head position to speaker of this block in
+                    # prior_head_angle_dict
+                    dsp_obj_sp.prior_head_angle_dict[sp] = dsp_obj_sp.gui_dict[sp][0]
 
-            # normalize sp block if requested
-            dsp_obj_sp.DspIn_Object.normalize(dsp_obj_sp.gui_dict[sp][3], sp)
+                # Load wave block of speaker sp with speaker_blocksize (
+                # fft_blocksize-hrtf_blocksize+1) and current block
+                # begin_end
+                dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] = \
+                    dsp_obj_sp.DspIn_Object.get_sp_block(sp)
+                #plt.plot(dsp_obj_sp.DspIn_Object.sp_block_dict[sp])
+                #plt.show()
 
-            # apply window to sp input in sp_block_dict
-            dsp_obj_sp.DspIn_Object.apply_window_on_sp_block(sp)
-            # for the left and the right ear channel
-            for l_r in range(2):
-                # convolve hrtf with speaker block input to get
-                # binaural stereo block output
-                dsp_obj_sp.DspOut_Object.fft_convolve(
-                    dsp_obj_sp.DspIn_Object.sp_block_dict[sp],
-                    dsp_obj_sp.DspIn_Object.hrtf_block_dict[sp][:, l_r],
+                # normalize sp block if requested
+                dsp_obj_sp.DspIn_Object.normalize(dsp_obj_sp.gui_dict[sp][3], sp)
+
+                # apply window to sp input in sp_block_dict
+                dsp_obj_sp.DspIn_Object.apply_window_on_sp_block(sp)
+                # for the left and the right ear channel
+                for l_r in range(2):
+                    # convolve hrtf with speaker block input to get
+                    # binaural stereo block output
+                    dsp_obj_sp.DspOut_Object.fft_convolve(
+                        dsp_obj_sp.DspIn_Object.sp_block_dict[sp],
+                        dsp_obj_sp.DspIn_Object.hrtf_block_dict[sp][:, l_r],
+                        dsp_obj_sp.DspIn_Object.fft_blocksize,
+                        dsp_obj_sp.DspIn_Object.sp_max_amp_dict[sp],
+                        dsp_obj_sp.DspIn_Object.hrtf_max_amp_dict[sp][l_r],
+                        dsp_obj_sp.DspIn_Object.wave_param_common[0],
+                        dsp_obj_sp.gui_settings_dict["inverse_filter_active"],
+                        dsp_obj_sp.DspIn_Object.kemar_inverse_filter,
+                        dsp_obj_sp.DspIn_Object.hrtf_blocksize,
+                        dsp_obj_sp.DspIn_Object.sp_blocksize, sp, l_r)
+            # model speaker position change about 1° per block (0.02s) in
+            # clockwise rotation
+            # dsp_obj_sp.gui_dict[sp][0]+=30
+            # if dsp_obj_sp.gui_dict[sp][0] >= 360:
+                #dsp_obj_sp.gui_dict[sp][0] -= 360
+
+            # overlap and add binaural stereo block output of speaker sp
+            #  to prior binaural stereo block output of speaker sp
+                dsp_obj_sp.DspOut_Object.overlap_add(
                     dsp_obj_sp.DspIn_Object.fft_blocksize,
-                    dsp_obj_sp.DspIn_Object.sp_max_amp_dict[sp],
-                    dsp_obj_sp.DspIn_Object.hrtf_max_amp_dict[sp][l_r],
-                    dsp_obj_sp.DspIn_Object.wave_param_common[0],
-                    dsp_obj_sp.gui_settings_dict["inverse_filter_active"],
-                    dsp_obj_sp.DspIn_Object.kemar_inverse_filter,
-                    dsp_obj_sp.DspIn_Object.hrtf_blocksize,
-                    dsp_obj_sp.DspIn_Object.sp_blocksize, sp, l_r)
-        # model speaker position change about 1° per block (0.02s) in
-        # clockwise rotation
-        # dsp_obj_sp.gui_dict[sp][0]+=30
-        # if dsp_obj_sp.gui_dict[sp][0] >= 360:
-            #dsp_obj_sp.gui_dict[sp][0] -= 360
+                    dsp_obj_sp.DspIn_Object.hopsize, sp)
 
-        # overlap and add binaural stereo block output of speaker sp
-        #  to prior binaural stereo block output of speaker sp
-            dsp_obj_sp.DspOut_Object.overlap_add(
-                dsp_obj_sp.DspIn_Object.fft_blocksize,
-                dsp_obj_sp.DspIn_Object.hopsize, sp)
+            binaural_block_dict_out_ex_sp.put(
+                dsp_obj_sp.DspOut_Object.binaural_block_dict_out[sp])
+            cotinue_output_ex_sp.value = \
+                dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp]
+            dsp_obj_sp.blockcounter += 1
 
-        binaural_block_dict_out_ex_sp.put(
-            dsp_obj_sp.DspOut_Object.binaural_block_dict_out[sp])
-        cotinue_output_ex_sp.value = \
-            dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp]
-        dsp_obj_sp.blockcounter += 1
+        else:
+            time.sleep(0.001)
+
     print ("sp: " + str(sp) + " finished")
