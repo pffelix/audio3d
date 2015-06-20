@@ -94,7 +94,7 @@ class Dsp:
                     # fft_blocksize-hrtf_blocksize+1) and current block
                     # begin_end
                     self.DspOut_Object.continue_convolution_dict[sp] = \
-                        self.DspIn_Object.get_block(self.gui_dict[sp][2], sp)
+                        self.DspIn_Object.get_sp_block(sp)
                     #plt.plot(self.DspIn_Object.sp_block_dict[sp])
                     #plt.show()
 
