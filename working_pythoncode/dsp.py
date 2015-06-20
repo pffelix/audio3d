@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import multiprocessing
 import gui_utils
 
-from dsp_signal_handler import DspSignalHandler
+from error_handler import send_error
 
 import time
 
@@ -43,11 +43,6 @@ class Dsp:
         # blocks
         self.blockcounter = 0
 
-        # Here a signal handler will be created
-        # Usage:
-        # When error occurs, call the function self.signal_handler.send_error()
-        # The only parameter (A String!) is the message you want to send
-        self.signal_handler = DspSignalHandler()
 
     def run(self):
         # run the main while loop as long as there are still samples to be

@@ -11,8 +11,7 @@ from PyQt4.QtGui import *
 from gui_utils import *
 from dsp import Dsp
 import threading
-import numpy as np
-import numpy.random as rdn
+from error_handler import *
 
 # initialization of variables
 default_position = [[50, 20], [290, 20], [170, 50],
@@ -99,6 +98,7 @@ class MainWindow(QWidget):
         self.plot_button.clicked.connect(self.plot_sequence)
         self.combo_box.currentIndexChanged.connect(self.inverse_disable)
         self.inverse_box.stateChanged.connect(self.inverse_disable)
+
 
         # set window
         self.setLayout(layout)
@@ -215,13 +215,9 @@ class MainWindow(QWidget):
                 self.plot_button.setEnabled(True)
                 self.Dsp_Object = Dsp(gui_dict, gui_stop, gui_pause,
                                       gui_settings_dict)
-                self.Dsp_Object.signal_handler.error_occur.connect(
-                    self.show_error)
-                self.Dsp_Object.DspIn_Object.signal_handler.error_occur.connect(
-                    self.show_error)
-                self.Dsp_Object.DspOut_Object.signal_handler.error_occur.connect(
-                    self.show_error)
-
+                self.error_timer = QTimer(self)
+                self.error_timer.timeout.connect(self.show_error)
+                self.error_timer.start(50)
                 self.play = threading.Thread(target=self.Dsp_Object.run)
                 self.play.start()
 
@@ -237,8 +233,12 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def show_error(self):
-        sender = self.sender()
-        print(sender.error_message)
+        self.error_timer.stop()
+        from error_handler import error_present
+        if error_present:
+            print(check_error())
+            update_error_state()
+        self.error_timer.start(50)
 
     def positions(self):
 

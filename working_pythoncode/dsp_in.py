@@ -10,7 +10,7 @@ import struct
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-from dsp_signal_handler import DspSignalHandler
+from error_handler import send_error
 import time
 
 
@@ -55,12 +55,6 @@ class DspIn:
             self.sp_blocksize,), dtype=np.int16))
         # build a hann window with sp_blocksize
         self.hann = self.build_hann_window(self.sp_blocksize)
-
-        # Here a signal handler will be created
-        # Usage:
-        # When error occurs, call the function self.signal_handler.send_error()
-        # The only parameter (A String!) is the message you want to send
-        self.signal_handler = DspSignalHandler()
 
     ## @brief #function rounds any input value to the closest integer
     # @details This function does a normal school arithmetic round (choose
