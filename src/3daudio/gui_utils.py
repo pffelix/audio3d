@@ -5,8 +5,7 @@ author: H. Zhu, M. Heiss
 
 from PyQt4 import QtCore, QtGui, QtOpenGL
 from .plot import GLPlotWidget
-
-
+from pkg_resources import resource_filename,Requirement
 # initialization of variables
 gui_dict = {}
 gui_settings_dict = {"hrtf_database": "kemar_normal_ear",
@@ -231,7 +230,8 @@ class Speaker(Item):
 
         global speaker_list
         self.index = index
-        image_path = '3daudio/image/speaker'+str(index+1)+'.png'
+        image_path ='/3daudio/image/'+'speaker'+str(index+1)+'.png'
+        image_path = resource_filename(Requirement.parse("3daudio"), image_path)
         self.origin_image = QtGui.QImage(image_path)
         super(Speaker, self).__init__()
         self.setPos(posx, posy)
@@ -275,7 +275,9 @@ class Speaker(Item):
 class Audience(Item):
 
     type = 'audience'
-    origin_image = QtGui.QImage('3daudio/image/audience.png')
+    image_path = resource_filename(Requirement.parse("3daudio"), "3daudio/image/audience.png")
+    print(image_path)
+    origin_image = QtGui.QImage(image_path)
 
     def __init__(self):
         global audience_pos
