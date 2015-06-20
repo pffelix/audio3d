@@ -12,8 +12,8 @@ import dsp
 def main():
     if __name__ == '__main__':
         gui_dict_mockup = {0: [90, 0, "./audio_in/sine_1kHz_(44.1,1,16).wav",
-                               True]#,
-                           #1: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav", True]#,
+                               True],
+                           1: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav", True]#,
                            #2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav",
                            # True],
                            # 0: [90, 2, "./audio_in/music_mix_(44.1,2,16).wav", True]
