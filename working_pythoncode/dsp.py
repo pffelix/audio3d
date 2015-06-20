@@ -182,6 +182,7 @@ class Dsp:
         binaural_block_dict_out_ex = {}
         cotinue_output_ex = {}
         blockcounter_sync = multiprocessing.Value('i', 0)
+        played_block_counter_last = 0
 
         for sp in self.gui_dict:
             binaural_block_dict_out_ex[sp] = multiprocessing.Queue()
@@ -221,9 +222,18 @@ class Dsp:
                         self.DspIn_Object.wave_param_common[0],
                         self.DspIn_Object.hopsize))
                 startaudiooutput.start()
-            blockcounter_sync.value += 1
 
-            self.blockcounter += 1
+            if self.blockcounter <= self.bufferblocks:
+                self.blockcounter += 1
+                blockcounter_sync.value += 1
+            else:
+                while self.DspOut_Object.played_block_counter <= \
+                        played_block_counter_last:
+                    # wait until audioplayback finished with current block
+                    time.sleep(1/self.DspIn_Object.wave_param_common[0]*10)
+                played_block_counter_last += 1
+                self.blockcounter += 1
+                blockcounter_sync.value += 1
             print(self.blockcounter)
         #plt.plot(self.DspOut_Object.binaural[:, :])
         #plt.show()
