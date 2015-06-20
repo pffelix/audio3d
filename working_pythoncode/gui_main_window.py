@@ -41,11 +41,9 @@ class MainWindow(QWidget):
 
         # set property window
         self.speaker_property = SpeakerProperty()
-        self.speaker_property.closed.connect(self.property_closed)
 
         # set plot window
         self.sequence_plot = SequencePlot()
-        self.sequence_plot.plot_closed.connect(self.plot_closed)
         self.sequence_plot.plot_on.connect(self.update_sequence_dicts)
 
         self.Dsp_Object = None
@@ -125,6 +123,7 @@ class MainWindow(QWidget):
         self.speaker_property.azimuth_line_edit.setText(azimuth)
         self.speaker_property.distance_line_edit.setText(dist)
         self.speaker_property.show()
+        self.speaker_property.is_on = True
         self.speaker_property.added.connect(self.change_property)
 
     def change_property(self):
@@ -135,11 +134,6 @@ class MainWindow(QWidget):
         y_new = self.speaker_property.posy
         speaker_list[i].setPos(x_new, y_new)
         speaker_list[i].cal_rel_pos()
-
-    def property_closed(self):
-
-        self.speaker_property.added.disconnect()
-        self.speaker_property.clear()
 
     @pyqtSlot()
     def add_speaker(self):
@@ -169,6 +163,7 @@ class MainWindow(QWidget):
             self.speaker_property.azimuth_line_edit.setText(str_deg)
             self.speaker_property.distance_line_edit.setText(str_dis)
             self.speaker_property.show()
+            self.speaker_property.is_on = True
         else:
             return
 
@@ -266,6 +261,7 @@ class MainWindow(QWidget):
         self.sequence_plot.rhrtf_spec.set_data(self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
 
         self.sequence_plot.show()
+        self.sequence_plot.is_on = True
         self.sequence_plot.timer.timeout.connect(self.update_sequence_dicts)
         self.sequence_plot.timer.start(20)
 
@@ -277,13 +273,12 @@ class MainWindow(QWidget):
         self.sequence_plot.lhrtf_spec.update_data(self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
         self.sequence_plot.rhrtf_spec.update_data(self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
 
-    def plot_closed(self):
-        self.sequence_plot.plot_closed.disconnect()
-        self.sequence_plot.timer.stop()
-
-
     def closeEvent(self, eventQCloseEvent):
         self.room.clear()
+        if self.sequence_plot.is_on:
+            self.sequence_plot.close()
+        if self.speaker_property.is_on:
+            self.speaker_property.close()
         if self.play is not None:
             gui_stop_init = switch_stop_playback()
         eventQCloseEvent.accept()
