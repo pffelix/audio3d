@@ -11,6 +11,8 @@ from PyQt4.QtGui import *
 from gui_utils import *
 from dsp import Dsp
 import threading
+import numpy as np
+import numpy.random as rdn
 
 # initialization of variables
 default_position = [[50, 20], [290, 20], [170, 50],
@@ -259,45 +261,24 @@ class MainWindow(QWidget):
         i = speaker_to_show
         print ("initialize")
 
-        self.line1, = self.sequence_plot.axis0.plot(
-            self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 0],
-            self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
-        self.line2, = self.sequence_plot.axis1.plot(
-            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 0],
-            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
-        self.line3, = self.sequence_plot.axis2.plot(
-            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 0],
-            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
+        self.sequence_plot.widget.set_data(self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
+
         self.sequence_plot.show()
         self.sequence_plot.timer.timeout.connect(self.update_sequence_dicts)
-        self.sequence_plot.timer.start(1000)
+        self.sequence_plot.timer.start(20)
 
     def update_sequence_dicts(self):
         from gui_utils import speaker_to_show
         i = speaker_to_show
-        self.line1.set_data(
-            self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 0],
-            self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
-        self.line2.set_data(
-            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 0],
-            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
-        self.line3.set_data(
-            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 0],
-            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
-
-        self.sequence_plot.axis1.relim()
-        self.sequence_plot.axis2.relim()
-        self.sequence_plot.axis1.autoscale_view(None, False, True)
-        self.sequence_plot.axis2.autoscale_view(None, False, True)
-        self.sequence_plot.canvas.draw()
+        self.sequence_plot.widget.update_data(self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
 
     def plot_closed(self):
         self.sequence_plot.plot_closed.disconnect()
         self.sequence_plot.timer.stop()
-        self.sequence_plot.axis0.clear()
-        self.sequence_plot.axis1.clear()
-        self.sequence_plot.axis2.clear()
+
 
     def closeEvent(self, eventQCloseEvent):
         self.room.clear()
+        if self.play is not None:
+            gui_stop_init = switch_stop_playback()
         eventQCloseEvent.accept()

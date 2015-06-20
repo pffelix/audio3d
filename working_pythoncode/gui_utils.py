@@ -4,9 +4,7 @@ author: H. Zhu, M. Heiss
 """
 
 from PyQt4 import QtCore, QtGui, QtOpenGL
-
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
+from plot import GLPlotWidget
 
 
 # initialization of variables
@@ -394,20 +392,21 @@ class SpeakerProperty(QtGui.QWidget):
 
 # Additional window for plot of speaker and HRTF spectrum while .wav is played
 class SequencePlot(QtGui.QWidget):
+
     plot_closed = QtCore.pyqtSignal()
     plot_on = QtCore.pyqtSignal()
 
     def __init__(self):
         super(SequencePlot, self).__init__()
 
-        self.figure = Figure()
-        self.canvas = FigureCanvasQTAgg(self.figure)
-        self.axis0 = self.figure.add_subplot(311)
-        self.axis1 = self.figure.add_subplot(312, ylabel='right HRTF')
-        self.axis2 = self.figure.add_subplot(313, ylabel='left HRTF')
+
+        # initialize the GL widget
+        self.widget = GLPlotWidget()
 
         self.layoutVertical = QtGui.QVBoxLayout(self)
-        self.layoutVertical.addWidget(self.canvas)
+        self.layoutVertical.addWidget(self.widget)
+        # put the window at the screen position (100, 100)
+        self.setGeometry(100, 100, self.widget.width, self.widget.height)
 
         self.setWindowTitle('Sequence Plot')
         self.timer = QtCore.QTimer(self)
