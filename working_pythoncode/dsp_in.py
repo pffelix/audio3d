@@ -12,13 +12,12 @@ import math
 import matplotlib.pyplot as plt
 from dsp_signal_handler import DspSignalHandler
 
+
 ## @class <DspIn> This class contains all functions executed before the
 # convolution in the run-function of the Dsp-class. This includes particularly
 # to read parameters of blocks and hrtfs, to read blocks and hrtfs from
 # their databases, to normalize hrtfs, round numbers and to create all
 # necessary kinds of windows.
-
-
 class DspIn:
     ## Constructor of the DspIn class.
     def __init__(self, gui_dict_init, gui_settings_dict_init):
@@ -44,17 +43,14 @@ class DspIn:
         self.sp_blocksize, self.sp_blocktime, self.overlap, self.hopsize = \
             self.get_block_param(self.wave_param_common,
                                  self.hrtf_blocksize, self.fft_blocksize)
-        # Get samplerate from header in .wav-file of all speakers
+        # Get necessary parameters of input-file and store to sp_param-dict.
         self.sp_param = self.init_get_block(gui_dict_init)
         self.block_begin_end = self.init_set_block_begin_end(gui_dict_init)
+        # Create Hann-window and write it to hann-variable
         self.hann = self.build_hann_window(self.sp_blocksize)
         self.sp_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
             self.sp_blocksize,), dtype=np.int16))
-
-        # Here a signal handler will be created
-        # Usage:
-        # When error occurs, call the function self.signal_handler.send_error()
-        # The only parameter (A String!) is the message you want to send
+        # If error occurs, send error message
         self.signal_handler = DspSignalHandler()
 
     ## @brief #function rounds any input value to the closest integer
@@ -299,76 +295,103 @@ class DspIn:
     # each key [sp].
     # sp_param[sp][0] = total number of samples in the file
     # sp_param[sp][1] = sample-rate, default: 44100 (but adjustable later)
-    # sp_param[sp][2] = number of sp_param_sp[2] per sample (8-/16-/??-int for
-    # one sample)
+    # sp_param[sp][2] = number of bits per sample (8-/16-/??-int for one sample)
     # sp_param[sp][3] = number of channels (mono = 1, stereo = 2)
     # sp_param[sp][4] = format of file (< = RIFF, > = RIFX)
     # sp_param[sp][5] = size of data-chunk in bytes
     # sp_param[sp][6] = total-header-size (= number of bytes until data begins)
     # sp_param[sp][7] = bitfactor (8-bit --> 1, 16-bit --> 2)
     # sp_param[sp][8] = total number of bytes until data-chunk ends
-    # sp_param[sp][9] = sp_param[sp][9] for correct encoding of data}
+    # sp_param[sp][9] = format character for correct encoding of data}
     # @author Matthias Lederle
     def init_get_block(self, gui_dict):
         # initialize dict with 10 (empty) values per key
         sp_param = dict.fromkeys(gui_dict, [None] * 10)
         # go through all speakers
         for sp in gui_dict:
-            # open the file
-            file = open(gui_dict[sp][2], 'rb')
-            # checks whether file is RIFX or RIFF
-            _big_endian = False
-            str1 = file.read(4)
-            if str1 == b'RIFX':
-                _big_endian = True
-            if _big_endian:
-                sp_param[sp][4] = '>'
+            if gui_dict[sp][2] == 'unknown' or gui_dict[sp][2] == '':
+                # ERROR message -- no file selected
+                print("No file selected")
+                # errmsg = "No audio source was selected. Please press " \
+                #          "'Reset' and add speaker(s) with valid pathname again."
+                # self.signal_handler.send_error(errmsg)
             else:
-                sp_param[sp][4] = '<'
-            # jump to byte number 22
-            file.seek(22)
-            # get number of channels from header
-            sp_param[sp][3] = struct.unpack(sp_param[sp][4] + "H", file.read(
-                2))[0]
-            # get samplerate from header (always 44100)
-            sp_param[sp][1] = struct.unpack(sp_param[sp][4] + "I", file.read(
-                4))[0]
-            file.seek(34)  # got to byte 34
-            # get number of sp_param_sp[2] per sample from header
-            sp_param[sp][2] = struct.unpack(sp_param[sp][4] + "H", file.read(
-                2))[0]
-            # check in 2-byte steps, where the actual data begins
-            # save distance from end of header in "counter"
-            counter = 0
-            checkbytes = b'aaaa'
-            # go to byte where data-chunk begins and save distance in "counter"
-            while checkbytes != b'data':
-                file.seek(-2, 1)
-                checkbytes = file.read(4)
-                counter += 1
-            # get data-chunk-size from the data-chunk-header
-            sp_param[sp][5] = struct.unpack(sp_param[sp][4] + 'i', file.read(
-                4))[0]
-            # calculate total-header-size (no. of bytes until data begins)
-            sp_param[sp][6] = 40 + (counter * 2)
-            # calculate bitfactor
-            sp_param[sp][7] = int(sp_param[sp][2] / 8)
-            # calculate the total numbers of bytes until the end of data-chunk
-            sp_param[sp][8] = sp_param[sp][6] + sp_param[sp][5]
-            # choose correct sp_param[sp][9] depending on number of
-            # sp_param_sp[2] per sample
-            if sp_param[sp][7] == 1:  # if bitfactor == 1
-                sp_param[sp][9] = "B"  # use sp_param[sp][9] "B"
-            elif sp_param[sp][7] == 2:  # if bitfactor == 2
-                sp_param[sp][9] = "h"  # use sp_param[sp][9] "h"
-            # else:
-            # print("sp_param[sp][9] for this number of sp_param_sp[
-            # 2]/sample is not
-            # defined!")
-            # calculate total number of samples of the file
-            sp_param[sp][0] = int(sp_param[sp][5] / (sp_param[sp][2] / 8 *
-                                                     sp_param[sp][3]))
-            file.close()  # close file opened in the beginning
+                # open the file
+                file = open(gui_dict[sp][2], 'rb')
+                # checks whether file is RIFX or RIFF
+                _big_endian = False
+                str1 = file.read(4)
+                if str1 == b'RIFX':
+                    _big_endian = True
+                if _big_endian:
+                    sp_param[sp][4] = '>'
+                else:
+                    sp_param[sp][4] = '<'
+                # jump to byte number 22
+                file.seek(22)
+                # get number of channels from header
+                sp_param[sp][3] = struct.unpack(sp_param[sp][4] + "H",
+                                                file.read(2))[0]
+                # get samplerate from header (always 44100)
+                sp_param[sp][1] = struct.unpack(sp_param[sp][4] + "I",
+                                                file.read(4))[0]
+                file.seek(34)  # got to byte 34
+                # get number of sp_param_sp[2] per sample from header
+                sp_param[sp][2] = struct.unpack(sp_param[sp][4] + "H",
+                                                file.read(2))[0]
+                # check in 2-byte steps, where the actual data begins
+                # save distance from end of header in "counter"
+                counter = 0
+                checkbytes = b'aaaa'
+                # go to byte where data-chunk begins and save distance in
+                # "counter"
+                while checkbytes != b'data':
+                    file.seek(-2, 1)
+                    checkbytes = file.read(4)
+                    counter += 1
+                # get data-chunk-size from the data-chunk-header
+                sp_param[sp][5] = struct.unpack(sp_param[sp][4] + 'i',
+                                                file.read(4))[0]
+                # calculate total-header-size (no. of bytes until data begins)
+                sp_param[sp][6] = 40 + (counter * 2)
+                # calculate bitfactor
+                sp_param[sp][7] = int(sp_param[sp][2] / 8)
+                # calculate the total numbers of bytes until the end of
+                # data-chunk
+                sp_param[sp][8] = sp_param[sp][6] + sp_param[sp][5]
+                # choose correct format character depending on number of bits
+                # per sample
+                if sp_param[sp][7] == 1:    # if bitfactor == 1
+                    sp_param[sp][9] = "B"   # use format character "B"
+                elif sp_param[sp][7] == 2:  # if bitfactor == 2
+                    sp_param[sp][9] = "h"   # use format character "h"
+                # calculate total number of samples of the file
+                sp_param[sp][0] = int(sp_param[sp][5] / (sp_param[sp][2] / 8 *
+                                                         sp_param[sp][3]))
+                file.close()  # close file opened in the beginning
+
+            # In case of error, send errormessage to gui
+            # If samplerate is not 44100 Hz
+            if not sp_param[sp][1] == 44100:
+                print("error1")
+                # errmsg = "Input signal doesn't have samplerate of 44100 " \
+                #     "samples/sec. and can't be processed. Please choose " \
+                #     "another input file."
+                # self.signal_handler.send_error("error")
+
+            # If bit format is not 8- or 16-bit/sample
+            if not sp_param[sp][2] == 8 and not sp_param[sp][2] == 16:
+                print("error2")
+                # errmsg = "The bit-format of the samples is neither 8- nor " \
+                #          "16-bit and can't be processed. Please choose " \
+                #          "another input file."
+                # self.signal_handler.send_error(errmsg)
+            # If signal is neither mono nor stereo, send error message to gui.
+            if not sp_param[sp][3] == 1 and not sp_param[sp][3] == 2:
+                print("error3")
+                # errmsg = "Input signal is neither mono nor stereo and can't " \
+                #          "be processed. Please choose another input file."
+                # self.signal_handler.send_error(errmsg)
         return sp_param
 
     ## @brief reads one block of samples
@@ -487,12 +510,6 @@ class DspIn:
                     self.sp_block_dict[sp][i, ] = mean_value
                     i += 1
                 continue_input = False
-                # else:
-                # an Matthias: Hier bitte eine Fehlerausgabe über
-                # DspSignalHandler() schreiben (Fragen zu der Funktion ->
-                # Huaijiang) --> Wird gemacht!
-                # print("Signal is neither mono nor stereo (self.sp_param[sp][3]
-                #       "!= 1" or "2") and can't be processed!")
 
         file.close()
         self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))

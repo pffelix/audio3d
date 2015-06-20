@@ -17,4 +17,3 @@ class DspSignalHandler(QtCore.QObject):
     def send_error(self, message):
         self.error_message = message;
         self.error_occur.emit()
-
