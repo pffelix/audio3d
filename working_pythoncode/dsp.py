@@ -179,11 +179,13 @@ class Dsp:
     def run_multiprocessed(self, gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init):
         processes = {}
+        binaural_block_dict_out_q = {}
 
         for sp in self.gui_dict:
+            binaural_block_dict_out_q[sp] = multiprocessing.Queue()
             processes[sp] = multiprocessing.Process(target=sp_block_iteration,
                                                     args=(gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init, sp,))
+                 gui_settings_dict_init, sp, binaural_block_dict_out_q[sp], ))
         for sp in processes:
             processes[sp].start()
 
@@ -203,7 +205,7 @@ class Dsp:
             self.DspOut_Object.lock.release()
 
 def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init, sp):
+                 gui_settings_dict_init, sp, binaural_block_dict_out_q_sp):
 
     dsp_obj_sp = dsp.Dsp(gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init)
@@ -275,5 +277,6 @@ def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
                 dsp_obj_sp.DspIn_Object.hopsize, sp)
         #plt.plot(dsp_obj_sp.DspOut_Object.binaural_block_dict_add[sp][:, :])
         #plt.show()
-        print()
+        binaural_block_dict_out_q_sp.put(
+            dsp_obj_sp.DspOut_Object.binaural_block_dict_out[sp])
         dsp_obj_sp.blockcounter += 1
