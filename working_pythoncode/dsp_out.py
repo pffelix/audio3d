@@ -45,7 +45,8 @@ class DspOut:
         self.played_block_counter = 0
         self.playbuffer = collections.deque()
         self.lock = threading.Lock()
-
+        self.playback_finished = False
+        self.playback_finished_unsuccesful = False
 
     # @author: Felix Pfreundtner
     def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize,
@@ -241,5 +242,7 @@ class DspOut:
             print("Error PC to slow - Playback Stopped")
             for sp in self.continue_convolution_dict:
                 #self.played_frames_end += sp_blocksize
-                self.continue_convolution_dict[sp] is False
+                self.continue_convolution_dict[sp] = False
+                self.playback_finished_unsuccesful = True
         # return continue_convolution_dict
+        self.playback_finished = True

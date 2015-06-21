@@ -183,7 +183,7 @@ class Dsp:
         cotinue_output_ex = {}
         blockcounter_sync = multiprocessing.Value('i', 0)
         played_block_counter_last = 0
-
+        playback_finished_unsuccesful = multiprocessing.Value('b', False)
         for sp in self.gui_dict:
             binaural_block_dict_out_ex[sp] = multiprocessing.Queue()
             cotinue_output_ex[sp] = multiprocessing.Value('b', True)
@@ -192,7 +192,8 @@ class Dsp:
                  gui_settings_dict_init, sp, binaural_block_dict_out_ex[sp],
                                                           cotinue_output_ex[
                                                               sp],
-                                                          blockcounter_sync, ))
+                                                          blockcounter_sync,
+                                                          playback_finished_unsuccesful, ))
         for sp in processes:
             processes[sp].start()
 
@@ -203,7 +204,7 @@ class Dsp:
                 self.DspOut_Object.binaural_block_dict_out[sp] = \
                     binaural_block_dict_out_ex[sp].get()
                 self.DspOut_Object.continue_convolution_dict[sp] = \
-                    cotinue_output_ex[sp].value
+                    bool(cotinue_output_ex[sp].value)
             # Mix binaural stereo blockoutput of every speaker to one
             # binaural stereo block output having regard to speaker distances
             self.DspOut_Object.mix_binaural_block(
@@ -217,39 +218,40 @@ class Dsp:
             # Begin audio playback if specified number of bufferblocks
             # has been convolved
             if self.blockcounter == self.bufferblocks:
-                startaudiooutput = threading.Thread(
+                audiooutput = threading.Thread(
                     target=self.DspOut_Object.audiooutput, args=(
                         self.DspIn_Object.wave_param_common[0],
                         self.DspIn_Object.hopsize))
-                startaudiooutput.start()
+                audiooutput.start()
 
             if self.blockcounter <= self.bufferblocks:
                 self.blockcounter += 1
                 blockcounter_sync.value += 1
             else:
                 while self.DspOut_Object.played_block_counter <= \
-                        played_block_counter_last:
+                        played_block_counter_last and \
+                        self.DspOut_Object.playback_finished is False:
                     # wait until audioplayback finished with current block
                     time.sleep(1/self.DspIn_Object.wave_param_common[0]*10)
+                    print("wait")
                 played_block_counter_last += 1
                 self.blockcounter += 1
                 blockcounter_sync.value += 1
+            playback_finished_unsuccesful.value = self.DspOut_Object.playback_finished_unsuccesful
             print(self.blockcounter)
         #plt.plot(self.DspOut_Object.binaural[:, :])
         #plt.show()
 
 
-
-
 def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init, sp, binaural_block_dict_out_ex_sp,
-                       cotinue_output_ex_sp, blockcounter_sync):
+                       cotinue_output_ex_sp, blockcounter_sync, playback_finished_unsuccesful):
 
     dsp_obj_sp = dsp.Dsp(gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init)
-
-    while dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] is True:
-        if  dsp_obj_sp.blockcounter <= blockcounter_sync.value:
+    while dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] is True and \
+            bool(playback_finished_unsuccesful.value) is False:
+        if dsp_obj_sp.blockcounter <= blockcounter_sync.value:
 
             print("sp " + str(sp) + ": FFT Block " + str(
                 dsp_obj_sp.blockcounter) + ":")
