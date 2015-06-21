@@ -46,7 +46,7 @@ class DspOut:
         self.playbuffer = collections.deque()
         self.lock = threading.Lock()
         self.playback_finished = False
-        self.playback_finished_unsuccesful = False
+        self.playback_successful = True
 
     # @author: Felix Pfreundtner
     def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize,
@@ -243,6 +243,6 @@ class DspOut:
             for sp in self.continue_convolution_dict:
                 #self.played_frames_end += sp_blocksize
                 self.continue_convolution_dict[sp] = False
-                self.playback_finished_unsuccesful = True
+            self.playback_successful = False
         # return continue_convolution_dict
         self.playback_finished = True

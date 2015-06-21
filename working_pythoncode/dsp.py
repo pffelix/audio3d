@@ -24,10 +24,11 @@ import time
 
 class Dsp:
     def __init__(self, gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init):
+                 gui_settings_dict_init, return_ex_init):
         self.gui_dict = gui_dict_init
         self.gui_settings_dict = gui_settings_dict_init
         self.prior_head_angle_dict = dict.fromkeys(gui_dict_init, [])
+        self.return_ex = return_ex_init
         self.outputsignal_sample_number = dict.fromkeys(gui_dict_init, [])
         # Set number of bufferblocks between fft block convolution and audio
         # block playback
@@ -166,6 +167,9 @@ class Dsp:
             if self.DspOut_Object.gui_stop is True:
                 break
 
+        # set correct playback output if stop button was pressed
+        if self.DspOut_Object.gui_stop is True:
+            self.DspOut_Object.playback_successful = True
         # show plot of the output signal binaural_dict_scaled
         #plt.plot(self.DspOut_Object.binaural[:, l_r])
         #plt.show()
@@ -174,26 +178,29 @@ class Dsp:
             self.DspOut_Object.binaural,
             self.DspIn_Object.wave_param_common,
             self.gui_dict)
+        self.return_ex.put(self.DspOut_Object.playback_successful)
+        return self.return_ex
 
 
     def run_multiprocessed(self, gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init):
+                 gui_settings_dict_init, return_ex_init):
         processes = {}
         binaural_block_dict_out_ex = {}
         cotinue_output_ex = {}
         blockcounter_sync = multiprocessing.Value('i', 0)
         played_block_counter_last = 0
-        playback_finished_unsuccesful = multiprocessing.Value('b', False)
+        playback_successful = multiprocessing.Value('b', True)
         for sp in self.gui_dict:
             binaural_block_dict_out_ex[sp] = multiprocessing.Queue()
             cotinue_output_ex[sp] = multiprocessing.Value('b', True)
             processes[sp] = multiprocessing.Process(target=sp_block_iteration,
                                                     args=(gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init, sp, binaural_block_dict_out_ex[sp],
+                 gui_settings_dict_init, return_ex_init, sp,
+                                                          binaural_block_dict_out_ex[sp],
                                                           cotinue_output_ex[
                                                               sp],
                                                           blockcounter_sync,
-                                                          playback_finished_unsuccesful, ))
+                                                          playback_successful, ))
         for sp in processes:
             processes[sp].start()
 
@@ -237,20 +244,29 @@ class Dsp:
                 played_block_counter_last += 1
                 self.blockcounter += 1
                 blockcounter_sync.value += 1
-            playback_finished_unsuccesful.value = self.DspOut_Object.playback_finished_unsuccesful
+            playback_successful.value = self.DspOut_Object.playback_successful
             print(self.blockcounter)
         #plt.plot(self.DspOut_Object.binaural[:, :])
         #plt.show()
 
+        if self.DspOut_Object.gui_stop is True:
+            self.DspOut_Object.playback_successful = True
+        print("Playback successfull: " + str(
+            self.DspOut_Object.playback_successful))
+        self.return_ex.put(self.DspOut_Object.playback_successful)
+        return self.return_ex
+
 
 def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init, sp, binaural_block_dict_out_ex_sp,
-                       cotinue_output_ex_sp, blockcounter_sync, playback_finished_unsuccesful):
+                 gui_settings_dict_init, return_ex_init, sp,
+                       binaural_block_dict_out_ex_sp,
+                       cotinue_output_ex_sp, blockcounter_sync,
+                       playback_successful):
 
     dsp_obj_sp = dsp.Dsp(gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init)
+                 gui_settings_dict_init, return_ex_init)
     while dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] is True and \
-            bool(playback_finished_unsuccesful.value) is False:
+            bool(playback_successful.value) is True:
         if dsp_obj_sp.blockcounter <= blockcounter_sync.value:
 
             print("sp " + str(sp) + ": FFT Block " + str(

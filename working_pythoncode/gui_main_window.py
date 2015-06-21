@@ -11,7 +11,9 @@ from PyQt4.QtGui import *
 from gui_utils import *
 from dsp import Dsp
 import threading
+import multiprocessing
 from error_handler import *
+import time
 
 # initialization of variables
 default_position = [[50, 20], [290, 20], [170, 50],
@@ -47,7 +49,11 @@ class MainWindow(QWidget):
 
         self.Dsp_Object = None
         self.play = None
+        # return_ex: save whether playback was successful
+        self.return_ex = multiprocessing.Queue()
         self.init_ui()
+        # return_ex: Playback not run yet -> unsuccessful
+        self.return_ex.put(False)
 
     def init_ui(self):
 
@@ -202,25 +208,35 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def control(self):
         global gui_stop
+        global gui_pause
+        global gui_settings_dict
+        global gui_dict
+        # check whether speaker has been selected
         if len(gui_dict) > 0:
-            gui_stop_init = switch_stop_playback()
-            print(gui_stop)
-            if gui_stop_init is False:
-
-                global gui_settings_dict
-                gui_settings_dict = {
-                    "hrtf_database": self.combo_box.currentText(),
-                    "inverse_filter_active": self.inverse_box.isChecked(),
-                    "bufferblocks": self.buffersize_spin_box.value()}
-                self.plot_button.setEnabled(True)
-                self.Dsp_Object = Dsp(gui_dict, gui_stop, gui_pause,
-                                      gui_settings_dict)
-                self.error_timer = QTimer(self)
-                self.error_timer.timeout.connect(self.show_error)
-                self.error_timer.start(50)
-                self.play = threading.Thread(target=self.Dsp_Object.run)
-                self.play.start()
-
+            # don't let the playback and convolution start more than one time
+            if self.return_ex.empty() is True:
+                gui_stop = switch_stop_playback()
+                return
+            # if playback was stopped as user pressed stop button switch stop
+            # variable to playmode
+            if self.return_ex.empty() is False and self.return_ex.get() is \
+                    True:
+                gui_stop = switch_stop_playback()
+            print("continue")
+            #while not self.return_ex.empty():
+                #self.return_ex.get()
+            gui_settings_dict = {
+                "hrtf_database": self.combo_box.currentText(),
+                "inverse_filter_active": self.inverse_box.isChecked(),
+                "bufferblocks": self.buffersize_spin_box.value()}
+            self.plot_button.setEnabled(True)
+            self.Dsp_Object = Dsp(gui_dict, gui_stop, gui_pause,
+                                  gui_settings_dict, self.return_ex)
+            self.error_timer = QTimer(self)
+            self.error_timer.timeout.connect(self.show_error)
+            self.error_timer.start(50)
+            self.play = threading.Thread(target=self.Dsp_Object.run)
+            self.play.start()
         else:
             msgBox = QMessageBox()
             msgBox.setText("Please add a speaker.")

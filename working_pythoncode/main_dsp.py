@@ -7,6 +7,7 @@ Created on Fri Jun  12 15:45:23 2015
 from PyQt4.QtGui import *
 import sys
 import dsp
+import multiprocessing
 
 # if you want to start dsp algorithm without gui run dsp_main und uncomment actualization of gui_dict, gui_stop_init and gui_pause_init in dsp.py line 49-51 (# self.gui_dict = gui_utils.gui_dict):
 def main():
@@ -24,8 +25,14 @@ def main():
                          "bufferblocks": 5}
         gui_stop_mockup = False
         gui_pause_mockup = False
-        dsp_object = dsp.Dsp(gui_dict_mockup, gui_stop_mockup, gui_pause_mockup, gui_settings_dict_mockup)
-        dsp_object.run_multiprocessed(gui_dict_mockup, gui_stop_mockup, gui_pause_mockup, gui_settings_dict_mockup)
+        return_exe_mockup = multiprocessing.Queue()
+        return_exe_mockup.put(False)
+        dsp_object = dsp.Dsp(gui_dict_mockup, gui_stop_mockup,
+                             gui_pause_mockup, gui_settings_dict_mockup,
+                             return_exe_mockup)
+        dsp_object.run_multiprocessed(gui_dict_mockup, gui_stop_mockup,
+                                      gui_pause_mockup,
+                                      gui_settings_dict_mockup, return_exe_mockup)
         print()
 if __name__ == '__main__':
     main()

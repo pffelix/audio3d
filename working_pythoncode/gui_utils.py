@@ -12,7 +12,7 @@ gui_dict = {}
 gui_settings_dict = {"hrtf_database": "kemar_normal_ear",
                      "inverse_filter_active": True,
                      "bufferblocks": 5}
-gui_stop = True
+gui_stop = False
 gui_pause = False
 audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
