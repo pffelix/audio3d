@@ -30,7 +30,7 @@ def main():
         dsp_object = dsp.Dsp(gui_dict_mockup, gui_stop_mockup,
                              gui_pause_mockup, gui_settings_dict_mockup,
                              return_exe_mockup)
-        dsp_object.run_multiprocessed
+        dsp_object.run_multi_core()
         print()
 if __name__ == '__main__':
     main()
