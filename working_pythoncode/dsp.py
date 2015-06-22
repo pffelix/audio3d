@@ -189,6 +189,8 @@ class Dsp:
     def run_multi_core(self):
         processes = {}
         binaural_block_dict_out_ex = {}
+        hrtf_spectrum_dict_ex = {}
+        sp_spectrum_dict_ex = {}
         cotinue_output_ex = {}
         gui_dict_ex = {}
         gui_settings_dict_ex = {}
@@ -201,6 +203,8 @@ class Dsp:
         # create a process for every speaker
         for sp in self.gui_dict:
             binaural_block_dict_out_ex[sp] = multiprocessing.Queue()
+            hrtf_spectrum_dict_ex[sp] = multiprocessing.Queue()
+            sp_spectrum_dict_ex[sp] = multiprocessing.Queue()
             gui_dict_ex[sp] = multiprocessing.Queue()
             gui_settings_dict_ex[sp] = multiprocessing.Queue()
 
@@ -213,6 +217,8 @@ class Dsp:
                                       self.return_ex,
                                       sp,
                                       binaural_block_dict_out_ex[sp],
+                                      hrtf_spectrum_dict_ex[sp],
+                                      sp_spectrum_dict_ex[sp],
                                       cotinue_output_ex[sp],
                                       blockcounter_sync_ex,
                                       playback_successful_ex,
@@ -240,10 +246,14 @@ class Dsp:
                 gui_dict_ex[sp].put(self.gui_dict[sp])
                 gui_settings_dict_ex[sp].put(self.gui_settings_dict)
 
-            # get convoluted blocks from every speaker process
+            # update values from every speaker child process into this function
             for sp in processes:
                 self.DspOut_Object.binaural_block_dict_out[sp] = \
                     binaural_block_dict_out_ex[sp].get()
+                self.DspOut_Object.sp_spectrum_dict[sp] = \
+                    sp_spectrum_dict_ex[sp].get()
+                self.DspOut_Object.hrtf_spectrum_dict[sp] = \
+                    hrtf_spectrum_dict_ex[sp].get()
                 self.DspOut_Object.continue_convolution_dict[sp] = \
                     bool(cotinue_output_ex[sp].value)
 
@@ -329,6 +339,8 @@ def sp_block_convolution(gui_dict_init,
                          gui_settings_dict_init,
                          return_ex_init, sp,
                          binaural_block_dict_out_ex_sp,
+                         hrtf_spectrum_dict_ex_sp,
+                         sp_spectrum_dict_ex_sp,
                          cotinue_output_ex_sp,
                          blockcounter_sync,
                          playback_successful,
@@ -344,6 +356,7 @@ def sp_block_convolution(gui_dict_init,
 
     while dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] is True and \
             bool(playback_successful.value) is True:
+        # if block iteration is smaller than blockcounter in run_multi_core run
         if dsp_obj_sp.blockcounter <= blockcounter_sync.value:
 
             # update gui related variables from dsp_object:
@@ -418,12 +431,17 @@ def sp_block_convolution(gui_dict_init,
                     dsp_obj_sp.DspIn_Object.fft_blocksize,
                     dsp_obj_sp.DspIn_Object.hopsize, sp)
 
+            # send values which are updated very block to control function
+            # run_multi_core
             binaural_block_dict_out_ex_sp.put(
                 dsp_obj_sp.DspOut_Object.binaural_block_dict_out[sp])
+            hrtf_spectrum_dict_ex_sp.put(
+                dsp_obj_sp.DspOut_Object.hrtf_spectrum_dict[sp])
+            sp_spectrum_dict_ex_sp.put(dsp_obj_sp.DspOut_Object.sp_spectrum_dict[sp])
             cotinue_output_ex_sp.value = \
                 dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp]
             dsp_obj_sp.blockcounter += 1
-
+        # if block iteration is further than blockcounter in run_multi_core wait
         else:
             time.sleep(1/dsp_obj_sp.DspIn_Object.wave_param_common[0]*10)
 
