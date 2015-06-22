@@ -20,7 +20,6 @@ from error_handler import send_error
 
 import time
 
-
 class Dsp:
     def __init__(self, gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init, return_ex_init):
@@ -45,13 +44,15 @@ class Dsp:
         # blocks
         self.blockcounter = 0
 
-# run dsp algorithm as one process on one cpu core
+    # @brief run dsp algorithm as one process on one cpu core
+    # @details
+    # @author Felix Pfreundtner, Matthias Lederle
     def run_single_core(self):
         # run the main while loop as long as there are still samples to be
         # read from speaker wave files
         while any(self.DspOut_Object.continue_convolution_dict.values()) \
                 is True:
-            ######## actualize variables with gui
+            # actualize variables with gui
             self.gui_dict = gui_utils.gui_dict
             self.DspOut_Object.gui_stop = gui_utils.gui_stop
             self.DspOut_Object.gui_pause = gui_utils.gui_pause
@@ -60,7 +61,6 @@ class Dsp:
             print("FFT Block " + str(self.blockcounter) + ":")
             # set the begin and end of the speaker wave block which needs to
             # be read in this iteration
-            #For Test reasons: if self.blockcounter==0:
             self.DspIn_Object.set_block_begin_end()
             # iterate over all active speakers sp
             for sp in self.gui_dict:
@@ -182,8 +182,10 @@ class Dsp:
 
 
 
-# run dsp algorithm on multiple cores by creating an own process for every
-# speaker
+    # @brief run dsp algorithm on multiple cores by creating an own process for
+    #        every speaker
+    # @details
+    # @author Felix Pfreundtner
     def run_multi_core(self):
         processes = {}
         binaural_block_dict_out_ex = {}
