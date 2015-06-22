@@ -45,8 +45,8 @@ class Dsp:
         # blocks
         self.blockcounter = 0
 
-
-    def run_single(self):
+# run dsp algorithm as one process on one cpu core
+    def run_single_core(self):
         # run the main while loop as long as there are still samples to be
         # read from speaker wave files
         while any(self.DspOut_Object.continue_convolution_dict.values()) \
@@ -180,7 +180,11 @@ class Dsp:
         self.return_ex.put(self.DspOut_Object.playback_successful)
 
 
-    def run_multi(self):
+
+
+# run dsp algorithm on multiple cores by creating an own process for every
+# speaker
+    def run_multi_core(self):
         processes = {}
         binaural_block_dict_out_ex = {}
         cotinue_output_ex = {}
@@ -422,11 +426,6 @@ def sp_block_convolution(gui_dict_init,
             time.sleep(1/dsp_obj_sp.DspIn_Object.wave_param_common[0]*10)
 
     print ("sp: " + str(sp) + " finished")
-
-
-
-
-
 
 
 

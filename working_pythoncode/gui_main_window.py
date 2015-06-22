@@ -235,7 +235,7 @@ class MainWindow(QWidget):
             self.error_timer = QTimer(self)
             self.error_timer.timeout.connect(self.show_error)
             self.error_timer.start(50)
-            self.play = threading.Thread(target=self.Dsp_Object.run_multi)
+            self.play = threading.Thread(target=self.Dsp_Object.run_multi_core)
             self.play.start()
         else:
             msgBox = QMessageBox()
