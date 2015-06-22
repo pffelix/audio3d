@@ -418,9 +418,21 @@ class DspIn:
 
         # scipy io reference function
         start = time.time()
-        scipy_sp_dict ={}
+        scipy_sp_dict_raw = {}
+        scipy_sp_dict = {}
         for sp in gui_dict:
-            _, scipy_sp_dict[sp] = scipy.io.wavfile.read(gui_dict[sp][2])
+            _, scipy_sp_dict_raw[sp] = scipy.io.wavfile.read(gui_dict[sp][2])
+            lenarray = len(scipy_sp_dict_raw[sp])
+            # append zeros to scipy_sp_dict_raw to reach that output ist
+            # divideable by sp_blocksize
+            if lenarray % self.sp_blocksize != 0:
+                scipy_sp_dict[sp] = np.zeros((lenarray + self.sp_blocksize -
+                                           lenarray % self.sp_blocksize, ),
+                                             dtype=np.int16)
+                scipy_sp_dict[sp][0:lenarray, ] = scipy_sp_dict_raw[sp]
+            else:
+                scipy_sp_dict[sp] = scipy_sp_dict_raw[sp]
+
         print("timer scipy in ms: " + str(int((time.time() - start) * 1000)))
 
         # start = time.time()
