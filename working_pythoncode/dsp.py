@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 import multiprocessing
 import gui_utils
 import time
-import copyreg
 
 from error_handler import send_error
 
@@ -46,8 +45,8 @@ class Dsp:
         # blocks
         self.blockcounter = 0
 
-
-    def run(self):
+# run dsp algorithm as one process on one cpu core
+    def run_single_core(self):
         # run the main while loop as long as there are still samples to be
         # read from speaker wave files
         while any(self.DspOut_Object.continue_convolution_dict.values()) \
@@ -179,39 +178,73 @@ class Dsp:
             self.DspIn_Object.wave_param_common,
             self.gui_dict)
         self.return_ex.put(self.DspOut_Object.playback_successful)
-        return self.return_ex
 
 
-    def run_multiprocessed(self, gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init, return_ex_init):
+
+
+# run dsp algorithm on multiple cores by creating an own process for every
+# speaker
+    def run_multi_core(self):
         processes = {}
         binaural_block_dict_out_ex = {}
         cotinue_output_ex = {}
-        blockcounter_sync = multiprocessing.Value('i', 0)
+        gui_dict_ex = {}
+        gui_settings_dict_ex = {}
+        blockcounter_sync_ex = multiprocessing.Value('i', 0)
         played_block_counter_last = 0
-        playback_successful = multiprocessing.Value('b', True)
+        playback_successful_ex = multiprocessing.Value('b', True)
+        gui_stop_ex = multiprocessing.Value('b', self.DspOut_Object.gui_stop)
+        gui_pause_ex = multiprocessing.Value('b', self.DspOut_Object.gui_pause)
+
+        # create a process for every speaker
         for sp in self.gui_dict:
             binaural_block_dict_out_ex[sp] = multiprocessing.Queue()
+            gui_dict_ex[sp] = multiprocessing.Queue()
+            gui_settings_dict_ex[sp] = multiprocessing.Queue()
+
             cotinue_output_ex[sp] = multiprocessing.Value('b', True)
-            processes[sp] = multiprocessing.Process(target=sp_block_iteration,
-                                                    args=(gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init, return_ex_init, sp,
-                                                          binaural_block_dict_out_ex[sp],
-                                                          cotinue_output_ex[
-                                                              sp],
-                                                          blockcounter_sync,
-                                                          playback_successful, ))
+            processes[sp] = multiprocessing.Process(target=sp_block_convolution,
+                                args=(self.gui_dict,
+                                      self.DspOut_Object.gui_stop,
+                                      self.DspOut_Object.gui_pause,
+                                      self.gui_settings_dict,
+                                      self.return_ex,
+                                      sp,
+                                      binaural_block_dict_out_ex[sp],
+                                      cotinue_output_ex[sp],
+                                      blockcounter_sync_ex,
+                                      playback_successful_ex,
+                                      gui_dict_ex[sp],
+                                      gui_settings_dict_ex[sp],
+                                      gui_stop_ex,
+                                      gui_pause_ex))
+
+        # start all processes
         for sp in processes:
             processes[sp].start()
 
-        #time.sleep(5)
+        # link gui related instance variables to gui global variables
+        self.gui_dict = gui_utils.gui_dict
+        self.DspOut_Object.gui_stop = gui_utils.gui_stop
+        self.DspOut_Object.gui_pause = gui_utils.gui_pause
+        self.gui_settings_dict = gui_utils.gui_settings_dict
+
         while any(self.DspOut_Object.continue_convolution_dict.values()) \
                 is True:
+            # send speaker processes current gui related variables:
+            gui_stop_ex.value = self.DspOut_Object.gui_stop
+            gui_pause_ex.value = self.DspOut_Object.gui_pause
+            for sp in self.gui_dict:
+                gui_dict_ex[sp].put(self.gui_dict[sp])
+                gui_settings_dict_ex[sp].put(self.gui_settings_dict)
+
+            # get convoluted blocks from every speaker process
             for sp in processes:
                 self.DspOut_Object.binaural_block_dict_out[sp] = \
                     binaural_block_dict_out_ex[sp].get()
                 self.DspOut_Object.continue_convolution_dict[sp] = \
                     bool(cotinue_output_ex[sp].value)
+
             # Mix binaural stereo blockoutput of every speaker to one
             # binaural stereo block output having regard to speaker distances
             self.DspOut_Object.mix_binaural_block(
@@ -231,43 +264,93 @@ class Dsp:
                         self.DspIn_Object.hopsize))
                 audiooutput.start()
 
+            # increment block counter of run function when less blocks than
+            # than the bufferblocksize has been convolved (playback not
+            # started yet). Also increment blockcounter of every convolve
+            # process
             if self.blockcounter <= self.bufferblocks:
                 self.blockcounter += 1
-                blockcounter_sync.value += 1
+                blockcounter_sync_ex.value += 1
+            # if playback already started
             else:
+                # wait until the difference between run blockcounter and play
+                #  blockcounter is smaller than buffersize
                 while self.DspOut_Object.played_block_counter <= \
                         played_block_counter_last and \
                         self.DspOut_Object.playback_finished is False:
-                    # wait until audioplayback finished with current block
                     time.sleep(1/self.DspIn_Object.wave_param_common[0]*10)
-                    print("wait")
+                    #print("wait")
+                # increment
                 played_block_counter_last += 1
+                # increment run blockcounter
                 self.blockcounter += 1
-                blockcounter_sync.value += 1
-            playback_successful.value = self.DspOut_Object.playback_successful
+                # increment convolve processes blockcounter to start new block
+                # convolution
+                blockcounter_sync_ex.value += 1
+
+            playback_successful_ex.value = self.DspOut_Object.playback_successful
             print(self.blockcounter)
         #plt.plot(self.DspOut_Object.binaural[:, :])
         #plt.show()
 
+            # handle playback pause
+            while self.DspOut_Object.gui_pause is True:
+                time.sleep(0.1)
+                self.DspOut_Object.gui_pause = gui_utils.gui_pause
+            # handle playback stop
+            if self.DspOut_Object.gui_stop is True:
+                break
+
+        # set playback_successful == True if stop button was pressed as
+        # playback was stopped normal by user
         if self.DspOut_Object.gui_stop is True:
             self.DspOut_Object.playback_successful = True
+
+        # if playback stopped unsuccessful wait until all process finished
+        if self.DspOut_Object.gui_stop is False:
+            for sp in processes:
+                processes[sp].join()
+        # print out wheter plaback was successful
         print("Playback successfull: " + str(
             self.DspOut_Object.playback_successful))
         self.return_ex.put(self.DspOut_Object.playback_successful)
-        return self.return_ex
 
 
-def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init, return_ex_init, sp,
-                       binaural_block_dict_out_ex_sp,
-                       cotinue_output_ex_sp, blockcounter_sync,
-                       playback_successful):
 
+# This function is being run in a separate process for each speaker
+# It iterates over every block of the speaker input file, convolves it with
+# the current head position related hrtf and sends the ouput for each
+# speaker block with a queue to dsp.run
+def sp_block_convolution(gui_dict_init,
+                         gui_stop_init,
+                         gui_pause_init,
+                         gui_settings_dict_init,
+                         return_ex_init, sp,
+                         binaural_block_dict_out_ex_sp,
+                         cotinue_output_ex_sp,
+                         blockcounter_sync,
+                         playback_successful,
+                         gui_dict_ex_sp,
+                         gui_settings_dict_ex_sp,
+                         gui_stop_ex,
+                         gui_pause_ex):
+
+    # instantiate new dsp object for speaker
     dsp_obj_sp = dsp.Dsp(gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init, return_ex_init)
+
+
     while dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] is True and \
             bool(playback_successful.value) is True:
         if dsp_obj_sp.blockcounter <= blockcounter_sync.value:
+
+            # update gui related variables from dsp_object:
+            dsp_obj_sp.DspOut_Object.gui_stop = bool(gui_stop_ex.value)
+            dsp_obj_sp.DspOut_Object.gui_pause = bool(gui_pause_ex.value)
+            if gui_dict_ex_sp.empty() is False:
+                dsp_obj_sp.gui_dict[sp] = gui_dict_ex_sp.get()
+            if gui_settings_dict_ex_sp.empty() is False:
+                dsp_obj_sp.gui_settings_dict[sp] = gui_settings_dict_ex_sp.get()
 
             print("sp " + str(sp) + ": FFT Block " + str(
                 dsp_obj_sp.blockcounter) + ":")
@@ -343,3 +426,7 @@ def sp_block_iteration(gui_dict_init, gui_stop_init, gui_pause_init,
             time.sleep(1/dsp_obj_sp.DspIn_Object.wave_param_common[0]*10)
 
     print ("sp: " + str(sp) + " finished")
+
+
+
+
