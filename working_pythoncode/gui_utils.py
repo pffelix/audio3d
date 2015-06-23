@@ -19,9 +19,7 @@ speaker_list = []
 speaker_to_show = 0
 
 def update_gui_dict():
-    global gui_dict
-    global speaker_list
-    global audience_pos
+
     for speaker in speaker_list:
         speaker.cal_rel_pos
 
@@ -90,14 +88,19 @@ def get_abs_pos(azimuth, dist):
 class Headtracker(object):
 
     def __init__(self):
-        self.head_deg =
+        self.head_deg = 0
 
     def cal_head_deg(self):
-        self.head_deg = getDegree()
+        self.head_deg = self.getDegree()
+        print(self.head_deg)
 
 
     def get_head_deg(self):
         return self.head_deg
+
+    def getDegree(self):
+        from random import randint
+        return randint(0,360)
 
 
 # Items inside the QGraphicsScene, including Speaker and Audience
