@@ -160,7 +160,6 @@ class DspIn:
                 # fft_blocksize
                 pathtest = resource_filename(Requirement.parse("3daudio"),
                     "3daudio/kemar/full/headphones+spkr/Opti-minphase.wav")
-                print(pathtest)
                 _, kemar_inverse_filter = \
                     scipy.io.wavfile.read(
                     resource_filename(Requirement.parse("3daudio"),

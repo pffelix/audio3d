@@ -263,7 +263,7 @@ class MainWindow(QWidget):
         self.sequence_plot.show()
         self.sequence_plot.is_on = True
         self.sequence_plot.timer.timeout.connect(self.update_sequence_dicts)
-        self.sequence_plot.timer.start(20)
+        self.sequence_plot.timer.start(50)
 
     def update_sequence_dicts(self):
 

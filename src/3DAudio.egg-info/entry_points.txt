@@ -1,3 +1,0 @@
-[console_scripts]
-3daudio = 3daudio.main:main
-

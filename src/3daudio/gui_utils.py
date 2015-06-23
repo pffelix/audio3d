@@ -276,7 +276,6 @@ class Audience(Item):
 
     type = 'audience'
     image_path = resource_filename(Requirement.parse("3daudio"), "3daudio/image/audience.png")
-    print(image_path)
     origin_image = QtGui.QImage(image_path)
 
     def __init__(self):

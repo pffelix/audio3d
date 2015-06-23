@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
 setup(
     name = "3DAudio",
@@ -7,7 +8,8 @@ setup(
     package_data = {
         '3daudio': ['*.png','*.wav','*.jpg'],
     },
-    install_requires = ['pyopengl','pyaudio','python-qt'],#，'PyQt4'],
+    install_requires = ['pyopengl','pyaudio','python-qt'],
+    #，'PyQt4'],
     entry_points={
         'console_scripts': [
             '3daudio = 3daudio.main:main',
