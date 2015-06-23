@@ -103,7 +103,10 @@ class MainWindow(QWidget):
         default_position_button.clicked.connect(self.positions)
         self.plot_button.clicked.connect(self.plot_sequence)
         self.combo_box.currentIndexChanged.connect(self.inverse_disable)
+#        self.combo_box.currentIndexChanged.connect(self.update_settings_dict)
         self.inverse_box.stateChanged.connect(self.inverse_disable)
+#        self.inverse_box.stateChanged.connect(self.update_settings_dict)
+#        self.buffersize_spin_box.valueChanged.connect(self.update_settings_dict)
 
 
         # set window
@@ -116,6 +119,13 @@ class MainWindow(QWidget):
             self.inverse_box.setCheckState(False)
         else:
             return
+            
+#    def update_settings_dict(self):
+#        global gui_settings_dict
+#        gui_settings_dict = {
+#                "hrtf_database": self.combo_box.currentText(),
+#                "inverse_filter_active": self.inverse_box.isChecked(),
+#                "bufferblocks": self.buffersize_spin_box.value()}
 
     @pyqtSlot()
     def show_property(self):
