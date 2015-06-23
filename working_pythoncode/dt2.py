@@ -14,7 +14,7 @@ UDPPORT = 6666
 class DT2(object):
     def __init__(self):
         self.tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	self.tcp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.tcp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.tcp.connect((HOST, PORT))
 
         self.udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -22,7 +22,7 @@ class DT2(object):
 
         res = self.sendreceive('dtrack2 get system access')
         #if res != 'dtrack2 set system access full':
-	#    print("###"+res+"###")
+	#      print("###"+res+"###")
         #    raise Exception()
 
         self.sendreceive('dtrack2 init')
@@ -36,7 +36,7 @@ class DT2(object):
     def sendreceive(self, cmd):
         self.tcp.send(cmd)
         data = self.tcp.recv(200)
-	print(data)
+        print(data)
         return data
 
     def get_measurements(self):
