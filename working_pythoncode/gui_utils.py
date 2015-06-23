@@ -92,8 +92,6 @@ class Headtracker(object):
 
     def cal_head_deg(self):
         self.head_deg = self.getDegree()
-        print(self.head_deg)
-
 
     def get_head_deg(self):
         return self.head_deg
