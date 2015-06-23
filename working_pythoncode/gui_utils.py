@@ -21,7 +21,7 @@ speaker_to_show = 0
 def update_gui_dict():
 
     for speaker in speaker_list:
-        speaker.cal_rel_pos
+        speaker.cal_rel_pos()
 
 # Stop playback and convolution of dsp algorithm
 def switch_stop_playback():
