@@ -96,6 +96,11 @@ class MainWindow(QWidget):
         layout.addWidget(self.buffersize_spin_box, 8, 1, 1, 1)
 
         # connect signal and slots
+        self.update_timer = QTimer(self)
+        from gui_utils import update_gui_dict
+        self.update_timer.timeout.connect(update_gui_dict)
+        self.update_timer.start(20)
+
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
         control_button.clicked.connect(self.control)
@@ -244,7 +249,7 @@ class MainWindow(QWidget):
                                   gui_settings_dict, self.return_ex)
             self.error_timer = QTimer(self)
             self.error_timer.timeout.connect(self.show_error)
-            self.error_timer.start(50)
+            self.error_timer.start(100)
             self.play = threading.Thread(target=self.Dsp_Object.run_multi_core)
             self.play.start()
         else:
@@ -289,7 +294,7 @@ class MainWindow(QWidget):
         self.sequence_plot.show()
         self.sequence_plot.is_on = True
         self.sequence_plot.timer.timeout.connect(self.update_sequence_dicts)
-        self.sequence_plot.timer.start(20)
+        self.sequence_plot.timer.start(50)
 
     def update_sequence_dicts(self):
 

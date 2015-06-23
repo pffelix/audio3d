@@ -18,6 +18,12 @@ audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
 speaker_to_show = 0
 
+def update_gui_dict():
+    global gui_dict
+    global speaker_list
+    global audience_pos
+    for speaker in speaker_list:
+        speaker.cal_rel_pos
 
 # Stop playback and convolution of dsp algorithm
 def switch_stop_playback():
@@ -84,10 +90,11 @@ def get_abs_pos(azimuth, dist):
 class Headtracker(object):
 
     def __init__(self):
-        self.head_deg = 0
+        self.head_deg =
 
     def cal_head_deg(self):
-        pass
+        self.head_deg = getDegree()
+
 
     def get_head_deg(self):
         return self.head_deg
