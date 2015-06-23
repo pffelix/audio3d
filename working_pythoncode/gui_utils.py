@@ -20,8 +20,10 @@ speaker_to_show = 0
 
 def update_gui_dict():
 
-    for speaker in speaker_list:
-        speaker.cal_rel_pos()
+    global gui_stop
+    if gui_stop is False:
+        for speaker in speaker_list:
+            speaker.cal_rel_pos()
 
 # Stop playback and convolution of dsp algorithm
 def switch_stop_playback():
@@ -97,8 +99,7 @@ class Headtracker(object):
         return self.head_deg
 
     def getDegree(self):
-        from random import randint
-        return randint(0,360)
+        return 30
 
 
 # Items inside the QGraphicsScene, including Speaker and Audience

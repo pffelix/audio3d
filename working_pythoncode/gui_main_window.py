@@ -99,7 +99,6 @@ class MainWindow(QWidget):
         self.update_timer = QTimer(self)
         from gui_utils import update_gui_dict
         self.update_timer.timeout.connect(update_gui_dict)
-        self.update_timer.start(20)
 
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
@@ -250,7 +249,7 @@ class MainWindow(QWidget):
             self.error_timer = QTimer(self)
             self.error_timer.timeout.connect(self.show_error)
             self.error_timer.start(100)
-            self.play = threading.Thread(target=self.Dsp_Object.run_multi_core)
+            self.play = threading.Thread(target=self.Dsp_Object.run_single_core)
             self.play.start()
         else:
             msgBox = QMessageBox()
