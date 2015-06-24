@@ -99,6 +99,7 @@ class MainWindow(QWidget):
         self.update_timer = QTimer(self)
         from gui_utils import update_gui_dict
         self.update_timer.timeout.connect(update_gui_dict)
+        self.update_timer.start(100)
 
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
@@ -123,7 +124,7 @@ class MainWindow(QWidget):
             self.inverse_box.setCheckState(False)
         else:
             return
-            
+
 #    def update_settings_dict(self):
 #        global gui_settings_dict
 #        gui_settings_dict = {

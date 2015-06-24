@@ -5,6 +5,7 @@ author: H. Zhu, M. Heiss
 
 from PyQt4 import QtCore, QtGui, QtOpenGL
 from plot import GLPlotWidget
+from dt2 import DT2
 
 
 # initialization of variables
@@ -48,30 +49,19 @@ def switch_pause_playback():
 
 def get_bound_pos(x, y):
 
-    if x > 350:
+    if x > 350 and y > 350:
         x = 350
-        if y > 350:
-            y = 350
-        if y < 0:
-            y = 0
-    if x < 0:
-        x = 0
-        if y < 0:
-            y = 0
-        if y > 350:
-            y = 350
-    if y < 0:
-        y = 0
-        if x < 0:
-            x = 0
-        if x > 350:
-            x = 350
-    if y > 350:
         y = 350
-        if x > 350:
-            x = 350
-        if x < 0:
-            x = 0
+    if x > 350 and y < 0:
+        x = 350
+        y = 0
+    if x < 0 and y < 0:
+        x = 0
+        y = 0
+    if x < 0 and y > 350:
+        x = 0
+        y = 350
+
     return x, y
 
 def get_abs_pos(azimuth, dist):
@@ -91,8 +81,10 @@ class Headtracker(object):
 
     def __init__(self):
         self.head_deg = 0
+        self.dt2 = DT2()
 
     def cal_head_deg(self):
+        angle = self.dt2.angle()
         self.head_deg = self.getDegree()
 
     def get_head_deg(self):
