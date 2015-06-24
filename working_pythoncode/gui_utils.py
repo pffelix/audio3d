@@ -81,10 +81,10 @@ class Headtracker(object):
 
     def __init__(self):
         self.head_deg = 0
-        self.dt2 = DT2()
+        # self.dt2 = DT2()
 
     def cal_head_deg(self):
-        angle = self.dt2.angle()
+        # angle = self.dt2.angle()
         self.head_deg = self.getDegree()
 
     def get_head_deg(self):

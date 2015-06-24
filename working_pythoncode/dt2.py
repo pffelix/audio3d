@@ -20,11 +20,7 @@ class DT2(object):
         self.udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.udp.bind(('0.0.0.0', UDPPORT))
 
-        res = self.sendreceive('dtrack2 get system access')
-        #if res != 'dtrack2 set system access full':
-	#      print("###"+res+"###")
-        #    raise Exception()
-
+        self.sendreceive('dtrack2 get system access')
         self.sendreceive('dtrack2 init')
         self.sendreceive('dtrack2 set output net ch01 udp my_ip %d' % UDPPORT)
         self.sendreceive('dtrack2 tracking start')
@@ -43,12 +39,11 @@ class DT2(object):
         return self.udp.recvfrom(200)[0]
 
     def angle(self):
-	data = self.get_measurements().split('\n')
-	sixds = [ i for i in data if i.startswith('6d ')]
-	return sixds
+        data = self.get_measurements().split('\n')
+        sixds = [ i for i in data if i.startswith('6d ')]
+        return sixds
 
 if __name__ == '__main__':
-    from time import sleep
 
     dt2 = DT2()
     while True:

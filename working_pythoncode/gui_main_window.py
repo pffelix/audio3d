@@ -264,10 +264,7 @@ class MainWindow(QWidget):
     @pyqtSlot()
     def show_error(self):
         self.error_timer.stop()
-        from error_handler import error_present
-        if error_present:
-            print(check_error())
-            update_error_state()
+        print(check_error())
         self.error_timer.start(50)
 
     def positions(self):
