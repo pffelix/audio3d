@@ -130,7 +130,7 @@ class DspOut:
             np.int16, copy=False)
 
     # @brief Applies the overlap-add-method to the signal.
-    # @details Adds the last part of the 
+    # @details Adds the last part of the
     # @author Felix Pfreundtner
     def overlap_add(self, fft_blocksize, hopsize, sp):
         # get current binaural block output of sp
