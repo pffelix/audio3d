@@ -48,7 +48,14 @@ class DspOut:
         self.playback_finished = False
         self.playback_successful = True
 
-    # @author: Felix Pfreundtner
+
+    # @brief Function convolves hrtf and data of the music file
+    # @details Function takes one hrtf block and one data block (their size
+    # is defined by fft_blocksize), normalizes their values to int16-signals
+    # and then executes the convolution. After that, the signal is
+    # retransformed to  time-domain and normalized again. The final values
+    # are written then to the binaural_block_dict.
+    # @author Felix Pfreundtner
     def fft_convolve(self, sp_block_sp, hrtf_block_sp_l_r, fft_blocksize,
                      sp_max_amp_sp, hrtf_max_amp_sp_l_r, samplerate,
                      inverse_filter_active, kemar_inverse_filter,
@@ -82,7 +89,7 @@ class DspOut:
         max_amplitude_sp_magnitude_spectrum = np.amax(np.abs(
             sp_magnitude_spectrum))
         if max_amplitude_sp_magnitude_spectrum != 0:
-            # get magnitude spectrum of hrtf block
+            # get magnitude spectrum of hrtf-block
             self.sp_spectrum_dict[sp][:, 1] = sp_magnitude_spectrum / (
                 max_amplitude_sp_magnitude_spectrum / sp_max_amp_sp *
                 max_amplitude_output)
@@ -122,7 +129,9 @@ class DspOut:
         self.binaural_block_dict[sp][:, l_r] = binaural_block_sp_time.astype(
             np.int16, copy=False)
 
-    # @author: Felix Pfreundtner
+    # @brief Applies the overlap-add-method to the signal.
+    # @details Adds the last part of the 
+    # @author Felix Pfreundtner
     def overlap_add(self, fft_blocksize, hopsize, sp):
         # get current binaural block output of sp
         # 1. take binaural block output of current fft which don't overlap

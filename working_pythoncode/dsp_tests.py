@@ -18,6 +18,8 @@ class DspTests(unittest.TestCase):
         self.mockup = mockup.gui_dict_mockup
         print("A")
 
+    # @brief Checks, whether stuff is rounded correctly
+    # @author Matthias Lederle
     def test_rnd(self):
         print("B")
         value = 2.55
