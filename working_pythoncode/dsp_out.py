@@ -130,7 +130,9 @@ class DspOut:
             np.int16, copy=False)
 
     # @brief Applies the overlap-add-method to the signal.
-    # @details Adds the last part of the
+    # @details Adds the last part of the prior fft-block to calculate the
+    # overlapp-values (which decrease the desharmonic sounds in the output
+    # signal.)
     # @author Felix Pfreundtner
     def overlap_add(self, fft_blocksize, hopsize, sp):
         # get current binaural block output of sp
@@ -159,7 +161,9 @@ class DspOut:
             self.binaural_block_dict[sp][hopsize:, :])
         self.binaural_block_dict_add[sp] = binaural_block_dict_add_sp_new
 
-    # @author: Felix Pfreundtner
+    # @brief Calculate the signal for all speakers taking into account the
+    # distance to the speakers.
+    # @author Felix Pfreundtner
     def mix_binaural_block(self, hopsize, gui_dict):
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         # maximum distance of a speaker to head in window with borderlength
@@ -174,12 +178,17 @@ class DspOut:
             # sound pressure decreases with distance 1/r
             sp_gain_factor = 1 - distance_sp / distance_max
             # add gained sp block output to a summarized block output of all
-            #  speakers
+            # speakers
             self.binaural_block += self.binaural_block_dict_out[sp] * \
                 sp_gain_factor / total_number_of_sp
         self.binaural_block = self.binaural_block.astype(np.int16, copy=False)
 
-    # Testfunction overlap
+    # @brief Adds the newly calculated blocks to a dict that contains all the
+    #  blocks calculated before.
+    # @retval <binaural> A dict of all the output-blocks of the signal added
+    #  to one another up to the current block.
+    # another up to the current
+    # @author Felix Pfreundtner
     def overlapp_add_window(self, binaural_block_dict_sp, blockcounter,
                             fft_blocksize, binaural):
         delay = 256
@@ -193,21 +202,24 @@ class DspOut:
                 binaural_block_dict_sp
         return binaural
 
-    # @author: Felix Pfreundtner
+    # @brief Concatenates the current block to the binaural signal.
+    # @author Felix Pfreundtner
     def add_to_binaural(self, blockcounter):
         if blockcounter == 0:
             self.binaural = self.binaural_block
         else:
             self.binaural = np.concatenate((self.binaural, self.binaural_block))
 
-    # @author: Felix Pfreundtner
+    # @brief Writes the binaural output signal.
+    # @author Felix Pfreundtner
     def writebinauraloutput(self, binaural, wave_param_common, gui_dict):
         if not os.path.exists("./audio_out/"):
             os.makedirs("./audio_out/")
         scipy.io.wavfile.write("./audio_out/binauralmix.wav",
                                wave_param_common[0], binaural)
 
-    # @author: Felix Pfreundtner
+    # @brief
+    # @author Felix Pfreundtner
     def callback(self, in_data, frame_count, time_info, status):
         if status:
             print("Playback Error: %i" % status)
@@ -222,7 +234,8 @@ class DspOut:
         self.played_block_counter += 1
         return data, pyaudio.paContinue
 
-    # @author: Felix Pfreundtner
+    # @brief Streams the calculated files as a output signal.
+    # @author Felix Pfreundtner
     def audiooutput(self, samplerate, hopsize):
         pa = pyaudio.PyAudio()
         audiostream = pa.open(format=pyaudio.paInt16,
