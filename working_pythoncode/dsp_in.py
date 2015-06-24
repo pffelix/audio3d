@@ -82,7 +82,7 @@ class DspIn:
         x = sp_blocksize
         hann_window = np.zeros((x,), dtype=np.float16)
         for n in range(x):
-            hann_window[n,] = 0.5 * (1 - math.cos(2 * math.pi * n / (x)))
+            hann_window[n, ] = 0.5 * (1 - math.cos(2 * math.pi * n / (x)))
         return hann_window
 
     # @brief This function calculates the three block parameters necessary
@@ -394,8 +394,8 @@ class DspIn:
             # If signal is neither mono nor stereo, send error message to gui.
             if not sp_param[sp][3] == 1 and not sp_param[sp][3] == 2:
                 print("error3")
-                # errmsg = "Input signal is neither mono nor stereo and can't " \
-                #          "be processed. Please choose another input file."
+                # errmsg = "Input signal is neither mono nor stereo and
+                # can't be processed. Please choose another input file."
                 # self.signal_handler.send_error(errmsg)
         return sp_param
 
@@ -427,7 +427,7 @@ class DspIn:
             # divideable by sp_blocksize
             if lenarray % self.sp_blocksize != 0:
                 scipy_sp_dict[sp] = np.zeros((lenarray + self.sp_blocksize -
-                                           lenarray % self.sp_blocksize, ),
+                                              lenarray % self.sp_blocksize, ),
                                              dtype=np.int16)
                 scipy_sp_dict[sp][0:lenarray, ] = scipy_sp_dict_raw[sp]
             else:
@@ -447,17 +447,16 @@ class DspIn:
         #     file = open(gui_dict[sp][2], 'rb')
         #     # calculate begin_block as byte-number
         #     first_byte_of_block = self.sp_param[sp][6] + (begin_block *
-        #                                                   self.sp_param[sp][7] *
-        #                                                   self.sp_param[sp][3])
+        #     self.sp_param[sp][7] * self.sp_param[sp][3])
         #     # calculate end_block as byte_number
         #     last_byte_of_block = self.sp_param[sp][6] + (end_block *
-        #                                                  self.sp_param[sp][7] *
-        #                                                  self.sp_param[sp][3])
+        #     self.sp_param[sp][7] * self.sp_param[sp][3])
         #     # go to first byte of block and start "reading"
         #     file.seek(first_byte_of_block)
         #     # if input file is mono, write sp_dict[sp] in this part
         #     if self.sp_param[sp][3] == 1:
-        #         # if play is not yet at the end of the file use this simple loop:
+        #         # if play is not yet at the end of the file use this
+        #         # simple loop:
         #         if last_byte_of_block < self.sp_param[sp][8]:
         #             i = 0
         #             # while i < blocklength, read every loop one sample
@@ -474,7 +473,8 @@ class DspIn:
         #                 self.sp_param[sp][7] *
         #                 self.sp_param[sp][3]))
         #             i = 0
-        #             # read remaining samples to the end, then set continue_input
+        #             # read remaining samples to the end, then set
+        #             # continue_input
         #             # to "False"
         #             while i < remaining_samples:
         #                 sp_dict[sp][i,] = struct.unpack(
@@ -487,8 +487,8 @@ class DspIn:
         #         # First: Write left and right signal in independent lists
         #         samplelist_of_one_block_left = []
         #         samplelist_of_one_block_right = []
-        #         # set random value that cant be reached by (self.sp_param[sp][5] -
-        #         # current_last_byte (see below)
+        #         # set random value that cant be reached by (self.sp_param[
+        #         # sp][5] - current_last_byte (see below)
         #         remaining_samples = 10000
         #         if last_byte_of_block < self.sp_param[sp][8]:
         #             i = 0
@@ -515,7 +515,8 @@ class DspIn:
         #                 self.sp_param[sp][7] *
         #                 self.sp_param[sp][3]))
         #             i = 0
-        #             # read remaining samples and write one to left and one to right
+        #             # read remaining samples and write one to left and one
+        #             # to right
         #             while i < remaining_samples:
         #                 left_int = struct.unpack(self.sp_param[sp][4] +
         #                                          self.sp_param[sp][9],
@@ -535,14 +536,14 @@ class DspIn:
         #             i = 0
         #             while i < self.sp_blocksize:
         #                 mean_value = int((samplelist_of_one_block_left[i] +
-        #                                   samplelist_of_one_block_right[i]) / 2)
+        #                   samplelist_of_one_block_right[i]) / 2)
         #                 sp_dict[sp][i,] = mean_value
         #                 i += 1
         #         else:
         #             i = 0
         #             while i < remaining_samples:
         #                 mean_value = int((samplelist_of_one_block_left[i] +
-        #                                   samplelist_of_one_block_right[i]) / 2)
+        #                   samplelist_of_one_block_right[i]) / 2)
         #                 sp_dict[sp][i,] = mean_value
         #                 i += 1
         #             continue_input = False
@@ -550,8 +551,9 @@ class DspIn:
         #             # an Matthias: Hier bitte eine Fehlerausgabe über
         #             # DspSignalHandler() schreiben (Fragen zu der Funktion ->
         #             # Huaijiang) --> Wird gemacht!
-        #             # print("Signal is neither mono nor stereo (self.sp_param[sp][3]
-        #             #       "!= 1" or "2") and can't be processed!")
+        #             # print("Signal is neither mono nor stereo(
+        #             # self.sp_param[sp][3] != 1" or "2") and can't be
+        #             # processed!")
         # file.close()
         # # print runtime in milliseconds
         # print("timer get_sp in ms: " + str(int((time.time() - start) * 1000)))
@@ -566,12 +568,11 @@ class DspIn:
             continue_input = True
         else:
             self.sp_block_dict[sp] = np.zeros((self.sp_blocksize),
-                                           dtype=np.int16)
+                                              dtype=np.int16)
             self.sp_block_dict[sp][0:self.sp_param[sp][0] -
-                                     self.block_begin_end[0], ] = \
-                                     self.sp_dict[sp][
-                                     self.block_begin_end[0]:
-                                     self.sp_param[sp][0], ]
+                self.block_begin_end[0], ] = self.sp_dict[sp][
+                                              self.block_begin_end[0]:
+                                              self.sp_param[sp][0], ]
             continue_input = False
         self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))
         return continue_input

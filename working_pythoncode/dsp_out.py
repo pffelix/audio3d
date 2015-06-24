@@ -167,7 +167,7 @@ class DspOut:
             # add gained sp block output to a summarized block output of all
             #  speakers
             self.binaural_block += self.binaural_block_dict_out[sp] * \
-                                   sp_gain_factor / total_number_of_sp
+                sp_gain_factor / total_number_of_sp
         self.binaural_block = self.binaural_block.astype(np.int16, copy=False)
 
     # Testfunction overlap

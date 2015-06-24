@@ -112,7 +112,6 @@ class MainWindow(QWidget):
 #        self.inverse_box.stateChanged.connect(self.update_settings_dict)
 #        self.buffersize_spin_box.valueChanged.connect(self.update_settings_dict)
 
-
         # set window
         self.setLayout(layout)
         self.setWindowTitle('3D Audio')
@@ -167,10 +166,10 @@ class MainWindow(QWidget):
             y = default_position[index][1]
             dx = x - audience_pos.x()
             dy = audience_pos.y() - y
-            dis = (dx**2+dy**2)**0.5
+            dis = (dx ** 2 + dy ** 2) ** 0.5
 
             from math import acos, degrees
-            deg = degrees(acos(dy/dis))
+            deg = degrees(acos(dy / dis))
 
             if dx < 0:
                 deg = 360 - deg
@@ -179,7 +178,7 @@ class MainWindow(QWidget):
                 deg %= 360
 
             str_deg = "{:.0f}".format(deg)
-            str_dis = "{:.2f}".format(dis/100)
+            str_dis = "{:.2f}".format(dis / 100)
             self.speaker_property.azimuth_line_edit.setText(str_deg)
             self.speaker_property.distance_line_edit.setText(str_dis)
             self.speaker_property.show()
@@ -238,7 +237,7 @@ class MainWindow(QWidget):
                 gui_stop = switch_stop_playback()
             print("continue")
             #while not self.return_ex.empty():
-                #self.return_ex.get()
+            #   self.return_ex.get()
             gui_settings_dict = {
                 "hrtf_database": self.combo_box.currentText(),
                 "inverse_filter_active": self.inverse_box.isChecked(),
@@ -252,14 +251,14 @@ class MainWindow(QWidget):
             self.play = threading.Thread(target=self.Dsp_Object.run_multi_core)
             self.play.start()
         else:
-            msgBox = QMessageBox()
-            msgBox.setText("Please add a speaker.")
-            msgBox.exec_()
+            msgbox = QMessageBox()
+            msgbox.setText("Please add a speaker.")
+            msgbox.exec_()
 
     @pyqtSlot()
     def pause(self):
         switch_pause_playback()
-        print (gui_pause)
+        print(gui_pause)
 
     @pyqtSlot()
     def show_error(self):
@@ -284,11 +283,14 @@ class MainWindow(QWidget):
         # print(self.Dsp_Object.DspOut_Object.sp_spectrum_dict)plot_sequence
         from gui_utils import speaker_to_show
         i = speaker_to_show
-        print ("initialize")
+        print("initialize")
 
-        self.sequence_plot.speaker_spec.set_data(self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
-        self.sequence_plot.lhrtf_spec.set_data(self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
-        self.sequence_plot.rhrtf_spec.set_data(self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
+        self.sequence_plot.speaker_spec.set_data(
+            self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
+        self.sequence_plot.lhrtf_spec.set_data(
+            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
+        self.sequence_plot.rhrtf_spec.set_data(
+            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
 
         self.sequence_plot.show()
         self.sequence_plot.is_on = True
@@ -299,11 +301,14 @@ class MainWindow(QWidget):
 
         from gui_utils import speaker_to_show
         i = speaker_to_show
-        self.sequence_plot.speaker_spec.update_data(self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
-        self.sequence_plot.lhrtf_spec.update_data(self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
-        self.sequence_plot.rhrtf_spec.update_data(self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
+        self.sequence_plot.speaker_spec.update_data(
+            self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
+        self.sequence_plot.lhrtf_spec.update_data(
+            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
+        self.sequence_plot.rhrtf_spec.update_data(
+            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
 
-    def closeEvent(self, eventQCloseEvent):
+    def closeEvent(self, event_q_close_event):
         self.room.clear()
         if self.sequence_plot.is_on:
             self.sequence_plot.close()
@@ -311,4 +316,4 @@ class MainWindow(QWidget):
             self.speaker_property.close()
         if self.play is not None:
             gui_stop_init = switch_stop_playback()
-        eventQCloseEvent.accept()
+        event_q_close_event.accept()
