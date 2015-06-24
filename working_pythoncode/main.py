@@ -8,6 +8,7 @@ from PyQt4.QtGui import *
 import sys
 import gui_main_window
 
+
 def main():
     w = gui_main_window.MainWindow()
     return qApp.exec_()

@@ -20,6 +20,7 @@ from error_handler import send_error
 
 import time
 
+
 class Dsp:
     def __init__(self, gui_dict_init, gui_stop_init, gui_pause_init,
                  gui_settings_dict_init, return_ex_init):
@@ -151,8 +152,8 @@ class Dsp:
             # wait until audioplayback finished with current block
             while self.blockcounter - self.DspOut_Object.played_block_counter\
                     > self.bufferblocks and not all(
-                self.DspOut_Object.continue_convolution_dict.values()) \
-                is False:
+                    self.DspOut_Object.continue_convolution_dict.values()) \
+                    is False:
                 time.sleep(1 / self.DspIn_Object.wave_param_common[0])
 
             # increment number of already convolved blocks
@@ -178,9 +179,6 @@ class Dsp:
             self.DspIn_Object.wave_param_common,
             self.gui_dict)
         self.return_ex.put(self.DspOut_Object.playback_successful)
-
-
-
 
     # @brief run dsp algorithm on multiple cores by creating an own process for
     #        every speaker
@@ -209,23 +207,23 @@ class Dsp:
             gui_settings_dict_ex[sp] = multiprocessing.Queue()
 
             cotinue_output_ex[sp] = multiprocessing.Value('b', True)
-            processes[sp] = multiprocessing.Process(target=sp_block_convolution,
-                                args=(self.gui_dict,
-                                      self.DspOut_Object.gui_stop,
-                                      self.DspOut_Object.gui_pause,
-                                      self.gui_settings_dict,
-                                      self.return_ex,
-                                      sp,
-                                      binaural_block_dict_out_ex[sp],
-                                      hrtf_spectrum_dict_ex[sp],
-                                      sp_spectrum_dict_ex[sp],
-                                      cotinue_output_ex[sp],
-                                      blockcounter_sync_ex,
-                                      playback_successful_ex,
-                                      gui_dict_ex[sp],
-                                      gui_settings_dict_ex[sp],
-                                      gui_stop_ex,
-                                      gui_pause_ex))
+            processes[sp] = multiprocessing.Process(
+                target=sp_block_convolution,
+                args=(self.gui_dict, self.DspOut_Object.gui_stop,
+                      self.DspOut_Object.gui_pause,
+                      self.gui_settings_dict,
+                      self.return_ex,
+                      sp,
+                      binaural_block_dict_out_ex[sp],
+                      hrtf_spectrum_dict_ex[sp],
+                      sp_spectrum_dict_ex[sp],
+                      cotinue_output_ex[sp],
+                      blockcounter_sync_ex,
+                      playback_successful_ex,
+                      gui_dict_ex[sp],
+                      gui_settings_dict_ex[sp],
+                      gui_stop_ex,
+                      gui_pause_ex))
 
         # start all processes
         for sp in processes:
@@ -290,7 +288,7 @@ class Dsp:
                 while self.DspOut_Object.played_block_counter <= \
                         played_block_counter_last and \
                         self.DspOut_Object.playback_finished is False:
-                    time.sleep(1/self.DspIn_Object.wave_param_common[0]*10)
+                    time.sleep(1 / self.DspIn_Object.wave_param_common[0] * 10)
                     #print("wait")
                 # increment
                 played_block_counter_last += 1
@@ -300,7 +298,8 @@ class Dsp:
                 # convolution
                 blockcounter_sync_ex.value += 1
 
-            playback_successful_ex.value = self.DspOut_Object.playback_successful
+            playback_successful_ex.value =  \
+                self.DspOut_Object.playback_successful
             print(self.blockcounter)
         #plt.plot(self.DspOut_Object.binaural[:, :])
         #plt.show()
@@ -328,7 +327,6 @@ class Dsp:
         self.return_ex.put(self.DspOut_Object.playback_successful)
 
 
-
 # This function is being run in a separate process for each speaker
 # It iterates over every block of the speaker input file, convolves it with
 # the current head position related hrtf and sends the ouput for each
@@ -351,8 +349,7 @@ def sp_block_convolution(gui_dict_init,
 
     # instantiate new dsp object for speaker
     dsp_obj_sp = dsp.Dsp(gui_dict_init, gui_stop_init, gui_pause_init,
-                 gui_settings_dict_init, return_ex_init)
-
+                         gui_settings_dict_init, return_ex_init)
 
     while dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] is True and \
             bool(playback_successful.value) is True:
@@ -378,7 +375,8 @@ def sp_block_convolution(gui_dict_init,
             # convolution, else skip convolution
             if dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp] is True:
                 # check whether head position to speaker sp has changed
-                if dsp_obj_sp.gui_dict[sp][0] != dsp_obj_sp.prior_head_angle_dict[sp]:
+                if dsp_obj_sp.gui_dict[sp][0] != \
+                        dsp_obj_sp.prior_head_angle_dict[sp]:
                     # if head position has changed load new hrtf-settings
                     dsp_obj_sp.DspIn_Object.hrtf_database, \
                         dsp_obj_sp.DspIn_Object.hrtf_blocksize, \
@@ -386,10 +384,12 @@ def sp_block_convolution(gui_dict_init,
                         dsp_obj_sp.DspIn_Object.get_hrtf_param(
                             dsp_obj_sp.gui_settings_dict)
                     # and load fitting hrtf-file as numpy array
-                    dsp_obj_sp.DspIn_Object.get_hrtfs(dsp_obj_sp.gui_dict[sp], sp)
+                    dsp_obj_sp.DspIn_Object.get_hrtfs(dsp_obj_sp.gui_dict[
+                        sp], sp)
                     # save head position to speaker of this block in
                     # prior_head_angle_dict
-                    dsp_obj_sp.prior_head_angle_dict[sp] = dsp_obj_sp.gui_dict[sp][0]
+                    dsp_obj_sp.prior_head_angle_dict[sp] = \
+                        dsp_obj_sp.gui_dict[sp][0]
 
                 # Load wave block of speaker sp with speaker_blocksize (
                 # fft_blocksize-hrtf_blocksize+1) and current block
@@ -400,7 +400,8 @@ def sp_block_convolution(gui_dict_init,
                 #plt.show()
 
                 # normalize sp block if requested
-                dsp_obj_sp.DspIn_Object.normalize(dsp_obj_sp.gui_dict[sp][3], sp)
+                dsp_obj_sp.DspIn_Object.normalize(dsp_obj_sp.gui_dict[sp][
+                    3], sp)
 
                 # apply window to sp input in sp_block_dict
                 dsp_obj_sp.DspIn_Object.apply_window_on_sp_block(sp)
@@ -437,16 +438,13 @@ def sp_block_convolution(gui_dict_init,
                 dsp_obj_sp.DspOut_Object.binaural_block_dict_out[sp])
             hrtf_spectrum_dict_ex_sp.put(
                 dsp_obj_sp.DspOut_Object.hrtf_spectrum_dict[sp])
-            sp_spectrum_dict_ex_sp.put(dsp_obj_sp.DspOut_Object.sp_spectrum_dict[sp])
+            sp_spectrum_dict_ex_sp.put(
+                dsp_obj_sp.DspOut_Object.sp_spectrum_dict[sp])
             cotinue_output_ex_sp.value = \
                 dsp_obj_sp.DspOut_Object.continue_convolution_dict[sp]
             dsp_obj_sp.blockcounter += 1
         # if block iteration is further than blockcounter in run_multi_core wait
         else:
-            time.sleep(1/dsp_obj_sp.DspIn_Object.wave_param_common[0]*10)
+            time.sleep(1 / dsp_obj_sp.DspIn_Object.wave_param_common[0] * 10)
 
-    print ("sp: " + str(sp) + " finished")
-
-
-
-
+    print("sp: " + str(sp) + " finished")
