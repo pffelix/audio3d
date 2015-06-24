@@ -571,8 +571,8 @@ class DspIn:
                                               dtype=np.int16)
             self.sp_block_dict[sp][0:self.sp_param[sp][0] -
                 self.block_begin_end[0], ] = self.sp_dict[sp][
-                                              self.block_begin_end[0]:
-                                              self.sp_param[sp][0], ]
+                self.block_begin_end[0]:
+                self.sp_param[sp][0], ]
             continue_input = False
         self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))
         return continue_input
