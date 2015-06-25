@@ -18,6 +18,8 @@ gui_pause_mockup = False
 wave_param_common = [44100, 16]
 hrtf_blocksize = 513
 fft_blocksize = 1024
+#known after get_block_param: sp_blocksize, sp_blocktime, overlap, hopsize)
+#info = [512, 0.011609977324263039, 0.5, 256]
 
 DspIn_TestObj = dsp_in.DspIn(gui_dict_mockup,gui_settings_dict_mockup)
 DspOut_TestObj = dsp_out.DspOut(gui_dict_mockup,
@@ -29,15 +31,8 @@ DspOut_TestObj = dsp_out.DspOut(gui_dict_mockup,
 
 class DspTests(unittest.TestCase):
 
-    # def __init__(self):
-    #     self.DspIn_TestObj = dsp_in.DspIn(gui_dict_mockup,
-    #                                       gui_settings_dict_mockup)
-    #     self.DspOut_TestObj = dsp_out.DspOut(gui_dict_mockup,
-    #                                          DspIn_TestObj.fft_blocksize,
-    #                                          DspIn_TestObj.sp_blocksize,
-    #                                          DspIn_TestObj.hopsize,
-    #                                          DspIn_TestObj, gui_pause_mockup)
 
+    # @brief Tests rnd for one particular number.
     def test_rnd_int(self):
         val = 1.9
         sol = 2
@@ -45,6 +40,7 @@ class DspTests(unittest.TestCase):
         error_msg = "test_rnd_int failed!"
         self.assertEqual(res, sol, msg=error_msg)
 
+    # @brief Tests rnd for a list of numbers at the same time.
     def test_rnd(self):
         i = 0
         value = [2.55, 7.9, (2 / 3), 0.5, 0.00001, 500.1, -80.1, -1.4142, -9.5]
@@ -60,6 +56,8 @@ class DspTests(unittest.TestCase):
         error_msg = "test_rnd failed!"
         self.assertListEqual(res, sol, msg=error_msg)
 
+    # @brief Tests equality of the values at position 2 and 200 of the
+    #  hamming-window.
     def test_hann_window(self):
         sol_hannwin_2 = 0.00014997
         sol_hannwin_200 = 0.88477
@@ -68,14 +66,22 @@ class DspTests(unittest.TestCase):
         self.assertAlmostEqual(res[2], sol_hannwin_2, 5, msg=errmsg)
         self.assertAlmostEqual(res[200], sol_hannwin_200, 5, msg=errmsg)
 
+
+    # @brief Tests get_block_param by comparing two lists.
     def test_get_block_param(self):
         sol = [512, 0.011609977324263039, 0.5, 256]
         res = [None] * 3
-        #res[0], res[1], res[2], res[3]\
         res[0: 3] = DspIn_TestObj.get_block_param(
             wave_param_common, hrtf_blocksize, fft_blocksize)
         errmsg = "Function get_block_param (in DspIn) doesn't work properly"
         self.assertListEqual(res, sol, msg=errmsg)
+
+    # Tests the values of init_block_begin_end on symmetry to 0
+    def test_init_set_block_begin_end(self):
+        res = DspIn_TestObj.init_set_block_begin_end(gui_dict_mockup)
+        errmsg = "The entries in init_block_begin_end are not symmetric to 0"
+        self.assertTrue(abs(res[0]) == abs(res[1]), msg=errmsg)
+
 
 if __name__ == '__main__':
     unittest.main()
