@@ -15,6 +15,9 @@ gui_settings_dict_mockup = {"hrtf_database": "kemar_normal_ear",
                             "bufferblocks": 5}
 gui_stop_mockup = False
 gui_pause_mockup = False
+wave_param_common = [44100, 16]
+hrtf_blocksize = 513
+fft_blocksize = 1024
 
 DspIn_TestObj = dsp_in.DspIn(gui_dict_mockup,gui_settings_dict_mockup)
 DspOut_TestObj = dsp_out.DspOut(gui_dict_mockup,
@@ -65,8 +68,14 @@ class DspTests(unittest.TestCase):
         self.assertAlmostEqual(res[2], sol_hannwin_2, 5, msg=errmsg)
         self.assertAlmostEqual(res[200], sol_hannwin_200, 5, msg=errmsg)
 
-
-
+    def test_get_block_param(self):
+        sol = [512, 0.011609977324263039, 0.5, 256]
+        res = [None] * 3
+        #res[0], res[1], res[2], res[3]\
+        res[0: 3] = DspIn_TestObj.get_block_param(
+            wave_param_common, hrtf_blocksize, fft_blocksize)
+        errmsg = "Function get_block_param (in DspIn) doesn't work properly"
+        self.assertListEqual(res, sol, msg=errmsg)
 
 if __name__ == '__main__':
     unittest.main()
