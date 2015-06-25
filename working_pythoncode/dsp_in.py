@@ -139,7 +139,7 @@ class DspIn:
     #          convolution with the speaker-file signal.
     # @retval <hrtf_database> Tells which database the listener has chosen (
     #         available are: normal ear, big ear and a compact version)
-    #         <hrtf_blocksize> Simply set to default value 513 since
+    # @retval <hrtf_blocksize> Simply set to default value 513 since
     #         fft_blocksize is defaulted to 1024
     # @retval <kemar_inverse_filter> Boolean value that tells whether
     #         check-box in gui was activated or not
