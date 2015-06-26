@@ -9,7 +9,6 @@ import numpy as np
 from scipy.fftpack import fft, ifft, fftfreq
 import scipy.io.wavfile
 import pyaudio
-import matplotlib.pyplot as plt
 import time
 import math
 import ntpath
@@ -126,8 +125,7 @@ class DspOut:
         binaural_block_sp_time = binaural_block_sp_time / (
             binaural_block_sp_time_max_amp / sp_max_amp_sp /
             hrtf_max_amp_sp_l_r * 32767)
-        self.binaural_block_dict[sp][:, l_r] = binaural_block_sp_time.astype(
-            np.int16, copy=False)
+        self.binaural_block_dict[sp][:, l_r] = binaural_block_sp_time.astype(np.int16)
 
     # @brief Applies the overlap-add-method to the signal.
     # @details Adds the last part of the prior fft-block to calculate the
@@ -181,7 +179,7 @@ class DspOut:
             # speakers
             self.binaural_block += self.binaural_block_dict_out[sp] * \
                 sp_gain_factor / total_number_of_sp
-        self.binaural_block = self.binaural_block.astype(np.int16, copy=False)
+        self.binaural_block = self.binaural_block.astype(np.int16)
 
     # @brief Adds the newly calculated blocks to a dict that contains all the
     #  blocks calculated before.

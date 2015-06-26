@@ -6,8 +6,8 @@ GUI Main Window of Audio 3D Project, Group B
 author: H. Zhu, M. Heiss
 """
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PySide.QtCore import *
+from PySide.QtGui import *
 from gui_utils import *
 from dsp import Dsp
 import threading
@@ -25,7 +25,7 @@ class MainWindow(QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setAcceptDrops(True)
-
+        self.head_tracker = Headtracker()
         # set items
         self.audience = Audience()
 
@@ -96,10 +96,10 @@ class MainWindow(QWidget):
         layout.addWidget(self.buffersize_spin_box, 8, 1, 1, 1)
 
         # connect signal and slots
-        self.update_timer = QTimer(self)
+        self.update_timer = QTimer()
         from gui_utils import update_gui_dict
-        self.update_timer.timeout.connect(update_gui_dict)
-        self.update_timer.start(100)
+        self.update_timer.timeout.connect(self.update_head)
+        self.update_timer.start(10)
 
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
@@ -117,6 +117,11 @@ class MainWindow(QWidget):
         self.setLayout(layout)
         self.setWindowTitle('3D Audio')
         self.show()
+        
+    def update_head(self):
+        self.head_tracker.cal_head_deg()
+        from gui_utils import update_gui_dict
+        update_gui_dict(self.head_tracker.get_head_deg())
 
     def inverse_disable(self):
         if self.combo_box.currentText() == 'kemar_compact':
@@ -131,7 +136,7 @@ class MainWindow(QWidget):
 #                "inverse_filter_active": self.inverse_box.isChecked(),
 #                "bufferblocks": self.buffersize_spin_box.value()}
 
-    @pyqtSlot()
+    @Slot()    
     def show_property(self):
 
         from gui_utils import speaker_to_show
@@ -155,7 +160,7 @@ class MainWindow(QWidget):
         speaker_list[i].setPos(x_new, y_new)
         speaker_list[i].cal_rel_pos()
 
-    @pyqtSlot()
+    @Slot()    
     def add_speaker(self):
         if len(gui_dict) < 6:
             index = len(gui_dict)
@@ -187,7 +192,7 @@ class MainWindow(QWidget):
         else:
             return
 
-    @pyqtSlot()
+    @Slot()    
     def add2scene(self):
 
         if len(gui_dict) < 6:
@@ -210,7 +215,7 @@ class MainWindow(QWidget):
         else:
             return
 
-    @pyqtSlot()
+    @Slot()    
     def reset(self):
         self.room.clear()
         gui_dict.clear()
@@ -219,7 +224,7 @@ class MainWindow(QWidget):
         self.room.addItem(new_audience)
         self.view.viewport().update()
 
-    @pyqtSlot()
+    @Slot()    
     def control(self):
         global gui_stop
         global gui_pause
@@ -246,22 +251,22 @@ class MainWindow(QWidget):
             self.plot_button.setEnabled(True)
             self.Dsp_Object = Dsp(gui_dict, gui_stop, gui_pause,
                                   gui_settings_dict, self.return_ex)
-            self.error_timer = QTimer(self)
+            self.error_timer = QTimer()
             self.error_timer.timeout.connect(self.show_error)
             self.error_timer.start(100)
-            self.play = threading.Thread(target=self.Dsp_Object.run_multi_core)
+            self.play = threading.Thread(target=self.Dsp_Object.run_single_core)
             self.play.start()
         else:
             msgbox = QMessageBox()
             msgbox.setText("Please add a speaker.")
             msgbox.exec_()
 
-    @pyqtSlot()
+    @Slot()    
     def pause(self):
         switch_pause_playback()
         print(gui_pause)
 
-    @pyqtSlot()
+    @Slot()    
     def show_error(self):
         self.error_timer.stop()
         print(check_error())

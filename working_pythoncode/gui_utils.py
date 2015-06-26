@@ -3,9 +3,9 @@ Library for GUI of Audio 3D Project, Group B
 author: H. Zhu, M. Heiss
 """
 
-from PyQt4 import QtCore, QtGui, QtOpenGL
+from PySide import QtCore, QtGui, QtOpenGL
 from plot import GLPlotWidget
-from dt2 import DT2
+from dt2 import DT2, azimuth_angle
 
 
 # initialization of variables
@@ -19,12 +19,12 @@ audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
 speaker_to_show = 0
 
-def update_gui_dict():
+def update_gui_dict(deg):
 
     global gui_stop
     if gui_stop is False:
         for speaker in speaker_list:
-            speaker.cal_rel_pos()
+            speaker.cal_rel_pos(deg)
 
 # Stop playback and convolution of dsp algorithm
 def switch_stop_playback():
@@ -81,17 +81,14 @@ class Headtracker(object):
 
     def __init__(self):
         self.head_deg = 0
-        # self.dt2 = DT2()
+        self.dt2 = DT2()
 
     def cal_head_deg(self):
-        # angle = self.dt2.angle()
-        self.head_deg = self.getDegree()
+        self.head_deg = azimuth_angle(self.dt2.angle()[0])
 
     def get_head_deg(self):
         return self.head_deg
 
-    def getDegree(self):
-        return 30
 
 
 # Items inside the QGraphicsScene, including Speaker and Audience
@@ -213,7 +210,7 @@ class View(QtGui.QGraphicsView):
 # which doesn't provide the signal/slot function
 class SignalHandler(QtCore.QObject):
 
-    show_property = QtCore.pyqtSignal()
+    show_property = QtCore.Signal()
 
     def __init__(self, index):
         super(SignalHandler, self).__init__()
@@ -242,7 +239,7 @@ class Speaker(Item):
         speaker_list.append(self)
         self.cal_rel_pos()
 
-    def cal_rel_pos(self):
+    def cal_rel_pos(self, head_deg = 0):
         global gui_dict
         global audience_pos
         dx = self.x() - audience_pos.x()
@@ -256,9 +253,7 @@ class Speaker(Item):
         if dx < 0:
             deg = 360 - deg
 
-        head_tracker = Headtracker()
-        head_tracker.cal_head_deg()
-        deg += head_tracker.get_head_deg()
+        deg += head_deg
 
         if deg >= 360:
             deg %= 360
@@ -289,7 +284,7 @@ class Audience(Item):
 # Widget window where speaker properties can be adjusted individually
 class SpeakerProperty(QtGui.QWidget):
 
-    added = QtCore.pyqtSignal()
+    added = QtCore.Signal()
     posx = 0
     posy = 0
 
@@ -342,14 +337,14 @@ class SpeakerProperty(QtGui.QWidget):
         self.setLayout(layout)
         self.setWindowTitle('Speaker Properties')
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()    
     def browse(self):
 
         file_browser = QtGui.QFileDialog()
-        self.path = file_browser.getOpenFileName()
-        self.path_line_edit.setText(self.path)
+        self.path = file_browser.getOpenFileName()[0]
+        self.path_line_edit.setText(self.path[0])
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()    
     def confirm(self):
         global ear
         ear = self.combo_box.currentText()
@@ -372,7 +367,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.added.emit()
         self.close()
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()    
     def cancel(self):
         self.close()
 
@@ -394,7 +389,7 @@ class SpeakerProperty(QtGui.QWidget):
 # Additional window for plot of speaker and HRTF spectrum while .wav is played
 class SequencePlot(QtGui.QWidget):
 
-    plot_on = QtCore.pyqtSignal()
+    plot_on = QtCore.Signal()
 
     def __init__(self, parent=None):
         super(SequencePlot, self).__init__(parent)

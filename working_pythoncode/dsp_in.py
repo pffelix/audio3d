@@ -9,7 +9,6 @@ import scipy.io.wavfile
 import struct
 import numpy as np
 import math
-import matplotlib.pyplot as plt
 from error_handler import send_error
 import time
 
@@ -602,5 +601,4 @@ class DspIn:
     # @author Felix Pfreundtner
     def apply_window_on_sp_block(self, sp):
         self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
-        self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16,
-                                                               copy=False)
+        self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16)
