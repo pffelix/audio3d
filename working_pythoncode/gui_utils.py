@@ -3,7 +3,7 @@ Library for GUI of Audio 3D Project, Group B
 author: H. Zhu, M. Heiss
 """
 
-from PySide import QtCore, QtGui, QtOpenGL
+from PySide import QtCore, QtGui  # , QtOpenGL
 from plot import GLPlotWidget
 from dt2 import DT2, azimuth_angle
 
@@ -19,12 +19,14 @@ audience_pos = QtCore.QPoint(170, 170)
 speaker_list = []
 speaker_to_show = 0
 
+
 def update_gui_dict(deg):
 
     global gui_stop
     if gui_stop is False:
         for speaker in speaker_list:
             speaker.cal_rel_pos(deg)
+
 
 # Stop playback and convolution of dsp algorithm
 def switch_stop_playback():
@@ -47,6 +49,7 @@ def switch_pause_playback():
         gui_pause = False
     print (gui_pause)
 
+
 def get_bound_pos(x, y):
 
     if x > 350 and y > 350:
@@ -64,6 +67,7 @@ def get_bound_pos(x, y):
 
     return x, y
 
+
 def get_abs_pos(azimuth, dist):
     global audience_pos
 
@@ -75,6 +79,7 @@ def get_abs_pos(azimuth, dist):
     y = y0 - dist*cos(radians(azimuth))
 
     return x, y
+
 
 # Headtracker - to be implemented
 class Headtracker(object):
@@ -88,7 +93,6 @@ class Headtracker(object):
 
     def get_head_deg(self):
         return self.head_deg
-
 
 
 # Items inside the QGraphicsScene, including Speaker and Audience
@@ -117,7 +121,8 @@ class Item(QtGui.QGraphicsPixmapItem):
 
         if QtCore.QLineF(QtCore.QPointF(event.screenPos()),
                          QtCore.QPointF(event.buttonDownScreenPos(
-                             QtCore.Qt.LeftButton))).length() < QtGui.QApplication.startDragDistance():
+                             QtCore.Qt.LeftButton))).length() < \
+           QtGui.QApplication.startDragDistance():
                                 return
 
         drag = QtGui.QDrag(event.widget())
@@ -128,7 +133,6 @@ class Item(QtGui.QGraphicsPixmapItem):
 
     def mouseReleaseEvent(self, event):
         self.setCursor(QtCore.Qt.OpenHandCursor)
-
 
 
 # Room displays the relative Audience and Speaker items positions
@@ -150,7 +154,8 @@ class Room(QtGui.QGraphicsScene):
         global speaker_list
         try:
             self.current_item.setPos(e.scenePos().x()-25, e.scenePos().y()-25)
-            bounded_x,bounded_y = get_bound_pos(e.scenePos().x()-25, e.scenePos().y()-25)
+            bounded_x, bounded_y = get_bound_pos(e.scenePos().x()-25,
+                                                 e.scenePos().y()-25)
             self.current_item.setPos(bounded_x, bounded_y)
 
             if self.current_item.type == 'audience':
@@ -178,13 +183,10 @@ class Room(QtGui.QGraphicsScene):
             pass
 
 
-
-
 class View(QtGui.QGraphicsView):
 
     def __init__(self, scene):
         super(View, self).__init__(scene)
-
 
     def dragEnterEvent(self, e):
         e.acceptProposedAction()
@@ -239,14 +241,14 @@ class Speaker(Item):
         speaker_list.append(self)
         self.cal_rel_pos()
 
-    def cal_rel_pos(self, head_deg = 0):
+    def cal_rel_pos(self, head_deg=0):
         global gui_dict
         global audience_pos
         dx = self.x() - audience_pos.x()
         dy = audience_pos.y() - self.y()
         dis = (dx**2+dy**2)**0.5
         if dis == 0:
-            dis+=0.1
+            dis += 0.1
 
         from math import acos, degrees
         deg = degrees(acos(dy/dis))
@@ -337,14 +339,14 @@ class SpeakerProperty(QtGui.QWidget):
         self.setLayout(layout)
         self.setWindowTitle('Speaker Properties')
 
-    @QtCore.Slot()    
+    @QtCore.Slot()
     def browse(self):
 
         file_browser = QtGui.QFileDialog()
         self.path = file_browser.getOpenFileName()[0]
         self.path_line_edit.setText(self.path[0])
 
-    @QtCore.Slot()    
+    @QtCore.Slot()
     def confirm(self):
         global ear
         ear = self.combo_box.currentText()
@@ -360,14 +362,14 @@ class SpeakerProperty(QtGui.QWidget):
         x = self.posx
         y = self.posy
 
-        self.posx, self.posy = get_bound_pos(x,y)
+        self.posx, self.posy = get_bound_pos(x, y)
 
         print(self.posx)
         print(self.posy)
         self.added.emit()
         self.close()
 
-    @QtCore.Slot()    
+    @QtCore.Slot()
     def cancel(self):
         self.close()
 
@@ -404,7 +406,8 @@ class SequencePlot(QtGui.QWidget):
         self.layoutVertical.addWidget(self.speaker_spec)
         self.layoutVertical.addWidget(self.lhrtf_spec)
         self.layoutVertical.addWidget(self.rhrtf_spec)
-        self.setGeometry(100, 100, self.speaker_spec.width, 2*self.speaker_spec.height)
+        self.setGeometry(100, 100, self.speaker_spec.width,
+                         2*self.speaker_spec.height)
 
         self.setWindowTitle('Sequence Plot')
         self.timer = QtCore.QTimer(self)
