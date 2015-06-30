@@ -76,7 +76,7 @@ def get_abs_pos(azimuth, dist):
 
     return x, y
 
-# Headtracker - to be implemented
+# Headtracker
 class Headtracker(object):
 
     def __init__(self):
@@ -253,10 +253,10 @@ class Speaker(Item):
         if dx < 0:
             deg = 360 - deg
 
-        deg += head_deg
+        deg -= head_deg
 
-        if deg >= 360:
-            deg %= 360
+        if deg <= 0:
+            deg += 360
 
         gui_dict[self.index] = [deg, dis/100, self.path, self.norm]
         return deg, dis
@@ -342,7 +342,7 @@ class SpeakerProperty(QtGui.QWidget):
 
         file_browser = QtGui.QFileDialog()
         self.path = file_browser.getOpenFileName()[0]
-        self.path_line_edit.setText(self.path[0])
+        self.path_line_edit.setText(self.path)
 
     @QtCore.Slot()    
     def confirm(self):

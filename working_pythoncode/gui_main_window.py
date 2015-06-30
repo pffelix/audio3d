@@ -13,8 +13,10 @@ from dsp import Dsp
 import threading
 import multiprocessing
 from error_handler import *
-import time
 
+
+# head tracker
+enable_headtracker = False
 # initialization of variables
 default_position = [[50, 20], [290, 20], [170, 50],
                     [50, 320], [290, 320], [290, 170]]
@@ -25,7 +27,6 @@ class MainWindow(QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setAcceptDrops(True)
-        self.head_tracker = Headtracker()
         # set items
         self.audience = Audience()
 
@@ -95,11 +96,12 @@ class MainWindow(QWidget):
         layout.addWidget(self.buffersize_label, 8, 0, 1, 1)
         layout.addWidget(self.buffersize_spin_box, 8, 1, 1, 1)
 
-        # connect signal and slots
-        self.update_timer = QTimer()
-        from gui_utils import update_gui_dict
-        self.update_timer.timeout.connect(self.update_head)
-        self.update_timer.start(10)
+        # initialize head tracker, connect signal and slots
+        if enable_headtracker:
+            self.head_tracker = Headtracker()
+            self.update_timer = QTimer()
+            self.update_timer.timeout.connect(self.update_head)
+            self.update_timer.start(10)
 
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
