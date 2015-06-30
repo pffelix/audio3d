@@ -124,7 +124,7 @@ class MainWindow(QWidget):
 
     def update_head(self):
         from gui_utils import update_gui_dict, gui_stop, gui_pause
-        if gui_stop and gui_pause is False:
+        if gui_stop is False and gui_pause is False:
             self.head_tracker.cal_head_deg()
             update_gui_dict(self.head_tracker.get_head_deg())
 
