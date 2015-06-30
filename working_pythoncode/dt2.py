@@ -74,8 +74,8 @@ def azimuth_angle(data):
         angle = data_format[2]
     except IndexError:
         pass
-    # angle_list = map(float, angle)
-    angle_list = string_to_float(angle)
+    angle_list = map(float, angle)
+    #angle_list = string_to_float(angle)
     azimuth = 0
     try: 
         azimuth = angle_list[5]
