@@ -69,12 +69,9 @@ def string_to_float(s):
 
 def azimuth_angle(data):
     data_format = clean_and_split(data)
-    angle = '0'
-    try:
-        angle = data_format[2]
-    except IndexError:
-        pass
+    angle = data_format[2]
     angle_list = map(float, angle)
+    print(type(data_format),type(angle),type(angle_list))
     #angle_list = string_to_float(angle)
     azimuth = 0
     try: 
