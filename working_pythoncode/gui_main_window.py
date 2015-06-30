@@ -123,8 +123,8 @@ class MainWindow(QWidget):
         self.show()
 
     def update_head(self):
-        from gui_utils import update_gui_dict, gui_stop
-        if gui_stop is False:
+        from gui_utils import update_gui_dict, gui_stop, gui_pause
+        if gui_stop and gui_pause is False:
             self.head_tracker.cal_head_deg()
             update_gui_dict(self.head_tracker.get_head_deg())
 
@@ -319,10 +319,12 @@ class MainWindow(QWidget):
 
     def closeEvent(self, event_q_close_event):
         self.room.clear()
+        if enable_headtracker:
+            self.update_timer.stop()
         if self.sequence_plot.is_on:
             self.sequence_plot.close()
         if self.speaker_property.is_on:
             self.speaker_property.close()
-        # if self.play is not None:
-            # gui_stop_init = switch_stop_playback()
+        if self.play is not None:
+            gui_stop_init = switch_stop_playback()
         event_q_close_event.accept()
