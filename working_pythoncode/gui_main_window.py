@@ -15,6 +15,7 @@ import multiprocessing
 from error_handler import *
 
 
+
 # head tracker
 enable_headtracker = False
 # initialization of variables
@@ -103,6 +104,7 @@ class MainWindow(QWidget):
             self.update_timer.timeout.connect(self.update_head)
             self.update_timer.start(10)
 
+
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
         control_button.clicked.connect(self.control)
@@ -119,7 +121,7 @@ class MainWindow(QWidget):
         self.setLayout(layout)
         self.setWindowTitle('3D Audio')
         self.show()
-        
+
     def update_head(self):
         self.head_tracker.cal_head_deg()
         from gui_utils import update_gui_dict
@@ -138,7 +140,7 @@ class MainWindow(QWidget):
 #                "inverse_filter_active": self.inverse_box.isChecked(),
 #                "bufferblocks": self.buffersize_spin_box.value()}
 
-    @Slot()    
+    @Slot()
     def show_property(self):
 
         from gui_utils import speaker_to_show
@@ -162,7 +164,7 @@ class MainWindow(QWidget):
         speaker_list[i].setPos(x_new, y_new)
         speaker_list[i].cal_rel_pos()
 
-    @Slot()    
+    @Slot()
     def add_speaker(self):
         if len(gui_dict) < 6:
             index = len(gui_dict)
@@ -194,7 +196,7 @@ class MainWindow(QWidget):
         else:
             return
 
-    @Slot()    
+    @Slot()
     def add2scene(self):
 
         if len(gui_dict) < 6:
@@ -217,7 +219,7 @@ class MainWindow(QWidget):
         else:
             return
 
-    @Slot()    
+    @Slot()
     def reset(self):
         self.room.clear()
         gui_dict.clear()
@@ -226,7 +228,7 @@ class MainWindow(QWidget):
         self.room.addItem(new_audience)
         self.view.viewport().update()
 
-    @Slot()    
+    @Slot()
     def control(self):
         global gui_stop
         global gui_pause
@@ -244,7 +246,7 @@ class MainWindow(QWidget):
                     True:
                 gui_stop = switch_stop_playback()
             print("continue")
-            #while not self.return_ex.empty():
+            # while not self.return_ex.empty():
             #   self.return_ex.get()
             gui_settings_dict = {
                 "hrtf_database": self.combo_box.currentText(),
@@ -256,19 +258,20 @@ class MainWindow(QWidget):
             self.error_timer = QTimer()
             self.error_timer.timeout.connect(self.show_error)
             self.error_timer.start(100)
-            self.play = threading.Thread(target=self.Dsp_Object.run_single_core)
+            self.play = threading.Thread(
+                target=self.Dsp_Object.run_single_core)
             self.play.start()
         else:
             msgbox = QMessageBox()
             msgbox.setText("Please add a speaker.")
             msgbox.exec_()
 
-    @Slot()    
+    @Slot()
     def pause(self):
         switch_pause_playback()
         print(gui_pause)
 
-    @Slot()    
+    @Slot()
     def show_error(self):
         self.error_timer.stop()
         print(check_error())
@@ -319,6 +322,6 @@ class MainWindow(QWidget):
             self.sequence_plot.close()
         if self.speaker_property.is_on:
             self.speaker_property.close()
-        if self.play is not None:
-            gui_stop_init = switch_stop_playback()
+        # if self.play is not None:
+            # gui_stop_init = switch_stop_playback()
         event_q_close_event.accept()
