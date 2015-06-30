@@ -123,9 +123,10 @@ class MainWindow(QWidget):
         self.show()
 
     def update_head(self):
-        self.head_tracker.cal_head_deg()
-        from gui_utils import update_gui_dict
-        update_gui_dict(self.head_tracker.get_head_deg())
+        from gui_utils import update_gui_dict, gui_stop
+        if gui_stop is False:
+            self.head_tracker.cal_head_deg()
+            update_gui_dict(self.head_tracker.get_head_deg())
 
     def inverse_disable(self):
         if self.combo_box.currentText() == 'kemar_compact':
