@@ -74,7 +74,6 @@ def azimuth_angle(data):
     angle_list = string_to_float(angle)
     try: 
         azimuth = angle_list[5]
-        break
     except IndexError:
         pass
     if azimuth <= 0:
