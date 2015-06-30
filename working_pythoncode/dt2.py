@@ -71,13 +71,9 @@ def azimuth_angle(data):
     data_format = clean_and_split(data)
     angle = data_format[2]
     angle_list = map(float, angle)
-    print(type(data_format),type(angle),type(angle_list))
-    #angle_list = string_to_float(angle)
-    azimuth = 0
-    try: 
-        azimuth = angle_list[5]
-    except IndexError:
-        pass
+    angle_list = string_to_float(angle)
+    azimuth = angle_list[5]
+
     if azimuth <= 0:
         azimuth = -1*azimuth
     else:
