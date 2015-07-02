@@ -27,7 +27,8 @@ class DspOut:
         self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((
             fft_blocksize / 2, 2), dtype=np.float16), np.zeros((fft_blocksize
                                                                 / 2, 2),
-                                                               dtype=np.float16)])
+                                                               dtype=np.float16
+                                                               )])
         self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
             fft_blocksize, 2), dtype=np.int16))
         self.binaural_block_dict_out = dict.fromkeys(gui_dict_init, np.zeros(
@@ -46,7 +47,6 @@ class DspOut:
         self.lock = threading.Lock()
         self.playback_finished = False
         self.playback_successful = True
-
 
     # @brief Function convolves hrtf and data of the music file
     # @details Function takes one hrtf block and one data block (their size
@@ -125,7 +125,8 @@ class DspOut:
         binaural_block_sp_time = binaural_block_sp_time / (
             binaural_block_sp_time_max_amp / sp_max_amp_sp /
             hrtf_max_amp_sp_l_r * 32767)
-        self.binaural_block_dict[sp][:, l_r] = binaural_block_sp_time.astype(np.int16)
+        self.binaural_block_dict[sp][:, l_r] = \
+            binaural_block_sp_time.astype(np.int16)
 
     # @brief Applies the overlap-add-method to the signal.
     # @details Adds the last part of the prior fft-block to calculate the
@@ -152,7 +153,8 @@ class DspOut:
         # 2. take still remaining block output of prior ffts and add it to
         # the zero array on front position
         binaural_block_dict_add_sp_new[0:add_sp_arraysize - hopsize,
-        :] = deepcopy(self.binaural_block_dict_add[sp][hopsize:, :])
+                                       :] = deepcopy(
+            self.binaural_block_dict_add[sp][hopsize:, :])
         # 3. take remaining block output of current fft and add it to the
         # array on back position
         binaural_block_dict_add_sp_new[:, :] += deepcopy(

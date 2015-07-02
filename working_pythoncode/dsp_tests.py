@@ -4,6 +4,7 @@ import dsp_in
 import dsp_out
 from unittest.mock import MagicMock
 import numpy as np
+import scipy.io.wavfile
 
 gui_dict_mockup = \
     {
@@ -24,6 +25,9 @@ sp_blocksize = 512
 sp_blocktime = 0.011609977324263039
 overlap = 0.5
 hopsize = 256
+# only for test_get_sp (only testable with elecguitar)
+total_no_samples_elecgui = 970200
+sp = 0
 
 
 DspIn_TestObj = dsp_in.DspIn(gui_dict_mockup, gui_settings_dict_mockup)
@@ -38,15 +42,14 @@ block_begin_end = np.zeros((2,), dtype=np.int16)
 
 
 class DspTests(unittest.TestCase):
-
-    def __init__(self):
-        self.DspIn_TestObj = dsp_in.DspIn(gui_dict_mockup,
-                                          gui_settings_dict_mockup)
-        self.DspOut_TestObj = dsp_out.DspOut(gui_dict_mockup,
-                                             DspIn_TestObj.fft_blocksize,
-                                             DspIn_TestObj.sp_blocksize,
-                                             DspIn_TestObj.hopsize,
-                                             DspIn_TestObj, gui_pause_mockup)
+    # def __init__(self):
+    #     self.DspIn_TestObj = dsp_in.DspIn(gui_dict_mockup,
+    #                                       gui_settings_dict_mockup)
+    #     self.DspOut_TestObj = dsp_out.DspOut(gui_dict_mockup,
+    #                                          DspIn_TestObj.fft_blocksize,
+    #                                          DspIn_TestObj.sp_blocksize,
+    #                                          DspIn_TestObj.hopsize,
+    #                                          DspIn_TestObj, gui_pause_mockup)
 
     # @brief Tests rnd for one particular number.
     def test_rnd_int(self):
@@ -120,6 +123,41 @@ class DspTests(unittest.TestCase):
             i += 1
         self.assertTrue(truelist, msg=errmsg)
 
+    # def test_get_sp_block(self):
+    #
+    #     res = DspIn_TestObj.get_sp_block(0)
+    #     #np.zeros((
+    #         #self.sp_blocksize,), dtype=np.int16))
+    #     self.assertTrue(res)
+
+    # @brief Compare own read-function to scipy-function-results.
+    #Skip Test for all files besides the electrical guitar
+    @unittest.skipUnless(gui_dict_mockup[0][2] ==
+                         "./audio_in/electrical_guitar_(44.1,1,16).wav",
+                         "Otherwise total_no_of_samples is wrong")
+    def test_get_sp(self):
+        sp = 0
+        scipy_sp_dict = {}
+        scipy_sp_dict[sp] = np.zeros((total_no_samples_elecgui,),
+            dtype=np.int16)
+        scipy_sp_dict_raw = {}
+        for sp in gui_dict_mockup:
+            _, scipy_sp_dict_raw[sp] = scipy.io.wavfile.read(
+                gui_dict_mockup[sp][2])
+            lenarray = len(scipy_sp_dict_raw[sp])
+            # append zeros to scipy_sp_dict_raw to reach that output is
+            # divideable by sp_blocksize
+            if lenarray % sp_blocksize != 0:
+                scipy_sp_dict[sp] = np.zeros((lenarray + sp_blocksize -
+                                              lenarray % sp_blocksize, ),
+                                             dtype=np.int16)
+                scipy_sp_dict[sp][0:lenarray, ] = scipy_sp_dict_raw[sp]
+            else:
+                scipy_sp_dict[sp] = scipy_sp_dict_raw[sp]
+        sol = scipy_sp_dict
+        res = DspIn_TestObj.get_sp(gui_dict_mockup)
+        errmsg = "get_sp doesn't get same values as scipy function"
+        self.assertEqual(sol, res, msg=errmsg)
 
 if __name__ == '__main__':
     unittest.main()

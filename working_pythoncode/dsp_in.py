@@ -399,7 +399,7 @@ class DspIn:
         return sp_param
 
     ## @brief reads one block of samples
-    # @details This method reads a block of samples of a speaker .wav-file
+    # @details This method reads a block of samples of a speaker-.wav-file
     #          and writes in a numpyarray sp_block_dict[sp] (containing one
     #          16-bit-int for each sample) and a flag that tells whether the
     #          end of the file is reached or not. This function will be
@@ -422,7 +422,7 @@ class DspIn:
         for sp in gui_dict:
             _, scipy_sp_dict_raw[sp] = scipy.io.wavfile.read(gui_dict[sp][2])
             lenarray = len(scipy_sp_dict_raw[sp])
-            # append zeros to scipy_sp_dict_raw to reach that output ist
+            # append zeros to scipy_sp_dict_raw to reach that output is
             # divideable by sp_blocksize
             if lenarray % self.sp_blocksize != 0:
                 scipy_sp_dict[sp] = np.zeros((lenarray + self.sp_blocksize -
@@ -434,144 +434,146 @@ class DspIn:
 
         print("timer scipy in ms: " + str(int((time.time() - start) * 1000)))
 
-        # start = time.time()
-        # # # iterate over all speakers to read in all speaker wave files
-        # for sp in sp_dict:
-        #     # start reading at sample 0 in speaker wave file
-        #     begin_block = 0
-        #     # stop reading at last sample in speaker wave file
-        #     end_block = self.sp_param[sp][0]
-        #     continue_input = True
-        #     # open file of current speaker here
-        #     file = open(gui_dict[sp][2], 'rb')
-        #     # calculate begin_block as byte-number
-        #     first_byte_of_block = self.sp_param[sp][6] + (begin_block *
-        #     self.sp_param[sp][7] * self.sp_param[sp][3])
-        #     # calculate end_block as byte_number
-        #     last_byte_of_block = self.sp_param[sp][6] + (end_block *
-        #     self.sp_param[sp][7] * self.sp_param[sp][3])
-        #     # go to first byte of block and start "reading"
-        #     file.seek(first_byte_of_block)
-        #     # if input file is mono, write sp_dict[sp] in this part
-        #     if self.sp_param[sp][3] == 1:
-        #         # if play is not yet at the end of the file use this
-        #         # simple loop:
-        #         if last_byte_of_block < self.sp_param[sp][8]:
-        #             i = 0
-        #             # while i < blocklength, read every loop one sample
-        #             while i < self.sp_blocksize:
-        #                 sp_dict[sp][i,] = struct.unpack(
-        #                     self.sp_param[sp][4] + self.sp_param[sp][9],
-        #                     file.read(self.sp_param[sp][7]))[0]
-        #                 i += 1
-        #         # if play has reached the last block of the file, do:
-        #         else:
-        #             # calculate remaining samples
-        #             remaining_samples = int((self.sp_param[sp][8] -
-        #                                      first_byte_of_block) / (
-        #                 self.sp_param[sp][7] *
-        #                 self.sp_param[sp][3]))
-        #             i = 0
-        #             # read remaining samples to the end, then set
-        #             # continue_input
-        #             # to "False"
-        #             while i < remaining_samples:
-        #                 sp_dict[sp][i,] = struct.unpack(
-        #                     self.sp_param[sp][4] + self.sp_param[sp][9],
-        #                     file.read(self.sp_param[sp][7]))[0]
-        #                 i += 1
-        #             continue_input = False
-        #     # If input file is stereo, make mono and write sp_dict[sp]
-        #     elif self.sp_param[sp][3] == 2:
-        #         # First: Write left and right signal in independent lists
-        #         samplelist_of_one_block_left = []
-        #         samplelist_of_one_block_right = []
-        #         # set random value that cant be reached by (self.sp_param[
-        #         # sp][5] - current_last_byte (see below)
-        #         remaining_samples = 10000
-        #         if last_byte_of_block < self.sp_param[sp][8]:
-        #             i = 0
-        #             # while i < blocklength, read every loop one sample
-        #             while i < self.sp_blocksize:
-        #                 # read one sample for left ear and one for right ear
-        #                 left_int = struct.unpack(self.sp_param[sp][4] +
-        #                                          self.sp_param[sp][9],
-        #                                          file.read(
-        #                                              self.sp_param[sp][7]))[0]
-        #                 right_int = struct.unpack(self.sp_param[sp][4] +
-        #                                           self.sp_param[sp][9],
-        #                                           file.read(
-        #                                               self.sp_param[sp][7]))[
-        #                     0]
-        #
-        #                 samplelist_of_one_block_left.append(left_int)
-        #                 samplelist_of_one_block_right.append(right_int)
-        #                 i += 1
-        #         else:  # if we reached last block of file, do:
-        #             # calculate remaining samples
-        #             remaining_samples = int((self.sp_param[sp][8] -
-        #                                      first_byte_of_block) / (
-        #                 self.sp_param[sp][7] *
-        #                 self.sp_param[sp][3]))
-        #             i = 0
-        #             # read remaining samples and write one to left and one
-        #             # to right
-        #             while i < remaining_samples:
-        #                 left_int = struct.unpack(self.sp_param[sp][4] +
-        #                                          self.sp_param[sp][9],
-        #                                          file.read(
-        #                                              self.sp_param[sp][7]))[0]
-        #                 right_int = struct.unpack(self.sp_param[sp][4] +
-        #                                           self.sp_param[sp][9],
-        #                                           file.read(
-        #                                               self.sp_param[sp][7]))[0]
-        #                 samplelist_of_one_block_left.append(left_int)
-        #                 samplelist_of_one_block_right.append(right_int)
-        #                 i += 1
-        #             continue_input = False
-        #         # Second: Get mean value and merge the two lists and write in
-        #         # sp_dict[sp]
-        #         if remaining_samples == 10000:
-        #             i = 0
-        #             while i < self.sp_blocksize:
-        #                 mean_value = int((samplelist_of_one_block_left[i] +
-        #                   samplelist_of_one_block_right[i]) / 2)
-        #                 sp_dict[sp][i,] = mean_value
-        #                 i += 1
-        #         else:
-        #             i = 0
-        #             while i < remaining_samples:
-        #                 mean_value = int((samplelist_of_one_block_left[i] +
-        #                   samplelist_of_one_block_right[i]) / 2)
-        #                 sp_dict[sp][i,] = mean_value
-        #                 i += 1
-        #             continue_input = False
-        #             # else:
-        #             # an Matthias: Hier bitte eine Fehlerausgabe über
-        #             # DspSignalHandler() schreiben (Fragen zu der Funktion ->
-        #             # Huaijiang) --> Wird gemacht!
-        #             # print("Signal is neither mono nor stereo(
-        #             # self.sp_param[sp][3] != 1" or "2") and can't be
-        #             # processed!")
-        # file.close()
-        # # print runtime in milliseconds
-        # print("timer get_sp in ms: " + str(int((time.time() - start) * 1000)))
-        return scipy_sp_dict
+        start = time.time()
+        ## iterate over all speakers to read in all speaker wave files
+        for sp in sp_dict:
+            # start reading at sample 0 in speaker wave file
+            begin_block = 0
+            # stop reading at last sample in speaker wave file
+            end_block = self.sp_param[sp][0]
+            continue_input = True
+            # open file of current speaker here
+            file = open(gui_dict[sp][2], 'rb')
+            # calculate begin_block as byte-number
+            first_byte_of_block = self.sp_param[sp][6] + (begin_block *
+                                                          self.sp_param[sp][7] *
+                                                          self.sp_param[sp][3])
+            # calculate end_block as byte_number
+            last_byte_of_block = self.sp_param[sp][6] + (end_block *
+                                                         self.sp_param[sp][7]
+                                                         * self.sp_param[sp][3])
+            # go to first byte of block and start "reading"
+            file.seek(first_byte_of_block)
+            # if input file is mono, write sp_dict[sp] in this part
+            if self.sp_param[sp][3] == 1:
+                # if play is not yet at the end of the file use this
+                # simple loop:
+                if last_byte_of_block < self.sp_param[sp][8]:
+                    i = 0
+                    # while i < blocklength, read every loop one sample
+                    # !!!!Very often in while-loop!!!!
+                    while i < self.sp_blocksize:
+                        sp_dict[sp][i, ] = struct.unpack(
+                            self.sp_param[sp][4] + self.sp_param[sp][9],
+                            file.read(self.sp_param[sp][7]))[0]
+                        i += 1
+                # if play has reached the last block of the file, do:
+                else:
+                    # calculate remaining samples
+                    remaining_samples = int((self.sp_param[sp][8] -
+                                             first_byte_of_block) / (
+                        self.sp_param[sp][7] *
+                        self.sp_param[sp][3]))
+                    i = 0
+                    # read remaining samples to the end, then set
+                    # continue_input
+                    # to "False"
+                    while i < remaining_samples:
+                        sp_dict[sp][i, ] = struct.unpack(
+                            self.sp_param[sp][4] + self.sp_param[sp][9],
+                            file.read(self.sp_param[sp][7]))[0]
+                        i += 1
+                    continue_input = False
+            # If input file is stereo, make mono and write sp_dict[sp]
+            elif self.sp_param[sp][3] == 2:
+                # First: Write left and right signal in independent lists
+                samplelist_of_one_block_left = []
+                samplelist_of_one_block_right = []
+                # set random value that cant be reached by (self.sp_param[
+                # sp][5] - current_last_byte) (see below)
+                remaining_samples = 10000
+                if last_byte_of_block < self.sp_param[sp][8]:
+                    i = 0
+                    # while i < blocklength, read every loop one sample
+                    # !!!!!Very often executed!!!
+                    while i < self.sp_blocksize:
+                        # read one sample for left ear and one for right ear
+                        left_int = struct.unpack(self.sp_param[sp][4] +
+                                                 self.sp_param[sp][9],
+                                                 file.read(
+                                                     self.sp_param[sp][7]))[0]
+                        right_int = struct.unpack(self.sp_param[sp][4] +
+                                                  self.sp_param[sp][9],
+                                                  file.read(
+                                                      self.sp_param[sp][7]))[0]
+                        samplelist_of_one_block_left.append(left_int)
+                        samplelist_of_one_block_right.append(right_int)
+                        i += 1
+                else:  # if we reached last block of file, do:
+                    # calculate remaining samples
+                    remaining_samples = int((self.sp_param[sp][8] -
+                                             first_byte_of_block) / (
+                        self.sp_param[sp][7] *
+                        self.sp_param[sp][3]))
+                    i = 0
+                    # read remaining samples and write one to left and one
+                    # to right
+                    while i < remaining_samples:
+                        left_int = struct.unpack(self.sp_param[sp][4] +
+                                                 self.sp_param[sp][9],
+                                                 file.read(
+                                                     self.sp_param[sp][7]))[0]
+                        right_int = struct.unpack(self.sp_param[sp][4] +
+                                                  self.sp_param[sp][9],
+                                                  file.read(
+                                                      self.sp_param[sp][7]))[0]
+                        samplelist_of_one_block_left.append(left_int)
+                        samplelist_of_one_block_right.append(right_int)
+                        i += 1
+                    continue_input = False
+                # Second: Get mean value and merge the two lists and write in
+                # sp_dict[sp]
+                if remaining_samples == 10000:
+                    i = 0
+                    while i < self.sp_blocksize:
+                        mean_value = int((samplelist_of_one_block_left[i] +
+                                          samplelist_of_one_block_right[i]) / 2)
+                        sp_dict[sp][i, ] = mean_value
+                        i += 1
+                else:
+                    i = 0
+                    while i < remaining_samples:
+                        mean_value = int((samplelist_of_one_block_left[i] +
+                                          samplelist_of_one_block_right[i]) / 2)
+                        sp_dict[sp][i, ] = mean_value
+                        i += 1
+                    continue_input = False
+                    # else:
+                    # an Matthias: Hier bitte eine Fehlerausgabe über
+                    # DspSignalHandler() schreiben (Fragen zu der Funktion ->
+                    # Huaijiang) --> Wird gemacht!
+                    # print("Signal is neither mono nor stereo(
+                    # self.sp_param[sp][3] != 1" or "2") and can't be
+                    # processed!")
+        file.close()
+        # print runtime in milliseconds
+        print("timer get_sp in ms: " + str(int((time.time() - start) * 1000)))
+        return sp_dict#, scipy_sp_dict
 
     ## @author Matthias Lederle
     def get_sp_block(self, sp):
         # if current block end is smaller than last sample in sp
         if self.block_begin_end[1] <= self.sp_param[sp][0]:
-            self.sp_block_dict[sp] = self.sp_dict[sp][self.block_begin_end[0]:
-            self.block_begin_end[1], ]
+            self.sp_block_dict[sp] = self.sp_dict[sp][self.block_begin_end[
+                0]: self.block_begin_end[1], ]
             continue_input = True
+        # if current block end is LARGER, we enter the else-condition
         else:
             self.sp_block_dict[sp] = np.zeros((self.sp_blocksize),
                                               dtype=np.int16)
             self.sp_block_dict[sp][0:self.sp_param[sp][0] -
-                self.block_begin_end[0], ] = self.sp_dict[sp][
-                self.block_begin_end[0]:
-                self.sp_param[sp][0], ]
+                                   self.block_begin_end[0], ] = self.sp_dict[
+                sp][self.block_begin_end[0]:self.sp_param[sp][0], ]
             continue_input = False
         self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))
         return continue_input
