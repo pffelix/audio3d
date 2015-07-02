@@ -4,7 +4,7 @@ Created on Fri Jun  12 15:30:53 2015
 
 @author: Felix Pfreundtner
 """
-from PyQt4.QtGui import *
+from PySide.QtGui import *
 import sys
 import gui_main_window
 
