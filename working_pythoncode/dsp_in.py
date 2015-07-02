@@ -54,7 +54,7 @@ class DspIn:
         # build a hann window with sp_blocksize
         self.hann = self.build_hann_window(self.sp_blocksize)
 
-    # @brief function rounds any input value to the closest integer
+    ## @brief function rounds any input value to the closest integer
     # @details This function does a normal school arithmetic round (choose
     #          lower int until .4 and higher int from .5 on) and returns the
     #          rounded value. It is NOT equal to pythons round() method.
@@ -73,7 +73,7 @@ class DspIn:
                 value = math.ceil(value)
         return value
 
-    # @brief Calculate and construct the hann window in dependency of
+    ## @brief Calculate and construct the hann window in dependency of
     #        sp_blocksize
     # @retval <hann_window> Numpy-array of the length of sp_blocksize
     # @author Felix Pfreundtner
@@ -84,7 +84,7 @@ class DspIn:
             hann_window[n, ] = 0.5 * (1 - math.cos(2 * math.pi * n / (x)))
         return hann_window
 
-    # @brief This function calculates the three block parameters necessary
+    ## @brief This function calculates the three block parameters necessary
     #        for the while-loop of the run-function.
     # @details This method uses the parameters of the input .wav-file and
     #          the blocksizes of the fft and the hrtf to calculate the
@@ -120,7 +120,7 @@ class DspIn:
                            int((self.sp_blocksize) * (self.overlap))]
         return block_begin_end
 
-    # @brief Every while-loop the number of the first and last sample is
+    ## @brief Every while-loop the number of the first and last sample is
     #         calculated
     # @details This function replaces the values set by the
     #          init_set_block_begin_end-function every while-loop according to
@@ -132,7 +132,7 @@ class DspIn:
         self.block_begin_end[0] += int(self.sp_blocksize * (1 - self.overlap))
         self.block_begin_end[1] += int(self.sp_blocksize * (1 - self.overlap))
 
-    # @brief Get all parameters for the hrtf set by the settings in gui
+    ## @brief Get all parameters for the hrtf set by the settings in gui
     # @details This function calculates all necessary parameters of the hrtf
     #          to be later able to get the correct hrtf-files for the
     #          convolution with the speaker-file signal.
@@ -176,7 +176,7 @@ class DspIn:
                                             dtype=np.int16)
         return hrtf_database, hrtf_blocksize, kemar_inverse_filter
 
-    # @brief Gets and reads the correct hrtf-file from database
+    ## @brief Gets and reads the correct hrtf-file from database
     # @details The function creates the correct string to call the right
     #          hrtf-data from the kemar-files. It then reads the file and
     #          passes it on to the variables further used by the
@@ -288,7 +288,7 @@ class DspIn:
             self.hrtf_max_amp_dict[sp].append(np.amax(np.abs(
                 self.hrtf_block_dict[sp][:, 1])))
 
-    # @brief get 10 important parameters of the files to be played by the
+    ## @brief get 10 important parameters of the files to be played by the
     #         get_block_function
     # @details This method gets all important data from the .wav files that
     #          will be played by the speakers. Input is a gui_dict, containing
@@ -398,7 +398,7 @@ class DspIn:
                 # self.signal_handler.send_error(errmsg)
         return sp_param
 
-    # @brief reads one block of samples
+    ## @brief reads one block of samples
     # @details This method reads a block of samples of a speaker .wav-file
     #          and writes in a numpyarray sp_block_dict[sp] (containing one
     #          16-bit-int for each sample) and a flag that tells whether the
@@ -558,7 +558,7 @@ class DspIn:
         # print("timer get_sp in ms: " + str(int((time.time() - start) * 1000)))
         return scipy_sp_dict
 
-    # @author Matthias Lederle
+    ## @author Matthias Lederle
     def get_sp_block(self, sp):
         # if current block end is smaller than last sample in sp
         if self.block_begin_end[1] <= self.sp_param[sp][0]:
@@ -576,7 +576,7 @@ class DspIn:
         self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))
         return continue_input
 
-    # @brief Normalize the .wav-signal to have maximum of int16 amplitude
+    ## @brief Normalize the .wav-signal to have maximum of int16 amplitude
     # @details If the input-flag normalize_flag_sp is True, measure the
     #          maximum amplitude occurring in the .wav-file. After that,
     #          reduce all entries of sp_block_dict by the ratio that
@@ -598,7 +598,7 @@ class DspIn:
                 self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp]
                                                           [:, ]))
 
-    # @author Felix Pfreundtner
+    ## @author Felix Pfreundtner
     def apply_window_on_sp_block(self, sp):
         self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
         self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16)

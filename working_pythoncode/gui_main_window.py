@@ -15,7 +15,6 @@ import multiprocessing
 from error_handler import *
 
 
-
 # head tracker
 enable_headtracker = False
 # initialization of variables
@@ -103,7 +102,6 @@ class MainWindow(QWidget):
             self.update_timer = QTimer()
             self.update_timer.timeout.connect(self.update_head)
             self.update_timer.start(10)
-
 
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)

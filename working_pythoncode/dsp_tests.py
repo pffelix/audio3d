@@ -39,6 +39,15 @@ block_begin_end = np.zeros((2,), dtype=np.int16)
 
 class DspTests(unittest.TestCase):
 
+    def __init__(self):
+        self.DspIn_TestObj = dsp_in.DspIn(gui_dict_mockup,
+                                          gui_settings_dict_mockup)
+        self.DspOut_TestObj = dsp_out.DspOut(gui_dict_mockup,
+                                             DspIn_TestObj.fft_blocksize,
+                                             DspIn_TestObj.sp_blocksize,
+                                             DspIn_TestObj.hopsize,
+                                             DspIn_TestObj, gui_pause_mockup)
+
     # @brief Tests rnd for one particular number.
     def test_rnd_int(self):
         val = 1.9
