@@ -271,7 +271,7 @@ class DspIn:
     # @author Matthias Lederle
     def init_get_block(self, gui_dict):
         # initialize dict with 10 (empty) values per key with list comprehension
-        sp_param = {i : [None] * 10 for i in range(len(gui_dict))}
+        sp_param = {sp : [None] * 10 for sp in range(len(gui_dict))}
         # go through all speakers
         for sp in sp_param:
             if gui_dict[sp][2] == 'unknown' or gui_dict[sp][2] == '':
@@ -607,10 +607,7 @@ class DspIn:
 
     ## @author Felix Pfreundtner
     def apply_window_on_sp_block(self, sp):
-        try:
-            self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
-        except ValueError:
-            print ("Oops!  That was no valid number.  Try again...")
+        self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
         self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16)
 
 

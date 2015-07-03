@@ -72,10 +72,6 @@ class Dsp:
             self.DspIn_Object.set_block_begin_end()
             # iterate over all active speakers sp
             for sp in self.gui_dict:
-                # reset binaural block output array of speaker sp by filling
-                #  it with zeros
-                self.DspOut_Object.binaural_block_dict[sp] = np.zeros((
-                    self.DspIn_Object.fft_blocksize, 2), dtype=np.int16)
                 # if speaker wave file still has unread samples start
                 # convolution, else skip convolution
                 if self.DspOut_Object.continue_convolution_dict[sp] is True:

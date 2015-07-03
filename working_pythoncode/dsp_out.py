@@ -28,13 +28,15 @@ class DspOut:
             (hopsize, 2), dtype=np.int16))
         self.binaural_block_dict_add = dict.fromkeys(gui_dict_init, np.zeros(
             (fft_blocksize - hopsize, 2), dtype=np.int16))
-        self.binaural_block = np.zeros((sp_blocksize, 2), dtype=np.int16)
+        self.binaural_block = np.zeros((hopsize, 2), dtype=np.int16)
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
-        self.continue_convolution_dict = dict.fromkeys(gui_dict_init, True)
+        self.continue_convolution_dict = {sp: True for sp in range(len(
+            gui_dict_init))}
         self.gui_stop = gui_stop_init
         self.gui_pause = gui_pause_init
         self.played_frames_end = 0
-        self.continue_convolution_list = dict.fromkeys(gui_dict_init, [])
+        self.continue_convolution_list = {sp: [] for sp in range(len(
+            gui_dict_init))}
         self.played_block_counter = 0
         self.prior_played_block_counter = 0
         self.playbuffer = collections.deque()
@@ -80,7 +82,7 @@ class DspOut:
     # distance to the speakers.
     # @author Felix Pfreundtner
     def mix_binaural_block(self, hopsize, gui_dict):
-        self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
+        self.binaural_block = np.zeros((hopsize, 2), dtype=np.int16)
         # maximum distance of a speaker to head in window with borderlength
         # 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
         # max([gui_dict[sp][1] for sp in gui_dict])
@@ -96,7 +98,13 @@ class DspOut:
             # speakers
             self.binaural_block += self.binaural_block_dict_out[sp] * \
                 sp_gain_factor / total_number_of_sp
+            # if convolution for this speaker will be skipped on the
+            # next iteration set binaural_block_dict_out to zeros
+            if self.continue_convolution_dict[sp] == False:
+                self.binaural_block_dict_out[sp] = np.zeros((hopsize, 2),
+                                                            dtype=np.int16)
         self.binaural_block = self.binaural_block.astype(np.int16)
+
 
     # @brief Adds the newly calculated blocks to a dict that contains all the
     #  blocks calculated before.
