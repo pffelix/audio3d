@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['error_5fmessage',['error_message',['../classdsp__signal__handler_1_1_dsp_signal_handler.html#a29c65fe6ead3b0b26604e63d23607989',1,'dsp_signal_handler::DspSignalHandler']]],
-  ['error_5foccur',['error_occur',['../classdsp__signal__handler_1_1_dsp_signal_handler.html#ac174dfbd336de0e491d01ec86a4d2e98',1,'dsp_signal_handler::DspSignalHandler']]]
+  ['enable_5fheadtracker',['enable_headtracker',['../namespacegui__main__window.html#abe9d4167b449a833e44a7254216b3bc5',1,'gui_main_window']]],
+  ['error_5fmessage',['error_message',['../namespaceerror__handler.html#a1bde86e90caf8932e274ed2bde315828',1,'error_handler']]],
+  ['error_5ftimer',['error_timer',['../classgui__main__window_1_1_main_window.html#acf841093b466d25412d1e93b51837c1a',1,'gui_main_window::MainWindow']]]
 ];

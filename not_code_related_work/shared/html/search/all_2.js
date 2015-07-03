@@ -5,7 +5,7 @@ var searchData=
   ['binaural_5fblock_5fdict',['binaural_block_dict',['../classdsp__out_1_1_dsp_out.html#aa485d13f17ef4976ecbcc807b8b80dfe',1,'dsp_out::DspOut']]],
   ['binaural_5fblock_5fdict_5fadd',['binaural_block_dict_add',['../classdsp__out_1_1_dsp_out.html#aed5fbdfd3d975b024d5b53e8c044328d',1,'dsp_out::DspOut']]],
   ['binaural_5fblock_5fdict_5fout',['binaural_block_dict_out',['../classdsp__out_1_1_dsp_out.html#a48ea4b9f78dbcc58b4799b76494596fa',1,'dsp_out::DspOut']]],
-  ['block_5fbegin_5fend',['block_begin_end',['../classdsp__in_1_1_dsp_in.html#aa588c8421d36a66a8e9f696b20af3563',1,'dsp_in::DspIn']]],
+  ['block_5fbegin_5fend',['block_begin_end',['../classdsp__in_1_1_dsp_in.html#aa588c8421d36a66a8e9f696b20af3563',1,'dsp_in.DspIn.block_begin_end()'],['../namespacedsp__tests.html#a18c13767bc9d21268d76ee7f18c68682',1,'dsp_tests.block_begin_end()']]],
   ['blockcounter',['blockcounter',['../classdsp_1_1_dsp.html#aaa779da8c074f6456cbb9fb2b10cf5ea',1,'dsp::Dsp']]],
   ['browse',['browse',['../classgui__utils_1_1_speaker_property.html#a2fc77e647ef4d01249cb5c371ae516e2',1,'gui_utils::SpeakerProperty']]],
   ['bufferblocks',['bufferblocks',['../classdsp_1_1_dsp.html#acdd39ca449c3d26bbdfcd1dc18a4002c',1,'dsp::Dsp']]],

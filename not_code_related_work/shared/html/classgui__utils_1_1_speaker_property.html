@@ -124,6 +124,8 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:a901aa9276da921b93e9340c2850a7322"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgui__utils_1_1_speaker_property.html#a901aa9276da921b93e9340c2850a7322">is_on</a></td></tr>
+<tr class="separator:a901aa9276da921b93e9340c2850a7322"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab95236565413d1724169462f693ee4c5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgui__utils_1_1_speaker_property.html#ab95236565413d1724169462f693ee4c5">path_label</a></td></tr>
 <tr class="separator:ab95236565413d1724169462f693ee4c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef3e2ae1ff0c483b825f38a0c5e2b28b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgui__utils_1_1_speaker_property.html#aef3e2ae1ff0c483b825f38a0c5e2b28b">position_label</a></td></tr>
@@ -157,10 +159,8 @@ Public Attributes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:a827a36c43fd1a03ea631292db8e4dab2"><td class="memItemLeft" align="right" valign="top">tuple&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgui__utils_1_1_speaker_property.html#a827a36c43fd1a03ea631292db8e4dab2">added</a> = QtCore.pyqtSignal()</td></tr>
+<tr class="memitem:a827a36c43fd1a03ea631292db8e4dab2"><td class="memItemLeft" align="right" valign="top">tuple&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgui__utils_1_1_speaker_property.html#a827a36c43fd1a03ea631292db8e4dab2">added</a> = QtCore.Signal()</td></tr>
 <tr class="separator:a827a36c43fd1a03ea631292db8e4dab2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae245f0ed0d2753509ce908c0a71f9f49"><td class="memItemLeft" align="right" valign="top">tuple&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgui__utils_1_1_speaker_property.html#ae245f0ed0d2753509ce908c0a71f9f49">closed</a> = QtCore.pyqtSignal()</td></tr>
-<tr class="separator:ae245f0ed0d2753509ce908c0a71f9f49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a377aecef38c0bb6f152dd0829fd0c00f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgui__utils_1_1_speaker_property.html#a377aecef38c0bb6f152dd0829fd0c00f">posx</a> = 0</td></tr>
 <tr class="separator:a377aecef38c0bb6f152dd0829fd0c00f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c83cade6d992fa7fd1f27dcc972be08"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classgui__utils_1_1_speaker_property.html#a3c83cade6d992fa7fd1f27dcc972be08">posy</a> = 0</td></tr>
@@ -299,7 +299,7 @@ Static Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">tuple gui_utils.SpeakerProperty.added = QtCore.pyqtSignal()</td>
+          <td class="memname">tuple gui_utils.SpeakerProperty.added = QtCore.Signal()</td>
         </tr>
       </table>
   </td>
@@ -343,26 +343,6 @@ Static Public Attributes</h2></td></tr>
           <td class="memname">gui_utils.SpeakerProperty.cancel_button</td>
         </tr>
       </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a class="anchor" id="ae245f0ed0d2753509ce908c0a71f9f49"></a>
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">tuple gui_utils.SpeakerProperty.closed = QtCore.pyqtSignal()</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
 </div>
@@ -421,6 +401,18 @@ Static Public Attributes</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">gui_utils.SpeakerProperty.file_select_button</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a class="anchor" id="a901aa9276da921b93e9340c2850a7322"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">gui_utils.SpeakerProperty.is_on</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -552,12 +544,12 @@ Static Public Attributes</h2></td></tr>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>working_pythoncode/<a class="el" href="gui__utils_8py.html">gui_utils.py</a></li>
+<li>C:/Users/Matthias/Desktop/6.Semester/Projektpraktikum Python/Abgabe/working_pythoncode/<a class="el" href="gui__utils_8py.html">gui_utils.py</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Jun 19 2015 19:55:29 for 3D Audio by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Jul 3 2015 10:23:54 for 3D Audio by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.9.1
 </small></address>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['room',['Room',['../classgui__utils_1_1_room.html',1,'gui_utils']]]
+  ['mainwindow',['MainWindow',['../classgui__main__window_1_1_main_window.html',1,'gui_main_window']]]
 ];

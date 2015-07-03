@@ -558,7 +558,7 @@ class DspIn:
         file.close()
         # print runtime in milliseconds
         print("timer get_sp in ms: " + str(int((time.time() - start) * 1000)))
-        return sp_dict#, scipy_sp_dict
+        return sp_dict      # , scipy_sp_dict
 
     ## @author Matthias Lederle
     def get_sp_block(self, sp):

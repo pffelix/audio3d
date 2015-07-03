@@ -44,7 +44,7 @@ class Dsp:
         # blocks
         self.blockcounter = 0
 
-    # @brief run dsp algorithm as one process on one cpu core
+    ## @brief Runs the dsp algorithm as one process on one cpu core.
     # @details
     # @author Felix Pfreundtner, Matthias Lederle
     def run_single_core(self):
@@ -179,7 +179,7 @@ class Dsp:
             self.gui_dict)
         self.return_ex.put(self.DspOut_Object.playback_successful)
 
-    # @brief run dsp algorithm on multiple cores by creating an own process for
+    ## @brief run dsp algorithm on multiple cores by creating an own process for
     #        every speaker
     # @details
     # @author Felix Pfreundtner
@@ -320,16 +320,17 @@ class Dsp:
         if self.DspOut_Object.gui_stop is False:
             for sp in processes:
                 processes[sp].join()
-        # print out wheter plaback was successful
+        # print out whether playback was successful
         print("Playback successfull: " + str(
             self.DspOut_Object.playback_successful))
         self.return_ex.put(self.DspOut_Object.playback_successful)
 
 
-# This function is being run in a separate process for each speaker
-# It iterates over every block of the speaker input file, convolves it with
-# the current head position related hrtf and sends the ouput for each
-# speaker block with a queue to dsp.run
+## @brief This function is being run in a separate process for each speaker.
+# @details The function iterates over every block of the speaker input file,
+# convolves it with the current head position related hrtf and sends the
+# ouput for each speaker block with a queue to dsp.run.
+# @author Felix Pfreundtner
 def sp_block_convolution(gui_dict_init,
                          gui_stop_init,
                          gui_pause_init,

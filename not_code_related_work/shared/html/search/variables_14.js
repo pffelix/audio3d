@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['wave_5fblockbeginend_5fdict_5flist',['wave_blockbeginend_dict_list',['../classdsp__in_1_1_dsp_in.html#a7ade075f79e888d0afb8d74fe79c77c4',1,'dsp_in::DspIn']]],
-  ['wave_5fparam_5fcommon',['wave_param_common',['../classdsp__in_1_1_dsp_in.html#a1a7fa3a685fc4c58992769207a6104b8',1,'dsp_in::DspIn']]]
+  ['vbo',['vbo',['../classplot_1_1_g_l_plot_widget.html#aed182de185723449665b21fb16612095',1,'plot::GLPlotWidget']]],
+  ['view',['view',['../classgui__main__window_1_1_main_window.html#a024d5f7d96cc4846d3f83f030da6c02b',1,'gui_main_window::MainWindow']]]
 ];

@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['gui_5fmain_5fwindow',['gui_main_window',['../namespacegui__main__window.html',1,'']]],
-  ['gui_5futils',['gui_utils',['../namespacegui__utils.html',1,'']]]
+  ['error_5fhandler',['error_handler',['../namespaceerror__handler.html',1,'']]]
 ];
