@@ -270,10 +270,10 @@ class DspIn:
     # sp_param[sp][9] = format character for correct encoding of data}
     # @author Matthias Lederle
     def init_get_block(self, gui_dict):
-        # initialize dict with 10 (empty) values per key
-        sp_param = dict.fromkeys(gui_dict, [None] * 10)
+        # initialize dict with 10 (empty) values per key with list comprehension
+        sp_param = {i : [None] * 10 for i in range(len(gui_dict))}
         # go through all speakers
-        for sp in gui_dict:
+        for sp in sp_param:
             if gui_dict[sp][2] == 'unknown' or gui_dict[sp][2] == '':
                 # ERROR message -- no file selected
                 print("No file selected")
@@ -607,7 +607,10 @@ class DspIn:
 
     ## @author Felix Pfreundtner
     def apply_window_on_sp_block(self, sp):
-        self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
+        try:
+            self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
+        except ValueError:
+            print ("Oops!  That was no valid number.  Try again...")
         self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16)
 
 
