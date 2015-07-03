@@ -128,7 +128,7 @@ class MainWindow(QWidget):
 
     def inverse_disable(self):
         if self.combo_box.currentText() == 'kemar_compact':
-            self.inverse_box.setCheckState(Qt.Checked)
+            self.inverse_box.setCheckState(Qt.Unchecked)
         else:
             return
 

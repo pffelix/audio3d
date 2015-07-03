@@ -527,52 +527,43 @@ class DspIn:
     # @author Felix Pfreundtner
     def get_hrtf_block_fft(self, gui_dict_sp, sp):
         # get filename of the relevant hrtf for each ear
-        # the if-statement differentiates between "compact" and "normal/big"
         # version according to settings in gui
         rounddifference = gui_dict_sp[0] % 5
         # if angle from gui exactly matches angle of the file
         if rounddifference == 0:
-            if gui_dict_sp[0] <= 180:
-                angle_exact = gui_dict_sp[0]
-            else:
-                angle_exact = 360 - gui_dict_sp[0]
+            angle_exact = gui_dict_sp[0]
 
         # If gui's angle doesn't exactly match, go to closest angle
         # available in database
         else:
-            if gui_dict_sp[0] <= 180:
-                if rounddifference < 2.5:
-                    angle_exact = gui_dict_sp[0] - rounddifference
-                else:
-                    angle_exact = gui_dict_sp[0] + 5 - rounddifference
+            if rounddifference < 2.5:
+                angle_exact = gui_dict_sp[0] - rounddifference
             else:
-                if rounddifference < 2.5:
-                    angle_exact = 360 - gui_dict_sp[0] - rounddifference
-                else:
-                    angle_exact = 360 - gui_dict_sp[0] + 5 - rounddifference
+                angle_exact = gui_dict_sp[0] + 5 - rounddifference
+
         # get rounded integer angle
         angle = self.rnd(angle_exact)
-
+        # if angle is 360°
+        if angle == 360:
+            # -> identical to angle = 0°
+            angle = 0
         # get the maximum amplitude of the left ear hrtf time signal
         self.hrtf_max_amp_dict[sp][0] = np.amax(np.abs(self.hrtf_database_time[
                                                        :, angle/5]))
         # get left ear hrtf fft values
         self.hrtf_block_fft_dict[sp][:, 0] = self.hrtf_database_fft[:, angle/5]
 
-        #increase angle about 180° to get hrtf information for the right ear
-        angle = angle + 180
-        if angle != 360:
-             # get the maximum amplitude of the right ear hrtf time signal
-            self.hrtf_max_amp_dict[sp][1] = np.amax(np.abs(
-                self.hrtf_database_time[:, angle/5]))
-            # get right ear hrtf fft values
-            self.hrtf_block_fft_dict[sp][:, 1] = self.hrtf_database_fft[:, angle/5]
-        else:
-            # get the maximum amplitude of the right ear hrtf time signal
-            self.hrtf_max_amp_dict[sp][1] = np.amax(np.abs(
-                self.hrtf_database_time[:, 0]))
-            # get right ear hrtf fft values
-            self.hrtf_block_fft_dict[sp][:, 1] = self.hrtf_database_fft[:, 0]
+        # calculate the symectrical angle for the right ear
+        angle = 360 - angle
+        # if angle is 360°
+        if angle == 360:
+            # -> identical to angle = 0°
+            angle = 0
+        # get the maximum amplitude of the right ear hrtf time signal
+        self.hrtf_max_amp_dict[sp][1] = np.amax(np.abs(
+            self.hrtf_database_time[:, angle/5]))
+        # get right ear hrtf fft values
+        self.hrtf_block_fft_dict[sp][:, 1] = self.hrtf_database_fft[:, angle/5]
 
     ## @author Matthias Lederle
     def get_sp_block(self, sp):
