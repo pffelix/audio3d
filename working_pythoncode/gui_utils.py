@@ -34,12 +34,13 @@ def update_gui_dict(deg):
 # @details
 # @author Felix
 def switch_stop_playback():
+    print('done')
     global gui_stop
     if gui_stop is False:
         gui_stop = True
     else:
         gui_stop = False
-    print (gui_stop)
+#    print (gui_stop)
     return gui_stop
 
 
@@ -54,7 +55,8 @@ def switch_pause_playback():
     # end pause
     else:
         gui_pause = False
-    print (gui_pause)
+#    print (gui_pause)
+    return gui_pause
 
 
 # @brief keeps cursor inside gui_scene 
@@ -62,17 +64,17 @@ def switch_pause_playback():
 # @author Huijiang
 def get_bound_pos(x, y):
 
-    if x > 350 and y > 350:
+    if x > 350: #and y > 350:
         x = 350
-        y = 350
-    if x > 350 and y < 0:
-        x = 350
+        #y = 350
+    if y < 0 :#x > 350 and y < 0:
+        #x = 350
         y = 0
-    if x < 0 and y < 0:
+    if x < 0: #and y < 0:
         x = 0
-        y = 0
-    if x < 0 and y > 350:
-        x = 0
+        #y = 0
+    if  y > 350: # x < 0 and y > 350:
+       # x = 0
         y = 350
 
     return x, y
