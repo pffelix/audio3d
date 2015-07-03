@@ -7,7 +7,7 @@ from PySide import QtCore, QtGui
 from plot import GLPlotWidget
 from dt2 import DT2, azimuth_angle
 
-# variables - to be put in seperate class to avoid globals
+# variables
 gui_dict = {}
 gui_settings_dict = {"hrtf_database": "kemar_normal_ear",
                      "inverse_filter_active": True,
@@ -104,17 +104,17 @@ class Headtracker(object):
 
     def __init__(self):
         self.head_deg = 0
-        # DT2 is the class, connecting to the headtracker system
+        # DT2 is the object connecting to the headtracker system
         self.dt2 = DT2()
 
+    # @brief This function calls the azimuth_angle function of DT2 object
+    # which only extracts the azimuthal head movement 
+    # recorded by the headtracking setup
     def cal_head_deg(self):
         self.head_deg = azimuth_angle(self.dt2.angle()[0])
 
-# @brief This function returns the azimuth angle, which is recorded
-#        with the headtracker setup
-#
-# @details
-# @author Huijiang
+    # @brief This function returns the azimuth angle, which is recorded
+    #        with the headtracker setup
     def get_head_deg(self):
         return self.head_deg
 
@@ -136,8 +136,11 @@ class Item(QtGui.QGraphicsPixmapItem):
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable)
         self.setFlag(QtGui.QGraphicsItem.ItemIsMovable)
         self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable)
-
+        
+    # Definition of mouse move events related to Items on the QGraphicsScene:
+        
     def mousePressEvent(self, event):
+        # only left cursor button events are recorded on the QGraphicsScene
         if event.button() != QtCore.Qt.LeftButton:
             event.ignore()
             return
@@ -170,7 +173,9 @@ class Item(QtGui.QGraphicsPixmapItem):
 class Room(QtGui.QGraphicsScene):
 
     current_item = 0
-
+    
+    # Definition of mouse move events related to the QGraphicsScene:
+    
     def mousePressEvent(self, e):
         self.current_item = self.itemAt(e.scenePos())
         QtGui.QGraphicsScene.mousePressEvent(self, e)
@@ -214,8 +219,8 @@ class Room(QtGui.QGraphicsScene):
             pass
 
 
-# @class <View> This class defines the visualization of mouse events on
-# the gui scene
+# @class <View> This class is responsible for displaying the contents of on the
+# QGraphicsScene
 #
 class View(QtGui.QGraphicsView):
 
@@ -244,7 +249,6 @@ class View(QtGui.QGraphicsView):
 
 # @class <SignalHandler> Signal handler for QGraphicsItem
 # which doesn't provide the signal/slot function
-#
 #
 class SignalHandler(QtCore.QObject):
 
@@ -279,9 +283,11 @@ class Speaker(Item):
         speaker_list.append(self)
         self.cal_rel_pos()
         
-    # @brief this function 
-    #
-    # @details
+    # @brief this function returns the relative position of the speaker 
+    # to the 'audience', defined by a radial variable deg (defined counter 
+    # clockwise) and the distance
+    # @details head_deg can take the azimuthal angle set by the headtracker
+    # into account
     # @author
     def cal_rel_pos(self, head_deg=0):
         global gui_dict
@@ -291,7 +297,9 @@ class Speaker(Item):
         dis = (dx**2+dy**2)**0.5
         if dis == 0:
             dis += 0.1
-
+        
+        # required geometric transformation due to the difference in definition 
+        # used by the headtracker setup 
         from math import acos, degrees
         deg = degrees(acos(dy/dis))
         if dx < 0:
@@ -304,7 +312,9 @@ class Speaker(Item):
 
         gui_dict[self.index] = [deg, dis/100, self.path, self.norm]
         return deg, dis
-
+    
+    # @brief double click on speaker item offers the opportunity to change
+    # the speaker settings in a seperate QWidget window
     def mouseDoubleClickEvent(self, event):
         global speaker_to_show
         speaker_to_show = self.index
@@ -329,7 +339,7 @@ class Audience(Item):
 
 # @class <SpeakerProperty> Additional widget window to define speaker .wav path
 # speaker position and to activate inverse filtering for speaker before 
-# adding it to the scene
+# adding it to the scene and afterwards by double click on the speaker item
 #
 class SpeakerProperty(QtGui.QWidget):
 
@@ -382,13 +392,20 @@ class SpeakerProperty(QtGui.QWidget):
         # set window
         self.setLayout(layout)
         self.setWindowTitle('Speaker Properties')
-
+        
+    # @brief function corresponding to the browse button on the settings
+    # widget, to open a file dialog in order to choose a .wav file 
+    #
     @QtCore.Slot()
     def browse(self):
         file_browser = QtGui.QFileDialog()
         self.path = file_browser.getOpenFileName()[0]
         self.path_line_edit.setText(self.path)
 
+    # @brief function corresponding to the confirm button on the settings
+    # widget, to add a speaker to the QGraphicsScene with the choosen 
+    # properties
+    #
     @QtCore.Slot()
     def confirm(self):
         global ear
@@ -446,7 +463,7 @@ class SequencePlot(QtGui.QWidget):
         self.speaker_spec = GLPlotWidget()
         self.lhrtf_spec = GLPlotWidget()
         self.rhrtf_spec = GLPlotWidget()
-
+        # set layout
         self.layoutVertical = QtGui.QVBoxLayout(self)
         self.layoutVertical.addWidget(self.speaker_spec)
         self.layoutVertical.addWidget(self.lhrtf_spec)
