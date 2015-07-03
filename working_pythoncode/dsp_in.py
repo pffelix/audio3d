@@ -42,10 +42,10 @@ class DspIn:
         # read in whole hrtf datatabas from impulse responses in time domain
         self.hrtf_database_time = self.read_hrtf_database(gui_settings_dict_init)
         # bring whole hrtf database to frequency domain
-        self.hrtf_database_freq = self.fft_hrtf_database()
+        self.hrtf_database_fft = self.hrtf_database_fft()
         # Initialize a dict for the hrtf block values to be stored in.
-        self.hrtf_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
-            self.hrtf_blocksize, 2), dtype=np.int16))
+        self.hrtf_block_fft_dict = dict.fromkeys(gui_dict_init, np.zeros((
+            self.fft_blocksize, 2), dtype=np.complex128))
         # Define blocksize, blocktime, overlap and hopsize
         self.sp_blocksize, self.sp_blocktime, self.overlap, self.hopsize = \
             self.get_block_param(self.wave_param_common,
@@ -231,68 +231,20 @@ class DspIn:
 
     ## @brief brings the whole hrtf database in frequency domain
     # @author Felix Pfreundtner
-    def fft_hrtf_database(self):
-        hrtf_database_freq = np.zeros((self.fft_blocksize,
+    def hrtf_database_fft(self):
+        hrtf_database_fft = np.zeros((self.fft_blocksize,
                                        self.hrtf_database_time.shape[1]),
                                        dtype=np.complex128)
         hrtf_zeropadded = np.zeros((self.fft_blocksize, ), dtype=np.int16)
         for angle_index in range (self.hrtf_database_time.shape[1]):
             hrtf_zeropadded[:self.hrtf_blocksize, ] = self.hrtf_database_time[:,
                                                   angle_index]
-            hrtf_database_freq[:, angle_index] = fft(hrtf_zeropadded,
+            hrtf_database_fft[:, angle_index] = fft(hrtf_zeropadded,
                                               self.fft_blocksize)
-        return hrtf_database_freq
+        return hrtf_database_fft
 
 
-    ## @brief Gets and reads the correct hrtf-file from database
-    # @details The function creates the correct string to call the right
-    #          hrtf-data from the kemar-files. It then reads the file and
-    #          passes it on to the variables further used by the
-    #          Dsp.run-function.
-    # @author Felix Pfreundtner
-    def get_current_hrtf(self, gui_dict_sp, sp):
-        # get filename of the relevant hrtf for each ear
-        # the if-statement differentiates between "compact" and "normal/big"
-        # version according to settings in gui
-        rounddifference = gui_dict_sp[0] % 5
-        # if angle from gui exactly matches angle of the file
-        if rounddifference == 0:
-            if gui_dict_sp[0] <= 180:
-                angle_exact = gui_dict_sp[0]
-            else:
-                angle_exact = 360 - gui_dict_sp[0]
 
-        # If gui's angle doesn't exactly match, go to closest angle
-        # available in database
-        else:
-            if gui_dict_sp[0] <= 180:
-                if rounddifference < 2.5:
-                    angle_exact = gui_dict_sp[0] - rounddifference
-                else:
-                    angle_exact = gui_dict_sp[0] + 5 - rounddifference
-            else:
-                if rounddifference < 2.5:
-                    angle_exact = 360 - gui_dict_sp[0] - rounddifference
-                else:
-                    angle_exact = 360 - gui_dict_sp[0] + 5 - rounddifference
-
-        # get in integer angle
-        angle = self.rnd(angle_exact)
-
-        # get left ear hrtf
-        self.hrtf_block_dict[sp][:, 0] = self.hrtf_database_time[:, angle/5]
-        # get right ear hrtf
-        angle = angle + 180
-        if angle != 360:
-            self.hrtf_block_dict[sp][:, 1] = self.hrtf_database_time[:, (angle)/5]
-        else:
-            self.hrtf_block_dict[sp][:, 1] = self.hrtf_database_time[:, 0]
-        # initialize an list containing the absolute maximum int for
-        # ear of each numpy
-        self.hrtf_max_amp_dict[sp][0] = np.amax(np.abs(self.hrtf_block_dict[
-                                                         sp][:, 0]))
-        self.hrtf_max_amp_dict[sp][1] = np.amax(np.abs(self.hrtf_block_dict[
-                                                         sp][:, 1]))
 
     ## @brief get 10 important parameters of the files to be played by the
     #         get_block_function
@@ -566,6 +518,59 @@ class DspIn:
         print("timer get_sp in ms: " + str(int((time.time() - start) * 1000)))
         return sp_dict      # , scipy_sp_dict
 
+
+    ## @brief Gets and reads the correct hrtf-file from database
+    # @details
+    # @author Felix Pfreundtner
+    def get_hrtf_block_fft(self, gui_dict_sp, sp):
+        # get filename of the relevant hrtf for each ear
+        # the if-statement differentiates between "compact" and "normal/big"
+        # version according to settings in gui
+        rounddifference = gui_dict_sp[0] % 5
+        # if angle from gui exactly matches angle of the file
+        if rounddifference == 0:
+            if gui_dict_sp[0] <= 180:
+                angle_exact = gui_dict_sp[0]
+            else:
+                angle_exact = 360 - gui_dict_sp[0]
+
+        # If gui's angle doesn't exactly match, go to closest angle
+        # available in database
+        else:
+            if gui_dict_sp[0] <= 180:
+                if rounddifference < 2.5:
+                    angle_exact = gui_dict_sp[0] - rounddifference
+                else:
+                    angle_exact = gui_dict_sp[0] + 5 - rounddifference
+            else:
+                if rounddifference < 2.5:
+                    angle_exact = 360 - gui_dict_sp[0] - rounddifference
+                else:
+                    angle_exact = 360 - gui_dict_sp[0] + 5 - rounddifference
+        # get rounded integer angle
+        angle = self.rnd(angle_exact)
+
+        # get the maximum amplitude of the left ear hrtf time signal
+        self.hrtf_max_amp_dict[sp][0] = np.amax(np.abs(self.hrtf_database_time[
+                                                       :, angle/5]))
+        # get left ear hrtf fft values
+        self.hrtf_block_fft_dict[sp][:, 0] = self.hrtf_database_fft[:, angle/5]
+
+        #increase angle about 180° to get hrtf information for the right ear
+        angle = angle + 180
+        if angle != 360:
+             # get the maximum amplitude of the right ear hrtf time signal
+            self.hrtf_max_amp_dict[sp][1] = np.amax(np.abs(
+                self.hrtf_database_time[:, angle/5]))
+            # get right ear hrtf fft values
+            self.hrtf_block_fft_dict[sp][:, 1] = self.hrtf_database_fft[:, angle/5]
+        else:
+            # get the maximum amplitude of the right ear hrtf time signal
+            self.hrtf_max_amp_dict[sp][1] = np.amax(np.abs(
+                self.hrtf_database_time[:, 0]))
+            # get right ear hrtf fft values
+            self.hrtf_block_fft_dict[sp][:, 1] = self.hrtf_database_fft[:, 0]
+
     ## @author Matthias Lederle
     def get_sp_block(self, sp):
         # if current block end is smaller than last sample in sp
@@ -618,21 +623,14 @@ class DspIn:
     # retransformed to  time-domain and normalized again. The final values
     # are written then to the binaural_block_dict.
     # @author Felix Pfreundtner
-    def fft_convolve(self, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r,
+    def fft_convolution(self, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r,
                      binaural_block_dict_sp, sp, l_r):
 
-        # Do for speaker sp zeropadding: zeropad hrtf (left or right input)
-        # and speaker (mono input)
-        hrtf_block_sp_zeropadded = np.zeros((self.fft_blocksize, ),
-                                            dtype=np.int16)
-        hrtf_block_sp_zeropadded[0:self.hrtf_blocksize, ] =\
-            self.hrtf_block_dict[sp][:, l_r]
+        # Do for speaker sp zeropadding: zeropad speaker (mono input)
         sp_block_sp_zeropadded = np.zeros((self.fft_blocksize, ), dtype='int16')
         sp_block_sp_zeropadded[0:self.sp_blocksize, ] = self.sp_block_dict[sp]
-
         # bring time domain input to to frequency domain
-        hrtf_block_sp_fft = fft(hrtf_block_sp_zeropadded, self.fft_blocksize)
-        sp_block_sp_fft = fft(sp_block_sp_zeropadded, self.fft_blocksize)
+        sp_block_fft_sp = fft(sp_block_sp_zeropadded, self.fft_blocksize)
 
         # save fft magnitude spectrum of sp_block in sp_spectrum and
         # hrtf_block in hrtf_spectrum to be shown by gui
@@ -645,7 +643,7 @@ class DspIn:
         sp_spectrum_dict_sp[:, 0] = freqs
         hrtf_spectrum_dict_sp_l_r[:, 0] = freqs
         # get magnitued spectrum of sp_block
-        sp_magnitude_spectrum = abs(sp_block_sp_fft[position_freq])
+        sp_magnitude_spectrum = abs(sp_block_fft_sp[position_freq])
         # normalize spectrum to get int16 values
         max_amplitude_output = 32767
         max_amplitude_sp_magnitude_spectrum = np.amax(np.abs(
@@ -655,7 +653,8 @@ class DspIn:
             sp_spectrum_dict_sp[:, 1] = sp_magnitude_spectrum / (
                 max_amplitude_sp_magnitude_spectrum / self.sp_max_amp_dict[sp] *
                 max_amplitude_output)
-        hrtf_magnitude_spectrum = abs(hrtf_block_sp_fft[position_freq])
+        hrtf_magnitude_spectrum = abs(self.hrtf_block_fft_dict[sp][:, l_r][
+                                          position_freq])
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(
             hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0:
@@ -667,7 +666,8 @@ class DspIn:
 
         # execute convolution of speaker input and hrtf input: multiply
         # complex frequency domain vectors
-        binaural_block_sp_frequency = sp_block_sp_fft * hrtf_block_sp_fft
+        binaural_block_sp_frequency = sp_block_fft_sp * \
+                                      self.hrtf_block_fft_dict[sp][:, l_r]
 
         # if kemar full is selected furthermore convolve with (approximated
         #  1024 samples) inverse impulse response of optimus pro 7 speaker

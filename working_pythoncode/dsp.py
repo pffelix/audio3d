@@ -81,8 +81,8 @@ class Dsp:
                 if self.DspOut_Object.continue_convolution_dict[sp] is True:
                     # check whether head position to speaker sp has changed
                     if self.gui_dict[sp][0] != self.prior_head_angle_dict[sp]:
-                        # if yes, load new fitting hrtf samples
-                        self.DspIn_Object.get_current_hrtf(self.gui_dict[sp],
+                        # if yes, load new fitting hrtf frequency values
+                        self.DspIn_Object.get_hrtf_block_fft(self.gui_dict[sp],
                                                            sp)
                         # save head position to speaker of this block in
                         # prior_head_angle_dict
@@ -105,7 +105,7 @@ class Dsp:
                     for l_r in range(2):
                         # convolve hrtf with speaker block input to get
                         # binaural stereo block output
-                        self.DspIn_Object.fft_convolve(self.sp_spectrum_dict[
+                        self.DspIn_Object.fft_convolution(self.sp_spectrum_dict[
                             sp],
                             self.hrtf_spectrum_dict[sp][l_r],
                             self.DspOut_Object.binaural_block_dict[sp], sp, l_r)
