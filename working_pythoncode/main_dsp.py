@@ -20,7 +20,7 @@ def main():
                            # True],
                            # 0: [90, 2, "./audio_in/music_mix_(44.1,2,16).wav", True]
                           }
-        gui_settings_dict_mockup = {"hrtf_database": "kemar_normal_ear",
+        gui_settings_dict_mockup = {"hrtf_database_name": "kemar_normal_ear",
                          "inverse_filter_active": True,
                          "bufferblocks": 5}
         gui_stop_mockup = False

@@ -36,8 +36,10 @@ class DspIn:
         # Set number of output blocks per second
         self.fft_blocksize = 1024
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
-        self.hrtf_database, self.hrtf_blocksize, self.kemar_inverse_filter = \
+        self.hrtf_database_name, self.hrtf_blocksize, self.kemar_inverse_filter = \
             self.get_hrtf_param(gui_settings_dict_init)
+        # read in whole hrtf datatabase
+        self.hrt_database = self.read_hrtf_database(gui_settings_dict_init)
         # Define blocksize, blocktime, overlap and hopsize
         self.sp_blocksize, self.sp_blocktime, self.overlap, self.hopsize = \
             self.get_block_param(self.wave_param_common,
@@ -45,7 +47,7 @@ class DspIn:
         # Get necessary parameters of input-file and store to sp_param-dict.
         self.sp_param = self.init_get_block(gui_dict_init)
         # read in whole wave file of all speakers
-        self.sp_dict = self.get_sp(gui_dict_init)
+        self.sp_dict = self.read_sp(gui_dict_init)
         self.block_begin_end = self.init_set_block_begin_end(gui_dict_init)
         # initialize empty numpy array where to save samples of each
         # speaker block
@@ -136,7 +138,7 @@ class DspIn:
     # @details This function calculates all necessary parameters of the hrtf
     #          to be later able to get the correct hrtf-files for the
     #          convolution with the speaker-file signal.
-    # @retval <hrtf_database> Tells which database the listener has chosen (
+    # @retval <hrtf_database_name> Tells which database the listener has chosen (
     #         available are: normal ear, big ear and a compact version)
     # @retval <hrtf_blocksize> Simply set to default value 513 since
     #         fft_blocksize is defaulted to 1024
@@ -144,8 +146,8 @@ class DspIn:
     #         check-box in gui was activated or not
     # @author Felix Pfreundtner
     def get_hrtf_param(self, gui_settings_dict):
-        hrtf_database = gui_settings_dict["hrtf_database"]
-        if hrtf_database == "kemar_normal_ear" or self.hrtf_database == \
+        hrtf_database_name = gui_settings_dict["hrtf_database"]
+        if hrtf_database_name == "kemar_normal_ear" or self.hrtf_database_name == \
                 "kemar_big_ear":
             # wave hrtf size 512 samples: zeropad hrtf to 513 samples to
             # reach even sp_blocksize which is integer divisible by 2 (50%
@@ -164,7 +166,7 @@ class DspIn:
             else:
                 kemar_inverse_filter = np.zeros((self.fft_blocksize,),
                                                 dtype=np.int16)
-        if hrtf_database == "kemar_compact":
+        if hrtf_database_name == "kemar_compact":
             # wave hrtf size 128 samples: zeropad hrtf to 129 samples to
             # reach even sp_blocksize which is integer divisible by 2 (50%
             # overlap needed -> sp_blocksize/2)
@@ -174,7 +176,53 @@ class DspIn:
             # hrtfs)
             kemar_inverse_filter = np.zeros((self.fft_blocksize,),
                                             dtype=np.int16)
-        return hrtf_database, hrtf_blocksize, kemar_inverse_filter
+        return hrtf_database_name, hrtf_blocksize, kemar_inverse_filter
+
+    ## @brief Preloads all hrtf Files
+    # @author Felix Pfreundtner
+    def read_hrtf_database(self, gui_dict_sp):
+        angle_stepsize= 5
+        angle_begin = 0
+        elevation = 0
+        number_of_hrtfs = 72
+        hrtf_database = np.zeros((self.hrtf_blocksize, number_of_hrtfs),
+                                            dtype=np.float32)
+        if self.hrtf_database_name == "kemar_full_normal_ear":
+            end_angle = 360
+            for azimut_angle in range(0,end,5):
+                if self.hrtf_database_name == "kemar_full_normal_ear":
+                    hrtf_filename = "./kemar/full/ele" + elevation + "/L" \
+                                    + elevation + "e" + str(
+                        azimuthangle_ear).zfill(3) + "a.wav"
+                    _, hrtf_database[:, angle/angle_stepsize] = \
+                        numpscipy.io.wavfile.read(
+                        hrtf_filename)
+
+        if self.hrtf_database_name == "kemar_full_big_ear":
+            end_angle = 360
+            for azimut_angle in range(0,end,5):
+                if self.hrtf_database_name == "kemar_full_normal_ear":
+                    hrtf_filename = "./kemar/full/ele" + elevation + "/R" \
+                                    + elevation + "e" +\
+                                    str(
+                        azimuthangle_ear).zfill(3) + "a.wav"
+                    _, hrtf_database[:, angle/angle_stepsize] = numpscipy.io.wavfile.read(
+                        hrtf_filename)
+        if self.hrtf_database_name == "kemar_compact":
+            end_angle = 180
+            for azimut_angle in range(0,end,5):
+                if self.hrtf_database_name == "kemar_full_normal_ear":
+                    hrtf_filename = "./kemar/full/ele" + elevation + "/H" \
+                                    + elevation + "e" +\
+                                    str(azimuthangle_ear).zfill(3) + "a.wav"
+                    _, temp_hrtf_l_r = numpscipy.io.wavfile.read(
+                        hrtf_filename)
+                    hrtf_database[:, angle/angle_stepsize] = temp_hrtf_l_r[:,0]
+                    hrtf_database[:, (angle+180)/angle_stepsize] = \
+                        temp_hrtf_l_r[:,1]
+        return hrtf_database
+
+
 
     ## @brief Gets and reads the correct hrtf-file from database
     # @details The function creates the correct string to call the right
@@ -182,11 +230,11 @@ class DspIn:
     #          passes it on to the variables further used by the
     #          Dsp.run-function.
     # @author Felix Pfreundtner
-    def get_hrtfs(self, gui_dict_sp, sp):
+    def get_current_hrtf(self, gui_dict_sp, sp):
         # get filename of the relevant hrtf for each ear
         # the if-statement differentiates between "compact" and "normal/big"
         # version according to settings in gui
-        if self.hrtf_database == "kemar_compact":
+        if self.hrtf_database_name == "kemar_compact":
             rounddifference = gui_dict_sp[0] % 5
             # if angle from gui exactly matches angle of the file
             if rounddifference == 0:
@@ -235,7 +283,7 @@ class DspIn:
             hrtf_max_amp_sp.append(np.amax(np.abs(hrtf_block_dict_sp[:, 1])))
 
         # if  "normal" or "big" ear are set, determine filepath and -name here
-        if self.hrtf_database == "kemar_normal_ear" or self.hrtf_database \
+        if self.hrtf_database_name == "kemar_normal_ear" or self.hrtf_database_name \
                 == "kemar_big_ear":
             # check, whether horizontal head position angle from gui
             # matches horizontal angle of a kemar-file exactly
@@ -263,7 +311,7 @@ class DspIn:
                 azimuthangle_other_ear = azimuthangle_ear + 180
             # create correct filenames to be called from kemar database
             # if-clause to differentiate between "normal" and "big" ear versions
-            if self.hrtf_database == "kemar_full_normal_ear":
+            if self.hrtf_database_name == "kemar_full_normal_ear":
                 hrtf_filenames_dict_sp_l = "./kemar/full/elev0/L0e" + str(
                     azimuthangle_ear).zfill(3) + "a.wav"
                 hrtf_filenames_dict_sp_r = "./kemar/full/elev0/L0e" + str(
@@ -408,7 +456,7 @@ class DspIn:
     # @retval <continue_output> boolean value whether the last block of file
     #         was read or any other block
     # @author Matthias Lederle
-    def get_sp(self, gui_dict):
+    def read_sp(self, gui_dict):
         # initialize an empty array with blocksize sp_blocksize for every
         # speaker in dictionary sp_dict
         sp_dict = {}
