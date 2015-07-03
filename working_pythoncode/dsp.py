@@ -33,53 +33,52 @@ class Dsp:
         self.bufferblocks = gui_settings_dict_init["bufferblocks"]
         # Create Input Object which contains mono input samples of sources
         # and hrtf impulse responses samples
-        self.DspIn_Object = dsp_in.DspIn(gui_dict_init, gui_settings_dict_init)
+        self.dspin_obj = dsp_in.DspIn(gui_dict_init, gui_settings_dict_init)
         # Create Output Object which contains binaural output samples
-        self.DspOut_Object = dsp_out.DspOut(gui_dict_init,
-                                            self.DspIn_Object.fft_blocksize,
-                                            self.DspIn_Object.sp_blocksize,
-                                            self.DspIn_Object.hopsize,
-                                            gui_stop_init, gui_pause_init)
-                # magnitude spectrum of current speaker wave blocks
+        self.dspout_obj = dsp_out.DspOut(gui_dict_init,
+                                         self.dspin_obj.fft_blocksize,
+                                         self.dspin_obj.sp_blocksize,
+                                         self.dspin_obj.hopsize,
+                                         gui_stop_init, gui_pause_init)
+        # magnitude spectrum of current wave block for every speaker
         self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((
-            self.DspIn_Object.fft_blocksize / 2, 2), dtype=np.float16))
-        # magnitude spectrum of current left and right hrtf
+            self.dspin_obj.fft_blocksize / 2, 2), dtype=np.float16))
+        # magnitude spectrum of current left and right hrtf for every speaker
         self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((
-            self.DspIn_Object.fft_blocksize / 2, 2), dtype=np.float16),
-            np.zeros((self.DspIn_Object.fft_blocksize/ 2, 2),
+            self.dspin_obj.fft_blocksize / 2, 2), dtype=np.float16),
+            np.zeros((self.dspin_obj.fft_blocksize / 2, 2),
                      dtype=np.float16)])
         # Blockcounter initialized to count number of already convolved
         # blocks
         self.blockcounter = 0
 
-    ## @brief Runs the dsp algorithm as one process on one cpu core.
+    # @brief Runs the dsp algorithm as one process on one cpu core.
     # @details
     # @author Felix Pfreundtner, Matthias Lederle
     def run(self):
         # run the main while loop as long as there are still samples to be
         # read from speaker wave files
-        while any(self.DspOut_Object.continue_convolution_dict.values()) \
+        while any(self.dspout_obj.continue_convolution_dict.values()) \
                 is True:
             # actualize variables with gui
             self.gui_dict = gui_utils.gui_dict
-            self.DspOut_Object.gui_stop = gui_utils.gui_stop
-            self.DspOut_Object.gui_pause = gui_utils.gui_pause
+            self.dspout_obj.gui_stop = gui_utils.gui_stop
+            self.dspout_obj.gui_pause = gui_utils.gui_pause
             self.gui_settings_dict = gui_utils.gui_settings_dict
             # print the number of already done FFT / Block iterations
-            print("FFT Block " + str(self.blockcounter) + ":")
+            # print("FFT Block " + str(self.blockcounter) + ":")
             # set the begin and end of the speaker wave block which needs to
             # be read in this iteration
-            self.DspIn_Object.set_block_begin_end()
+            self.dspin_obj.set_block_begin_end()
             # iterate over all active speakers sp
             for sp in self.gui_dict:
                 # if speaker wave file still has unread samples start
                 # convolution, else skip convolution
-                if self.DspOut_Object.continue_convolution_dict[sp] is True:
+                if self.dspout_obj.continue_convolution_dict[sp] is True:
                     # check whether head position to speaker sp has changed
                     if self.gui_dict[sp][0] != self.prior_head_angle_dict[sp]:
                         # if yes, load new fitting hrtf frequency values
-                        self.DspIn_Object.get_hrtf_block_fft(self.gui_dict[sp],
-                                                           sp)
+                        self.dspin_obj.get_hrtf_block_fft(self.gui_dict[sp], sp)
                         # save head position to speaker of this block in
                         # prior_head_angle_dict
                         self.prior_head_angle_dict[sp] = self.gui_dict[sp][0]
@@ -87,57 +86,62 @@ class Dsp:
                     # Load wave block of speaker sp with speaker_blocksize (
                     # fft_blocksize-hrtf_blocksize+1) and current block
                     # begin_end
-                    self.DspOut_Object.continue_convolution_dict[sp] = \
-                        self.DspIn_Object.get_sp_block(sp)
-                    #plt.plot(self.DspIn_Object.sp_block_dict[sp])
-                    #plt.show()
+                    self.dspout_obj.continue_convolution_dict[sp] = \
+                        self.dspin_obj.get_sp_block(sp)
+                    # plt.plot(self.dspin_obj.sp_block_dict[sp])
+                    # plt.show()
 
                     # normalize sp block if requested
-                    self.DspIn_Object.normalize(self.gui_dict[sp][3], sp)
+                    self.dspin_obj.normalize(self.gui_dict[sp][3], sp)
 
                     # apply window to sp input in sp_block_dict
-                    self.DspIn_Object.apply_window_on_sp_block(sp)
+                    self.dspin_obj.apply_window_on_sp_block(sp)
                     # for the left and the right ear channel
                     for l_r in range(2):
                         # convolve hrtf with speaker block input to get
                         # binaural stereo block output
-                        self.DspIn_Object.fft_convolution(self.sp_spectrum_dict[
-                            sp],
-                            self.hrtf_spectrum_dict[sp][l_r],
-                            self.DspOut_Object.binaural_block_dict[sp], sp, l_r)
-                # model speaker position change about 1° per block (0.02s) in
-                # clockwise rotation
-                # self.gui_dict[sp][0]+=30
-                # if self.gui_dict[sp][0] >= 360:
-                    #self.gui_dict[sp][0] -= 360
+                        self.dspin_obj.fft_convolution(self.sp_spectrum_dict
+                                                       [sp],
+                                                       self.hrtf_spectrum_dict[
+                                                           sp][l_r],
+                                                       self.dspout_obj.
+                                                       binaural_block_dict[
+                                                           sp], sp, l_r)
+                        # model speaker position change about 1° per block
+                        # (0.02s) in
+                        # clockwise rotation
+                        # self.gui_dict[sp][0]+=30
+                        # if self.gui_dict[sp][0] >= 360:
+                        # self.gui_dict[sp][0] -= 360
 
-                # overlap and add binaural stereo block output of speaker sp
-                #  to prior binaural stereo block output of speaker sp
-                    self.DspOut_Object.overlap_add(
-                        self.DspIn_Object.fft_blocksize,
-                        self.DspIn_Object.hopsize, sp)
+                        # overlap and add binaural stereo block output of
+                        # speaker sp
+                        #  to prior binaural stereo block output of speaker sp
+                    self.dspout_obj.overlap_add(
+                        self.dspin_obj.fft_blocksize,
+                        self.dspin_obj.hopsize, sp)
 
             # Mix binaural stereo blockoutput of every speaker to one
             # binaural stereo block output having regard to speaker distances
-            self.DspOut_Object.mix_binaural_block(
-                self.DspIn_Object.hopsize,
+            self.dspout_obj.mix_binaural_block(
+                self.dspin_obj.hopsize,
                 self.gui_dict)
 
             # Add mixed binaural stereo block to a time continuing binaural
             # output of all blocks
-            self.DspOut_Object.lock.acquire()
+            self.dspout_obj.lock.acquire()
             try:
-                self.DspOut_Object.add_to_binaural(
+                self.dspout_obj.add_to_binaural(
                     self.blockcounter)
             finally:
-                self.DspOut_Object.lock.release()
+                self.dspout_obj.lock.release()
             # Begin audio playback if specified number of bufferblocks
             # has been convolved
             if self.blockcounter == self.bufferblocks:
                 startaudiooutput = threading.Thread(
-                    target=self.DspOut_Object.audiooutput, args=(
-                        self.DspIn_Object.wave_param_common[0],
-                        self.DspIn_Object.hopsize))
+                    target=self.dspout_obj.audiooutput, args=(
+                        self.dspin_obj.wave_param_common[0],
+                        self.dspin_obj.hopsize))
                 startaudiooutput.start()
 
             # increment block counter of run function when less blocks than
@@ -149,34 +153,33 @@ class Dsp:
             # if playback already started
             else:
                 # wait until the the new block has been played
-                while self.DspOut_Object.played_block_counter <= \
-                        self.DspOut_Object.prior_played_block_counter and \
-                        self.DspOut_Object.playback_finished is False:
-                    time.sleep(1 / self.DspIn_Object.wave_param_common[0] * 10)
-                    #print("wait")
+                while self.dspout_obj.played_block_counter <= \
+                        self.dspout_obj.prior_played_block_counter and self.\
+                        dspout_obj.playback_finished is False:
+                    time.sleep(1 / self.dspin_obj.wave_param_common[0] * 10)
+                    # print("wait")
                 # increment number of last played block
-                self.DspOut_Object.prior_played_block_counter += 1
+                self.dspout_obj.prior_played_block_counter += 1
                 # increment number of already convolved blocks
                 self.blockcounter += 1
 
-
             # handle playback pause
-            while self.DspOut_Object.gui_pause is True:
+            while self.dspout_obj.gui_pause is True:
                 time.sleep(0.1)
-                self.DspOut_Object.gui_pause = gui_utils.gui_pause
+                self.dspout_obj.gui_pause = gui_utils.gui_pause
             # handle playback stop
-            if self.DspOut_Object.gui_stop is True:
+            if self.dspout_obj.gui_stop is True:
                 break
 
         # set correct playback output if stop button was pressed
-        if self.DspOut_Object.gui_stop is True:
-            self.DspOut_Object.playback_successful = True
+        if self.dspout_obj.gui_stop is True:
+            self.dspout_obj.playback_successful = True
         # show plot of the output signal binaural_dict_scaled
-        #plt.plot(self.DspOut_Object.binaural[:, l_r])
-        #plt.show()
+        # plt.plot(self.dspout_obj.binaural[:, l_r])
+        # plt.show()
         # Write generated output signal binaural_dict_scaled to file
-        self.DspOut_Object.writebinauraloutput(
-            self.DspOut_Object.binaural,
-            self.DspIn_Object.wave_param_common,
+        self.dspout_obj.writebinauraloutput(
+            self.dspout_obj.binaural,
+            self.dspin_obj.wave_param_common,
             self.gui_dict)
-        self.return_ex.put(self.DspOut_Object.playback_successful)
+        self.return_ex.put(self.dspout_obj.playback_successful)

@@ -21,7 +21,7 @@ import time
 #        from their databases, to normalize hrtfs, round numbers and to
 #        create all necessary kinds of windows.
 class DspIn:
-    ## Constructor of the DspIn class.
+    # Constructor of the DspIn class.
     def __init__(self, gui_dict_init, gui_settings_dict_init):
         # Dict with a key and two values for every hrtf to be fetched from the
         # database. The values are the max. values of the hrtfs of
@@ -65,7 +65,7 @@ class DspIn:
         # build a hann window with sp_blocksize
         self.hann = self.build_hann_window(self.sp_blocksize)
 
-    ## @brief function rounds any input value to the closest integer
+    # @brief function rounds any input value to the closest integer
     # @details This function does a normal school arithmetic round (choose
     #          lower int until .4 and higher int from .5 on) and returns the
     #          rounded value. It is NOT equal to pythons round() method.
@@ -84,7 +84,7 @@ class DspIn:
                 value = math.ceil(value)
         return value
 
-    ## @brief Calculate and construct the hann window in dependency of
+    # @brief Calculate and construct the hann window in dependency of
     #        sp_blocksize
     # @retval <hann_window> Numpy-array of the length of sp_blocksize
     # @author Felix Pfreundtner
@@ -95,7 +95,7 @@ class DspIn:
             hann_window[n, ] = 0.5 * (1 - math.cos(2 * math.pi * n / (x)))
         return hann_window
 
-    ## @brief This function calculates the three block parameters necessary
+    # @brief This function calculates the three block parameters necessary
     #        for the while-loop of the run-function.
     # @details This method uses the parameters of the input .wav-file and
     #          the blocksizes of the fft and the hrtf to calculate the
@@ -116,7 +116,7 @@ class DspIn:
         hopsize = self.rnd((1 - overlap) * sp_blocksize)
         return sp_blocksize, sp_blocktime, overlap, hopsize
 
-    ## @brief Initializes a list with the number of the first and last sample
+    # @brief Initializes a list with the number of the first and last sample
     #         of the first block
     # @details This function calculates a list called block_begin_end containing
     #          two elements: [0] is the first sample of the first block,
@@ -131,7 +131,7 @@ class DspIn:
                            int((self.sp_blocksize) * (self.overlap))]
         return block_begin_end
 
-    ## @brief Every while-loop the number of the first and last sample is
+    # @brief Every while-loop the number of the first and last sample is
     #         calculated
     # @details This function replaces the values set by the
     #          init_set_block_begin_end-function every while-loop according to
@@ -143,7 +143,7 @@ class DspIn:
         self.block_begin_end[0] += int(self.sp_blocksize * (1 - self.overlap))
         self.block_begin_end[1] += int(self.sp_blocksize * (1 - self.overlap))
 
-    ## @brief Get all parameters for the hrtf set by the settings in gui
+    # @brief Get all parameters for the hrtf set by the settings in gui
     # @details This function calculates all necessary parameters of the hrtf
     #          to be later able to get the correct hrtf-files for the
     #          convolution with the speaker-file signal.
@@ -188,7 +188,7 @@ class DspIn:
         return hrtf_database_name, hrtf_blocksize, hrtf_blocksize_real, \
                kemar_inverse_filter, kemar_inverse_filter_active
 
-    ## @brief Preloads all hrtf Files
+    # @brief Preloads all hrtf Files
     # @author Felix Pfreundtner
     def read_hrtf_database(self, gui_dict_sp):
         angle_stepsize= 5
@@ -232,12 +232,12 @@ class DspIn:
                     temp_hrtf_l_r[:,1]
         return hrtf_database_time
 
-    ## @brief brings the whole hrtf database in frequency domain
+    # @brief brings the whole hrtf database in frequency domain
     # @author Felix Pfreundtner
     def hrtf_database_fft(self):
         hrtf_database_fft = np.zeros((self.fft_blocksize,
-                                       self.hrtf_database_time.shape[1]),
-                                       dtype=np.complex128)
+                                      self.hrtf_database_time.shape[1]),
+                                      dtype = np.complex128)
         hrtf_zeropadded = np.zeros((self.fft_blocksize, ), dtype=np.int16)
         for angle_index in range (self.hrtf_database_time.shape[1]):
             hrtf_zeropadded[:self.hrtf_blocksize, ] = self.hrtf_database_time[:,
@@ -249,7 +249,7 @@ class DspIn:
 
 
 
-    ## @brief get 10 important parameters of the files to be played by the
+    # @brief get 10 important parameters of the files to be played by the
     #         get_block_function
     # @details This method gets all important data from the .wav files that
     #          will be played by the speakers. Input is a gui_dict, containing
@@ -359,7 +359,7 @@ class DspIn:
                 # self.signal_handler.send_error(errmsg)
         return sp_param
 
-    ## @brief reads one block of samples
+    # @brief reads one block of samples
     # @details This method reads a block of samples of a speaker-.wav-file
     #          and writes in a numpyarray sp_block_dict[sp] (containing one
     #          16-bit-int for each sample) and a flag that tells whether the
@@ -396,7 +396,7 @@ class DspIn:
         print("timer scipy in ms: " + str(int((time.time() - start) * 1000)))
 
         # start = time.time()
-        # ## iterate over all speakers to read in all speaker wave files
+        # # iterate over all speakers to read in all speaker wave files
         # for sp in sp_dict:
         #     # start reading at sample 0 in speaker wave file
         #     begin_block = 0
@@ -407,12 +407,10 @@ class DspIn:
         #     file = open(gui_dict[sp][2], 'rb')
         #     # calculate begin_block as byte-number
         #     first_byte_of_block = self.sp_param[sp][6] + (begin_block *
-        #                                                   self.sp_param[sp][7] *
-        #                                                   self.sp_param[sp][3])
+        #         self.sp_param[sp][7] * self.sp_param[sp][3])
         #     # calculate end_block as byte_number
         #     last_byte_of_block = self.sp_param[sp][6] + (end_block *
-        #                                                  self.sp_param[sp][7]
-        #                                                  * self.sp_param[sp][3])
+        #         self.sp_param[sp][7] * self.sp_param[sp][3])
         #     # go to first byte of block and start "reading"
         #     file.seek(first_byte_of_block)
         #     # if input file is mono, write sp_dict[sp] in this part
@@ -462,11 +460,11 @@ class DspIn:
         #                 left_int = struct.unpack(self.sp_param[sp][4] +
         #                                          self.sp_param[sp][9],
         #                                          file.read(
-        #                                              self.sp_param[sp][7]))[0]
+        #                                          self.sp_param[sp][7]))[0]
         #                 right_int = struct.unpack(self.sp_param[sp][4] +
         #                                           self.sp_param[sp][9],
         #                                           file.read(
-        #                                               self.sp_param[sp][7]))[0]
+        #                                           self.sp_param[sp][7]))[0]
         #                 samplelist_of_one_block_left.append(left_int)
         #                 samplelist_of_one_block_right.append(right_int)
         #                 i += 1
@@ -498,14 +496,14 @@ class DspIn:
         #             i = 0
         #             while i < self.sp_blocksize:
         #                 mean_value = int((samplelist_of_one_block_left[i] +
-        #                                   samplelist_of_one_block_right[i]) / 2)
+        #                     samplelist_of_one_block_right[i]) / 2)
         #                 sp_dict[sp][i, ] = mean_value
         #                 i += 1
         #         else:
         #             i = 0
         #             while i < remaining_samples:
         #                 mean_value = int((samplelist_of_one_block_left[i] +
-        #                                   samplelist_of_one_block_right[i]) / 2)
+        #                     samplelist_of_one_block_right[i]) / 2)
         #                 sp_dict[sp][i, ] = mean_value
         #                 i += 1
         #             continue_input = False
@@ -522,7 +520,7 @@ class DspIn:
         return scipy_sp_dict      # , scipy_sp_dict
 
 
-    ## @brief Gets and reads the correct hrtf-file from database
+    # @brief Gets and reads the correct hrtf-file from database
     # @details
     # @author Felix Pfreundtner
     def get_hrtf_block_fft(self, gui_dict_sp, sp):
@@ -565,7 +563,7 @@ class DspIn:
         # get right ear hrtf fft values
         self.hrtf_block_fft_dict[sp][:, 1] = self.hrtf_database_fft[:, angle/5]
 
-    ## @author Matthias Lederle
+    # @author Matthias Lederle
     def get_sp_block(self, sp):
         # if current block end is smaller than last sample in sp
         if self.block_begin_end[1] <= self.sp_param[sp][0]:
@@ -583,7 +581,7 @@ class DspIn:
         self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))
         return continue_input
 
-    ## @brief Normalize the .wav-signal to have maximum of int16 amplitude
+    # @brief Normalize the .wav-signal to have maximum of int16 amplitude
     # @details If the input-flag normalize_flag_sp is True, measure the
     #          maximum amplitude occurring in the .wav-file. After that,
     #          reduce all entries of sp_block_dict by the ratio that
@@ -605,7 +603,7 @@ class DspIn:
                 self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp]
                                                           [:, ]))
 
-    ## @author Felix Pfreundtner
+    # @author Felix Pfreundtner
     def apply_window_on_sp_block(self, sp):
         self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
         self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16)
@@ -619,7 +617,7 @@ class DspIn:
     # are written then to the binaural_block_dict.
     # @author Felix Pfreundtner
     def fft_convolution(self, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r,
-                     binaural_block_dict_sp, sp, l_r):
+                        binaural_block_dict_sp, sp, l_r):
 
         # Do for speaker sp zeropadding: zeropad speaker (mono input)
         self.sp_block_sp_zeropadded[0:self.sp_blocksize, ] = \
@@ -649,7 +647,7 @@ class DspIn:
                 max_amplitude_sp_magnitude_spectrum / self.sp_max_amp_dict[sp] *
                 max_amplitude_output)
         hrtf_magnitude_spectrum = abs(self.hrtf_block_fft_dict[sp][:, l_r][
-                                          position_freq])
+                                      position_freq])
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(
             hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0:
@@ -662,7 +660,7 @@ class DspIn:
         # execute convolution of speaker input and hrtf input: multiply
         # complex frequency domain vectors
         binaural_block_sp_frequency = sp_block_fft_sp * \
-                                      self.hrtf_block_fft_dict[sp][:, l_r]
+                                       self.hrtf_block_fft_dict[sp][:, l_r]
 
         # if kemar full is selected furthermore convolve with (approximated
         #  1024 samples) inverse impulse response of optimus pro 7 speaker

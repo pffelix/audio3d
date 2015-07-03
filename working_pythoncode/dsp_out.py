@@ -41,7 +41,6 @@ class DspOut:
         self.playback_finished = False
         self.playback_successful = True
 
-
     # @brief Applies the overlap-add-method to the signal.
     # @details Adds the last part of the prior fft-block to calculate the
     # overlapp-values (which decrease the desharmonic sounds in the output
@@ -97,7 +96,7 @@ class DspOut:
                 sp_gain_factor / total_number_of_sp
             # if convolution for this speaker will be skipped on the
             # next iteration set binaural_block_dict_out to zeros
-            if self.continue_convolution_dict[sp] == False:
+            if self.continue_convolution_dict[sp] is False:
                 self.binaural_block_dict_out[sp] = np.zeros((hopsize, 2),
                                                             dtype=np.int16)
         self.binaural_block = self.binaural_block.astype(np.int16)
@@ -150,7 +149,7 @@ class DspOut:
             data = self.binaural[played_frames_begin:self.played_frames_end, :]
         finally:
             self.lock.release()
-        print("Played Block: " + str(self.played_block_counter))
+        # print("Played Block: " + str(self.played_block_counter))
         self.played_block_counter += 1
         return data, pyaudio.paContinue
 
@@ -183,7 +182,7 @@ class DspOut:
                 self.gui_stop is False:
             print("Error PC to slow - Playback Stopped")
             for sp in self.continue_convolution_dict:
-                #self.played_frames_end += sp_blocksize
+                # self.played_frames_end += sp_blocksize
                 self.continue_convolution_dict[sp] = False
             self.playback_successful = False
         # return continue_convolution_dict

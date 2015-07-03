@@ -48,7 +48,7 @@ class MainWindow(QWidget):
         self.sequence_plot = SequencePlot()
         self.sequence_plot.plot_on.connect(self.update_sequence_dicts)
 
-        self.Dsp_Object = None
+        self.dsp_obj = None
         self.play = None
         # return_ex: save whether playback was successful
         self.return_ex = multiprocessing.Queue()
@@ -252,13 +252,13 @@ class MainWindow(QWidget):
                 "inverse_filter_active": self.inverse_box.isChecked(),
                 "bufferblocks": self.buffersize_spin_box.value()}
             self.plot_button.setEnabled(True)
-            self.Dsp_Object = Dsp(gui_dict, gui_stop, gui_pause,
-                                  gui_settings_dict, self.return_ex)
+            self.dsp_obj = Dsp(gui_dict, gui_stop, gui_pause,
+                               gui_settings_dict, self.return_ex)
             self.error_timer = QTimer()
             self.error_timer.timeout.connect(self.show_error)
             self.error_timer.start(100)
             self.play = threading.Thread(
-                target=self.Dsp_Object.run)
+                target=self.dsp_obj.run)
             self.play.start()
         else:
             msgbox = QMessageBox()
@@ -268,7 +268,7 @@ class MainWindow(QWidget):
     @Slot()
     def pause(self):
         switch_pause_playback()
-        #print(gui_pause)
+        # print(gui_pause)
 
     @Slot()
     def show_error(self):
@@ -287,17 +287,17 @@ class MainWindow(QWidget):
             return
 
     def plot_sequence(self):
-        # print(self.Dsp_Object.DspOut_Object.sp_spectrum_dict)plot_sequence
+        # print(self.dsp_obj.DspOut_Object.sp_spectrum_dict)plot_sequence
         from gui_utils import speaker_to_show
         i = speaker_to_show
         print("initialize")
 
         self.sequence_plot.speaker_spec.set_data(
-            self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
+            self.dsp_obj.DspOut_Object.sp_spectrum_dict[i][:, 1])
         self.sequence_plot.lhrtf_spec.set_data(
-            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
+            self.dsp_obj.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
         self.sequence_plot.rhrtf_spec.set_data(
-            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
+            self.dsp_obj.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
 
         self.sequence_plot.show()
         self.sequence_plot.is_on = True
@@ -309,11 +309,11 @@ class MainWindow(QWidget):
         from gui_utils import speaker_to_show
         i = speaker_to_show
         self.sequence_plot.speaker_spec.update_data(
-            self.Dsp_Object.DspOut_Object.sp_spectrum_dict[i][:, 1])
+            self.dsp_obj.DspOut_Object.sp_spectrum_dict[i][:, 1])
         self.sequence_plot.lhrtf_spec.update_data(
-            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
+            self.dsp_obj.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
         self.sequence_plot.rhrtf_spec.update_data(
-            self.Dsp_Object.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
+            self.dsp_obj.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
 
     def closeEvent(self, event_q_close_event):
         self.room.clear()
