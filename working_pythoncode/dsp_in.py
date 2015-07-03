@@ -39,8 +39,10 @@ class DspIn:
         self.hrtf_blocksize_real, self.kemar_inverse_filter, \
         self.kemar_inverse_filter_active = \
             self.get_hrtf_param(gui_settings_dict_init)
-        # read in whole hrtf datatabase
-        self.hrtf_database = self.read_hrtf_database(gui_settings_dict_init)
+        # read in whole hrtf datatabas from impulse responses in time domain
+        self.hrtf_database_time = self.read_hrtf_database(gui_settings_dict_init)
+        # bring whole hrtf database to frequency domain
+        self.hrtf_database_freq = self.fft_hrtf_database()
         # Initialize a dict for the hrtf block values to be stored in.
         self.hrtf_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
             self.hrtf_blocksize, 2), dtype=np.int16))
@@ -191,7 +193,7 @@ class DspIn:
         # just look at horizontal plane
         elevation = 0
         number_of_hrtfs = 72
-        hrtf_database = np.zeros((self.hrtf_blocksize, number_of_hrtfs),
+        hrtf_database_time = np.zeros((self.hrtf_blocksize, number_of_hrtfs),
                                             dtype=np.float32)
         if self.hrtf_database_name == "kemar_normal_ear":
             angle_end = 360
@@ -199,7 +201,7 @@ class DspIn:
                 hrtf_filename = "./kemar/full/elev" + str(elevation) + "/L" \
                                 + str(elevation) + "e" +\
                                 str(angle).zfill(3) + "a.wav"
-                _, hrtf_database[:self.hrtf_blocksize_real,
+                _, hrtf_database_time[:self.hrtf_blocksize_real,
                    angle/angle_stepsize]\
                     = \
                     scipy.io.wavfile.read(hrtf_filename)
@@ -210,7 +212,7 @@ class DspIn:
                 hrtf_filename = "./kemar/full/elev" + str(elevation) + "/R" \
                                 + str(elevation) + "e" +\
                                 str(angle).zfill(3) + "a.wav"
-                _, hrtf_database[:self.hrtf_blocksize_real, angle/angle_stepsize]\
+                _, hrtf_database_time[:self.hrtf_blocksize_real, angle/angle_stepsize]\
                     = \
                     scipy.io.wavfile.read(hrtf_filename)
         if self.hrtf_database_name == "kemar_compact":
@@ -220,13 +222,26 @@ class DspIn:
                                 + str(elevation) + "e" +\
                                 str(angle).zfill(3) + "a.wav"
                 _, temp_hrtf_l_r = scipy.io.wavfile.read(hrtf_filename)
-                hrtf_database[:self.hrtf_blocksize_real, angle/angle_stepsize] = \
+                hrtf_database_time[:self.hrtf_blocksize_real, angle/angle_stepsize] = \
                     temp_hrtf_l_r[:,0]
-                hrtf_database[:self.hrtf_blocksize_real,
+                hrtf_database_time[:self.hrtf_blocksize_real,
                 (angle+180)/angle_stepsize] = \
                     temp_hrtf_l_r[:,1]
-        return hrtf_database
+        return hrtf_database_time
 
+    ## @brief brings the whole hrtf database in frequency domain
+    # @author Felix Pfreundtner
+    def fft_hrtf_database(self):
+        hrtf_database_freq = np.zeros((self.fft_blocksize,
+                                       self.hrtf_database_time.shape[1]),
+                                       dtype=np.complex128)
+        hrtf_zeropadded = np.zeros((self.fft_blocksize, ), dtype=np.int16)
+        for angle_index in range (self.hrtf_database_time.shape[1]):
+            hrtf_zeropadded[:self.hrtf_blocksize, ] = self.hrtf_database_time[:,
+                                                  angle_index]
+            hrtf_database_freq[:, angle_index] = fft(hrtf_zeropadded,
+                                              self.fft_blocksize)
+        return hrtf_database_freq
 
 
     ## @brief Gets and reads the correct hrtf-file from database
@@ -265,13 +280,13 @@ class DspIn:
         angle = self.rnd(angle_exact)
 
         # get left ear hrtf
-        self.hrtf_block_dict[sp][:, 0] = self.hrtf_database[:, angle/5]
+        self.hrtf_block_dict[sp][:, 0] = self.hrtf_database_time[:, angle/5]
         # get right ear hrtf
         angle = angle + 180
         if angle != 360:
-            self.hrtf_block_dict[sp][:, 1] = self.hrtf_database[:, (angle)/5]
+            self.hrtf_block_dict[sp][:, 1] = self.hrtf_database_time[:, (angle)/5]
         else:
-            self.hrtf_block_dict[sp][:, 1] = self.hrtf_database[:, 0]
+            self.hrtf_block_dict[sp][:, 1] = self.hrtf_database_time[:, 0]
         # initialize an list containing the absolute maximum int for
         # ear of each numpy
         self.hrtf_max_amp_dict[sp][0] = np.amax(np.abs(self.hrtf_block_dict[
