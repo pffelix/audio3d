@@ -621,32 +621,23 @@ class DspIn:
     def fft_convolve(self, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r,
                      binaural_block_dict_sp, sp, l_r):
 
-        sp_block_sp = self.sp_block_dict[sp]
-        hrtf_block_sp_l_r = self.hrtf_block_dict[sp][:, l_r]
-        fft_blocksize = self.fft_blocksize
-        sp_max_amp_sp = self.sp_max_amp_dict[sp]
-        hrtf_max_amp_sp_l_r = self.hrtf_max_amp_dict[sp][l_r]
-        samplerate = self.wave_param_common[0]
-        inverse_filter_active = self.kemar_inverse_filter_active
-        kemar_inverse_filter = self.kemar_inverse_filter
-        hrtf_blocksize = self.hrtf_blocksize
-        sp_blocksize = self.sp_blocksize
-
         # Do for speaker sp zeropadding: zeropad hrtf (left or right input)
         # and speaker (mono input)
-        hrtf_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype=np.int16)
-        hrtf_block_sp_zeropadded[0:hrtf_blocksize, ] = hrtf_block_sp_l_r
-        sp_block_sp_zeropadded = np.zeros((fft_blocksize, ), dtype='int16')
-        sp_block_sp_zeropadded[0:sp_blocksize, ] = sp_block_sp
+        hrtf_block_sp_zeropadded = np.zeros((self.fft_blocksize, ),
+                                            dtype=np.int16)
+        hrtf_block_sp_zeropadded[0:self.hrtf_blocksize, ] =\
+            self.hrtf_block_dict[sp][:, l_r]
+        sp_block_sp_zeropadded = np.zeros((self.fft_blocksize, ), dtype='int16')
+        sp_block_sp_zeropadded[0:self.sp_blocksize, ] = self.sp_block_dict[sp]
 
         # bring time domain input to to frequency domain
-        hrtf_block_sp_fft = fft(hrtf_block_sp_zeropadded, fft_blocksize)
-        sp_block_sp_fft = fft(sp_block_sp_zeropadded, fft_blocksize)
+        hrtf_block_sp_fft = fft(hrtf_block_sp_zeropadded, self.fft_blocksize)
+        sp_block_sp_fft = fft(sp_block_sp_zeropadded, self.fft_blocksize)
 
         # save fft magnitude spectrum of sp_block in sp_spectrum and
         # hrtf_block in hrtf_spectrum to be shown by gui
         # create array of all calculated FFT frequencies
-        freq_all = fftfreq(fft_blocksize, 1 / samplerate)
+        freq_all = fftfreq(self.fft_blocksize, 1 / self.wave_param_common[0])
         # set position of only positive frequencies (neg. frequencies redundant)
         position_freq = np.where(freq_all >= 0)
         # set array of only positive FFT frequencies (neg. frequ. redundant)
@@ -662,7 +653,7 @@ class DspIn:
         if max_amplitude_sp_magnitude_spectrum != 0:
             # get magnitude spectrum of hrtf-block
             sp_spectrum_dict_sp[:, 1] = sp_magnitude_spectrum / (
-                max_amplitude_sp_magnitude_spectrum / sp_max_amp_sp *
+                max_amplitude_sp_magnitude_spectrum / self.sp_max_amp_dict[sp] *
                 max_amplitude_output)
         hrtf_magnitude_spectrum = abs(hrtf_block_sp_fft[position_freq])
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(
@@ -670,7 +661,7 @@ class DspIn:
         if max_amplitude_hrtf_magnitude_spectrum != 0:
             hrtf_spectrum_dict_sp_l_r[:, 1] = hrtf_magnitude_spectrum\
                 / (max_amplitude_hrtf_magnitude_spectrum /
-                   hrtf_max_amp_sp_l_r * max_amplitude_output)
+                   self.hrtf_max_amp_dict[sp][l_r] * max_amplitude_output)
         sp_spectrum_dict_sp[0, 1] = 0
         hrtf_spectrum_dict_sp_l_r[0, 1] = 0
 
@@ -680,14 +671,14 @@ class DspIn:
 
         # if kemar full is selected furthermore convolve with (approximated
         #  1024 samples) inverse impulse response of optimus pro 7 speaker
-        if inverse_filter_active:
+        if self.kemar_inverse_filter_active:
             binaural_block_sp_frequency = binaural_block_sp_frequency * fft(
-                kemar_inverse_filter, fft_blocksize)
+                self.kemar_inverse_filter, self.fft_blocksize)
 
         # bring multiplied spectrum back to time domain, disneglected small
         # complex time parts resulting from numerical fft approach
         binaural_block_sp_time = ifft(binaural_block_sp_frequency,
-                                      fft_blocksize).real
+                                      self.fft_blocksize).real
 
         # normalize multiplied spectrum back to 16bit integer, consider
         # maximum amplitude value of sp block and hrtf impulse to get
@@ -695,8 +686,8 @@ class DspIn:
         binaural_block_sp_time_max_amp = int(np.amax(np.abs(
             binaural_block_sp_time)))
         binaural_block_sp_time = binaural_block_sp_time / (
-            binaural_block_sp_time_max_amp / sp_max_amp_sp /
-            hrtf_max_amp_sp_l_r * 32767)
+            binaural_block_sp_time_max_amp / self.sp_max_amp_dict[sp] /
+            self.hrtf_max_amp_dict[sp][l_r] * 32767)
         binaural_block_dict_sp[:, l_r] = \
             binaural_block_sp_time.astype(np.int16)
         return binaural_block_dict_sp
