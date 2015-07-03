@@ -36,6 +36,7 @@ class DspOut:
         self.played_frames_end = 0
         self.continue_convolution_list = dict.fromkeys(gui_dict_init, [])
         self.played_block_counter = 0
+        self.prior_played_block_counter = 0
         self.playbuffer = collections.deque()
         self.lock = threading.Lock()
         self.playback_finished = False

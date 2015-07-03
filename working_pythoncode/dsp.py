@@ -144,15 +144,25 @@ class Dsp:
                         self.DspIn_Object.hopsize))
                 startaudiooutput.start()
 
-            # wait until audioplayback finished with current block
-            while self.blockcounter - self.DspOut_Object.played_block_counter\
-                    > self.bufferblocks and not all(
-                    self.DspOut_Object.continue_convolution_dict.values()) \
-                    is False:
-                time.sleep(1 / self.DspIn_Object.wave_param_common[0])
+            # increment block counter of run function when less blocks than
+            # than the bufferblocksize has been convolved (playback not
+            # started yet). Also increment blockcounter of every convolve
+            # process
+            if self.blockcounter <= self.bufferblocks:
+                self.blockcounter += 1
+            # if playback already started
+            else:
+                # wait until the the new block has been played
+                while self.DspOut_Object.played_block_counter <= \
+                        self.DspOut_Object.prior_played_block_counter and \
+                        self.DspOut_Object.playback_finished is False:
+                    time.sleep(1 / self.DspIn_Object.wave_param_common[0] * 10)
+                    #print("wait")
+                # increment number of last played block
+                self.DspOut_Object.prior_played_block_counter += 1
+                # increment number of already convolved blocks
+                self.blockcounter += 1
 
-            # increment number of already convolved blocks
-            self.blockcounter += 1
 
             # handle playback pause
             while self.DspOut_Object.gui_pause is True:

@@ -616,6 +616,7 @@ class DspIn:
         self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
         self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16)
 
+
     # @brief Function convolves hrtf and data of the music file
     # @details Function takes one hrtf block and one data block (their size
     # is defined by fft_blocksize), normalizes their values to int16-signals
