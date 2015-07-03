@@ -268,12 +268,12 @@ class MainWindow(QWidget):
     @Slot()
     def pause(self):
         switch_pause_playback()
-        print(gui_pause)
+        #print(gui_pause)
 
     @Slot()
     def show_error(self):
         self.error_timer.stop()
-        print(check_error())
+        #print(check_error())
         self.error_timer.start(50)
 
     def positions(self):
