@@ -40,6 +40,14 @@ class Dsp:
                                             self.DspIn_Object.sp_blocksize,
                                             self.DspIn_Object.hopsize,
                                             gui_stop_init, gui_pause_init)
+                # magnitude spectrum of current speaker wave blocks
+        self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((
+            self.DspIn_Object.fft_blocksize / 2, 2), dtype=np.float16))
+        # magnitude spectrum of current left and right hrtf
+        self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((
+            self.DspIn_Object.fft_blocksize / 2, 2), dtype=np.float16),
+            np.zeros((self.DspIn_Object.fft_blocksize/ 2, 2),
+                     dtype=np.float16)])
         # Blockcounter initialized to count number of already convolved
         # blocks
         self.blockcounter = 0
@@ -97,17 +105,10 @@ class Dsp:
                     for l_r in range(2):
                         # convolve hrtf with speaker block input to get
                         # binaural stereo block output
-                        self.DspOut_Object.fft_convolve(
-                            self.DspIn_Object.sp_block_dict[sp],
-                            self.DspIn_Object.hrtf_block_dict[sp][:, l_r],
-                            self.DspIn_Object.fft_blocksize,
-                            self.DspIn_Object.sp_max_amp_dict[sp],
-                            self.DspIn_Object.hrtf_max_amp_dict[sp][l_r],
-                            self.DspIn_Object.wave_param_common[0],
-                            self.DspIn_Object.kemar_inverse_filter_active,
-                            self.DspIn_Object.kemar_inverse_filter,
-                            self.DspIn_Object.hrtf_blocksize,
-                            self.DspIn_Object.sp_blocksize, sp, l_r)
+                        self.DspIn_Object.fft_convolve(self.sp_spectrum_dict[
+                            sp],
+                            self.hrtf_spectrum_dict[sp][l_r],
+                            self.DspOut_Object.binaural_block_dict[sp], sp, l_r)
                 # model speaker position change about 1° per block (0.02s) in
                 # clockwise rotation
                 # self.gui_dict[sp][0]+=30
