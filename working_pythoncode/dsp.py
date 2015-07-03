@@ -11,7 +11,6 @@ import dsp
 import dsp_out
 import gui_utils
 import threading
-import matplotlib.pyplot as plt
 import multiprocessing
 import gui_utils
 import time

@@ -1,6 +1,6 @@
-from PyQt4 import QtGui, QtCore, QtOpenGL
-from PyQt4.QtOpenGL import QGLWidget
-from PyQt4.QtGui import QPaintEvent
+from PySide import QtGui, QtCore, QtOpenGL
+from PySide.QtOpenGL import QGLWidget
+from PySide.QtGui import QPaintEvent
 import OpenGL.GL as gl
 import OpenGL.arrays.vbo as glvbo
 import numpy as np
