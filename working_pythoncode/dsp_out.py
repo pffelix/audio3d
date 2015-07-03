@@ -30,13 +30,10 @@ class DspOut:
             (fft_blocksize - hopsize, 2), dtype=np.int16))
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.int16)
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
-        self.continue_convolution_dict = {sp: True for sp in range(len(
-            gui_dict_init))}
+        self.continue_convolution_dict = dict.fromkeys(gui_dict_init, True)
         self.gui_stop = gui_stop_init
         self.gui_pause = gui_pause_init
         self.played_frames_end = 0
-        self.continue_convolution_list = {sp: [] for sp in range(len(
-            gui_dict_init))}
         self.played_block_counter = 0
         self.prior_played_block_counter = 0
         self.playbuffer = collections.deque()
