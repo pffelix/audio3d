@@ -266,7 +266,11 @@ class DspIn:
         # get left ear hrtf
         self.hrtf_block_dict[sp][:, 0] = self.hrtf_database[:, angle/5]
         # get right ear hrtf
-        self.hrtf_block_dict[sp][:, 1] = self.hrtf_database[:, (angle+180)/5]
+        angle = angle + 180
+        if angle != 360:
+            self.hrtf_block_dict[sp][:, 1] = self.hrtf_database[:, (angle)/5]
+        else:
+            self.hrtf_block_dict[sp][:, 1] = self.hrtf_database[:, 0]
         # initialize an list containing the absolute maximum int for
         # ear of each numpy
         self.hrtf_max_amp_dict[sp][0] = np.amax(np.abs(self.hrtf_block_dict[
