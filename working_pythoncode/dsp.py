@@ -47,16 +47,16 @@ class Dsp:
     ## @brief Runs the dsp algorithm as one process on one cpu core.
     # @details
     # @author Felix Pfreundtner, Matthias Lederle
-    def run_single_core(self):
+    def run(self):
         # run the main while loop as long as there are still samples to be
         # read from speaker wave files
         while any(self.DspOut_Object.continue_convolution_dict.values()) \
                 is True:
             # actualize variables with gui
-            self.gui_dict = gui_utils.gui_dict
-            self.DspOut_Object.gui_stop = gui_utils.gui_stop
-            self.DspOut_Object.gui_pause = gui_utils.gui_pause
-            self.gui_settings_dict = gui_utils.gui_settings_dict
+            #self.gui_dict = gui_utils.gui_dict
+            #self.DspOut_Object.gui_stop = gui_utils.gui_stop
+            #self.DspOut_Object.gui_pause = gui_utils.gui_pause
+            #self.gui_settings_dict = gui_utils.gui_settings_dict
             # print the number of already done FFT / Block iterations
             print("FFT Block " + str(self.blockcounter) + ":")
             # set the begin and end of the speaker wave block which needs to
@@ -73,12 +73,6 @@ class Dsp:
                 if self.DspOut_Object.continue_convolution_dict[sp] is True:
                     # check whether head position to speaker sp has changed
                     if self.gui_dict[sp][0] != self.prior_head_angle_dict[sp]:
-                        # if head position has changed load new hrtf-settings
-                        self.DspIn_Object.hrtf_database_name, \
-                            self.DspIn_Object.hrtf_blocksize, \
-                            self.DspIn_Object.kemar_inverse_filter = \
-                            self.DspIn_Object.get_hrtf_param(
-                                self.gui_settings_dict)
                         # and load fitting hrtf-file as numpy array
                         self.DspIn_Object.get_current_hrtf(self.gui_dict[sp],
                                                            sp)
@@ -110,7 +104,7 @@ class Dsp:
                             self.DspIn_Object.sp_max_amp_dict[sp],
                             self.DspIn_Object.hrtf_max_amp_dict[sp][l_r],
                             self.DspIn_Object.wave_param_common[0],
-                            self.gui_settings_dict["inverse_filter_active"],
+                            self.DspIn_Object.kemar_inverse_filter_active,
                             self.DspIn_Object.kemar_inverse_filter,
                             self.DspIn_Object.hrtf_blocksize,
                             self.DspIn_Object.sp_blocksize, sp, l_r)
