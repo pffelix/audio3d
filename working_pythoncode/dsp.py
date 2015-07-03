@@ -73,7 +73,7 @@ class Dsp:
                 if self.DspOut_Object.continue_convolution_dict[sp] is True:
                     # check whether head position to speaker sp has changed
                     if self.gui_dict[sp][0] != self.prior_head_angle_dict[sp]:
-                        # and load fitting hrtf-file as numpy array
+                        # if yes, load new fitting hrtf samples
                         self.DspIn_Object.get_current_hrtf(self.gui_dict[sp],
                                                            sp)
                         # save head position to speaker of this block in
