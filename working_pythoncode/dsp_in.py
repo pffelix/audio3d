@@ -10,7 +10,7 @@ import struct
 import numpy as np
 import math
 from error_handler import send_error
-from numpy.fft import fft, ifft, fftfreq
+from numpy.fft import fft, ifft, fftfreq, rfft, irfft, rfftfreq
 import time
 
 
@@ -45,7 +45,7 @@ class DspIn:
         self.hrtf_database_fft = self.hrtf_database_fft()
         # Initialize a dict for the hrtf block values to be stored in.
         self.hrtf_block_fft_dict = dict.fromkeys(gui_dict_init, np.zeros((
-            self.fft_blocksize, 2), dtype=np.complex128))
+            self.fft_blocksize // 2 + 1, 2), dtype=np.complex128))
         # Define blocksize, blocktime, overlap and hopsize
         self.sp_blocksize, self.sp_blocktime, self.overlap, self.hopsize = \
             self.get_block_param(self.wave_param_common,
@@ -174,7 +174,7 @@ class DspIn:
                 kemar_inverse_filter[0:self.fft_blocksize, ]
             # zeropad kemar_inverse_filter_fft to fft_blocksize and bring
             # time domain into frequency domain
-            kemar_inverse_filter_fft = fft(kemar_inverse_filter,
+            kemar_inverse_filter_fft = rfft(kemar_inverse_filter,
                                            self.fft_blocksize)
         if hrtf_database_name == "kemar_compact":
             # wave hrtf size 128 samples: zeropad hrtf to 513 samples to
@@ -187,7 +187,7 @@ class DspIn:
             # hrtfs)
             kemar_inverse_filter = np.zeros((self.fft_blocksize,),
                                             dtype=np.int16)
-            kemar_inverse_filter_fft = np.zeros((self.fft_blocksize,),
+            kemar_inverse_filter_fft = np.zeros((self.fft_blocksize // 2 + 1,),
                                             dtype=np.complex128)
 
         return hrtf_database_name, hrtf_blocksize, hrtf_blocksize_real, \
@@ -241,14 +241,14 @@ class DspIn:
     # @brief brings the whole hrtf database in frequency domain
     # @author Felix Pfreundtner
     def hrtf_database_fft(self):
-        hrtf_database_fft = np.zeros((self.fft_blocksize,
+        hrtf_database_fft = np.zeros((self.fft_blocksize // 2 + 1,
                                       self.hrtf_database.shape[1]),
                                       dtype = np.complex128)
         # for the whole hrtf database (all angles)
         for angle_index in range(self.hrtf_database.shape[1]):
             # zeropad hrtf_database_fft[angle] to fft_blocksize and bring
             # time domain into frequency domain
-            hrtf_database_fft[:, angle_index] = fft(self.hrtf_database[:,
+            hrtf_database_fft[:, angle_index] = rfft(self.hrtf_database[:,
                                                     angle_index],
                                                     self.fft_blocksize)
         return hrtf_database_fft
@@ -628,12 +628,12 @@ class DspIn:
 
         # zeropad sp_block_dict[sp] to fft_blocksize and bring time domain into
         # frequency domain
-        sp_block_fft_sp = fft(self.sp_block_dict[sp], self.fft_blocksize)
-
+        #sp_block_fft_sp = fft(self.sp_block_dict[sp], self.fft_blocksize)
+        sp_block_fft_sp = rfft(self.sp_block_dict[sp], self.fft_blocksize)
         # save fft magnitude spectrum of sp_block in sp_spectrum and
         # hrtf_block in hrtf_spectrum to be shown by gui
         # create array of all calculated FFT frequencies
-        freq_all = fftfreq(self.fft_blocksize, 1 / self.wave_param_common[0])
+        freq_all = rfftfreq(self.fft_blocksize, 1 / self.wave_param_common[0])
         # set position of only positive frequencies (neg. frequencies redundant)
         position_freq = np.where(freq_all >= 0)
         # set array of only positive FFT frequencies (neg. frequ. redundant)
@@ -659,6 +659,7 @@ class DspIn:
             hrtf_spectrum_dict_sp_l_r[:, 1] = hrtf_magnitude_spectrum\
                 / (max_amplitude_hrtf_magnitude_spectrum /
                    self.hrtf_max_amp_dict[sp][l_r] * max_amplitude_output)
+        # set FFT DC Value to zero
         sp_spectrum_dict_sp[0, 1] = 0
         hrtf_spectrum_dict_sp_l_r[0, 1] = 0
 
@@ -675,7 +676,7 @@ class DspIn:
 
         # bring multiplied spectrum back to time domain, disneglected small
         # complex time parts resulting from numerical fft approach
-        binaural_block_sp_time = ifft(binaural_block_sp_frequency,
+        binaural_block_sp_time = irfft(binaural_block_sp_frequency,
                                       self.fft_blocksize).real
 
         # normalize multiplied spectrum back to 16bit integer, consider

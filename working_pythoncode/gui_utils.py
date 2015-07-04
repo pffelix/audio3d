@@ -443,6 +443,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.posy = 0
 
     def closeEvent(self, QCloseEvent):
+        print("closes")
         self.is_on = False
         self.added.disconnect()
         self.clear()
