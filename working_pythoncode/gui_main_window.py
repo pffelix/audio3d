@@ -315,7 +315,7 @@ class MainWindow(QWidget):
         self.sequence_plot.rhrtf_spec.update_data(
             self.dsp_obj.hrtf_spectrum_dict[i][1][:, 1])
 
-    def close_event(self, event_q_close_event):
+    def closeEvent(self, event_q_close_event):
         self.room.clear()
         if enable_headtracker:
             self.update_timer.stop()

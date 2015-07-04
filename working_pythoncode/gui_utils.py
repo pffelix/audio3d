@@ -442,7 +442,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.posx = 0
         self.posy = 0
 
-    def close_event(self):
+    def closeEvent(self, QCloseEvent):
         self.is_on = False
         self.added.disconnect()
         self.clear()

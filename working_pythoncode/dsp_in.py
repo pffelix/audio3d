@@ -10,7 +10,7 @@ import struct
 import numpy as np
 import math
 from error_handler import send_error
-from scipy.fftpack import fft, ifft, fftfreq
+from numpy.fft import fft, ifft, fftfreq
 import time
 
 
