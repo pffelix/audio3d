@@ -6,22 +6,13 @@ from unittest.mock import MagicMock
 import numpy as np
 import scipy.io.wavfile
 
-# global Namespace
-gui_dict_mockup = \
-    {
-        #0: [90, 0, "./audio_in/sine_1kHz_(44.1,1,16).wav", False]
-        0: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav", True]
-        #0: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav", #  True]
-    }
+# global Namespace (not professional to use it!)
 
-gui_settings_dict_mockup = {"hrtf_database": "kemar_normal_ear",
-                            "inverse_filter_active": True,
-                            "bufferblocks": 5}
 
 # @ Matthias: I uncommented this params as they are now in self
 # namespace initialized in constructor
-# DspIn_TestObj = dsp_in.DspIn(gui_dict_mockup, gui_settings_dict_mockup)
-# DspOut_TestObj = dsp_out.DspOut(gui_dict_mockup,
+# DspIn_TestObj = dsp_in.DspIn(self.gui_dict, gui_settings_dict_mockup)
+# DspOut_TestObj = dsp_out.DspOut(self.gui_dict,
                                   # DspIn_TestObj.fft_blocksize,
                                   # DspIn_TestObj.sp_blocksize,
                                   # DspIn_TestObj.hopsize,
@@ -52,16 +43,24 @@ block_begin_end = np.zeros((2,), dtype=np.int16)
 
 class DspTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
-        # self Namespace
         # calling the constructor of the super class
         super(DspTests, self).__init__(*args, **kwargs)
-        self.gui_dict = gui_dict_mockup
-        self.gui_settings_dict = gui_settings_dict_mockup
+
+        # self Namespace
+        self.gui_dict = {
+            0: [90, 0, "./audio_in/sine_1kHz_(44.1,1,16).wav", False],
+            1: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav", True]
+            # 2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav", #  True]
+            }
+
+        self.gui_settings_dict = {"hrtf_database": "kemar_normal_ear",
+                                  "inverse_filter_active": True,
+                                  "bufferblocks": 5}
         self.gui_stop = False
         self.gui_pause = False
-        self.DspIn_TestObj = dsp_in.DspIn(gui_dict_mockup,
-                                          gui_settings_dict_mockup)
-        self.DspOut_TestObj = dsp_out.DspOut(gui_dict_mockup,
+        self.DspIn_TestObj = dsp_in.DspIn(self.gui_dict,
+                                          self.gui_settings_dict)
+        self.DspOut_TestObj = dsp_out.DspOut(self.gui_dict,
                                              self.DspIn_TestObj.fft_blocksize,
                                              self.DspIn_TestObj.sp_blocksize,
                                              self.DspIn_TestObj.hopsize,
@@ -115,7 +114,7 @@ class DspTests(unittest.TestCase):
 
     # @brief Tests the values of init_block_begin_end on symmetry to 0
     def test_init_set_block_begin_end(self):
-        res = DspIn_TestObj.init_set_block_begin_end(gui_dict_mockup)
+        res = DspIn_TestObj.init_set_block_begin_end(self.gui_dict)
         errmsg = "The entries in init_block_begin_end are not symmetric to 0"
         self.assertTrue(abs(res[0]) == abs(res[1]), msg=errmsg)
 
@@ -154,18 +153,20 @@ class DspTests(unittest.TestCase):
     #     self.assertTrue(res)
 
     # @brief Compare own read-function to scipy-function-results.
+
+
     # Skip Test for all files besides the electrical guitar
-    @unittest.skipUnless(gui_dict_mockup[0][2] ==
-                         "./audio_in/electrical_guitar_(44.1,1,16).wav",
+    @unittest.skipUnless(lambda self: self.self.gui_dict[0][2] ==
+                          "./audio_in/electrical_guitar_(44.1,1,16).wav",
                          "Otherwise total_no_of_samples is wrong")
     def test_get_sp(self):
         sp = 0
         scipy_sp_dict[sp] = np.zeros((total_no_samples_elecgui,),
                                      dtype=np.int16)
         scipy_sp_dict_raw = {}
-        for sp in gui_dict_mockup:
+        for sp in self.gui_dict:
             _, scipy_sp_dict_raw[sp] = scipy.io.wavfile.read(
-                gui_dict_mockup[sp][2])
+                self.gui_dict[sp][2])
             lenarray = len(scipy_sp_dict_raw[sp])
             # append zeros to scipy_sp_dict_raw to reach that output is
             # divideable by sp_blocksize
@@ -179,7 +180,7 @@ class DspTests(unittest.TestCase):
             else:
                 scipy_sp_dict[sp] = scipy_sp_dict_raw[sp]
         sol = scipy_sp_dict
-        res = DspIn_TestObj.get_sp(gui_dict_mockup)
+        res = DspIn_TestObj.get_sp(self.gui_dict)
         errmsg = "get_sp doesn't get same values as scipy function"
         # Following while-loop only for bug-fixes:
         # i = 0
