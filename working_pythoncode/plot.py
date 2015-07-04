@@ -11,15 +11,17 @@ class GLPlotWidget(QGLWidget):
 
     def initialize_data(self, xdata_raw, ydata_raw):
         # Felix
-        # interpolate y Values
+        # interpolate x and y Values
         # first frequency
         self.begin_hz = 0
         # last frequency
         self.end_hz = 15000
         # number of frequency points
         self.number_of_points = 15000
+        # interpolate x frequency values
         self.xdata = np.linspace(self.begin_hz, self.end_hz,
                                  self.number_of_points)
+        # interpolate y magnitude values
         ydata = np.interp(self.xdata, xdata_raw, ydata_raw)
 
         # Huaijiang
