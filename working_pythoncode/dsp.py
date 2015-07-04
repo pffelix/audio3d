@@ -100,6 +100,9 @@ class Dsp:
                     for l_r in range(2):
                         # convolve hrtf with speaker block input to get
                         # binaural stereo block output
+                        self.dspout_obj.binaural_block_dict[sp], \
+                        self.sp_spectrum_dict[sp],\
+                        self.hrtf_spectrum_dict[sp][l_r] = \
                         self.dspin_obj.fft_convolution(self.sp_spectrum_dict
                                                        [sp],
                                                        self.hrtf_spectrum_dict[

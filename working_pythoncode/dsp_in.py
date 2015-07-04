@@ -37,7 +37,7 @@ class DspIn:
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
         self.hrtf_database_name, self.hrtf_blocksize, \
         self.hrtf_blocksize_real, self.kemar_inverse_filter, \
-        self.kemar_inverse_filter_fft, self.kemar_inverse_filter_active = \
+            self.kemar_inverse_filter_fft, self.kemar_inverse_filter_active = \
             self.get_hrtf_param(gui_settings_dict_init)
         # read in whole hrtf datatabas from impulse responses in time domain
         self.hrtf_database = self.read_hrtf_database(gui_settings_dict_init)
@@ -59,9 +59,6 @@ class DspIn:
         # speaker block
         self.sp_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
             self.sp_blocksize,), dtype=np.int16))
-        # Temp Variable with zeros for faster fft convolution
-        self.sp_block_sp_zeropadded = np.zeros((self.fft_blocksize, ),
-                                           dtype='int16')
         # build a hann window with sp_blocksize
         self.hann = self.build_hann_window(self.sp_blocksize)
 
@@ -175,6 +172,8 @@ class DspIn:
                     "./kemar/full/headphones+spkr/Opti-minphase.wav")
             kemar_inverse_filter = \
                 kemar_inverse_filter[0:self.fft_blocksize, ]
+            # zeropad kemar_inverse_filter_fft to fft_blocksize and bring
+            # time domain into frequency domain
             kemar_inverse_filter_fft = fft(kemar_inverse_filter,
                                            self.fft_blocksize)
         if hrtf_database_name == "kemar_compact":
@@ -245,12 +244,13 @@ class DspIn:
         hrtf_database_fft = np.zeros((self.fft_blocksize,
                                       self.hrtf_database.shape[1]),
                                       dtype = np.complex128)
-        hrtf_zeropadded = np.zeros((self.fft_blocksize, ), dtype=np.int16)
-        for angle_index in range (self.hrtf_database.shape[1]):
-            hrtf_zeropadded[:self.hrtf_blocksize, ] = self.hrtf_database[:,
-                                                  angle_index]
-            hrtf_database_fft[:, angle_index] = fft(hrtf_zeropadded,
-                                              self.fft_blocksize)
+        # for the whole hrtf database (all angles)
+        for angle_index in range(self.hrtf_database.shape[1]):
+            # zeropad hrtf_database_fft[angle] to fft_blocksize and bring
+            # time domain into frequency domain
+            hrtf_database_fft[:, angle_index] = fft(self.hrtf_database[:,
+                                                    angle_index],
+                                                    self.fft_blocksize)
         return hrtf_database_fft
 
 
@@ -625,11 +625,10 @@ class DspIn:
     def fft_convolution(self, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r,
                         binaural_block_dict_sp, sp, l_r):
 
-        # Do for speaker sp zeropadding: zeropad speaker (mono input)
-        self.sp_block_sp_zeropadded[0:self.sp_blocksize, ] = \
-            self.sp_block_dict[sp]
-        # bring time domain input to to frequency domain
-        sp_block_fft_sp = fft(self.sp_block_sp_zeropadded, self.fft_blocksize)
+
+        # zeropad sp_block_dict[sp] to fft_blocksize and bring time domain into
+        # frequency domain
+        sp_block_fft_sp = fft(self.sp_block_dict[sp], self.fft_blocksize)
 
         # save fft magnitude spectrum of sp_block in sp_spectrum and
         # hrtf_block in hrtf_spectrum to be shown by gui
@@ -689,4 +688,5 @@ class DspIn:
             self.hrtf_max_amp_dict[sp][l_r] * 32767)
         binaural_block_dict_sp[:, l_r] = \
             binaural_block_sp_time.astype(np.int16)
-        return binaural_block_dict_sp
+        return binaural_block_dict_sp, sp_spectrum_dict_sp,\
+               hrtf_spectrum_dict_sp_l_r
