@@ -58,7 +58,7 @@ class DspIn:
         # initialize empty numpy array where to save samples of each
         # speaker block
         self.sp_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
-            self.sp_blocksize,), dtype=np.int16))
+            self.sp_blocksize,), dtype=np.float32))
         # build a hann window with sp_blocksize
         self.hann = self.build_hann_window(self.sp_blocksize)
 
@@ -186,7 +186,7 @@ class DspIn:
             # needed (is already integrated in wave files of kemar compact
             # hrtfs)
             kemar_inverse_filter = np.zeros((self.fft_blocksize,),
-                                            dtype=np.int16)
+                                            dtype=np.float32)
             kemar_inverse_filter_fft = np.zeros((self.fft_blocksize // 2 + 1,),
                                             dtype=np.complex128)
 
@@ -381,7 +381,7 @@ class DspIn:
         # speaker in dictionary sp_dict
         sp_dict = {}
         for sp in gui_dict:
-            sp_dict[sp] = np.zeros((self.sp_param[sp][0],), dtype=np.int16)
+            sp_dict[sp] = np.zeros((self.sp_param[sp][0],), dtype=np.float32)
 
         # scipy io reference function
         start = time.time()
@@ -395,7 +395,7 @@ class DspIn:
             if lenarray % self.sp_blocksize != 0:
                 scipy_sp_dict[sp] = np.zeros((lenarray + self.sp_blocksize -
                                               lenarray % self.sp_blocksize, ),
-                                             dtype=np.int16)
+                                             dtype=np.float32)
                 scipy_sp_dict[sp][0:lenarray, ] = scipy_sp_dict_raw[sp]
             else:
                 scipy_sp_dict[sp] = scipy_sp_dict_raw[sp]
@@ -582,7 +582,7 @@ class DspIn:
         # if current block end is LARGER, we enter the else-condition
         else:
             self.sp_block_dict[sp] = np.zeros((self.sp_blocksize),
-                                              dtype=np.int16)
+                                              dtype=np.float32)
             self.sp_block_dict[sp][0:self.sp_param[sp][0] -
                                    self.block_begin_end[0], ] = self.sp_dict[
                 sp][self.block_begin_end[0]:self.sp_param[sp][0], ]
@@ -608,14 +608,14 @@ class DspIn:
                     max_amplitude_output)
                 self.sp_block_dict[sp] = sp_block_dict_sp_norm
                 self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(
-                    np.int16, copy=False)
+                    np.float32, copy=False)
                 self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp]
                                                           [:, ]))
 
     # @author Felix Pfreundtner
     def apply_window_on_sp_block(self, sp):
         self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
-        self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.int16)
+        self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.float32)
 
     # @brief Function convolves hrtf and data of the music file
     # @details Function takes one hrtf block and one data block (their size
@@ -692,6 +692,6 @@ class DspIn:
             binaural_block_sp_time_max_amp / self.sp_max_amp_dict[sp] /
             self.hrtf_max_amp_dict[sp][l_r] * 32767)
         binaural_block_dict_sp[:, l_r] = \
-            binaural_block_sp_time.astype(np.int16)
+            binaural_block_sp_time.astype(np.float32)
         return binaural_block_dict_sp, sp_spectrum_dict_sp,\
                hrtf_spectrum_dict_sp_l_r

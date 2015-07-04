@@ -23,12 +23,12 @@ class DspOut:
     def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize,
                  hopsize, gui_stop_init, gui_pause_init):
         self.binaural_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
-            fft_blocksize, 2), dtype=np.int16))
+            fft_blocksize, 2), dtype=np.float32))
         self.binaural_block_dict_out = dict.fromkeys(gui_dict_init, np.zeros(
-            (hopsize, 2), dtype=np.int16))
+            (hopsize, 2), dtype=np.float32))
         self.binaural_block_dict_add = dict.fromkeys(gui_dict_init, np.zeros(
-            (fft_blocksize - hopsize, 2), dtype=np.int16))
-        self.binaural_block = np.zeros((hopsize, 2), dtype=np.int16)
+            (fft_blocksize - hopsize, 2), dtype=np.float32))
+        self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
         self.continue_convolution_dict = dict.fromkeys(gui_dict_init, True)
         self.gui_stop = gui_stop_init
@@ -62,7 +62,7 @@ class DspOut:
         # fft_blocksize - hopsize)
         add_sp_arraysize = (fft_blocksize - hopsize)
         binaural_block_dict_add_sp_new = np.zeros((add_sp_arraysize, 2),
-                                                  dtype=np.int16)
+                                                  dtype=np.float32)
         # 2. take still remaining block output of prior ffts and add it to
         # the zero array on front position
         binaural_block_dict_add_sp_new[0:add_sp_arraysize - hopsize,
@@ -78,7 +78,7 @@ class DspOut:
     # distance to the speakers.
     # @author Felix Pfreundtner
     def mix_binaural_block(self, hopsize, gui_dict):
-        self.binaural_block = np.zeros((hopsize, 2), dtype=np.int16)
+        self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         # maximum distance of a speaker to head in window with borderlength
         # 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
         # max([gui_dict[sp][1] for sp in gui_dict])
@@ -98,8 +98,8 @@ class DspOut:
             # next iteration set binaural_block_dict_out to zeros
             if self.continue_convolution_dict[sp] is False:
                 self.binaural_block_dict_out[sp] = np.zeros((hopsize, 2),
-                                                            dtype=np.int16)
-        self.binaural_block = self.binaural_block.astype(np.int16)
+                                                            dtype=np.float32)
+        self.binaural_block = self.binaural_block.astype(np.float32)
 
 
     # @brief Adds the newly calculated blocks to a dict that contains all the
@@ -112,7 +112,7 @@ class DspOut:
                             fft_blocksize, binaural):
         delay = 256
         if blockcounter == 0:
-            binaural = np.zeros((fft_blocksize * 1500, 2), dtype=np.int16)
+            binaural = np.zeros((fft_blocksize * 1500, 2), dtype=np.float32)
         if blockcounter % 2 != 0:
             binaural[blockcounter * delay:blockcounter * delay + 1024, 1] += \
                 binaural_block_dict_sp
@@ -125,9 +125,9 @@ class DspOut:
     # @author Felix Pfreundtner
     def add_to_binaural(self, blockcounter):
         if blockcounter == 0:
-            self.binaural = self.binaural_block
+            self.binaural = self.binaural_block.astype(np.int16)
         else:
-            self.binaural = np.concatenate((self.binaural, self.binaural_block))
+            self.binaural = np.concatenate((self.binaural, self.binaural_block.astype(np.int16)))
 
     # @brief Writes the binaural output signal.
     # @author Felix Pfreundtner

@@ -11,6 +11,7 @@ import dsp_out
 import threading
 import multiprocessing
 import time
+import matplotlib.pyplot as plt
 
 
 class Dsp:
