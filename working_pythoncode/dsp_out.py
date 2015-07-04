@@ -50,12 +50,12 @@ class DspOut:
         # get current binaural block output of sp
         # 1. take binaural block output of current fft which don't overlap
         # with next blocks
-        self.binaural_block_dict_out[sp] = deepcopy(
-            self.binaural_block_dict[sp][0:hopsize, :])
+        self.binaural_block_dict_out[sp] = self.binaural_block_dict[sp][
+                                           0:hopsize, :]
         # 2. add relevant still remaining block output of prior ffts to
         # binaural block output of current block
         self.binaural_block_dict_out[sp][:, :] += \
-            deepcopy(self.binaural_block_dict_add[sp][0:hopsize, :])
+            self.binaural_block_dict_add[sp][0:hopsize, :]
         # create a new array to save remaining block output of current fft
         # and add it to the still remaining block output of prior ffts
         # 1. create new array binaural_block_dict_add_sp_new with size (
@@ -66,12 +66,12 @@ class DspOut:
         # 2. take still remaining block output of prior ffts and add it to
         # the zero array on front position
         binaural_block_dict_add_sp_new[0:add_sp_arraysize - hopsize,
-                                       :] = deepcopy(
-            self.binaural_block_dict_add[sp][hopsize:, :])
+                                       :] = \
+            self.binaural_block_dict_add[sp][hopsize:, :]
         # 3. take remaining block output of current fft and add it to the
         # array on back position
-        binaural_block_dict_add_sp_new[:, :] += deepcopy(
-            self.binaural_block_dict[sp][hopsize:, :])
+        binaural_block_dict_add_sp_new[:, :] += \
+            self.binaural_block_dict[sp][hopsize:, :]
         self.binaural_block_dict_add[sp] = binaural_block_dict_add_sp_new
 
     # @brief Calculate the signal for all speakers taking into account the

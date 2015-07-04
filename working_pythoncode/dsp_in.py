@@ -689,9 +689,10 @@ class DspIn:
         # dynamical volume output
         binaural_block_sp_time_max_amp = int(np.amax(np.abs(
             binaural_block_sp_time)))
-        binaural_block_sp_time = binaural_block_sp_time / (
-            binaural_block_sp_time_max_amp / self.sp_max_amp_dict[sp] /
-            self.hrtf_max_amp_dict[sp][l_r] * 32767)
+        if binaural_block_sp_time_max_amp != 0:
+            binaural_block_sp_time = binaural_block_sp_time / (
+                binaural_block_sp_time_max_amp / self.sp_max_amp_dict[sp] /
+                self.hrtf_max_amp_dict[sp][l_r] * 32767)
         binaural_block_dict_sp[:, l_r] = \
             binaural_block_sp_time.astype(np.float32, copy=False)
         return binaural_block_dict_sp, sp_spectrum_dict_sp,\
