@@ -214,8 +214,10 @@ class MainWindow(QWidget):
     @Slot()
     def reset(self):
         
-        if self.play is not None and self.state.gui_stop is False:
+        if self.play is not None and self.state.gui_stop is False \
+                or self.play is not None and self.state.dsp_run is True:
             pass
+
         else:
             self.room.clear()
             self.state.gui_dict.clear()
