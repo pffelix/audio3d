@@ -19,7 +19,7 @@ speaker_list = []
 speaker_to_show = 0
 
 # @brief gui_dict is continuously updated, 
-#        managed by update_timer every 10sec
+#        managed by update_headtracker_timer every 10sec
 # @details
 # @author 
 def update_gui_dict(deg):

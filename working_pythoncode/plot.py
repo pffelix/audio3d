@@ -9,19 +9,10 @@ import numpy as np
 class GLPlotWidget(QGLWidget):
     width, height = 400, 200
 
-    def set_data(self, xdata_raw, ydata_raw):
-        # interpolate Values
-        # first frequency
-        begin_hz = 0
-        # last frequency
-        end_hz = 15000
-        number_of_points = 15000
-        self.xdata = np.linspace(begin_hz, end_hz, number_of_points)
-        ydata = np.interp(self.xdata, xdata_raw, ydata_raw)
-
+    def initialize_data(self, ydata):
+        self.ydata = ydata/np.max(ydata)
         self.xdata = np.array(np.linspace(-1, 1, ydata.shape[0]),
                               dtype=np.float32)
-        self.ydata = ydata/np.max(ydata)
         self.size = self.xdata.size+ydata.size
         self.data = np.array(np.zeros(self.size), dtype=np.float32)
 
@@ -29,8 +20,13 @@ class GLPlotWidget(QGLWidget):
         self.data[1::2] = ydata
         self.count = ydata.size
 
-    def update_data(self, xdata_raw, ydata_raw):
-        self.set_data(xdata_raw, ydata_raw)
+    def set_data(self, ydata):
+
+        self.ydata = ydata/np.max(ydata)
+        self.data[1::2] = self.ydata
+
+    def update_data(self, ydata):
+        self.set_data(ydata)
         self.repaint()
         self.updateGL()
 
