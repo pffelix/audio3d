@@ -213,12 +213,16 @@ class MainWindow(QWidget):
 
     @Slot()
     def reset(self):
-        self.room.clear()
-        gui_dict.clear()
-        del self.state.speaker_list[:]
-        new_audience = Audience()
-        self.room.addItem(new_audience)
-        self.view.viewport().update()
+
+        if self.play is not None and self.state.gui_stop is False:
+            pass
+        else:
+            self.room.clear()
+            self.state.gui_dict.clear()
+            del self.state.speaker_list[:]
+            new_audience = Audience(self.state)
+            self.room.addItem(new_audience)
+            self.view.viewport().update()
 
     @Slot()
     def control(self):
