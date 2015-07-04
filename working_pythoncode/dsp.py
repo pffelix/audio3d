@@ -7,44 +7,38 @@ Created on Fri May 22 16:27:57 2015
 
 import numpy as np
 import dsp_in
-import dsp
 import dsp_out
-import gui_utils
 import threading
 import multiprocessing
-import gui_utils
-import time
-
-from error_handler import send_error
-
 import time
 
 
 class Dsp:
-    def __init__(self, gui_dict_init, gui_stop_init, gui_pause_init,
+    def __init__(self, state,
                  gui_settings_dict_init, return_ex_init):
-        self.gui_dict = gui_dict_init
+        self.state = state
+        self.gui_dict = state.gui_dict
         self.gui_settings_dict = gui_settings_dict_init
-        self.prior_head_angle_dict = dict.fromkeys(gui_dict_init, [])
+        self.prior_head_angle_dict = dict.fromkeys(state.gui_dict, [])
         self.return_ex = return_ex_init
-        self.outputsignal_sample_number = dict.fromkeys(gui_dict_init, [])
+        self.outputsignal_sample_number = dict.fromkeys(state.gui_dict, [])
         # Set number of bufferblocks between fft block convolution and audio
         # block playback
         self.bufferblocks = gui_settings_dict_init["bufferblocks"]
         # Create Input Object which contains mono input samples of sources
         # and hrtf impulse responses samples
-        self.dspin_obj = dsp_in.DspIn(gui_dict_init, gui_settings_dict_init)
+        self.dspin_obj = dsp_in.DspIn(state.gui_dict, gui_settings_dict_init)
         # Create Output Object which contains binaural output samples
-        self.dspout_obj = dsp_out.DspOut(gui_dict_init,
+        self.dspout_obj = dsp_out.DspOut(state.gui_dict,
                                          self.dspin_obj.fft_blocksize,
                                          self.dspin_obj.sp_blocksize,
                                          self.dspin_obj.hopsize,
-                                         gui_stop_init, gui_pause_init)
+                                         state.gui_stop, state.gui_pause)
         # magnitude spectrum of current wave block for every speaker
-        self.sp_spectrum_dict = dict.fromkeys(gui_dict_init, np.zeros((
+        self.sp_spectrum_dict = dict.fromkeys(state.gui_dict, np.zeros((
             self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16))
         # magnitude spectrum of current left and right hrtf for every speaker
-        self.hrtf_spectrum_dict = dict.fromkeys(gui_dict_init, [np.zeros((
+        self.hrtf_spectrum_dict = dict.fromkeys(state.gui_dict, [np.zeros((
             self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16),
             np.zeros((self.dspin_obj.fft_blocksize // 2 + 1, 2),
                      dtype=np.float16)])
@@ -61,10 +55,8 @@ class Dsp:
         while any(self.dspout_obj.continue_convolution_dict.values()) \
                 is True:
             # actualize variables with gui
-            self.gui_dict = gui_utils.gui_dict
-            self.dspout_obj.gui_stop = gui_utils.gui_stop
-            self.dspout_obj.gui_pause = gui_utils.gui_pause
-            self.gui_settings_dict = gui_utils.gui_settings_dict
+            self.dspout_obj.gui_stop = self.state.gui_stop
+            self.dspout_obj.gui_pause = self.state.gui_pause
             # print the number of already done FFT / Block iterations
             # print("FFT Block " + str(self.blockcounter) + ":")
             # set the begin and end of the speaker wave block which needs to
@@ -169,7 +161,7 @@ class Dsp:
             # handle playback pause
             while self.dspout_obj.gui_pause is True:
                 time.sleep(0.1)
-                self.dspout_obj.gui_pause = gui_utils.gui_pause
+                self.dspout_obj.gui_pause = self.state.gui_pause
             # handle playback stop
             if self.dspout_obj.gui_stop is True:
                 break

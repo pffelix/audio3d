@@ -15,6 +15,7 @@ import multiprocessing
 from error_handler import *
 
 
+
 # head tracker
 enable_headtracker = False
 # initialization of variables
@@ -28,21 +29,22 @@ class MainWindow(QWidget):
         super(MainWindow, self).__init__()
         self.setAcceptDrops(True)
         # set items
-        self.audience = Audience()
+        self.state = State()
+        self.audience = Audience(self.state)
 
         # set scene and view
-        self.room = Room()
+        self.room = Room(self.state)
         self.room.setSceneRect(0, 0, 400, 400)
         self.room.addItem(self.audience)
 
         # set view
-        self.view = View(self.room)
+        self.view = View(self.state, self.room)
         self.view.setFixedSize(400, 400)
         self.view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         # set property window
-        self.speaker_property = SpeakerProperty()
+        self.speaker_property = SpeakerProperty(self.state)
 
         # set plot window
         self.sequence_plot = SequencePlot()
@@ -103,6 +105,7 @@ class MainWindow(QWidget):
             self.update_headtracker_timer.timeout.connect(self.update_head)
             self.update_headtracker_timer.start(10)
 
+
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
         control_button.clicked.connect(self.control)
@@ -121,32 +124,23 @@ class MainWindow(QWidget):
         self.show()
 
     def update_head(self):
-        from gui_utils import update_gui_dict, gui_stop, gui_pause
-        if gui_stop is False and gui_pause is False:
+        if self.state.gui_stop is False and self.state.gui_pause is False:
             self.head_tracker.cal_head_deg()
-            update_gui_dict(self.head_tracker.get_head_deg())
+            self.state.update_gui_dict(self.head_tracker.get_head_deg())
 
     def inverse_disable(self):
         if self.combo_box.currentText() == 'kemar_compact':
-            self.inverse_box.setCheckState(Qt.Unchecked)
+            self.inverse_box.setCheckState(False)
         else:
             return
-
-#    def update_settings_dict(self):
-#        global gui_settings_dict
-#        gui_settings_dict = {
-#                "hrtf_database": self.combo_box.currentText(),
-#                "inverse_filter_active": self.inverse_box.isChecked(),
-#                "bufferblocks": self.buffersize_spin_box.value()}
 
     @Slot()
     def show_property(self):
 
-        from gui_utils import speaker_to_show
-        i = speaker_to_show
-        path = str(gui_dict[i][2])
-        azimuth = "{:.0f}".format(gui_dict[i][0])
-        dist = "{:.2f}".format(gui_dict[i][1])
+        i = self.state.speaker_to_show
+        path = str(self.state.gui_dict[i][2])
+        azimuth = "{:.0f}".format(self.state.gui_dict[i][0])
+        dist = "{:.2f}".format(self.state.gui_dict[i][1])
         self.speaker_property.path_line_edit.setText(path)
         self.speaker_property.azimuth_line_edit.setText(azimuth)
         self.speaker_property.distance_line_edit.setText(dist)
@@ -156,21 +150,20 @@ class MainWindow(QWidget):
 
     def change_property(self):
 
-        from gui_utils import speaker_to_show
-        i = speaker_to_show
+        i = self.state.speaker_to_show
         x_new = self.speaker_property.posx
         y_new = self.speaker_property.posy
-        speaker_list[i].setPos(x_new, y_new)
-        speaker_list[i].cal_rel_pos()
+        self.state.speaker_list[i].setPos(x_new, y_new)
+        self.state.speaker_list[i].cal_rel_pos()
 
     @Slot()
     def add_speaker(self):
-        if len(gui_dict) < 6:
-            index = len(gui_dict)
+        if len(self.state.gui_dict) < 6:
+            index = len(self.state.gui_dict)
             self.speaker_property.added.connect(self.add2scene)
 
             # calculate current default position
-            from gui_utils import audience_pos
+            audience_pos = self.state.audience_pos
             x = default_position[index][0]
             y = default_position[index][1]
             dx = x - audience_pos.x()
@@ -198,21 +191,21 @@ class MainWindow(QWidget):
     @Slot()
     def add2scene(self):
 
-        if len(gui_dict) < 6:
+        if len(self.state.gui_dict) < 6:
 
             # read in data
-            index = len(gui_dict)
+            index = len(self.state.gui_dict)
             path = self.speaker_property.path
             x = self.speaker_property.posx
             y = self.speaker_property.posy
             # create new speaker
             if self.speaker_property.normalize_box.isChecked():
-                new_speaker = Speaker(index, path, x, y, True)
+                new_speaker = Speaker(self.state, index, path, x, y, True)
             else:
-                new_speaker = Speaker(index, path, x, y)
+                new_speaker = Speaker(self.state, index, path, x, y)
             new_speaker.signal_handler.show_property.connect(
                 self.show_property)
-            self.room.addItem(speaker_list[-1])
+            self.room.addItem(self.state.speaker_list[-1])
             self.view.viewport().update()
 
         else:
@@ -222,28 +215,25 @@ class MainWindow(QWidget):
     def reset(self):
         self.room.clear()
         gui_dict.clear()
-        del speaker_list[:]
+        del self.state.speaker_list[:]
         new_audience = Audience()
         self.room.addItem(new_audience)
         self.view.viewport().update()
 
     @Slot()
     def control(self):
-        global gui_stop
-        global gui_pause
-        global gui_settings_dict
-        global gui_dict
+        gui_dict = self.state.gui_dict
         # check whether speaker has been selected
         if len(gui_dict) > 0:
             # don't let the playback and convolution start more than one time
             if self.return_ex.empty() is True:
-                gui_stop = switch_stop_playback()
+                self.state.switch_stop_playback()
                 return
             # if playback was stopped as user pressed stop button switch stop
             # variable to playmode
             if self.return_ex.empty() is False and self.return_ex.get() is \
                     True:
-                gui_stop = switch_stop_playback()
+                self.state.switch_stop_playback()
             print("continue")
             # while not self.return_ex.empty():
             #   self.return_ex.get()
@@ -252,11 +242,7 @@ class MainWindow(QWidget):
                 "inverse_filter_active": self.inverse_box.isChecked(),
                 "bufferblocks": self.buffersize_spin_box.value()}
             self.plot_button.setEnabled(True)
-            self.dsp_obj = Dsp(gui_dict, gui_stop, gui_pause,
-                               gui_settings_dict, self.return_ex)
-            self.error_timer = QTimer()
-            self.error_timer.timeout.connect(self.show_error)
-            self.error_timer.start(100)
+            self.dsp_obj = Dsp(self.state, gui_settings_dict, self.return_ex)
             self.play = threading.Thread(
                 target=self.dsp_obj.run)
             self.play.start()
@@ -267,29 +253,22 @@ class MainWindow(QWidget):
 
     @Slot()
     def pause(self):
-        switch_pause_playback()
-        # print(gui_pause)
-
-    @Slot()
-    def show_error(self):
-        self.error_timer.stop()
-        # print(check_error())
-        self.error_timer.start(50)
+        self.state.switch_pause_playback()
+        print(self.state.gui_pause)
 
     def positions(self):
 
-        for index, speaker in enumerate(speaker_list):
+        for index, speaker in enumerate(self.state.speaker_list):
             x = default_position[index][0]
             y = default_position[index][1]
-            speaker_list[index].setPos(x, y)
-            speaker_list[index].cal_rel_pos()
+            self.state.speaker_list[index].setPos(x, y)
+            self.state.speaker_list[index].cal_rel_pos()
         else:
             return
 
     def plot_sequence(self):
         # print(self.dsp_obj.sp_spectrum_dict)plot_sequence
-        from gui_utils import speaker_to_show
-        i = speaker_to_show
+        i = self.state.speaker_to_show
         print("initialize")
 
         self.sequence_plot.speaker_spec.initialize_data(
@@ -305,8 +284,7 @@ class MainWindow(QWidget):
 
     def update_sequence_dicts(self):
 
-        from gui_utils import speaker_to_show
-        i = speaker_to_show
+        i = self.state.speaker_to_show
         self.sequence_plot.speaker_spec.update_data(
             self.dsp_obj.sp_spectrum_dict[i][:, 1])
         self.sequence_plot.lhrtf_spec.update_data(
@@ -323,5 +301,5 @@ class MainWindow(QWidget):
         if self.speaker_property.is_on:
             self.speaker_property.close()
         if self.play is not None:
-            gui_stop_init = switch_stop_playback()
+            gui_stop_init = self.state.switch_stop_playback()
         event_q_close_event.accept()
