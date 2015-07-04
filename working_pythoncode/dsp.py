@@ -51,6 +51,8 @@ class Dsp:
     # @details
     # @author Felix Pfreundtner, Matthias Lederle
     def run(self):
+        # tell gui that dsp algorithm is running
+        self.state.dsp_run = True
         # run the main while loop as long as there are still samples to be
         # read from speaker wave files
         while any(self.dspout_obj.continue_convolution_dict.values()) \
@@ -184,3 +186,5 @@ class Dsp:
             self.dspin_obj.wave_param_common,
             self.gui_dict)
         self.return_ex.put(self.dspout_obj.playback_successful)
+        # tell gui that dsp algorithm has finished
+        self.state.dsp_run = False

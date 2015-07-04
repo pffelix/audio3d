@@ -32,6 +32,7 @@ class State(QtCore.QObject):
         self.gui_settings_dict = {"hrtf_database": "kemar_normal_ear",
                                   "inverse_filter_active": True,
                                   "bufferblocks": 5}
+        self.dsp_run = False
         self.gui_stop = False
         self.gui_pause = False
         self.audience_pos = QtCore.QPoint(170, 170)
