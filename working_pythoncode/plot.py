@@ -17,7 +17,7 @@ class GLPlotWidget(QGLWidget):
         self.data = np.array(np.zeros(self.size), dtype=np.float32)
 
         self.data[0::2] = self.xdata
-        self.data[1::2] = self.ydata
+        self.data[1::2] = ydata
         self.count = ydata.size
 
     def set_data(self, ydata):

@@ -99,9 +99,9 @@ class MainWindow(QWidget):
         # initialize head tracker, connect signal and slots
         if enable_headtracker:
             self.head_tracker = Headtracker()
-            self.update_timer = QTimer()
-            self.update_timer.timeout.connect(self.update_head)
-            self.update_timer.start(10)
+            self.update_headtracker_timer = QTimer()
+            self.update_headtracker_timer.timeout.connect(self.update_head)
+            self.update_headtracker_timer.start(10)
 
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
@@ -298,7 +298,6 @@ class MainWindow(QWidget):
             self.dsp_obj.hrtf_spectrum_dict[i][0][:, 1])
         self.sequence_plot.rhrtf_spec.initialize_data(
             self.dsp_obj.hrtf_spectrum_dict[i][1][:, 1])
-
         self.sequence_plot.show()
         self.sequence_plot.is_on = True
         self.sequence_plot.timer.timeout.connect(self.update_sequence_dicts)
@@ -318,7 +317,7 @@ class MainWindow(QWidget):
     def closeEvent(self, event_q_close_event):
         self.room.clear()
         if enable_headtracker:
-            self.update_timer.stop()
+            self.update_headtracker_timer.stop()
         if self.sequence_plot.is_on:
             self.sequence_plot.close()
         if self.speaker_property.is_on:
