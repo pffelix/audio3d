@@ -10,8 +10,8 @@ class GLPlotWidget(QGLWidget):
     width, height = 400, 200
 
     def set_data(self, ydata):
-
-        self.xdata = np.array(np.linspace(-1,1, 512), dtype=np.float32)
+        self.xdata = np.array(np.linspace(-1, 1, ydata.shape[0]),
+                              dtype=np.float32)
         self.ydata = ydata/np.max(ydata)
         self.size = self.xdata.size+ydata.size
         self.data = np.array(np.zeros(self.size), dtype=np.float32)
@@ -29,7 +29,7 @@ class GLPlotWidget(QGLWidget):
         """Initialize OpenGL, VBOs, upload data on the GPU, etc.
         """
         # background color
-        gl.glClearColor(0,0,0,0)
+        gl.glClearColor(0, 0, 0, 0)
         # gl.setAutoBufferSwap(False)
         # gl.setAutoFillBackground(False)
         self.vbo = glvbo.VBO(self.data)
