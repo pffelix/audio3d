@@ -99,7 +99,7 @@ class DspOut:
             if self.continue_convolution_dict[sp] is False:
                 self.binaural_block_dict_out[sp] = np.zeros((hopsize, 2),
                                                             dtype=np.float32)
-        self.binaural_block = self.binaural_block.astype(np.float32)
+        self.binaural_block = self.binaural_block.astype(np.float32, copy=False)
 
 
     # @brief Adds the newly calculated blocks to a dict that contains all the
@@ -125,9 +125,11 @@ class DspOut:
     # @author Felix Pfreundtner
     def add_to_binaural(self, blockcounter):
         if blockcounter == 0:
-            self.binaural = self.binaural_block.astype(np.int16)
+            self.binaural = self.binaural_block.astype(np.int16, copy=False)
         else:
-            self.binaural = np.concatenate((self.binaural, self.binaural_block.astype(np.int16)))
+            self.binaural = np.concatenate((self.binaural,
+                                            self.binaural_block.astype(
+                                                np.int16, copy=False)))
 
     # @brief Writes the binaural output signal.
     # @author Felix Pfreundtner

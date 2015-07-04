@@ -615,7 +615,8 @@ class DspIn:
     # @author Felix Pfreundtner
     def apply_window_on_sp_block(self, sp):
         self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
-        self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.float32)
+        self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.float32,
+                                                               copy=False)
 
     # @brief Function convolves hrtf and data of the music file
     # @details Function takes one hrtf block and one data block (their size
@@ -692,6 +693,6 @@ class DspIn:
             binaural_block_sp_time_max_amp / self.sp_max_amp_dict[sp] /
             self.hrtf_max_amp_dict[sp][l_r] * 32767)
         binaural_block_dict_sp[:, l_r] = \
-            binaural_block_sp_time.astype(np.float32)
+            binaural_block_sp_time.astype(np.float32, copy=False)
         return binaural_block_dict_sp, sp_spectrum_dict_sp,\
                hrtf_spectrum_dict_sp_l_r
