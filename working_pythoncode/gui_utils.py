@@ -442,7 +442,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.posx = 0
         self.posy = 0
 
-    def closeEvent(self, QCloseEvent):
+    def close_event(self):
         self.is_on = False
         self.added.disconnect()
         self.clear()
@@ -474,7 +474,7 @@ class SequencePlot(QtGui.QWidget):
         self.setWindowTitle('Sequence Plot')
         self.timer = QtCore.QTimer(self)
 
-    def closeEvent(self, event):
+    def close_event(self, event):
         self.timer.timeout.disconnect()
         self.timer.stop()
         self.is_on = False

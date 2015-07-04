@@ -273,7 +273,7 @@ class MainWindow(QWidget):
     @Slot()
     def show_error(self):
         self.error_timer.stop()
-        #print(check_error())
+        # print(check_error())
         self.error_timer.start(50)
 
     def positions(self):
@@ -287,17 +287,17 @@ class MainWindow(QWidget):
             return
 
     def plot_sequence(self):
-        # print(self.dsp_obj.DspOut_Object.sp_spectrum_dict)plot_sequence
+        # print(self.dsp_obj.sp_spectrum_dict)plot_sequence
         from gui_utils import speaker_to_show
         i = speaker_to_show
         print("initialize")
 
         self.sequence_plot.speaker_spec.set_data(
-            self.dsp_obj.DspOut_Object.sp_spectrum_dict[i][:, 1])
+            self.dsp_obj.sp_spectrum_dict[i][:, 1])
         self.sequence_plot.lhrtf_spec.set_data(
-            self.dsp_obj.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
+            self.dsp_obj.hrtf_spectrum_dict[i][0][:, 1])
         self.sequence_plot.rhrtf_spec.set_data(
-            self.dsp_obj.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
+            self.dsp_obj.hrtf_spectrum_dict[i][1][:, 1])
 
         self.sequence_plot.show()
         self.sequence_plot.is_on = True
@@ -309,13 +309,13 @@ class MainWindow(QWidget):
         from gui_utils import speaker_to_show
         i = speaker_to_show
         self.sequence_plot.speaker_spec.update_data(
-            self.dsp_obj.DspOut_Object.sp_spectrum_dict[i][:, 1])
+            self.dsp_obj.sp_spectrum_dict[i][:, 1])
         self.sequence_plot.lhrtf_spec.update_data(
-            self.dsp_obj.DspOut_Object.hrtf_spectrum_dict[i][0][:, 1])
+            self.dsp_obj.hrtf_spectrum_dict[i][0][:, 1])
         self.sequence_plot.rhrtf_spec.update_data(
-            self.dsp_obj.DspOut_Object.hrtf_spectrum_dict[i][1][:, 1])
+            self.dsp_obj.hrtf_spectrum_dict[i][1][:, 1])
 
-    def closeEvent(self, event_q_close_event):
+    def close_event(self, event_q_close_event):
         self.room.clear()
         if enable_headtracker:
             self.update_timer.stop()
