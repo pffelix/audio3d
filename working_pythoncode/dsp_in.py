@@ -51,7 +51,7 @@ class DspIn:
             self.get_block_param(self.wave_param_common,
                                  self.hrtf_blocksize, self.fft_blocksize)
         # Get necessary parameters of input-file and store to sp_param-dict.
-        self.sp_param = self.init_get_block(gui_dict_init)
+        self.sp_param = self.init_read_sp(gui_dict_init)
         # read in whole wave file of all speakers
         self.sp_dict = self.read_sp(gui_dict_init)
         self.block_begin_end = self.init_set_block_begin_end(gui_dict_init)
@@ -276,7 +276,7 @@ class DspIn:
     # sp_param[sp][8] = total number of bytes until data-chunk ends
     # sp_param[sp][9] = format character for correct encoding of data}
     # @author Matthias Lederle
-    def init_get_block(self, gui_dict):
+    def init_read_sp(self, gui_dict):
         # initialize dict with 10 (empty) values per key with list comprehension
         sp_param = {sp : [None] * 10 for sp in range(len(gui_dict))}
         # go through all speakers
@@ -400,7 +400,8 @@ class DspIn:
             else:
                 scipy_sp_dict[sp] = scipy_sp_dict_raw[sp]
 
-        print("timer scipy in ms: " + str(int((time.time() - start) * 1000)))
+        print("timer read_sp (Scipy Reference) in ms: " + str(int((time.time()
+              - start) * 1000)))
 
         # Matthias
         start = time.time()
@@ -523,7 +524,8 @@ class DspIn:
                     # self.sp_param[sp][3] != 1" or "2") and can't be
                     # processed!")
         file.close()
-        print("timer get_sp in ms: " + str(int((time.time() - start) * 1000)))
+        print("timer read_sp (Matthias) in ms: " + str(int((time.time() -
+                                                          start) * 1000)))
         return sp_dict      # , scipy_sp_dict
 
 
