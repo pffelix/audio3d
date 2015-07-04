@@ -185,6 +185,11 @@ class Dsp:
             self.dspout_obj.binaural,
             self.dspin_obj.wave_param_common,
             self.gui_dict)
+        # print out maximum integer amplitude value of whole played binaural
+        # output
+        print("maximum output amplitude: " + str(np.amax(np.abs(self.dspout_obj.
+                                                          binaural))))
+
         self.return_ex.put(self.dspout_obj.playback_successful)
         # tell gui that dsp algorithm has finished
         self.state.dsp_run = False
