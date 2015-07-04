@@ -292,11 +292,11 @@ class MainWindow(QWidget):
         i = speaker_to_show
         print("initialize")
 
-        self.sequence_plot.speaker_spec.set_data(
+        self.sequence_plot.speaker_spec.initialize_data(
             self.dsp_obj.sp_spectrum_dict[i][:, 1])
-        self.sequence_plot.lhrtf_spec.set_data(
+        self.sequence_plot.lhrtf_spec.initialize_data(
             self.dsp_obj.hrtf_spectrum_dict[i][0][:, 1])
-        self.sequence_plot.rhrtf_spec.set_data(
+        self.sequence_plot.rhrtf_spec.initialize_data(
             self.dsp_obj.hrtf_spectrum_dict[i][1][:, 1])
 
         self.sequence_plot.show()

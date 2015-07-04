@@ -9,16 +9,21 @@ import numpy as np
 class GLPlotWidget(QGLWidget):
     width, height = 400, 200
 
-    def set_data(self, ydata):
+    def initialize_data(self, ydata):
+        self.ydata = ydata/np.max(ydata)
         self.xdata = np.array(np.linspace(-1, 1, ydata.shape[0]),
                               dtype=np.float32)
-        self.ydata = ydata/np.max(ydata)
         self.size = self.xdata.size+ydata.size
         self.data = np.array(np.zeros(self.size), dtype=np.float32)
 
         self.data[0::2] = self.xdata
         self.data[1::2] = self.ydata
         self.count = ydata.size
+
+    def set_data(self, ydata):
+
+        self.ydata = ydata/np.max(ydata)
+        self.data[1::2] = self.ydata
 
     def update_data(self, ydata):
         self.set_data(ydata)
