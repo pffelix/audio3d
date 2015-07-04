@@ -9,24 +9,43 @@ import numpy as np
 class GLPlotWidget(QGLWidget):
     width, height = 400, 200
 
-    def initialize_data(self, ydata):
+    def initialize_data(self, xdata_raw, ydata_raw):
+        # Felix
+        # interpolate y Values
+        # first frequency
+        self.begin_hz = 0
+        # last frequency
+        self.end_hz = 15000
+        # number of frequency points
+        self.number_of_points = 15000
+        self.xdata = np.linspace(self.begin_hz, self.end_hz,
+                                 self.number_of_points)
+        ydata = np.interp(self.xdata, xdata_raw, ydata_raw)
+
+        # Huaijiang
         self.ydata = ydata/np.max(ydata)
-        self.xdata = np.array(np.linspace(-1, 1, ydata.shape[0]),
-                              dtype=np.float32)
+        # this line might be not needed in a futre version: the named axis
+        # with Hz scale should reach from self.begin_hz to self.end_hz not -1 Hz
+        #  to 1 Hz -> the self.xdata = linspace(begin, end) command above should
+        #  be enough, but at the moment everything is scaled in between -1 to 1
+        #  so i cannot delete it (self.xdata contains the true Hz values)
+        xdata = np.array(np.linspace(-1, 1, ydata.shape[0]),
+                         dtype=np.float32)
         self.size = self.xdata.size+ydata.size
         self.data = np.array(np.zeros(self.size), dtype=np.float32)
 
-        self.data[0::2] = self.xdata
-        self.data[1::2] = ydata
+        self.data[0::2] = xdata
+        self.data[1::2] = self.ydata
         self.count = ydata.size
 
-    def set_data(self, ydata):
-
+    def set_data(self, xdata_raw, ydata_raw):
+        # interpolate y Values
+        ydata = np.interp(self.xdata, xdata_raw, ydata_raw)
         self.ydata = ydata/np.max(ydata)
         self.data[1::2] = self.ydata
 
-    def update_data(self, ydata):
-        self.set_data(ydata)
+    def update_data(self, xdata_raw, ydata_raw):
+        self.set_data(xdata_raw, ydata_raw)
         self.repaint()
         self.updateGL()
 

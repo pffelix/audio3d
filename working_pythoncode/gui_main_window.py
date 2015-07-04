@@ -272,10 +272,13 @@ class MainWindow(QWidget):
         print("initialize")
 
         self.sequence_plot.speaker_spec.initialize_data(
+            self.dsp_obj.sp_spectrum_dict[i][:, 0],
             self.dsp_obj.sp_spectrum_dict[i][:, 1])
         self.sequence_plot.lhrtf_spec.initialize_data(
+            self.dsp_obj.hrtf_spectrum_dict[i][0][:, 0],
             self.dsp_obj.hrtf_spectrum_dict[i][0][:, 1])
         self.sequence_plot.rhrtf_spec.initialize_data(
+            self.dsp_obj.hrtf_spectrum_dict[i][1][:, 0],
             self.dsp_obj.hrtf_spectrum_dict[i][1][:, 1])
         self.sequence_plot.show()
         self.sequence_plot.is_on = True
@@ -286,10 +289,13 @@ class MainWindow(QWidget):
 
         i = self.state.speaker_to_show
         self.sequence_plot.speaker_spec.update_data(
+            self.dsp_obj.sp_spectrum_dict[i][:, 0],
             self.dsp_obj.sp_spectrum_dict[i][:, 1])
         self.sequence_plot.lhrtf_spec.update_data(
+            self.dsp_obj.hrtf_spectrum_dict[i][0][:, 0],
             self.dsp_obj.hrtf_spectrum_dict[i][0][:, 1])
         self.sequence_plot.rhrtf_spec.update_data(
+            self.dsp_obj.hrtf_spectrum_dict[i][1][:, 0],
             self.dsp_obj.hrtf_spectrum_dict[i][1][:, 1])
 
     def closeEvent(self, event_q_close_event):
