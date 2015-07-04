@@ -178,6 +178,7 @@ class DspOut:
         audiostream.stop_stream()
         audiostream.close()
         pa.terminate()
+        # execute commands when when playback finished successfully
         if any(self.continue_convolution_dict.values()) is True and \
                 self.gui_stop is False:
             print("Error PC to slow - Playback Stopped")
@@ -185,5 +186,4 @@ class DspOut:
                 # self.played_frames_end += sp_blocksize
                 self.continue_convolution_dict[sp] = False
             self.playback_successful = False
-        # return continue_convolution_dict
         self.playback_finished = True

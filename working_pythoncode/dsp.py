@@ -169,6 +169,11 @@ class Dsp:
         # set correct playback output if stop button was pressed
         if self.dspout_obj.gui_stop is True:
             self.dspout_obj.playback_successful = True
+        # excecute commands when playback finished successfully
+        if self.dspout_obj.playback_successful is True and \
+                        self.dspout_obj.gui_stop is \
+                False:
+            self.state.gui_stop = True
         # show plot of the output signal binaural_dict_scaled
         # plt.plot(self.dspout_obj.binaural[:, l_r])
         # plt.show()

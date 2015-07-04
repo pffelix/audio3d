@@ -64,7 +64,7 @@ class MainWindow(QWidget):
         add_speaker_button = QPushButton('Add Speaker')
         reset_button = QPushButton('Reset')
         control_button = QPushButton('Play/Stop')
-        pause_button = QPushButton('Pause')
+        pause_button = QPushButton('Pause/Continue')
         default_position_button = QPushButton('Default Position')
         self.plot_button = QPushButton('Plot Sequence')
         self.plot_button.setDisabled(True)
@@ -214,9 +214,9 @@ class MainWindow(QWidget):
     @Slot()
     def reset(self):
         self.room.clear()
-        gui_dict.clear()
+        self.state.gui_dict.clear()
         del self.state.speaker_list[:]
-        new_audience = Audience()
+        new_audience = Audience(self.state)
         self.room.addItem(new_audience)
         self.view.viewport().update()
 
