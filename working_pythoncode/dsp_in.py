@@ -663,6 +663,8 @@ class DspIn:
         sp_spectrum_dict_sp[0, 1] = 0
         hrtf_spectrum_dict_sp_l_r[0, 1] = 0
 
+
+
         # execute convolution of speaker input and hrtf input: multiply
         # complex frequency domain vectors
         binaural_block_sp_frequency = sp_block_fft_sp * \
