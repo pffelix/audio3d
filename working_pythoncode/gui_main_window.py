@@ -153,6 +153,8 @@ class MainWindow(QWidget):
         i = self.state.speaker_to_show
         x_new = self.speaker_property.posx
         y_new = self.speaker_property.posy
+        path_new = self.speaker_property.path
+        self.state.speaker_list[i].path = path_new
         self.state.speaker_list[i].setPos(x_new, y_new)
         self.state.speaker_list[i].cal_rel_pos()
 
