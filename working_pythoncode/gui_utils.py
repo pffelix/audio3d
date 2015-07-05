@@ -354,7 +354,6 @@ class SpeakerProperty(QtGui.QWidget):
     @QtCore.Slot()
     def confirm(self):
         ear = self.combo_box.currentText()
-
         from math import cos, sin, radians
         x0 = self.state.audience_pos.x()
         y0 = self.state.audience_pos.y()
@@ -382,7 +381,6 @@ class SpeakerProperty(QtGui.QWidget):
         self.path_line_edit.clear()
         self.azimuth_line_edit.clear()
         self.distance_line_edit.clear()
-        self.path = 'unknown'
         self.posx = 0
         self.posy = 0
 
