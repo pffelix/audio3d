@@ -11,7 +11,7 @@ class GLPlotWidget(QGLWidget):
     def __init__(self, parent=None):
         super(GLPlotWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
         self.width = 400
-        self.height = 200
+        self.height = 150
         self.setFixedSize(self.width,self.height)
         self.setAutoFillBackground(False)
 
@@ -37,7 +37,7 @@ class GLPlotWidget(QGLWidget):
         #  to 1 Hz -> the self.xdata = linspace(begin, end) command above should
         #  be enough, but at the moment everything is scaled in between -1 to 1
         #  so i cannot delete it (self.xdata contains the true Hz values)
-        xdata = np.array(np.linspace(-1, 1, ydata.shape[0]),
+        xdata = np.array(np.linspace(0, 1, ydata.shape[0]),
                          dtype=np.float32)
         self.size = self.xdata.size+ydata.size
         self.data = np.array(np.zeros(self.size), dtype=np.float32)
@@ -97,8 +97,8 @@ class GLPlotWidget(QGLWidget):
         # # paint the axis
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setPen(QtGui.QColor(255,255,255))
-        xaxis = QtCore.QLine(20, 100, 350, 100)
-        yaxis = QtCore.QLine(20, 20, 20, 100)
+        xaxis = QtCore.QLine(20, 130, 380, 130)
+        yaxis = QtCore.QLine(20, 20, 20, 130)
         painter.drawLines([xaxis,yaxis])
         painter.end()
 
@@ -109,4 +109,4 @@ class GLPlotWidget(QGLWidget):
         gl.glViewport(0, 0, width, height)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
-        gl.glOrtho(-1, 1, -0.2, 1, -1, 1)
+        gl.glOrtho(-0.05, 1.05, -0.18, 1.18, -1, 1)
