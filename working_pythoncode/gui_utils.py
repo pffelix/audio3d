@@ -223,7 +223,6 @@ class SignalHandler(QtCore.QObject):
 # relative to the Audience item
 class Speaker(Item):
 
-    index = 0
     type = 'speaker'
     path = 'unknown'
 
@@ -267,8 +266,7 @@ class Speaker(Item):
         return deg, dis
 
     def mouseDoubleClickEvent(self, event):
-        speaker_to_show = self.state.speaker_to_show
-        speaker_to_show = self.index
+        self.state.speaker_to_show = self.index
         self.signal_handler.show_property.emit()
 
 
