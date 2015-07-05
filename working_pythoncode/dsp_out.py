@@ -17,7 +17,7 @@ import collections
 import threading
 from copy import deepcopy
 from error_handler import send_error
-
+import queue
 
 class DspOut:
     def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize,
@@ -40,6 +40,8 @@ class DspOut:
         self.lock = threading.Lock()
         self.playback_finished = False
         self.playback_successful = True
+        self.playqueue = queue.Queue()
+
 
     # @brief Applies the overlap-add-method to the signal.
     # @details Adds the last part of the prior fft-block to calculate the
@@ -124,12 +126,15 @@ class DspOut:
     # @brief Concatenates the current block to the binaural signal.
     # @author Felix Pfreundtner
     def add_to_binaural(self, blockcounter):
-        if blockcounter == 0:
-            self.binaural = self.binaural_block.astype(np.int16, copy=False)
-        else:
-            self.binaural = np.concatenate((self.binaural,
-                                            self.binaural_block.astype(
-                                                np.int16, copy=False)))
+        # if blockcounter == 0:
+        #     self.binaural = self.binaural_block.astype(np.int16, copy=False)
+        #     q.put(self.binaural_block.astype(np.int16, copy=False))
+        # else:
+        #     self.binaural = np.concatenate((self.binaural,
+        #                                     self.binaural_block.astype(
+        #                                         np.int16, copy=False)))
+        self.playqueue.put(self.binaural_block.astype(np.int16,
+                                                      copy=False).tostring())
 
     # @brief Writes the binaural output signal.
     # @author Felix Pfreundtner
@@ -144,16 +149,19 @@ class DspOut:
     def callback(self, in_data, frame_count, time_info, status):
         if status:
             print("Playback Error: %i" % status)
-        played_frames_begin = self.played_frames_end
-        self.played_frames_end += frame_count
-        self.lock.acquire()
-        try:
-            data = self.binaural[played_frames_begin:self.played_frames_end, :]
-        finally:
-            self.lock.release()
+        # played_frames_begin = self.played_frames_end
+        # self.played_frames_end += frame_count
+        if self.playqueue.empty() is False:
+            data = self.playqueue.get()
+            returnflag = pyaudio.paContinue
+        else:
+            data = bytes([0])
+            returnflag = pyaudio.paComplete
+        # data = self.binaural[played_frames_begin:self.played_frames_end, :]
         # print("Played Block: " + str(self.played_block_counter))
         self.played_block_counter += 1
-        return data, pyaudio.paContinue
+        # print("Play: " + str(self.played_block_counter))
+        return data, returnflag
 
     # @brief Streams the calculated files as a output signal.
     # @author Felix Pfreundtner
@@ -168,7 +176,7 @@ class DspOut:
                               )
         audiostream.start_stream()
         while audiostream.is_active() or audiostream.is_stopped():
-            time.sleep(0.1)
+            time.sleep(1)
             # handle playback pause
             if self.gui_pause is True:
                 audiostream.stop_stream()

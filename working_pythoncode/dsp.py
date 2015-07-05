@@ -46,6 +46,8 @@ class Dsp:
         # Blockcounter initialized to count number of already convolved
         # blocks
         self.blockcounter = 0
+        # timer variable which logs how long functions where running
+        self.time = {"while": 0, "fft": 0}
 
     # @brief Runs the dsp algorithm as one process on one cpu core.
     # @details
@@ -60,6 +62,7 @@ class Dsp:
             # actualize variables with gui
             self.dspout_obj.gui_stop = self.state.gui_stop
             self.dspout_obj.gui_pause = self.state.gui_pause
+            self.gui_dict = self.state.gui_dict
             # print the number of already done FFT / Block iterations
             # print("FFT Block " + str(self.blockcounter) + ":")
             # set the begin and end of the speaker wave block which needs to
@@ -95,6 +98,7 @@ class Dsp:
                     for l_r in range(2):
                         # convolve hrtf with speaker block input to get
                         # binaural stereo block output
+                        start = time.time()
                         self.dspout_obj.binaural_block_dict[sp], \
                         self.sp_spectrum_dict[sp],\
                         self.hrtf_spectrum_dict[sp][l_r] = \
@@ -105,6 +109,7 @@ class Dsp:
                                                        self.dspout_obj.
                                                        binaural_block_dict[
                                                            sp], sp, l_r)
+                        self.time["fft"] += time.time() - start
                         # model speaker position change about 1° per block
                         # (0.02s) in
                         # clockwise rotation
@@ -150,17 +155,19 @@ class Dsp:
                 self.blockcounter += 1
             # if playback already started
             else:
+                start = time.time()
                 # wait until the the new block has been played
                 while self.dspout_obj.played_block_counter <= \
                         self.dspout_obj.prior_played_block_counter and self.\
                         dspout_obj.playback_finished is False:
-                    time.sleep(1 / self.dspin_obj.wave_param_common[0] * 10)
+                    time.sleep(1 / self.dspin_obj.wave_param_common[0])
+                    # print("FFT: " + str(self.blockcounter))
                     # print("wait")
                 # increment number of last played block
                 self.dspout_obj.prior_played_block_counter += 1
                 # increment number of already convolved blocks
                 self.blockcounter += 1
-
+                self.time["while"] += time.time() - start
             # handle playback pause
             while self.dspout_obj.gui_pause is True:
                 time.sleep(0.1)
@@ -193,3 +200,5 @@ class Dsp:
         self.return_ex.put(self.dspout_obj.playback_successful)
         # tell gui that dsp algorithm has finished
         self.state.dsp_run = False
+        # print timer variables
+        print(self.time)
