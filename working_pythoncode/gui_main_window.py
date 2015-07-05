@@ -314,6 +314,10 @@ class MainWindow(QWidget):
             self.sequence_plot.close()
         if self.speaker_property.is_on:
             self.speaker_property.close()
-        if self.play is not None:
-            gui_stop_init = self.state.switch_stop_playback()
+        # if self.play is not None and self.state.gui_stop is False \
+        #         or self.play is not None and self.state.dsp_run is True:
+        #     self.state.switch_stop_playback()
+        # if self.play is not None and self.state.gui_pause is True:
+        self.state.gui_stop = True
+        self.state.gui_pause = False
         event_q_close_event.accept()
