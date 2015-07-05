@@ -7,7 +7,13 @@ import numpy as np
 
 
 class GLPlotWidget(QGLWidget):
-    width, height = 400, 200
+
+    def __init__(self, parent=None):
+        super(GLPlotWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
+        self.width = 400
+        self.height = 200
+        self.setFixedSize(self.width,self.height)
+        self.setAutoFillBackground(False)
 
     def initialize_data(self, xdata_raw, ydata_raw):
         # Felix
@@ -49,32 +55,52 @@ class GLPlotWidget(QGLWidget):
     def update_data(self, xdata_raw, ydata_raw):
         self.set_data(xdata_raw, ydata_raw)
         self.repaint()
-        self.updateGL()
 
     def initializeGL(self):
         """Initialize OpenGL, VBOs, upload data on the GPU, etc.
         """
         # background color
         gl.glClearColor(0, 0, 0, 0)
-        # gl.setAutoBufferSwap(False)
-        # gl.setAutoFillBackground(False)
         self.vbo = glvbo.VBO(self.data)
         # create a Vertex Buffer Object with the specified data
 
     def paintEvent(self, event):
         """Paint the scene.
         """
-        event.accept()
         self.makeCurrent()
-        # clear the buffer
+        painter = QtGui.QPainter()
+        painter.begin(self)
+
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
         gl.glColor(1,1,0)
+
+        gl.glPushAttrib(gl.GL_ALL_ATTRIB_BITS)
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glPushMatrix()
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glPushMatrix()
+
         self.vbo = glvbo.VBO(self.data)
         self.vbo.bind()
         gl.glEnableClientState(gl.GL_VERTEX_ARRAY)
         gl.glVertexPointer(2, gl.GL_FLOAT, 0, self.vbo)
         gl.glDrawArrays(gl.GL_POINTS, 0, self.count)
-        # self.swapBuffers()
+        self.vbo.unbind()
+        gl.glDisableClientState(gl.GL_VERTEX_ARRAY)
+
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glPopMatrix()
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glPopMatrix()
+        gl.glPopAttrib()
+
+        # # paint the axis
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.setPen(QtGui.QColor(255,255,255))
+        xaxis = QtCore.QLine(20, 100, 350, 100)
+        yaxis = QtCore.QLine(20, 20, 20, 100)
+        painter.drawLines([xaxis,yaxis])
+        painter.end()
 
     def resizeGL(self, width, height):
         """Called upon window resizing: reinitialize the viewport.
@@ -84,6 +110,3 @@ class GLPlotWidget(QGLWidget):
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
         gl.glOrtho(-1, 1, -0.2, 1, -1, 1)
-
-
-
