@@ -136,7 +136,7 @@ class MainWindow(QWidget):
 
     @Slot()
     def show_property(self):
-
+        print(self.state.speaker_to_show)
         i = self.state.speaker_to_show
         path = str(self.state.gui_dict[i][2])
         azimuth = "{:.0f}".format(self.state.gui_dict[i][0])
@@ -149,7 +149,6 @@ class MainWindow(QWidget):
         self.speaker_property.added.connect(self.change_property)
 
     def change_property(self):
-
         i = self.state.speaker_to_show
         x_new = self.speaker_property.posx
         y_new = self.speaker_property.posy
