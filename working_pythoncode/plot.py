@@ -4,6 +4,7 @@ from PySide.QtGui import QPaintEvent
 import OpenGL.GL as gl
 import OpenGL.arrays.vbo as glvbo
 import numpy as np
+from math import log10
 
 
 class GLPlotWidget(QGLWidget):
@@ -31,7 +32,8 @@ class GLPlotWidget(QGLWidget):
         ydata = np.interp(self.xdata, xdata_raw, ydata_raw)
 
         # Huaijiang
-        self.ydata = ydata/np.max(ydata)
+        self.ymax = np.max(ydata)
+        self.ydata = ydata/self.ymax
         # this line might be not needed in a futre version: the named axis
         # with Hz scale should reach from self.begin_hz to self.end_hz not -1 Hz
         #  to 1 Hz -> the self.xdata = linspace(begin, end) command above should
@@ -49,7 +51,8 @@ class GLPlotWidget(QGLWidget):
     def set_data(self, xdata_raw, ydata_raw):
         # interpolate y Values
         ydata = np.interp(self.xdata, xdata_raw, ydata_raw)
-        self.ydata = ydata/np.max(ydata)
+        self.ymax = np.max(ydata)
+        self.ydata = ydata/self.ymax
         self.data[1::2] = self.ydata
 
     def update_data(self, xdata_raw, ydata_raw):
@@ -100,8 +103,12 @@ class GLPlotWidget(QGLWidget):
         xaxis = QtCore.QLine(20, 130, 390, 130)
         yaxis = QtCore.QLine(20, 10, 20, 130)
         painter.drawLines([xaxis,yaxis])
-        painter.drawText(QtCore.QPoint(20,145), '0Hz')
-        painter.drawText(QtCore.QPoint(360,145), '15kHz')
+        painter.drawText(QtCore.QPoint(10,145), '0')
+        painter.drawText(QtCore.QPoint(10,20), '1')
+        for i in range(1,6):
+            ystring = str(i*3)+'kHz'
+            ypoint = QtCore.QPoint(70*i+10,145)
+            painter.drawText(ypoint,ystring)
         painter.end()
 
     def resizeGL(self, width, height):
