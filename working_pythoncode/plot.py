@@ -97,9 +97,11 @@ class GLPlotWidget(QGLWidget):
         # # paint the axis
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setPen(QtGui.QColor(255,255,255))
-        xaxis = QtCore.QLine(20, 130, 380, 130)
-        yaxis = QtCore.QLine(20, 20, 20, 130)
+        xaxis = QtCore.QLine(20, 130, 390, 130)
+        yaxis = QtCore.QLine(20, 10, 20, 130)
         painter.drawLines([xaxis,yaxis])
+        painter.drawText(QtCore.QPoint(20,145), '0Hz')
+        painter.drawText(QtCore.QPoint(360,145), '15kHz')
         painter.end()
 
     def resizeGL(self, width, height):
@@ -109,4 +111,4 @@ class GLPlotWidget(QGLWidget):
         gl.glViewport(0, 0, width, height)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
-        gl.glOrtho(-0.05, 1.05, -0.18, 1.18, -1, 1)
+        gl.glOrtho(-0.06, 1.05, -0.18, 1.18, -1, 1)
