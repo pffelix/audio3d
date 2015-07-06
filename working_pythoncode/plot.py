@@ -1,10 +1,8 @@
 from PySide import QtGui, QtCore, QtOpenGL
 from PySide.QtOpenGL import QGLWidget
-from PySide.QtGui import QPaintEvent
 import OpenGL.GL as gl
 import OpenGL.arrays.vbo as glvbo
 import numpy as np
-from math import log10
 
 
 class GLPlotWidget(QGLWidget):

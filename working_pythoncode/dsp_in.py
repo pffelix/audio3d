@@ -9,7 +9,6 @@ import scipy.io.wavfile
 import struct
 import numpy as np
 import math
-from error_handler import send_error
 from numpy.fft import fft, ifft, fftfreq, rfft, irfft, rfftfreq
 import time
 

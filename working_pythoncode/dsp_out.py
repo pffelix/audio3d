@@ -16,7 +16,6 @@ import os
 import collections
 import threading
 from copy import deepcopy
-from error_handler import send_error
 import queue
 
 class DspOut:

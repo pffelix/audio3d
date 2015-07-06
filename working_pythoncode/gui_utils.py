@@ -5,7 +5,8 @@ author: H. Zhu, M. Heiss
 
 from PySide import QtCore, QtGui
 from plot import GLPlotWidget
-from dt2 import DT2, azimuth_angle
+from dt2 import DT2
+from headtracker_data import *
 
 # @brief keeps cursor inside gui_scene
 # @details

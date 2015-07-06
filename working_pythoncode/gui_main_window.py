@@ -12,7 +12,6 @@ from gui_utils import *
 from dsp import Dsp
 import threading
 import multiprocessing
-from error_handler import *
 
 
 
