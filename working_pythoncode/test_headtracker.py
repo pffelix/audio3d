@@ -1,28 +1,29 @@
 
 import unittest
 from mock import patch
-
-from gui_utils import *
+import sys
 from gui_main_window import *
 
 class TestHeadtracker(unittest.TestCase):
 
-    @patch('gui_utils.Headtracker.get_head_deg')
-    def test_head_deg(self,get_head_deg):
+    def setUp(self):
+        self.state = State()
 
+    @patch('gui_utils.Headtracker.get_head_deg')
+    def test_head_deg(self, get_head_deg):
         app = QApplication(sys.argv)
+
         get_head_deg.return_value = 30
-        sp = Speaker(1,'unknown')
-        sp.cal_rel_pos()
-        result = gui_dict[1][0]
-        self.assertEqual(result, 345)
+        sp = Speaker(self.state, 1, 'unknown')
+        sp.cal_rel_pos(get_head_deg())
+        result = self.state.gui_dict[1][0]
+        self.assertEqual(result, 285)
 
     @patch('gui_utils.Headtracker.get_head_deg')
-    def test_over_360(self,get_head_deg):
+    def test_over_360(self, get_head_deg):
 
-        app = QApplication(sys.argv)
-        get_head_deg.return_value = 60
-        sp = Speaker(1,'unknown')
-        sp.cal_rel_pos()
-        result = gui_dict[1][0]
-        self.assertEqual(result, 15)
+        get_head_deg.return_value = 320
+        sp = Speaker(self.state, 1, 'unknown')
+        sp.cal_rel_pos(get_head_deg())
+        result = self.state.gui_dict[1][0]
+        self.assertEqual(result, 355)
