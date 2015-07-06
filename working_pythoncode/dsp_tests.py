@@ -13,10 +13,10 @@ import scipy.io.wavfile
 # namespace initialized in constructor
 # dspin_testobj = dsp_in.DspIn(self.gui_dict, gui_settings_dict_mockup)
 # dspout_testobj = dsp_out.DspOut(self.gui_dict,
-                                  # dspin_testobj.fft_blocksize,
-                                  # dspin_testobj.sp_blocksize,
-                                  # dspin_testobj.hopsize,
-                                  # dspin_testobj, gui_pause_mockup)
+# dspin_testobj.fft_blocksize,
+# dspin_testobj.sp_blocksize,
+# dspin_testobj.hopsize,
+# dspin_testobj, gui_pause_mockup)
 # "bufferblocks": 5
 # gui_stop_mockup = False
 # gui_pause_mockup = False
@@ -27,12 +27,6 @@ import scipy.io.wavfile
 # sp_blocktime = 0.011609977324263039
 # overlap = 0.5
 # hopsize = 256
-
-
-# only for test_get_sp (only testable with elecguitar)
-total_no_samples_elecgui = 970200
-sp = 0
-scipy_sp_dict = {}
 
 
 
@@ -51,7 +45,7 @@ class DspTests(unittest.TestCase):
             0: [90, 0, "./audio_in/sine_1kHz_(44.1,1,16).wav", False],
             1: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav", True]
             # 2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav", #  True]
-            }
+        }
 
         self.gui_settings_dict = {"hrtf_database": "kemar_normal_ear",
                                   "inverse_filter_active": True,
@@ -152,16 +146,16 @@ class DspTests(unittest.TestCase):
     #         #self.dspin_testobj.sp_blocksize,), dtype=np.int16))
     #     self.assertTrue(res)
 
-    # @brief Compare own read-function to scipy-function-results.
-
+    # @brief Compare get_sp-function to scipy-function-results.
 
     # Skip Test for all files besides the electrical guitar
     @unittest.skipUnless(lambda self: self.self.gui_dict[0][2] ==
-                          "./audio_in/electrical_guitar_(44.1,1,16).wav",
+                         "./audio_in/electrical_guitar_(44.1,1,16).wav",
                          "Otherwise total_no_of_samples is wrong")
     def test_get_sp(self):
-        sp = 0
-        scipy_sp_dict[sp] = np.zeros((total_no_samples_elecgui,),
+        sp = 1
+        scipy_sp_dict = {}
+        scipy_sp_dict[sp] = np.zeros((220672, ),
                                      dtype=np.int16)
         scipy_sp_dict_raw = {}
         for sp in self.gui_dict:
@@ -174,7 +168,7 @@ class DspTests(unittest.TestCase):
                 scipy_sp_dict[sp] = np.zeros((lenarray +
                                               self.dspin_testobj.sp_blocksize -
                                               lenarray %
-                                              self.dspin_testobj.sp_blocksize, ),
+                                              self.dspin_testobj.sp_blocksize,),
                                              dtype=np.int16)
                 scipy_sp_dict[sp][0:lenarray, ] = scipy_sp_dict_raw[sp]
             else:
@@ -193,7 +187,7 @@ class DspTests(unittest.TestCase):
         # Why does the following test at this point not work?
         # self.assertEqual(sol[0], res[0], msg=errmsg)
         # Do instead other test:
-        checklist = [0, 1, 50, 1000, 20000, 100000, 500000, 900000, 970199]
+        checklist = [0, 1, 50, 1000, 20000, 100000, 200000, 220671]
         truelist = []
         i = 0
         while i < len(checklist):
