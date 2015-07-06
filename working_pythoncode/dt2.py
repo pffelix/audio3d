@@ -4,7 +4,10 @@ HOST = 'artrack.clients.ldv.ei.tum.de'
 PORT = 50105
 UDPPORT = 6666
 
-
+# @class <DT2> This class builts up a networking interface using the python
+# package socket to extract information gained by an ARTTRACK tracking
+# system
+# @author Marko Durkovic
 class DT2(object):
 
     def __init__(self):
@@ -31,60 +34,28 @@ class DT2(object):
         data = self.tcp.recv(200)
         print(data)
         return data
-
+    
+    ## @brief function returns the the received data from the headtracker
+    #
+    #@author Marko Durkovic
     def get_measurements(self):
         return self.udp.recvfrom(200)[0]
 
+    ## @brief this function reterns the data linewise
+    # @details returned data format:
+    # ['6d 1 [0 1.000] [x y z polar azimuthal] [3x3 rotation matrix]\r']
+    #@author Marko Durkovic
     def angle(self):
         data = self.get_measurements().decode('utf-8')
         data = data.split('\n')
         sixds = [i for i in data if i.startswith('6d ')]
         return sixds
 
-    # -*- coding: utf-8 -*-
-    """
-    Created on Tue Jun 23 16:46:54 2015
 
-    @author: mh
-    """
-# import math
-
-
-def clean_and_split(line):
-    stripped = str(line)
-    unquoted = stripped.replace("]", "")   # remove " occurrences in string
-    clean = unquoted.split("[")          # split at first ,
-    return clean
-
-
-def string_to_float(s):
-    angle_float = []
-    stripped = s.strip()
-    split = stripped.split(" ")
-    for i in split:
-        angle = float(i)
-        angle_float.append(angle)
-    return angle_float
-
-
-def azimuth_angle(data):
-    data_format = clean_and_split(data)
-    angle = data_format[2]
-    angle_list = map(float, angle)
-    angle_list = string_to_float(angle)
-    azimuth = angle_list[5]
-
-    if azimuth <= 0:
-        azimuth = -1*azimuth
-    else:
-        azimuth = 360 - azimuth
-    return azimuth
-
-
-if __name__ == '__main__':
-    # from time import sleep
-    dt2 = DT2()
-    while True:
-        # print(dt2.angle()[0])
-        # print(type(dt2.angle()))
-        print(azimuth_angle(dt2.angle()[0]))
+#if __name__ == '__main__':
+#    # from time import sleep
+#    dt2 = DT2()
+#    while True:
+#        # print(dt2.angle()[0])
+#        # print(type(dt2.angle()))
+#        print(azimuth_angle(dt2.angle()[0]))
