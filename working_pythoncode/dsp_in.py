@@ -21,10 +21,12 @@ import time
 #        create all necessary kinds of windows.
 class DspIn:
     # Constructor of the DspIn class.
-    def __init__(self, gui_dict_init, gui_settings_dict_init):
+    def __init__(self, state, gui_dict_init, gui_settings_dict_init):
         # Dict with a key and two values for every hrtf to be fetched from the
         # database. The values are the max. values of the hrtfs of
         # each ear.
+        self.state = state
+        self.state.send_error('error test dsp in')
         self.hrtf_max_amp_dict = dict.fromkeys(gui_dict_init, [0, 0])
         # Dict with a key for every speaker and two values. These
         # are the max. values fetched from the speaker-file.

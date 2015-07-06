@@ -104,6 +104,10 @@ class MainWindow(QWidget):
             self.update_headtracker_timer.timeout.connect(self.update_head)
             self.update_headtracker_timer.start(10)
 
+        #initialize timer for error checking
+        self.error_timer = QTimer()
+        self.error_timer.timeout.connect(self.state.check_error)
+        self.error_timer.start(100)
 
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)

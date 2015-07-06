@@ -42,17 +42,27 @@ class State(QtCore.QObject):
         self.audience_pos = QtCore.QPoint(170, 170)
         self.speaker_list = []
         self.speaker_to_show = 0
+        self.error_message = []
+
         # head tracker
         self.enable_headtracker = False
         # initialization of variables
         self.default_position = [[50, 20], [290, 20], [170, 50],
                             [50, 320], [290, 320], [290, 170]]
 
+    def check_error(self):
+        if len(self.error_message) > 0:
+            print(self.error_message.pop(0))
+
+    def send_error(self, message):
+        if message not in self.error_message:
+            self.error_message.append(message)
+
     # @brief gui_dict is continuously updated,
     #        managed by update_timer every 10sec
     # @details
     # @author
-    def update_gui_dict(self,deg):
+    def update_gui_dict(self, deg):
 
         if self.gui_stop is False:
             for speaker in self.speaker_list:

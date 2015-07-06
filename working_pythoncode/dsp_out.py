@@ -19,8 +19,10 @@ from copy import deepcopy
 import queue
 
 class DspOut:
-    def __init__(self, gui_dict_init, fft_blocksize, sp_blocksize,
+    def __init__(self, state, gui_dict_init, fft_blocksize, sp_blocksize,
                  hopsize, gui_stop_init, gui_pause_init):
+        self.state = state
+        self.state.send_error('error test dsp out')
         self.binaural_block_dict = {sp: np.zeros((
             fft_blocksize, 2), dtype=np.float32) for sp in range(len(gui_dict_init))}
         self.binaural_block_dict_out = dict.fromkeys(gui_dict_init, np.zeros(

@@ -18,6 +18,7 @@ class Dsp:
     def __init__(self, state,
                  gui_settings_dict_init, return_ex_init):
         self.state = state
+        self.state.send_error('error test dsp')
         self.gui_dict = state.gui_dict
         self.gui_settings_dict = gui_settings_dict_init
         self.prior_head_angle_dict = dict.fromkeys(state.gui_dict, [])
@@ -28,9 +29,10 @@ class Dsp:
         self.bufferblocks = gui_settings_dict_init["bufferblocks"]
         # Create Input Object which contains mono input samples of sources
         # and hrtf impulse responses samples
-        self.dspin_obj = dsp_in.DspIn(state.gui_dict, gui_settings_dict_init)
+        self.dspin_obj = dsp_in.DspIn(self.state, state.gui_dict, gui_settings_dict_init)
         # Create Output Object which contains binaural output samples
-        self.dspout_obj = dsp_out.DspOut(state.gui_dict,
+        self.dspout_obj = dsp_out.DspOut(self.state,
+                                         state.gui_dict,
                                          self.dspin_obj.fft_blocksize,
                                          self.dspin_obj.sp_blocksize,
                                          self.dspin_obj.hopsize,
