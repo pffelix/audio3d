@@ -139,9 +139,14 @@ class MainWindow(QWidget):
     def show_property(self):
         print(self.state.speaker_to_show)
         i = self.state.speaker_to_show
+        print(self.state.gui_dict[i][3])
         path = str(self.state.gui_dict[i][2])
         azimuth = "{:.0f}".format(self.state.gui_dict[i][0])
         dist = "{:.2f}".format(self.state.gui_dict[i][1])
+        if self.state.gui_dict[i][3] is True:
+            self.speaker_property.normalize_box.setChecked(True)
+        else:
+            self.speaker_property.normalize_box.setChecked(False)
         self.speaker_property.path_line_edit.setText(path)
         self.speaker_property.azimuth_line_edit.setText(azimuth)
         self.speaker_property.distance_line_edit.setText(dist)
@@ -155,8 +160,11 @@ class MainWindow(QWidget):
         y_new = self.speaker_property.posy
         path_new = self.speaker_property.path
         self.state.speaker_list[i].path = path_new
-        self.state.speaker_list[i].setPos(x_new, y_new)
         self.state.speaker_list[i].cal_rel_pos()
+        if self.speaker_property.normalize_box.isChecked():
+            self.state.gui_dict[i][3] = True
+        else:
+            self.state.gui_dict[i][3] = False
 
     @Slot()
     def add_speaker(self):
