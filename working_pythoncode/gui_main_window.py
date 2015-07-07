@@ -14,7 +14,6 @@ import threading
 import multiprocessing
 
 
-
 # head tracker
 enable_headtracker = False
 # initialization of variables
@@ -103,7 +102,7 @@ class MainWindow(QWidget):
             self.update_headtracker_timer.timeout.connect(self.update_head)
             self.update_headtracker_timer.start(10)
 
-        #initialize timer for error checking
+        # initialize timer for error checking
         self.error_timer = QTimer()
         self.error_timer.timeout.connect(self.state.check_error)
         self.error_timer.start(100)
@@ -216,7 +215,7 @@ class MainWindow(QWidget):
 
     @Slot()
     def reset(self):
-        
+
         if self.play is not None and self.state.gui_stop is False \
                 or self.play is not None and self.state.dsp_run is True:
             pass
@@ -228,7 +227,6 @@ class MainWindow(QWidget):
             new_audience = Audience(self.state)
             self.room.addItem(new_audience)
             self.view.viewport().update()
-
 
     @Slot()
     def control(self):
