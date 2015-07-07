@@ -98,10 +98,10 @@ class GLPlotWidget(QGLWidget):
         # paint the axis
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setPen(QtGui.QColor(255,255,255))
-        xaxis = QtCore.QLine(20, 130, 390, 130)
+        xaxis = QtCore.QLine(20, 130, 395, 130)
         yaxis = QtCore.QLine(20, 5, 20, 130)
-        xarrow1 = QtCore.QLine(390, 130, 385, 127)
-        xarrow2 = QtCore.QLine(390, 130, 385, 133)
+        xarrow1 = QtCore.QLine(395, 130, 390, 127)
+        xarrow2 = QtCore.QLine(395, 130, 390, 133)
         yarrow1 = QtCore.QLine(20, 5, 17, 10)
         yarrow2 = QtCore.QLine(20, 5, 23, 10)
         painter.drawLines([xaxis, yaxis, yarrow1, yarrow2, xarrow1, xarrow2])
@@ -110,7 +110,7 @@ class GLPlotWidget(QGLWidget):
         scales_x = []
         scales_y = []
         for i in range(1, 6):
-            scales_x.append(QtCore.QLine(72*i, 130, 72*i, 125))
+            scales_x.append(QtCore.QLine(76*i, 130, 76*i, 125))
             scales_y.append(QtCore.QLine(20, 130 - 22*i , 25, 130-22*i))
         painter.drawLines(scales_x)
         painter.drawLines(scales_y)
@@ -125,7 +125,7 @@ class GLPlotWidget(QGLWidget):
 
         for i in range(1, 6):
             ystring = str(i*3)+'kHz'
-            ypoint = QtCore.QPoint(72*i - 10, 145)
+            ypoint = QtCore.QPoint(76*i - 20, 145)
             painter.drawText(ypoint, ystring)
 
         painter.end()
