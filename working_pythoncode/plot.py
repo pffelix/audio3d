@@ -8,10 +8,11 @@ import numpy as np
 class GLPlotWidget(QGLWidget):
 
     def __init__(self, parent=None):
-        super(GLPlotWidget, self).__init__(QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
+        super(GLPlotWidget, self).__init__(
+            QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
         self.width = 400
         self.height = 150
-        self.setFixedSize(self.width,self.height)
+        self.setFixedSize(self.width, self.height)
         self.setAutoFillBackground(False)
 
     def initialize_data(self, xdata_raw, ydata_raw):
@@ -33,10 +34,11 @@ class GLPlotWidget(QGLWidget):
         self.ymax = np.max(ydata)
         self.ydata = ydata/self.ymax
         # this line might be not needed in a futre version: the named axis
-        # with Hz scale should reach from self.begin_hz to self.end_hz not -1 Hz
-        #  to 1 Hz -> the self.xdata = linspace(begin, end) command above should
-        #  be enough, but at the moment everything is scaled in between -1 to 1
-        #  so i cannot delete it (self.xdata contains the true Hz values)
+        # with Hz scale should reach from self.begin_hz to self.end_hz
+        # not -1 Hz to 1 Hz -> the self.xdata = linspace(begin, end) command
+        # above should be enough, but at the moment everything is scaled
+        # in between -1 to 1 so i cannot delete it
+        # (self.xdata contains the true Hz values)
         xdata = np.array(np.linspace(0, 1, ydata.shape[0]),
                          dtype=np.float32)
         self.size = self.xdata.size+ydata.size
@@ -73,7 +75,7 @@ class GLPlotWidget(QGLWidget):
         painter.begin(self)
 
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
-        gl.glColor(1,1,0)
+        gl.glColor(1, 1, 0)
 
         gl.glPushAttrib(gl.GL_ALL_ATTRIB_BITS)
         gl.glMatrixMode(gl.GL_PROJECTION)
@@ -97,7 +99,7 @@ class GLPlotWidget(QGLWidget):
 
         # paint the axis
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.setPen(QtGui.QColor(255,255,255))
+        painter.setPen(QtGui.QColor(255, 255, 255))
         xaxis = QtCore.QLine(20, 130, 390, 130)
         yaxis = QtCore.QLine(20, 5, 20, 130)
         xarrow1 = QtCore.QLine(390, 130, 385, 127)
@@ -111,7 +113,7 @@ class GLPlotWidget(QGLWidget):
         scales_y = []
         for i in range(1, 6):
             scales_x.append(QtCore.QLine(72*i, 130, 72*i, 125))
-            scales_y.append(QtCore.QLine(20, 130 - 22*i , 25, 130-22*i))
+            scales_y.append(QtCore.QLine(20, 130 - 22*i, 25, 130-22*i))
         painter.drawLines(scales_x)
         painter.drawLines(scales_y)
 
