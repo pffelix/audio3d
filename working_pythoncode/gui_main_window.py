@@ -75,7 +75,6 @@ class MainWindow(QWidget):
         self.combo_box.addItem('kemar_compact')
         self.database_label = QtGui.QLabel('Select Database:')
         self.inverse_box = QtGui.QCheckBox('Inverse Filter')
-        self.inverse_box.nextCheckState()
         self.buffersize_label = QtGui.QLabel('Buffer Size:')
         self.buffersize_spin_box = QtGui.QSpinBox()
         self.buffersize_spin_box.setMinimum(0)
@@ -133,7 +132,7 @@ class MainWindow(QWidget):
 
     def inverse_disable(self):
         if self.combo_box.currentText() == 'kemar_compact':
-            self.inverse_box.setCheckState(False)
+            self.inverse_box.setCheckState(Qt.Unchecked)
         else:
             return
 
