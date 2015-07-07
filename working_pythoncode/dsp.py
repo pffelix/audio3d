@@ -42,7 +42,7 @@ class Dsp:
             self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16) for sp in range(len(state.gui_dict))}
 
         # magnitude spectrum of current left and right hrtf for every speaker
-        self.hrtf_spectrum_dict = {sp: [np.zeros((
+        self.hrtf_spectrum_dict =   {sp: [np.zeros((
             self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16),
             np.zeros((self.dspin_obj.fft_blocksize // 2 + 1, 2),
                      dtype=np.float16)] for sp in range(len(state.gui_dict))}
