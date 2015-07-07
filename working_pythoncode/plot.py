@@ -34,10 +34,10 @@ class GLPlotWidget(QGLWidget):
         self.ymax = np.max(ydata)
         self.ydata = ydata/self.ymax
         # this line might be not needed in a futre version: the named axis
-        # with Hz scale should reach from self.begin_hz to self.end_hz
-        # not -1 Hz to 1 Hz -> the self.xdata = linspace(begin, end) command
-        # above should be enough, but at the moment everything is scaled
-        # in between -1 to 1 so i cannot delete it
+        # with Hz scale should reach from self.begin_hz to self.end_hz not
+        # -1 Hz to 1 Hz -> the self.xdata = linspace(begin, end) command above
+        # should be enough, but at the moment everything is scaled in between
+        # -1 to 1 so i cannot delete it
         # (self.xdata contains the true Hz values)
         xdata = np.array(np.linspace(0, 1, ydata.shape[0]),
                          dtype=np.float32)
