@@ -8,6 +8,7 @@ from plot import GLPlotWidget
 from dt2 import DT2
 from headtracker_data import *
 
+
 # @brief keeps cursor inside gui_scene
 # @details
 # @author Huijiang
@@ -28,10 +29,11 @@ def get_bound_pos(x, y):
 
     return x, y
 
+
 class State(QtCore.QObject):
 
     def __init__(self):
-        super(State,self).__init__()
+        super(State, self).__init__()
         self.gui_dict = {}
         self.gui_settings_dict = {"hrtf_database": "kemar_normal_ear",
                                   "inverse_filter_active": True,
@@ -48,7 +50,7 @@ class State(QtCore.QObject):
         self.enable_headtracker = False
         # initialization of variables
         self.default_position = [[50, 20], [290, 20], [170, 50],
-                            [50, 320], [290, 320], [290, 170]]
+                                 [50, 320], [290, 320], [290, 170]]
 
     def check_error(self):
         if len(self.error_message) > 0:
@@ -104,6 +106,7 @@ class State(QtCore.QObject):
 
         return x, y
 
+
 # @class <Headtracker> This class integrates the headtracker
 #
 #
@@ -113,6 +116,7 @@ class Headtracker(object):
     def __init__(self):
         self.head_deg = 0
         self.dt2 = DT2()
+
     # @brief This function calls the azimuth_angle function of DT2 object
     # which only extracts the azimuthal head movement
     # recorded by the headtracking setup
@@ -220,6 +224,7 @@ class Room(QtGui.QGraphicsScene):
 
         except AttributeError:
             pass
+
 
 # @class <View> This class is responsible for displaying the contents of on the
 # QGraphicsScene
