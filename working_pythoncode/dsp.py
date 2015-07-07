@@ -38,13 +38,15 @@ class Dsp:
                                          self.dspin_obj.hopsize,
                                          state.gui_stop, state.gui_pause)
         # magnitude spectrum of current wave block for every speaker
-        self.sp_spectrum_dict = dict.fromkeys(state.gui_dict, np.zeros((
-            self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16))
+        self.sp_spectrum_dict = {sp: np.zeros((
+            self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16) for sp in range(len(state.gui_dict))}
+
         # magnitude spectrum of current left and right hrtf for every speaker
-        self.hrtf_spectrum_dict = dict.fromkeys(state.gui_dict, [np.zeros((
+        self.hrtf_spectrum_dict = {sp: [np.zeros((
             self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16),
             np.zeros((self.dspin_obj.fft_blocksize // 2 + 1, 2),
-                     dtype=np.float16)])
+                     dtype=np.float16)] for sp in range(len(state.gui_dict))}
+
         # Blockcounter initialized to count number of already convolved
         # blocks
         self.blockcounter = 0
