@@ -4,6 +4,7 @@ HOST = 'artrack.clients.ldv.ei.tum.de'
 PORT = 50105
 UDPPORT = 6666
 
+
 # @class <DT2> This class builts up a networking interface using the python
 # package socket to extract information gained by an ARTTRACK tracking
 # system
@@ -34,28 +35,19 @@ class DT2(object):
         data = self.tcp.recv(200)
         print(data)
         return data
-    
+
     ## @brief function returns the the received data from the headtracker
     #
-    #@author Marko Durkovic
+    # @author Marko Durkovic
     def get_measurements(self):
         return self.udp.recvfrom(200)[0]
 
     ## @brief this function reterns the data linewise
     # @details returned data format:
     # ['6d 1 [0 1.000] [x y z polar azimuthal] [3x3 rotation matrix]\r']
-    #@author Marko Durkovic
+    # @author Marko Durkovic
     def angle(self):
         data = self.get_measurements().decode('utf-8')
         data = data.split('\n')
         sixds = [i for i in data if i.startswith('6d ')]
         return sixds
-
-
-#if __name__ == '__main__':
-#    # from time import sleep
-#    dt2 = DT2()
-#    while True:
-#        # print(dt2.angle()[0])
-#        # print(type(dt2.angle()))
-#        print(azimuth_angle(dt2.angle()[0]))
