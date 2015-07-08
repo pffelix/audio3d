@@ -376,6 +376,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.confirm_button = QtGui.QPushButton('Confirm')
         self.cancel_button = QtGui.QPushButton('Cancel')
         self.normalize_box = QtGui.QCheckBox('Normalize Audio')
+        self.normalize_box.setCheckState(QtCore.Qt.Checked)
         self.combo_box = QtGui.QComboBox()
         self.combo_box.addItem('Standard')
         self.combo_box.addItem('Big')
