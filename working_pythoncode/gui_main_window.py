@@ -192,6 +192,7 @@ class MainWindow(QWidget):
 
             str_deg = "{:.0f}".format(deg)
             str_dis = "{:.2f}".format(dis / 100)
+            self.speaker_property.normalize_box.setCheckState(QtCore.Qt.Checked)
             self.speaker_property.azimuth_line_edit.setText(str_deg)
             self.speaker_property.distance_line_edit.setText(str_dis)
             self.speaker_property.show()
