@@ -655,14 +655,21 @@ class DspIn:
             sp_spectrum_dict_sp[:, 1] = sp_magnitude_spectrum / (
                 max_amplitude_sp_magnitude_spectrum / self.sp_max_amp_dict[sp] *
                 max_amplitude_output)
+        else:
+            sp_spectrum_dict_sp[:, 1] = np.zeros((
+                self.fft_blocksize // 2 + 1, ), dtype=np.float16)
         hrtf_magnitude_spectrum = abs(self.hrtf_block_fft_dict[sp][:, l_r][
                                       position_freq])
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(
             hrtf_magnitude_spectrum))
-        if max_amplitude_hrtf_magnitude_spectrum != 0:
+        if max_amplitude_hrtf_magnitude_spectrum != 0 and \
+                max_amplitude_sp_magnitude_spectrum != 0:
             hrtf_spectrum_dict_sp_l_r[:, 1] = hrtf_magnitude_spectrum\
                 / (max_amplitude_hrtf_magnitude_spectrum /
                    self.hrtf_max_amp_dict[sp][l_r] * max_amplitude_output)
+        else:
+            hrtf_spectrum_dict_sp_l_r[:, 1] = np.zeros((
+                self.fft_blocksize // 2 + 1, ), dtype=np.float16)
         # set FFT DC Value to zero
         sp_spectrum_dict_sp[0, 1] = 0
         hrtf_spectrum_dict_sp_l_r[0, 1] = 0

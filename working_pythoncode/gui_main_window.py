@@ -144,9 +144,9 @@ class MainWindow(QWidget):
         azimuth = "{:.0f}".format(self.state.gui_dict[i][0])
         dist = "{:.2f}".format(self.state.gui_dict[i][1])
         if self.state.gui_dict[i][3] is True:
-            self.speaker_property.normalize_box.setChecked(True)
+            self.speaker_property.normalize_box.setCheckState(Qt.Checked)
         else:
-            self.speaker_property.normalize_box.setChecked(False)
+            self.speaker_property.normalize_box.setCheckState(Qt.Unchecked)
         self.speaker_property.path_line_edit.setText(path)
         self.speaker_property.azimuth_line_edit.setText(azimuth)
         self.speaker_property.distance_line_edit.setText(dist)
@@ -203,7 +203,6 @@ class MainWindow(QWidget):
     def add2scene(self):
 
         if len(self.state.gui_dict) < 6:
-
             # read in data
             index = len(self.state.gui_dict)
             path = self.speaker_property.path
