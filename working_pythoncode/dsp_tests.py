@@ -29,7 +29,6 @@ import scipy.io.wavfile
 # hopsize = 256
 
 
-
 #following calculation of block_begin_end must be equal to the one in the
 # function
 block_begin_end = np.zeros((2,), dtype=np.int16)
@@ -137,6 +136,12 @@ class DspTests(unittest.TestCase):
             truelist.append(bool)
             i += 1
         self.assertTrue(truelist, msg=errmsg)
+
+#here some random non-flake8-code follows to check pre-commit-function
+    def random(self):
+        a=block_begin_end
+        for a==b:
+            'hello world'
 
     # @brief Tests get_sp_block.
     # def test_get_sp_block(self):

@@ -9,9 +9,7 @@ import numpy as np
 import dsp_in
 import dsp_out
 import threading
-import multiprocessing
 import time
-import matplotlib.pyplot as plt
 
 
 class Dsp:
@@ -29,7 +27,8 @@ class Dsp:
         self.bufferblocks = gui_settings_dict_init["bufferblocks"]
         # Create Input Object which contains mono input samples of sources
         # and hrtf impulse responses samples
-        self.dspin_obj = dsp_in.DspIn(self.state, state.gui_dict, gui_settings_dict_init)
+        self.dspin_obj = dsp_in.DspIn(self.state, state.gui_dict,
+                                      gui_settings_dict_init)
         # Create Output Object which contains binaural output samples
         self.dspout_obj = dsp_out.DspOut(self.state,
                                          state.gui_dict,
@@ -39,10 +38,11 @@ class Dsp:
                                          state.gui_stop, state.gui_pause)
         # magnitude spectrum of current wave block for every speaker
         self.sp_spectrum_dict = {sp: np.zeros((
-            self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16) for sp in range(len(state.gui_dict))}
+            self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16) for
+            sp in range(len(state.gui_dict))}
 
         # magnitude spectrum of current left and right hrtf for every speaker
-        self.hrtf_spectrum_dict =   {sp: [np.zeros((
+        self.hrtf_spectrum_dict = {sp: [np.zeros((
             self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16),
             np.zeros((self.dspin_obj.fft_blocksize // 2 + 1, 2),
                      dtype=np.float16)] for sp in range(len(state.gui_dict))}
@@ -80,7 +80,8 @@ class Dsp:
                     # check whether head position to speaker sp has changed
                     if self.gui_dict[sp][0] != self.prior_head_angle_dict[sp]:
                         # if yes, load new fitting hrtf frequency values
-                        self.dspin_obj.get_hrtf_block_fft(self.gui_dict[sp], sp)
+                        self.dspin_obj.get_hrtf_block_fft(self.gui_dict[sp],
+                                                          sp)
                         # save head position to speaker of this block in
                         # prior_head_angle_dict
                         self.prior_head_angle_dict[sp] = self.gui_dict[sp][0]
@@ -104,15 +105,13 @@ class Dsp:
                         # binaural stereo block output
                         start = time.time()
                         self.dspout_obj.binaural_block_dict[sp], \
-                        self.sp_spectrum_dict[sp],\
-                        self.hrtf_spectrum_dict[sp][l_r] = \
-                        self.dspin_obj.fft_convolution(self.sp_spectrum_dict
-                                                       [sp],
-                                                       self.hrtf_spectrum_dict[
-                                                           sp][l_r],
-                                                       self.dspout_obj.
-                                                       binaural_block_dict[
-                                                           sp], sp, l_r)
+                            self.sp_spectrum_dict[sp],\
+                            self.hrtf_spectrum_dict[sp][l_r] = \
+                            self.dspin_obj.fft_convolution(
+                                self.sp_spectrum_dict[sp],
+                                self.hrtf_spectrum_dict[sp][l_r],
+                                self.dspout_obj.binaural_block_dict[sp], sp,
+                                l_r)
                         self.time["fft"] += time.time() - start
                         # model speaker position change about 1° per block
                         # (0.02s) in
@@ -185,7 +184,7 @@ class Dsp:
             self.dspout_obj.playback_successful = True
         # excecute commands when playback finished successfully
         if self.dspout_obj.playback_successful is True and \
-                        self.dspout_obj.gui_stop is \
+           self.dspout_obj.gui_stop is \
                 False:
             self.state.gui_stop = True
         # show plot of the output signal binaural_dict_scaled
@@ -198,8 +197,8 @@ class Dsp:
             self.gui_dict)
         # print out maximum integer amplitude value of whole played binaural
         # output
-        print("maximum output amplitude: " + str(np.amax(np.abs(self.dspout_obj.
-                                                          binaural))))
+        print("maximum output amplitude: " + str(np.amax(np.abs(
+            self.dspout_obj.binaural))))
 
         self.return_ex.put(self.dspout_obj.playback_successful)
         # tell gui that dsp algorithm has finished
