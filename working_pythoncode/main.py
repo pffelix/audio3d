@@ -10,7 +10,7 @@ import gui_main_window
 
 
 def main():
-    w = gui_main_window.MainWindow()
+    gui_main_window.MainWindow()
     return qApp.exec_()
 
 if __name__ == '__main__':
