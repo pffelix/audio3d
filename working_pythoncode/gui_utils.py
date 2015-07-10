@@ -6,7 +6,6 @@ author: H. Zhu, M. Heiss
 from PySide import QtCore, QtGui
 from plot import GLPlotWidget
 from dt2 import DT2
-from headtracker_data import *
 
 
 # @brief keeps cursor inside gui_scene
@@ -101,8 +100,8 @@ class State(QtCore.QObject):
         x0 = audience_pos.x()
         y0 = audience_pos.y()
 
-        x = x0 + dist*sin(radians(azimuth))
-        y = y0 - dist*cos(radians(azimuth))
+        x = x0 + dist * sin(radians(azimuth))
+        y = y0 - dist * cos(radians(azimuth))
 
         return x, y
 
@@ -198,9 +197,10 @@ class Room(QtGui.QGraphicsScene):
         e.acceptProposedAction()
         speaker_list = self.state.speaker_list
         try:
-            self.current_item.setPos(e.scenePos().x()-25, e.scenePos().y()-25)
-            bounded_x, bounded_y = get_bound_pos(e.scenePos().x()-25,
-                                                 e.scenePos().y()-25)
+            self.current_item.setPos(e.scenePos().x() - 25, e.scenePos().y(
+            ) - 25)
+            bounded_x, bounded_y = get_bound_pos(e.scenePos().x() - 25,
+                                                 e.scenePos().y() - 25)
             self.current_item.setPos(bounded_x, bounded_y)
 
             if self.current_item.type == 'audience':
@@ -248,10 +248,10 @@ class View(QtGui.QGraphicsView):
         QtGui.QGraphicsView.dragMoveEvent(self, e)
 
     # this will disable scrolling of the view
-    def wheelEvent(self, QWheelEvent):
+    def wheelEvent(self, q_wheel_event):
         pass
 
-    def keyPressEvent(self, QKeyEvent):
+    def keyPressEvent(self, q_key_event):
         pass
 
 
@@ -281,7 +281,7 @@ class Speaker(Item):
         self.state = state
         speaker_list = self.state.speaker_list
         self.index = index
-        image_path = './image/speaker'+str(index+1)+'.png'
+        image_path = './image/speaker' + str(index + 1) + '.png'
         self.origin_image = QtGui.QImage(image_path)
         super(Speaker, self).__init__(state)
         self.setPos(posx, posy)
@@ -304,14 +304,14 @@ class Speaker(Item):
 
         dx = self.x() - audience_pos.x()
         dy = audience_pos.y() - self.y()
-        dis = (dx**2+dy**2)**0.5
+        dis = (dx ** 2 + dy ** 2) ** 0.5
         if dis == 0:
             dis += 0.1
 
         # required geometric transformation due to the difference in definition
         # used by the headtracker setup
         from math import acos, degrees
-        deg = degrees(acos(dy/dis))
+        deg = degrees(acos(dy / dis))
         if dx < 0:
             deg = 360 - deg
 
@@ -320,7 +320,7 @@ class Speaker(Item):
         if deg <= 0:
             deg += 360
 
-        gui_dict[self.index] = [deg, dis/100, self.path, self.norm]
+        gui_dict[self.index] = [deg, dis / 100, self.path, self.norm]
         return deg, dis
 
     # @brief double click on speaker item offers the opportunity to change
@@ -340,11 +340,8 @@ class Audience(Item):
 
     def __init__(self, state):
         self.state = state
-        audience_pos = self.state.audience_pos
-
         super(Audience, self).__init__(state)
         self.setPos(170, 170)
-        audience_pos = self.scenePos()
 
 
 # @class <SpeakerProperty> Additional widget window to define speaker .wav path
@@ -424,14 +421,13 @@ class SpeakerProperty(QtGui.QWidget):
     #
     @QtCore.Slot()
     def confirm(self):
-        ear = self.combo_box.currentText()
         from math import cos, sin, radians
         x0 = self.state.audience_pos.x()
         y0 = self.state.audience_pos.y()
         azimuth = float(self.azimuth_line_edit.text())
-        dist = 100*float(self.distance_line_edit.text())
-        self.posx = x0 + dist*sin(radians(azimuth))
-        self.posy = y0 - dist*cos(radians(azimuth))
+        dist = 100 * float(self.distance_line_edit.text())
+        self.posx = x0 + dist * sin(radians(azimuth))
+        self.posy = y0 - dist * cos(radians(azimuth))
 
         x = self.posx
         y = self.posy
@@ -455,7 +451,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.posx = 0
         self.posy = 0
 
-    def closeEvent(self, QCloseEvent):
+    def closeEvent(self, q_close_event):
         self.is_on = False
         self.added.disconnect()
         self.clear()
@@ -482,7 +478,7 @@ class SequencePlot(QtGui.QWidget):
         self.layoutVertical.addWidget(self.lhrtf_spec)
         self.layoutVertical.addWidget(self.rhrtf_spec)
         self.setGeometry(100, 100, self.speaker_spec.width,
-                         2*self.speaker_spec.height)
+                         2 * self.speaker_spec.height)
 
         self.setWindowTitle('Sequence Plot')
         self.timer = QtCore.QTimer(self)

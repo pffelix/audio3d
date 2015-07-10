@@ -2,7 +2,6 @@ __author__ = 'Matthias Lederle'
 import unittest
 import dsp_in
 import dsp_out
-from unittest.mock import MagicMock
 import numpy as np
 import scipy.io.wavfile
 
@@ -29,7 +28,7 @@ import scipy.io.wavfile
 # hopsize = 256
 
 
-#following calculation of block_begin_end must be equal to the one in the
+# following calculation of block_begin_end must be equal to the one in the
 # function
 block_begin_end = np.zeros((2,), dtype=np.int16)
 
@@ -75,10 +74,10 @@ class DspTests(unittest.TestCase):
         res = [None] * len(value)
         sol = [3, 8, 1, 1, 0, 500, -80, -1, -10]
         # value = []
-        #value[0] = 2
+        # value[0] = 2
         # sol = 2
         while i < len(value):
-            #res[i] = res.append(self.dspin_testobj.rnd(value[i]))
+            # res[i] = res.append(self.dspin_testobj.rnd(value[i]))
             res[i] = self.dspin_testobj.rnd(value[i])
             i += 1
         error_msg = "test_rnd failed!"
@@ -137,11 +136,11 @@ class DspTests(unittest.TestCase):
             i += 1
         self.assertTrue(truelist, msg=errmsg)
 
-#here some random non-flake8-code follows to check pre-commit-function
-    def random(self):
-        a=block_begin_end
-        for a==b:
-            'hello world'
+# # here some random non-flake8-code follows to check pre-commit-function
+#     def random(self):
+#         a=block_begin_end
+#         for a==b:
+#             'hello world'
 
     # @brief Tests get_sp_block.
     # def test_get_sp_block(self):
@@ -173,8 +172,8 @@ class DspTests(unittest.TestCase):
                 scipy_sp_dict[sp] = np.zeros((lenarray +
                                               self.dspin_testobj.sp_blocksize -
                                               lenarray %
-                                              self.dspin_testobj.sp_blocksize,),
-                                             dtype=np.int16)
+                                              self.dspin_testobj.sp_blocksize,
+                                              ), dtype=np.int16)
                 scipy_sp_dict[sp][0:lenarray, ] = scipy_sp_dict_raw[sp]
             else:
                 scipy_sp_dict[sp] = scipy_sp_dict_raw[sp]

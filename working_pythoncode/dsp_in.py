@@ -9,7 +9,7 @@ import scipy.io.wavfile
 import struct
 import numpy as np
 import math
-from numpy.fft import fft, ifft, fftfreq, rfft, irfft, rfftfreq
+from numpy.fft import rfft, irfft, rfftfreq
 import time
 
 
@@ -37,7 +37,7 @@ class DspIn:
         self.fft_blocksize = 1024
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
         self.hrtf_database_name, self.hrtf_blocksize, \
-        self.hrtf_blocksize_real, self.kemar_inverse_filter, \
+            self.hrtf_blocksize_real, self.kemar_inverse_filter, \
             self.kemar_inverse_filter_fft, self.kemar_inverse_filter_active = \
             self.get_hrtf_param(gui_settings_dict_init)
         # read in whole hrtf datatabas from impulse responses in time domain
@@ -116,9 +116,9 @@ class DspIn:
 
     # @brief Initializes a list with the number of the first and last sample
     #         of the first block
-    # @details This function calculates a list called block_begin_end containing
-    #          two elements: [0] is the first sample of the first block,
-    #          [1] is the last sample of the first block; The entries of
+    # @details This function calculates a list called block_begin_end
+    #          containing two elements: [0] is the first sample of the first
+    #          block, [1] is the last sample of the first block; The entries of
     #          following block will then be calculated by the
     #          set_block_begin_end-function.
     # @retval <block_begin_end> List of the first ([0]) and last ([0]) sample
@@ -145,8 +145,9 @@ class DspIn:
     # @details This function calculates all necessary parameters of the hrtf
     #          to be later able to get the correct hrtf-files for the
     #          convolution with the speaker-file signal.
-    # @retval <hrtf_database_name> Tells which database the listener has chosen (
-    #         available are: normal ear, big ear and a compact version)
+    # @retval <hrtf_database_name> Tells which database the listener has
+    #          chosen (available are: normal ear, big ear and a compact
+    #          version)
     # @retval <hrtf_blocksize> Simply set to default value 513 since
     #         fft_blocksize is defaulted to 1024
     # @retval <kemar_inverse_filter> Boolean value that tells whether
@@ -154,9 +155,10 @@ class DspIn:
     # @author Felix Pfreundtner
     def get_hrtf_param(self, gui_settings_dict):
         hrtf_database_name = gui_settings_dict["hrtf_database"]
-                # write variable which contains whether inverse filter is
+        # write variable which contains whether inverse filter is
         # activated in gui
-        kemar_inverse_filter_active = gui_settings_dict["inverse_filter_active"]
+        kemar_inverse_filter_active = gui_settings_dict[
+            "inverse_filter_active"]
         if hrtf_database_name == "kemar_normal_ear" or hrtf_database_name == \
                 "kemar_big_ear":
             # wave hrtf size 512 samples: zeropad hrtf to 513 samples to
@@ -176,7 +178,7 @@ class DspIn:
             # zeropad kemar_inverse_filter_fft to fft_blocksize and bring
             # time domain into frequency domain
             kemar_inverse_filter_fft = rfft(kemar_inverse_filter,
-                                           self.fft_blocksize)
+                                            self.fft_blocksize)
         if hrtf_database_name == "kemar_compact":
             # wave hrtf size 128 samples: zeropad hrtf to 513 samples to
             # reach even sp_blocksize which is integer divisible by 2 (50%
@@ -189,22 +191,22 @@ class DspIn:
             kemar_inverse_filter = np.zeros((self.fft_blocksize,),
                                             dtype=np.float32)
             kemar_inverse_filter_fft = np.zeros((self.fft_blocksize // 2 + 1,),
-                                            dtype=np.complex128)
+                                                dtype=np.complex128)
 
         return hrtf_database_name, hrtf_blocksize, hrtf_blocksize_real, \
-               kemar_inverse_filter, kemar_inverse_filter_fft, \
-               kemar_inverse_filter_active
+            kemar_inverse_filter, kemar_inverse_filter_fft, \
+            kemar_inverse_filter_active
 
     # @brief Preloads all hrtf Files
     # @author Felix Pfreundtner
     def read_hrtf_database(self, gui_dict_sp):
-        angle_stepsize= 5
-        angle_begin = 0
+        angle_stepsize = 5
+        # angle_begin = 0
         # just look at horizontal plane
         elevation = 0
         number_of_hrtfs = 72
         hrtf_database = np.zeros((self.hrtf_blocksize, number_of_hrtfs),
-                                            dtype=np.float32)
+                                 dtype=np.float32)
         if self.hrtf_database_name == "kemar_normal_ear":
             angle_end = 360
             for angle in range(0, angle_end, 5):
@@ -212,8 +214,7 @@ class DspIn:
                                 + str(elevation) + "e" +\
                                 str(angle).zfill(3) + "a.wav"
                 _, hrtf_database[:self.hrtf_blocksize_real,
-                   angle/angle_stepsize]\
-                    = \
+                                 angle / angle_stepsize] = \
                     scipy.io.wavfile.read(hrtf_filename)
 
         if self.hrtf_database_name == "kemar_big_ear":
@@ -222,21 +223,21 @@ class DspIn:
                 hrtf_filename = "./kemar/full/elev" + str(elevation) + "/R" \
                                 + str(elevation) + "e" +\
                                 str(angle).zfill(3) + "a.wav"
-                _, hrtf_database[:self.hrtf_blocksize_real, angle/angle_stepsize]\
-                    = \
+                _, hrtf_database[:self.hrtf_blocksize_real,
+                                 angle / angle_stepsize] = \
                     scipy.io.wavfile.read(hrtf_filename)
         if self.hrtf_database_name == "kemar_compact":
             angle_end = 180
             for angle in range(0, angle_end, 5):
-                hrtf_filename = "./kemar/compact/elev" + str(elevation) + "/H" \
-                                + str(elevation) + "e" +\
+                hrtf_filename = "./kemar/compact/elev" + str(elevation) + \
+                                "/H" + str(elevation) + "e" +\
                                 str(angle).zfill(3) + "a.wav"
                 _, temp_hrtf_l_r = scipy.io.wavfile.read(hrtf_filename)
-                hrtf_database[:self.hrtf_blocksize_real, angle/angle_stepsize] = \
-                    temp_hrtf_l_r[:,0]
+                hrtf_database[:self.hrtf_blocksize_real, angle
+                              / angle_stepsize] = temp_hrtf_l_r[:, 0]
                 hrtf_database[:self.hrtf_blocksize_real,
-                (angle+180)/angle_stepsize] = \
-                    temp_hrtf_l_r[:,1]
+                              (angle + 180) / angle_stepsize] =  \
+                    temp_hrtf_l_r[:, 1]
         return hrtf_database
 
     # @brief brings the whole hrtf database in frequency domain
@@ -244,18 +245,15 @@ class DspIn:
     def hrtf_database_fft(self):
         hrtf_database_fft = np.zeros((self.fft_blocksize // 2 + 1,
                                       self.hrtf_database.shape[1]),
-                                      dtype = np.complex128)
+                                     dtype=np.complex128)
         # for the whole hrtf database (all angles)
         for angle_index in range(self.hrtf_database.shape[1]):
             # zeropad hrtf_database_fft[angle] to fft_blocksize and bring
             # time domain into frequency domain
             hrtf_database_fft[:, angle_index] = rfft(self.hrtf_database[:,
-                                                    angle_index],
-                                                    self.fft_blocksize)
+                                                     angle_index],
+                                                     self.fft_blocksize)
         return hrtf_database_fft
-
-
-
 
     # @brief get 10 important parameters of the files to be played by the
     #         get_block_function
@@ -268,7 +266,8 @@ class DspIn:
     #         each key [sp]
     # sp_param[sp][0] = total number of samples in the file
     # sp_param[sp][1] = sample-rate, default: 44100 (but adjustable later)
-    # sp_param[sp][2] = number of bits per sample (8-/16-/??-int for one sample)
+    # sp_param[sp][2] = number of bits per sample (8-/16-/??-int for one
+    #                   sample)
     # sp_param[sp][3] = number of channels (mono = 1, stereo = 2)
     # sp_param[sp][4] = format of file (< = RIFF, > = RIFX)
     # sp_param[sp][5] = size of data-chunk in bytes
@@ -278,8 +277,9 @@ class DspIn:
     # sp_param[sp][9] = format character for correct encoding of data}
     # @author Matthias Lederle
     def init_read_sp(self, gui_dict):
-        # initialize dict with 10 (empty) values per key with list comprehension
-        sp_param = {sp : [None] * 10 for sp in range(len(gui_dict))}
+        # initialize dict with 10 (empty) values per key with list
+        # comprehension
+        sp_param = {sp: [None] * 10 for sp in range(len(gui_dict))}
         # go through all speakers
         for sp in sp_param:
             if gui_dict[sp][2] == 'unknown' or gui_dict[sp][2] == '':
@@ -529,7 +529,6 @@ class DspIn:
         #                                                   start) * 1000)))
         return scipy_sp_dict      # , scipy_sp_dict
 
-
     # @brief Gets and reads the correct hrtf-file from database
     # @details
     # @author Felix Pfreundtner
@@ -557,9 +556,10 @@ class DspIn:
             angle = 0
         # get the maximum amplitude of the left ear hrtf time signal
         self.hrtf_max_amp_dict[sp][0] = np.amax(np.abs(self.hrtf_database[
-                                                       :, angle/5]))
+                                                       :, angle / 5]))
         # get left ear hrtf fft values
-        self.hrtf_block_fft_dict[sp][:, 0] = self.hrtf_database_fft[:, angle/5]
+        self.hrtf_block_fft_dict[sp][:, 0] = self.hrtf_database_fft[:,
+                                                                    angle / 5]
 
         # calculate the symectrical angle for the right ear
         angle = 360 - angle
@@ -569,9 +569,10 @@ class DspIn:
             angle = 0
         # get the maximum amplitude of the right ear hrtf time signal
         self.hrtf_max_amp_dict[sp][1] = np.amax(np.abs(
-            self.hrtf_database[:, angle/5]))
+            self.hrtf_database[:, angle / 5]))
         # get right ear hrtf fft values
-        self.hrtf_block_fft_dict[sp][:, 1] = self.hrtf_database_fft[:, angle/5]
+        self.hrtf_block_fft_dict[sp][:, 1] = self.hrtf_database_fft[:,
+                                                                    angle / 5]
 
     # @author Matthias Lederle
     def get_sp_block(self, sp):
@@ -610,8 +611,8 @@ class DspIn:
                 self.sp_block_dict[sp] = sp_block_dict_sp_norm
                 self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(
                     np.float32, copy=False)
-                self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp]
-                                                          [:, ]))
+                self.sp_max_amp_dict[sp] = np.amax(np.abs(
+                    self.sp_block_dict[sp][:, ]))
 
     # @author Felix Pfreundtner
     def apply_window_on_sp_block(self, sp):
@@ -629,16 +630,16 @@ class DspIn:
     def fft_convolution(self, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r,
                         binaural_block_dict_sp, sp, l_r):
 
-
         # zeropad sp_block_dict[sp] to fft_blocksize and bring time domain into
         # frequency domain
-        #sp_block_fft_sp = fft(self.sp_block_dict[sp], self.fft_blocksize)
+        # sp_block_fft_sp = fft(self.sp_block_dict[sp], self.fft_blocksize)
         sp_block_fft_sp = rfft(self.sp_block_dict[sp], self.fft_blocksize)
         # save fft magnitude spectrum of sp_block in sp_spectrum and
         # hrtf_block in hrtf_spectrum to be shown by gui
         # create array of all calculated FFT frequencies
         freq_all = rfftfreq(self.fft_blocksize, 1 / self.wave_param_common[0])
-        # set position of only positive frequencies (neg. frequencies redundant)
+        # set position of only positive frequencies (neg. frequencies
+        # redundant)
         position_freq = np.where(freq_all >= 0)
         # set array of only positive FFT frequencies (neg. frequ. redundant)
         freqs = freq_all[position_freq]
@@ -653,8 +654,8 @@ class DspIn:
         if max_amplitude_sp_magnitude_spectrum != 0:
             # get magnitude spectrum of hrtf-block
             sp_spectrum_dict_sp[:, 1] = sp_magnitude_spectrum / (
-                max_amplitude_sp_magnitude_spectrum / self.sp_max_amp_dict[sp] *
-                max_amplitude_output)
+                max_amplitude_sp_magnitude_spectrum / self.sp_max_amp_dict[
+                    sp] * max_amplitude_output)
         else:
             sp_spectrum_dict_sp[:, 1] = np.zeros((
                 self.fft_blocksize // 2 + 1, ), dtype=np.float16)
@@ -674,23 +675,21 @@ class DspIn:
         sp_spectrum_dict_sp[0, 1] = 0
         hrtf_spectrum_dict_sp_l_r[0, 1] = 0
 
-
-
         # execute convolution of speaker input and hrtf input: multiply
         # complex frequency domain vectors
         binaural_block_sp_frequency = sp_block_fft_sp * \
-                                       self.hrtf_block_fft_dict[sp][:, l_r]
+            self.hrtf_block_fft_dict[sp][:, l_r]
 
         # if kemar full is selected furthermore convolve with (approximated
         #  1024 samples) inverse impulse response of optimus pro 7 speaker
         if self.kemar_inverse_filter_active:
             binaural_block_sp_frequency = binaural_block_sp_frequency * \
-            self.kemar_inverse_filter_fft
+                self.kemar_inverse_filter_fft
 
         # bring multiplied spectrum back to time domain, disneglected small
         # complex time parts resulting from numerical fft approach
         binaural_block_sp_time = irfft(binaural_block_sp_frequency,
-                                      self.fft_blocksize).real
+                                       self.fft_blocksize).real
 
         # normalize multiplied spectrum back to 16bit integer, consider
         # maximum amplitude value of sp block and hrtf impulse to get
@@ -698,10 +697,10 @@ class DspIn:
         binaural_block_sp_time_max_amp = int(np.amax(np.abs(
             binaural_block_sp_time)))
         if binaural_block_sp_time_max_amp != 0:
-            binaural_block_sp_time = binaural_block_sp_time / (
-                binaural_block_sp_time_max_amp / self.sp_max_amp_dict[sp] /
-                self.hrtf_max_amp_dict[sp][l_r] * 32767)
+            binaural_block_sp_time /= (binaural_block_sp_time_max_amp /
+                                       self.sp_max_amp_dict[sp] /
+                                       self.hrtf_max_amp_dict[sp][l_r] * 32767)
         binaural_block_dict_sp[:, l_r] = \
             binaural_block_sp_time.astype(np.float32, copy=False)
-        return binaural_block_dict_sp, sp_spectrum_dict_sp,\
-               hrtf_spectrum_dict_sp_l_r
+        return binaural_block_dict_sp, sp_spectrum_dict_sp, \
+            hrtf_spectrum_dict_sp_l_r

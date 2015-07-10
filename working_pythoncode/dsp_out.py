@@ -6,17 +6,15 @@ Created on Fri Jun  5 10:31:01 2015
 """
 
 import numpy as np
-from scipy.fftpack import fft, ifft, fftfreq
 import scipy.io.wavfile
 import pyaudio
 import time
 import math
-import ntpath
 import os
 import collections
 import threading
-from copy import deepcopy
 import queue
+
 
 class DspOut:
     def __init__(self, state, gui_dict_init, fft_blocksize, sp_blocksize,
@@ -24,7 +22,8 @@ class DspOut:
         self.state = state
         self.state.send_error('error test dsp out')
         self.binaural_block_dict = {sp: np.zeros((
-            fft_blocksize, 2), dtype=np.float32) for sp in range(len(gui_dict_init))}
+            fft_blocksize, 2), dtype=np.float32) for sp in range(len(
+                gui_dict_init))}
         self.binaural_block_dict_out = dict.fromkeys(gui_dict_init, np.zeros(
             (hopsize, 2), dtype=np.float32))
         self.binaural_block_dict_add = dict.fromkeys(gui_dict_init, np.zeros(
@@ -43,7 +42,6 @@ class DspOut:
         self.playback_successful = True
         self.playqueue = queue.Queue()
 
-
     # @brief Applies the overlap-add-method to the signal.
     # @details Adds the last part of the prior fft-block to calculate the
     # overlapp-values (which decrease the desharmonic sounds in the output
@@ -54,7 +52,7 @@ class DspOut:
         # 1. take binaural block output of current fft which don't overlap
         # with next blocks
         self.binaural_block_dict_out[sp] = self.binaural_block_dict[sp][
-                                           0:hopsize, :]
+            0:hopsize, :]
         # 2. add relevant still remaining block output of prior ffts to
         # binaural block output of current block
         self.binaural_block_dict_out[sp][:, :] += \
@@ -102,8 +100,8 @@ class DspOut:
             if self.continue_convolution_dict[sp] is False:
                 self.binaural_block_dict_out[sp] = np.zeros((hopsize, 2),
                                                             dtype=np.float32)
-        self.binaural_block = self.binaural_block.astype(np.float32, copy=False)
-
+        self.binaural_block = self.binaural_block.astype(np.float32,
+                                                         copy=False)
 
     # @brief Adds the newly calculated blocks to a dict that contains all the
     #  blocks calculated before.
