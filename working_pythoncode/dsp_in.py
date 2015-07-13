@@ -13,14 +13,17 @@ from numpy.fft import rfft, irfft, rfftfreq
 import time
 
 
-# @class <DspIn> This class contains all functions executed before the
-#        convolution in the run-function of the Dsp-class. This includes
-#        particularly
-#        to read parameters of blocks and hrtfs, to read blocks and hrtfs
-#        from their databases, to normalize hrtfs, round numbers and to
-#        create all necessary kinds of windows.
 class DspIn:
-    # Constructor of the DspIn class.
+    """
+    H1 -- DspIn
+    ************************
+    This class contains all functions executed before the convolution in
+    the run-function of the Dsp-class. This includes particularly to read
+    parameters of blocks and hrtfs, to read blocks and hrtfs from their
+    databases, to normalize hrtfs, round numbers and to create all necessary
+    kinds of windows.
+    """
+    """Constructor of the DspIn class."""
     def __init__(self, state, gui_dict_init, gui_settings_dict_init):
         # Dict with a key and two values for every hrtf to be fetched from the
         # database. The values are the max. values of the hrtfs of
@@ -63,13 +66,17 @@ class DspIn:
         # build a hann window with sp_blocksize
         self.hann = self.build_hann_window(self.sp_blocksize)
 
-    # @brief function rounds any input value to the closest integer
-    # @details This function does a normal school arithmetic round (choose
-    #          lower int until .4 and higher int from .5 on) and returns the
-    #          rounded value. It is NOT equal to pythons round() method.
-    # @retval <value> Is the rounded int of any input number.
-    # @author Felix Pfreundtner
     def rnd(self, value):
+        """
+        H2 -- This is a header of 2nd level text
+        ===================
+        This function does a normal school arithmetic round (choose lower
+        int until .4 and higher int from .5 on) and returns the rounded
+        value. It is NOT equal to pythons round() method.
+        Return values are:
+        * value: Is the rounded int of any input number.
+        Author: Felix Pfreundtner
+        """
         if value >= 0:
             if value - math.floor(value) < 0.5:
                 value = math.floor(value)
@@ -82,30 +89,37 @@ class DspIn:
                 value = math.ceil(value)
         return value
 
-    # @brief Calculate and construct the hann window in dependency of
-    #        sp_blocksize
-    # @retval <hann_window> Numpy-array of the length of sp_blocksize
-    # @author Felix Pfreundtner
     def build_hann_window(self, sp_blocksize):
+        """
+        H2 -- build_hann_window
+        ===================
+        Calculate and construct the hann window in dependency of
+        sp_blocksize.
+        Return values:
+        * hann_window: Numpy-array of the length of sp_blocksize
+        Author: Felix Pfreundtner
+        """
         x = sp_blocksize
         hann_window = np.zeros((x,), dtype=np.float16)
         for n in range(x):
             hann_window[n, ] = 0.5 * (1 - math.cos(2 * math.pi * n / (x)))
         return hann_window
 
-    # @brief This function calculates the three block parameters necessary
-    #        for the while-loop of the run-function.
-    # @details This method uses the parameters of the input .wav-file and
-    #          the blocksizes of the fft and the hrtf to calculate the
-    #          blocksize and blocktime needed from the speaker.
-    # @retval <sp_blocksize> Amount of samples taken from the input file per
-    #         block
-    #         <sp_blocktime> Time it takes to play one block in [s]
-    #         <overlap> overlap between two binaural output blocks in decimal
-    #         value [calculated default is 0.5]
-    # @author Felix Pfreundtner
     def get_block_param(self, wave_param_common, hrtf_blocksize,
                         fft_blocksize):
+        """
+        H2 -- get_block_param
+        ===================
+        This method uses the parameters of the input .wav-file and the
+        blocksizes of the fft and the hrtf to calculate the blocksize and
+        blocktime needed from the speaker.
+        Return values
+        * sp_blocksize: Amount of samples taken from the input file per block
+        * sp_blocktime: Time it takes to play one block in [s]
+        * overlap: overlap between two binaural output blocks in decimal
+            value [calculated default is 0.5]
+        Author Felix Pfreundtner
+        """
         sp_blocksize = fft_blocksize - hrtf_blocksize + 1
         sp_blocktime = sp_blocksize / wave_param_common[0]
         # overlap in decimal 0
