@@ -3,6 +3,7 @@ import unittest
 from mock import patch
 import sys
 from gui_main_window import *
+from gui_utils import *
 
 class TestHeadtracker(unittest.TestCase):
 
@@ -11,7 +12,6 @@ class TestHeadtracker(unittest.TestCase):
 
     @patch('gui_utils.Headtracker.get_head_deg')
     def test_head_deg(self, get_head_deg):
-        app = QApplication(sys.argv)
 
         get_head_deg.return_value = 30
         sp = Speaker(self.state, 1, 'unknown')
@@ -27,3 +27,7 @@ class TestHeadtracker(unittest.TestCase):
         sp.cal_rel_pos(get_head_deg())
         result = self.state.gui_dict[1][0]
         self.assertEqual(result, 355)
+
+if __name__ == '__main__':
+    app = QtGui.QApplication(sys.argv)
+    unittest.main()

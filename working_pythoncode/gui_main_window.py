@@ -6,8 +6,8 @@ GUI Main Window of Audio 3D Project, Group B
 author: H. Zhu, M. Heiss
 """
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide import QtCore, QtGui
+import gui_utils
 from dsp import Dsp
 import threading
 import multiprocessing
@@ -20,31 +20,31 @@ default_position = [[50, 20], [290, 20], [170, 50],
                     [50, 320], [290, 320], [290, 170]]
 
 
-class MainWindow(QWidget):
+class MainWindow(QtGui.QWidget):
 
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setAcceptDrops(True)
         # set items
-        self.state = State()
-        self.audience = Audience(self.state)
+        self.state = gui_utils.State()
+        self.audience = gui_utils.Audience(self.state)
 
         # set scene and view
-        self.room = Room(self.state)
+        self.room = gui_utils.Room(self.state)
         self.room.setSceneRect(0, 0, 400, 400)
         self.room.addItem(self.audience)
 
         # set view
-        self.view = View(self.state, self.room)
+        self.view = gui_utils.View(self.state, self.room)
         self.view.setFixedSize(400, 400)
-        self.view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.view.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.view.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
         # set property window
-        self.speaker_property = SpeakerProperty(self.state)
+        self.speaker_property = gui_utils.SpeakerProperty(self.state)
 
         # set plot window
-        self.sequence_plot = SequencePlot()
+        self.sequence_plot = gui_utils.SequencePlot()
         self.sequence_plot.plot_on.connect(self.update_sequence_dicts)
 
         self.dsp_obj = None
@@ -58,12 +58,12 @@ class MainWindow(QWidget):
     def init_ui(self):
 
         # set buttons
-        add_speaker_button = QPushButton('Add Speaker')
-        reset_button = QPushButton('Reset')
-        control_button = QPushButton('Play/Stop')
-        pause_button = QPushButton('Pause/Continue')
-        default_position_button = QPushButton('Default Position')
-        self.plot_button = QPushButton('Plot Sequence')
+        add_speaker_button = QtGui.QPushButton('Add Speaker')
+        reset_button = QtGui.QPushButton('Reset')
+        control_button = QtGui.QPushButton('Play/Stop')
+        pause_button = QtGui.QPushButton('Pause/Continue')
+        default_position_button = QtGui.QPushButton('Default Position')
+        self.plot_button = QtGui.QPushButton('Plot Sequence')
         self.plot_button.setDisabled(True)
 
         # set_properties
@@ -96,13 +96,13 @@ class MainWindow(QWidget):
 
         # initialize head tracker, connect signal and slots
         if enable_headtracker:
-            self.head_tracker = Headtracker()
-            self.update_headtracker_timer = QTimer()
+            self.head_tracker = gui_utils.Headtracker()
+            self.update_headtracker_timer = QtCore.QTimer()
             self.update_headtracker_timer.timeout.connect(self.update_head)
             self.update_headtracker_timer.start(10)
 
         # initialize timer for error checking
-        self.error_timer = QTimer()
+        self.error_timer = QtCore.QTimer()
         self.error_timer.timeout.connect(self.state.check_error)
         self.error_timer.start(100)
 
@@ -130,11 +130,11 @@ class MainWindow(QWidget):
 
     def inverse_disable(self):
         if self.combo_box.currentText() == 'kemar_compact':
-            self.inverse_box.setCheckState(Qt.Unchecked)
+            self.inverse_box.setCheckState(QtCore.Qt.Unchecked)
         else:
             return
 
-    @Slot()
+    @QtCore.Slot()
     def show_property(self):
         print(self.state.speaker_to_show)
         i = self.state.speaker_to_show
@@ -143,9 +143,11 @@ class MainWindow(QWidget):
         azimuth = "{:.0f}".format(self.state.gui_dict[i][0])
         dist = "{:.2f}".format(self.state.gui_dict[i][1])
         if self.state.gui_dict[i][3] is True:
-            self.speaker_property.normalize_box.setCheckState(Qt.Checked)
+            self.speaker_property.normalize_box.setCheckState(
+                QtCore.Qt.Checked)
         else:
-            self.speaker_property.normalize_box.setCheckState(Qt.Unchecked)
+            self.speaker_property.normalize_box.setCheckState(
+                QtCore.Qt.Unchecked)
         self.speaker_property.path_line_edit.setText(path)
         self.speaker_property.azimuth_line_edit.setText(azimuth)
         self.speaker_property.distance_line_edit.setText(dist)
@@ -166,7 +168,7 @@ class MainWindow(QWidget):
         else:
             self.state.gui_dict[i][3] = False
 
-    @Slot()
+    @QtCore.Slot()
     def add_speaker(self):
         if len(self.state.gui_dict) < 6:
             index = len(self.state.gui_dict)
@@ -200,7 +202,7 @@ class MainWindow(QWidget):
         else:
             return
 
-    @Slot()
+    @QtCore.Slot()
     def add2scene(self):
 
         if len(self.state.gui_dict) < 6:
@@ -211,9 +213,10 @@ class MainWindow(QWidget):
             y = self.speaker_property.posy
             # create new speaker
             if self.speaker_property.normalize_box.isChecked():
-                new_speaker = Speaker(self.state, index, path, x, y, True)
+                new_speaker = gui_utils.Speaker(
+                    self.state, index, path, x, y, True)
             else:
-                new_speaker = Speaker(self.state, index, path, x, y)
+                new_speaker = gui_utils.Speaker(self.state, index, path, x, y)
             new_speaker.signal_handler.show_property.connect(
                 self.show_property)
             self.room.addItem(self.state.speaker_list[-1])
@@ -222,7 +225,7 @@ class MainWindow(QWidget):
         else:
             return
 
-    @Slot()
+    @QtCore.Slot()
     def reset(self):
 
         if self.play is not None and self.state.gui_stop is False \
@@ -233,11 +236,11 @@ class MainWindow(QWidget):
             self.room.clear()
             self.state.gui_dict.clear()
             del self.state.speaker_list[:]
-            new_audience = Audience(self.state)
+            new_audience = gui_utils.Audience(self.state)
             self.room.addItem(new_audience)
             self.view.viewport().update()
 
-    @Slot()
+    @QtCore.Slot()
     def control(self):
         gui_dict = self.state.gui_dict
         # check whether speaker has been selected
@@ -264,11 +267,11 @@ class MainWindow(QWidget):
                 target=self.dsp_obj.run)
             self.play.start()
         else:
-            msgbox = QMessageBox()
+            msgbox = QtGui.QMessageBox()
             msgbox.setText("Please add a speaker.")
             msgbox.exec_()
 
-    @Slot()
+    @QtCore.Slot()
     def pause(self):
         self.state.switch_pause_playback()
         print(self.state.gui_pause)
