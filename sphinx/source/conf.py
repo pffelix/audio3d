@@ -362,3 +362,8 @@ epub_exclude_files = ['search.html']
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
+
+# Inserted code from https://codeandchaos.wordpress.com/2012/07/30/sphinx
+# -autodoc-tutorial-for-dummies/
+sys.path.insert(0,"C:\\Users\\Matthias\\Desktop\\Projektpraktikum "
+                  "Python\\Abgabe\\working_pythoncode")
