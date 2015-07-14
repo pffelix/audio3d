@@ -13,16 +13,16 @@ from dt2 import DT2
 # @author Huijiang
 def get_bound_pos(x, y):
 
-    if x > 350 and y > 350:
+    if x >= 350 and y >= 350:
         x = 350
         y = 350
-    if x > 350 and y < 0:
+    if x >= 350 and y <= 0:
         x = 350
         y = 0
-    if x < 0 and y < 0:
+    if x <= 0 and y <= 0:
         x = 0
         y = 0
-    if x < 0 and y > 350:
+    if x <= 0 and y >= 350:
         x = 0
         y = 350
 
@@ -89,6 +89,7 @@ class State(QtCore.QObject):
         # end pause
         else:
             self.gui_pause = False
+        return self.gui_pause
 
     # @brief returns new position of item
     # @details
