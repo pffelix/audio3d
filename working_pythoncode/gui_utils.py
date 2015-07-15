@@ -6,6 +6,7 @@ author: H. Zhu, M. Heiss
 from PySide import QtCore, QtGui
 from plot import GLPlotWidget
 from dt2 import DT2
+import headtracker_data as headtracker
 
 
 # @brief keeps cursor inside gui_scene
@@ -121,7 +122,7 @@ class Headtracker(object):
     # which only extracts the azimuthal head movement
     # recorded by the headtracking setup
     def cal_head_deg(self):
-        self.head_deg = azimuth_angle(self.dt2.angle()[0])
+        self.head_deg = headtracker.azimuth_angle(self.dt2.angle()[0])
 
     # @brief This function returns the azimuth angle, which is recorded
     #        with the headtracker setup

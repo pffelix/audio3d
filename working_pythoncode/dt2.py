@@ -36,13 +36,13 @@ class DT2(object):
         print(data)
         return data
 
-    ## @brief function returns the the received data from the headtracker
+    # @brief function returns the the received data from the headtracker
     #
     # @author Marko Durkovic
     def get_measurements(self):
         return self.udp.recvfrom(200)[0]
 
-    ## @brief this function reterns the data linewise
+    # @brief this function reterns the data linewise
     # @details returned data format:
     # ['6d 1 [0 1.000] [x y z polar azimuthal] [3x3 rotation matrix]\r']
     # @author Marko Durkovic
