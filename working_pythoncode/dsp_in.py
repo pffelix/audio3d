@@ -44,7 +44,7 @@ class DspIn:
         # read in whole hrtf datatabas from impulse responses in time domain
         self.hrtf_database = self.read_hrtf_database(
             state_init.gui_settings_dict)
-        # bring whole hrtf database to frequency domain
+        # bring whole hrtf database to frequency domainv
         self.hrtf_database_fft = self.hrtf_database_fft()
         # Initialize a dict for the hrtf block values to be stored in.
         self.hrtf_block_fft_dict = dict.fromkeys(state_init.gui_dict,

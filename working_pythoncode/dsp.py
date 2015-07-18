@@ -57,6 +57,9 @@ class Dsp:
         # read from speaker wave files
         while any(self.dspout_obj.continue_convolution_dict.values()) \
                 is True:
+            # render new binaural block
+            # lock state object
+            self.state.mtx.acquire()
             # actualize variables with gui
             self.dspout_obj.gui_stop = self.state.gui_stop
             self.dspout_obj.gui_pause = self.state.gui_pause
@@ -126,12 +129,13 @@ class Dsp:
             self.dspout_obj.mix_binaural_block(
                 self.dspin_obj.hopsize,
                 self.gui_dict)
-
+            # binaural block rendered: unlock state object
+            self.state.mtx.release()
             # Add mixed binaural stereo block to a time continuing binaural
             # output of all blocks
             self.dspout_obj.lock.acquire()
             try:
-                self.dspout_obj.add_to_binaural(
+                self.dspout_obj.add_to_queue(
                     self.blockcounter)
             finally:
                 self.dspout_obj.lock.release()

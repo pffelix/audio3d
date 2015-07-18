@@ -8,6 +8,7 @@ from plot import GLPlotWidget
 from dt2 import DT2
 from math import acos, degrees, cos, sin, radians
 import headtracker_data as headtracker
+import threading
 
 
 # @brief keeps cursor inside gui_scene
@@ -44,6 +45,7 @@ class State(QtCore.QObject):
         self.gui_stop = False
         self.gui_pause = False
         self.audience_pos = QtCore.QPoint(170, 170)
+        self.mtx = threading.Lock()
         self.speaker_list = []
         self.error_message = []
         self.speaker_to_show = 0
@@ -100,6 +102,47 @@ class State(QtCore.QObject):
         y = y0 - dist * cos(radians(azimuth))
 
         return x, y
+
+    def check_error(self):
+        if len(self.error_message) > 0:
+            print(self.error_message.pop(0))
+
+    def send_error(self, message):
+        if message not in self.error_message:
+            self.error_message.append(message)
+
+
+    # @brief gui_dict is continuously updated,
+    #        managed by update_timer every 10sec
+    # @details
+    # @author
+    def update_gui_dict(self, deg):
+
+        if self.gui_stop is False:
+            for speaker in self.speaker_list:
+                speaker.cal_rel_pos(deg)
+
+    # @brief stop playback and convolution of dsp algorithm
+    # @details
+    # @author Felix
+    def switch_stop_playback(self):
+        if self.gui_stop is False:
+            self.gui_stop = True
+        else:
+            self.gui_stop = False
+        return self.gui_stop
+
+    # @brief pause button clicked alternates gui_pause boolean
+    # @details
+    # @author Felix
+    def switch_pause_playback(self):
+        # start pause
+        if self.gui_pause is False:
+            self.gui_pause = True
+        # end pause
+        else:
+            self.gui_pause = False
+        return self.gui_pause
 
     def check_error(self):
         if len(self.error_message) > 0:
@@ -212,7 +255,8 @@ class Room(QtGui.QGraphicsScene):
                 for speaker in speaker_list:
                     deg, dis = speaker.cal_rel_pos()
                     if dis < 50:
-                        x, y = self.state.get_abs_pos(deg, 50)
+                        x, y = self.get_abs_pos(deg, 50,
+                                                self.state.audience_pos)
                         x, y = get_bound_pos(x, y)
                         speaker.setPos(x, y)
                     speaker.cal_rel_pos()
@@ -220,7 +264,7 @@ class Room(QtGui.QGraphicsScene):
             elif self.current_item.type == 'speaker':
                 deg, dis = self.current_item.cal_rel_pos()
                 if dis < 50:
-                    x, y = self.state.get_abs_pos(deg, 50)
+                    x, y = self.get_abs_pos(deg, 50, self.state.audience_pos)
                     self.current_item.setPos(x, y)
                 self.current_item.cal_rel_pos()
                 self.state.speaker_to_show = self.current_item.index
@@ -228,6 +272,17 @@ class Room(QtGui.QGraphicsScene):
         except AttributeError:
             pass
 
+    # @brief returns new position of item
+    # @details
+    # @author
+    def get_abs_pos(self, azimuth, dist, audience_pos):
+        x0 = audience_pos.x()
+        y0 = audience_pos.y()
+
+        x = x0 + dist * sin(radians(azimuth))
+        y = y0 - dist * cos(radians(azimuth))
+
+        return x, y
 
 # @class <View> This class is responsible for displaying the contents of on the
 # QGraphicsScene
@@ -321,8 +376,9 @@ class Speaker(Item):
 
         if deg <= 0:
             deg += 360
-
+        self.state.mtx.acquire()
         gui_dict[self.index] = [deg, dis / 100, self.path, self.norm]
+        self.state.mtx.release()
         return deg, dis
 
     # @brief double click on speaker item offers the opportunity to change

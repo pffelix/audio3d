@@ -121,7 +121,7 @@ class DspOut:
 
     # @brief Concatenates the current block to the binaural signal.
     # @author Felix Pfreundtner
-    def add_to_binaural(self, blockcounter):
+    def add_to_queue(self, blockcounter):
         # if blockcounter == 0:
         #     self.binaural = self.binaural_block.astype(np.int16, copy=False)
         #     q.put(self.binaural_block.astype(np.int16, copy=False))
