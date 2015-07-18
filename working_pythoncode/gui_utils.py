@@ -50,12 +50,6 @@ class State(QtCore.QObject):
         self.error_message = []
         self.speaker_to_show = 0
 
-        # head tracker
-        self.enable_headtracker = False
-        # initialization of variables
-        self.default_position = [[50, 20], [290, 20], [170, 50], [50, 320],
-                                 [290, 320], [170, 290], [50, 120], [290, 120],
-                                 [50, 220], [290, 220]]
 
     # @brief gui_dict is continuously updated,
     #        managed by update_timer every 10sec
