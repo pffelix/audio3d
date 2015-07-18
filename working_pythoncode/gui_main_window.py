@@ -129,9 +129,7 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.Slot()
     def show_property(self):
-        print(self.state.speaker_to_show)
         i = self.state.speaker_to_show
-        print(self.state.gui_dict[i][3])
         path = str(self.state.gui_dict[i][2])
         azimuth = "{:.0f}".format(self.state.gui_dict[i][0])
         dist = "{:.2f}".format(self.state.gui_dict[i][1])
@@ -280,7 +278,6 @@ class MainWindow(QtGui.QWidget):
             return
 
     def plot_sequence(self):
-        # print(self.dsp_obj.sp_spectrum_dict)plot_sequence
         i = self.state.speaker_to_show
         print("initialize")
 

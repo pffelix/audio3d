@@ -29,7 +29,6 @@ class DspIn:
         # database. The values are the max. values of the hrtfs of
         # each ear.
         self.state = state
-        self.state.send_error('error test dsp in')
         self.hrtf_max_amp_dict = dict.fromkeys(gui_dict_init, [0, 0])
         # Dict with a key for every speaker and two values. These
         # are the max. values fetched from the speaker-file.

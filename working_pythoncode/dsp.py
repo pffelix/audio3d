@@ -16,7 +16,6 @@ class Dsp:
     def __init__(self, state,
                  gui_settings_dict_init, return_ex_init):
         self.state = state
-        self.state.send_error('error test dsp')
         self.gui_dict = state.gui_dict
         self.gui_settings_dict = gui_settings_dict_init
         self.prior_head_angle_dict = dict.fromkeys(state.gui_dict, [])

@@ -436,9 +436,6 @@ class SpeakerProperty(QtGui.QWidget):
         y = self.posy
 
         self.posx, self.posy = get_bound_pos(x, y)
-
-        print(self.posx)
-        print(self.posy)
         self.added.emit()
         self.close()
 
