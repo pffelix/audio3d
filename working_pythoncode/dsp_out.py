@@ -17,7 +17,7 @@ import queue
 
 
 class DspOut:
-    def __init__(self, state, gui_dict_init, fft_blocksize, sp_blocksize,
+    def __init__(self, state, gui_dict_init, fft_blocksize,
                  hopsize, gui_stop_init, gui_pause_init):
         self.state = state
         self.state.send_error('error test dsp out')

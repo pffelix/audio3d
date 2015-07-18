@@ -4,60 +4,32 @@ import dsp_in
 import dsp_out
 import numpy as np
 import scipy.io.wavfile
-
-# global Namespace (not professional to use it!)
-
-
-# @ Matthias: I uncommented this params as they are now in self
-# namespace initialized in constructor
-# dspin_testobj = dsp_in.DspIn(self.gui_dict, gui_settings_dict_mockup)
-# dspout_testobj = dsp_out.DspOut(self.gui_dict,
-# dspin_testobj.fft_blocksize,
-# dspin_testobj.sp_blocksize,
-# dspin_testobj.hopsize,
-# dspin_testobj, gui_pause_mockup)
-# "bufferblocks": 5
-# gui_stop_mockup = False
-# gui_pause_mockup = False
-# wave_param_common = [44100, 16]
-# hrtf_blocksize = 513
-# fft_blocksize = 1024
-# sp_blocksize = 512
-# sp_blocktime = 0.011609977324263039
-# overlap = 0.5
-# hopsize = 256
-
-
-# following calculation of block_begin_end must be equal to the one in the
-# function
-block_begin_end = np.zeros((2,), dtype=np.int16)
-
+import gui_utils
 
 class DspTests(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         # calling the constructor of the super class
         super(DspTests, self).__init__(*args, **kwargs)
-
-        # self Namespace
-        self.gui_dict = {
+        # initialize GUI state
+        self.state = gui_utils.State()
+        # modify GUI state
+        self.state.gui_dict = {
             0: [90, 0, "./audio_in/sine_1kHz_(44.1,1,16).wav", False],
             1: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav", True]
             # 2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav", #  True]
         }
-
-        self.gui_settings_dict = {"hrtf_database": "kemar_normal_ear",
-                                  "inverse_filter_active": True,
-                                  "bufferblocks": 5}
-        self.gui_stop = False
-        self.gui_pause = False
-        self.dspin_testobj = dsp_in.DspIn(self.gui_dict,
-                                          self.gui_settings_dict)
-        self.dspout_testobj = dsp_out.DspOut(self.gui_dict,
+        self.state.gui_settings_dict = {"hrtf_database": "kemar_normal_ear",
+                                        "inverse_filter_active": True,
+                                        "bufferblocks": 5}
+        self.state.gui_stop = False
+        self.state.gui_pause = False
+        self.dspin_testobj = dsp_in.DspIn(self.state, self.state.gui_dict,
+                                          self.state.gui_settings_dict)
+        self.dspout_testobj = dsp_out.DspOut(self.state, self.state.gui_dict,
                                              self.dspin_testobj.fft_blocksize,
-                                             self.dspin_testobj.sp_blocksize,
                                              self.dspin_testobj.hopsize,
                                              self.dspin_testobj,
-                                             self.gui_pause)
+                                             self.state.gui_pause)
 
     # @brief Tests rnd for one particular number.
     def test_rnd_int(self):

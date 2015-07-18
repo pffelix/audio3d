@@ -33,7 +33,6 @@ class Dsp:
         self.dspout_obj = dsp_out.DspOut(self.state,
                                          state.gui_dict,
                                          self.dspin_obj.fft_blocksize,
-                                         self.dspin_obj.sp_blocksize,
                                          self.dspin_obj.hopsize,
                                          state.gui_stop, state.gui_pause)
         # magnitude spectrum of current wave block for every speaker
