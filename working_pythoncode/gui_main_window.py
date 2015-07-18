@@ -7,6 +7,7 @@ author: H. Zhu, M. Heiss
 """
 
 from PySide import QtCore, QtGui
+from math import acos, degrees
 import gui_utils
 from dsp import Dsp
 import threading
@@ -41,7 +42,6 @@ class MainWindow(QtGui.QWidget):
         self.sequence_plot.plot_on.connect(self.update_sequence_dicts)
 
         self.dsp_obj = None
-        self.play = None
         # return_ex: save whether playback was successful
         self.return_ex = multiprocessing.Queue()
         self.init_ui()
@@ -53,7 +53,7 @@ class MainWindow(QtGui.QWidget):
         # set buttons
         add_speaker_button = QtGui.QPushButton('Add Speaker')
         reset_button = QtGui.QPushButton('Reset')
-        control_button = QtGui.QPushButton('Play/Stop')
+        play_button = QtGui.QPushButton('Play/Stop')
         pause_button = QtGui.QPushButton('Pause/Continue')
         default_position_button = QtGui.QPushButton('Default Position')
         self.plot_button = QtGui.QPushButton('Plot Sequence')
@@ -76,7 +76,7 @@ class MainWindow(QtGui.QWidget):
         layout = QtGui.QGridLayout()
         layout.addWidget(self.view, 0, 0, 1, 4)
         layout.addWidget(add_speaker_button, 1, 0, 1, 4)
-        layout.addWidget(control_button, 2, 0, 1, 4)
+        layout.addWidget(play_button, 2, 0, 1, 4)
         layout.addWidget(pause_button, 3, 0, 1, 4)
         layout.addWidget(reset_button, 4, 0, 1, 4)
         layout.addWidget(default_position_button, 5, 0, 1, 4)
@@ -101,7 +101,7 @@ class MainWindow(QtGui.QWidget):
 
         add_speaker_button.clicked.connect(self.add_speaker)
         reset_button.clicked.connect(self.reset)
-        control_button.clicked.connect(self.control)
+        play_button.clicked.connect(self.play)
         pause_button.clicked.connect(self.pause)
         default_position_button.clicked.connect(self.positions)
         self.plot_button.clicked.connect(self.plot_sequence)
@@ -173,7 +173,6 @@ class MainWindow(QtGui.QWidget):
             dy = audience_pos.y() - y
             dis = (dx ** 2 + dy ** 2) ** 0.5
 
-            from math import acos, degrees
             deg = degrees(acos(dy / dis))
 
             if dx < 0:
@@ -219,8 +218,7 @@ class MainWindow(QtGui.QWidget):
     @QtCore.Slot()
     def reset(self):
 
-        if self.play is not None and self.state.gui_stop is False \
-                or self.play is not None and self.state.dsp_run is True:
+        if self.state.dsp_run is True:
             pass
 
         else:
@@ -232,10 +230,18 @@ class MainWindow(QtGui.QWidget):
             self.view.viewport().update()
 
     @QtCore.Slot()
-    def control(self):
+    def play(self):
         gui_dict = self.state.gui_dict
         # check whether speaker has been selected
-        if len(gui_dict) > 0:
+        if len(gui_dict) == 0:
+            msgbox = QtGui.QMessageBox()
+            msgbox.setText("Please add a speaker.")
+            msgbox.exec_()
+        elif self.state.dsp_run is True:
+            msgbox = QtGui.QMessageBox()
+            msgbox.setText("Binaural audio already played")
+            msgbox.exec_()
+        else:
             # don't let the playback and convolution start more than one time
             if self.return_ex.empty() is True:
                 self.state.switch_stop_playback()
@@ -248,19 +254,22 @@ class MainWindow(QtGui.QWidget):
             print("continue")
             # while not self.return_ex.empty():
             #   self.return_ex.get()
-            gui_settings_dict = {
-                "hrtf_database": self.combo_box.currentText(),
-                "inverse_filter_active": self.inverse_box.isChecked(),
-                "bufferblocks": self.buffersize_spin_box.value()}
+
+            # update gui_settings_dict
+            self.state.gui_settings_dict["hrtf_database"] = \
+                self.combo_box.currentText()
+            self.state.gui_settings_dict["inverse_filter_active"] = \
+                self.inverse_box.isChecked()
+            self.state.gui_settings_dict["bufferblocks"] = \
+                self.buffersize_spin_box.value()
+
             self.plot_button.setEnabled(True)
-            self.dsp_obj = Dsp(self.state, gui_settings_dict, self.return_ex)
-            self.play = threading.Thread(
+            self.dsp_obj = Dsp(self.state,
+                               self.return_ex)
+            dspthread = threading.Thread(
                 target=self.dsp_obj.run)
-            self.play.start()
-        else:
-            msgbox = QtGui.QMessageBox()
-            msgbox.setText("Please add a speaker.")
-            msgbox.exec_()
+            dspthread.start()
+
 
     @QtCore.Slot()
     def pause(self):
@@ -316,10 +325,10 @@ class MainWindow(QtGui.QWidget):
             self.sequence_plot.close()
         if self.speaker_property.is_on:
             self.speaker_property.close()
-        # if self.play is not None and self.state.gui_stop is False \
-        #         or self.play is not None and self.state.dsp_run is True:
+        # if self.dspthread is not None and self.state.gui_stop is False \
+        #         or self.dspthread is not None and self.state.dsp_run is True:
         #     self.state.switch_stop_playback()
-        # if self.play is not None and self.state.gui_pause is True:
+        # if self.dspthread is not None and self.state.gui_pause is True:
         self.state.gui_stop = True
         self.state.gui_pause = False
         event_q_close_event.accept()

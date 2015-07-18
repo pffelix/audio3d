@@ -24,15 +24,14 @@ class DspIn:
     kinds of windows.
     """
     """Constructor of the DspIn class."""
-    def __init__(self, state, gui_dict_init, gui_settings_dict_init):
+    def __init__(self, state_init):
         # Dict with a key and two values for every hrtf to be fetched from the
         # database. The values are the max. values of the hrtfs of
         # each ear.
-        self.state = state
-        self.hrtf_max_amp_dict = dict.fromkeys(gui_dict_init, [0, 0])
+        self.hrtf_max_amp_dict = dict.fromkeys(state_init.gui_dict, [0, 0])
         # Dict with a key for every speaker and two values. These
         # are the max. values fetched from the speaker-file.
-        self.sp_max_amp_dict = dict.fromkeys(gui_dict_init, [])
+        self.sp_max_amp_dict = dict.fromkeys(state_init.gui_dict, [])
         # Standard samplerate, sampledepth
         self.wave_param_common = [44100, 16]
         # Set number of output blocks per second
@@ -41,26 +40,30 @@ class DspIn:
         self.hrtf_database_name, self.hrtf_blocksize, \
             self.hrtf_blocksize_real, self.kemar_inverse_filter, \
             self.kemar_inverse_filter_fft, self.kemar_inverse_filter_active = \
-            self.get_hrtf_param(gui_settings_dict_init)
+            self.get_hrtf_param(state_init.gui_settings_dict)
         # read in whole hrtf datatabas from impulse responses in time domain
-        self.hrtf_database = self.read_hrtf_database(gui_settings_dict_init)
+        self.hrtf_database = self.read_hrtf_database(
+            state_init.gui_settings_dict)
         # bring whole hrtf database to frequency domain
         self.hrtf_database_fft = self.hrtf_database_fft()
         # Initialize a dict for the hrtf block values to be stored in.
-        self.hrtf_block_fft_dict = dict.fromkeys(gui_dict_init, np.zeros((
-            self.fft_blocksize // 2 + 1, 2), dtype=np.complex128))
+        self.hrtf_block_fft_dict = dict.fromkeys(state_init.gui_dict,
+                                                 np.zeros((self.fft_blocksize
+                                                           // 2 + 1, 2),
+                                                          dtype=np.complex128))
         # Define blocksize, blocktime, overlap and hopsize
         self.sp_blocksize, self.sp_blocktime, self.overlap, self.hopsize = \
             self.get_block_param(self.wave_param_common,
                                  self.hrtf_blocksize, self.fft_blocksize)
         # Get necessary parameters of input-file and store to sp_param-dict.
-        self.sp_param = self.init_read_sp(gui_dict_init)
+        self.sp_param = self.init_read_sp(state_init.gui_dict)
         # read in whole wave file of all speakers
-        self.sp_dict = self.read_sp(gui_dict_init)
-        self.block_begin_end = self.init_set_block_begin_end(gui_dict_init)
+        self.sp_dict = self.read_sp(state_init.gui_dict)
+        self.block_begin_end = self.init_set_block_begin_end(
+            state_init.gui_dict)
         # initialize empty numpy array where to save samples of each
         # speaker block
-        self.sp_block_dict = dict.fromkeys(gui_dict_init, np.zeros((
+        self.sp_block_dict = dict.fromkeys(state_init.gui_dict, np.zeros((
             self.sp_blocksize,), dtype=np.float32))
         # build a hann window with sp_blocksize
         self.hann = self.build_hann_window(self.sp_blocksize)

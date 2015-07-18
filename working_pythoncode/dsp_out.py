@@ -17,21 +17,19 @@ import queue
 
 
 class DspOut:
-    def __init__(self, state, gui_dict_init, fft_blocksize,
-                 hopsize, gui_stop_init, gui_pause_init):
-        self.state = state
+    def __init__(self, state_init, fft_blocksize, hopsize):
         self.binaural_block_dict = {sp: np.zeros((
             fft_blocksize, 2), dtype=np.float32) for sp in range(len(
-                gui_dict_init))}
-        self.binaural_block_dict_out = dict.fromkeys(gui_dict_init, np.zeros(
-            (hopsize, 2), dtype=np.float32))
-        self.binaural_block_dict_add = dict.fromkeys(gui_dict_init, np.zeros(
-            (fft_blocksize - hopsize, 2), dtype=np.float32))
+                state_init.gui_dict))}
+        self.binaural_block_dict_out = dict.fromkeys(
+            state_init.gui_dict, np.zeros((hopsize, 2), dtype=np.float32))
+        self.binaural_block_dict_add = dict.fromkeys(
+            state_init.gui_dict, np.zeros((fft_blocksize - hopsize, 2),
+                                          dtype=np.float32))
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
-        self.continue_convolution_dict = dict.fromkeys(gui_dict_init, True)
-        self.gui_stop = gui_stop_init
-        self.gui_pause = gui_pause_init
+        self.continue_convolution_dict = dict.fromkeys(
+            state_init.gui_dict, True)
         self.played_frames_end = 0
         self.played_block_counter = 0
         self.prior_played_block_counter = 0

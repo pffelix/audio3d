@@ -6,6 +6,7 @@ author: H. Zhu, M. Heiss
 from PySide import QtCore, QtGui
 from plot import GLPlotWidget
 from dt2 import DT2
+from math import acos, degrees, cos, sin, radians
 import headtracker_data as headtracker
 
 
@@ -30,6 +31,7 @@ def get_bound_pos(x, y):
     return x, y
 
 
+
 class State(QtCore.QObject):
 
     def __init__(self):
@@ -43,8 +45,8 @@ class State(QtCore.QObject):
         self.gui_pause = False
         self.audience_pos = QtCore.QPoint(170, 170)
         self.speaker_list = []
-        self.speaker_to_show = 0
         self.error_message = []
+        self.speaker_to_show = 0
 
         # head tracker
         self.enable_headtracker = False
@@ -52,14 +54,6 @@ class State(QtCore.QObject):
         self.default_position = [[50, 20], [290, 20], [170, 50], [50, 320],
                                  [290, 320], [170, 290], [50, 120], [290, 120],
                                  [50, 220], [290, 220]]
-
-    def check_error(self):
-        if len(self.error_message) > 0:
-            print(self.error_message.pop(0))
-
-    def send_error(self, message):
-        if message not in self.error_message:
-            self.error_message.append(message)
 
     # @brief gui_dict is continuously updated,
     #        managed by update_timer every 10sec
@@ -99,7 +93,6 @@ class State(QtCore.QObject):
     def get_abs_pos(self, azimuth, dist):
         audience_pos = self.audience_pos
 
-        from math import cos, sin, radians
         x0 = audience_pos.x()
         y0 = audience_pos.y()
 
@@ -108,6 +101,13 @@ class State(QtCore.QObject):
 
         return x, y
 
+    def check_error(self):
+        if len(self.error_message) > 0:
+            print(self.error_message.pop(0))
+
+    def send_error(self, message):
+        if message not in self.error_message:
+            self.error_message.append(message)
 
 # @class <Headtracker> This class integrates the headtracker
 #
@@ -313,7 +313,6 @@ class Speaker(Item):
 
         # required geometric transformation due to the difference in definition
         # used by the headtracker setup
-        from math import acos, degrees
         deg = degrees(acos(dy / dis))
         if dx < 0:
             deg = 360 - deg
@@ -424,7 +423,6 @@ class SpeakerProperty(QtGui.QWidget):
     #
     @QtCore.Slot()
     def confirm(self):
-        from math import cos, sin, radians
         x0 = self.state.audience_pos.x()
         y0 = self.state.audience_pos.y()
         azimuth = float(self.azimuth_line_edit.text())

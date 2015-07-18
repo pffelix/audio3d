@@ -13,37 +13,33 @@ import time
 
 
 class Dsp:
-    def __init__(self, state,
-                 gui_settings_dict_init, return_ex_init):
-        self.state = state
-        self.gui_dict = state.gui_dict
-        self.gui_settings_dict = gui_settings_dict_init
-        self.prior_head_angle_dict = dict.fromkeys(state.gui_dict, [])
+    def __init__(self, state_init, return_ex_init):
+        self.state = state_init
+        self.gui_dict = state_init.gui_dict
+        self.gui_settings_dict = state_init.gui_settings_dict
+        self.prior_head_angle_dict = dict.fromkeys(self.gui_dict, [])
         self.return_ex = return_ex_init
-        self.outputsignal_sample_number = dict.fromkeys(state.gui_dict, [])
+        self.outputsignal_sample_number = dict.fromkeys(self.gui_dict, [])
         # Set number of bufferblocks between fft block convolution and audio
         # block playback
-        self.bufferblocks = gui_settings_dict_init["bufferblocks"]
+        self.bufferblocks = state_init.gui_settings_dict["bufferblocks"]
         # Create Input Object which contains mono input samples of sources
         # and hrtf impulse responses samples
-        self.dspin_obj = dsp_in.DspIn(self.state, state.gui_dict,
-                                      gui_settings_dict_init)
+        self.dspin_obj = dsp_in.DspIn(state_init)
         # Create Output Object which contains binaural output samples
-        self.dspout_obj = dsp_out.DspOut(self.state,
-                                         state.gui_dict,
+        self.dspout_obj = dsp_out.DspOut(state_init,
                                          self.dspin_obj.fft_blocksize,
-                                         self.dspin_obj.hopsize,
-                                         state.gui_stop, state.gui_pause)
+                                         self.dspin_obj.hopsize)
         # magnitude spectrum of current wave block for every speaker
         self.sp_spectrum_dict = {sp: np.zeros((
             self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16) for
-            sp in range(len(state.gui_dict))}
+            sp in range(len(state_init.gui_dict))}
 
         # magnitude spectrum of current left and right hrtf for every speaker
         self.hrtf_spectrum_dict = {sp: [np.zeros((
             self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16),
             np.zeros((self.dspin_obj.fft_blocksize // 2 + 1, 2),
-                     dtype=np.float16)] for sp in range(len(state.gui_dict))}
+            dtype=np.float16)] for sp in range(len(state_init.gui_dict))}
 
         # Blockcounter initialized to count number of already convolved
         # blocks
@@ -142,11 +138,11 @@ class Dsp:
             # Begin audio playback if specified number of bufferblocks
             # has been convolved
             if self.blockcounter == self.bufferblocks:
-                startaudiooutput = threading.Thread(
+                playthread = threading.Thread(
                     target=self.dspout_obj.audiooutput, args=(
                         self.dspin_obj.wave_param_common[0],
                         self.dspin_obj.hopsize))
-                startaudiooutput.start()
+                playthread.start()
 
             # increment block counter of run function when less blocks than
             # than the bufferblocksize has been convolved (playback not
