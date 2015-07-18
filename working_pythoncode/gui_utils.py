@@ -49,8 +49,9 @@ class State(QtCore.QObject):
         # head tracker
         self.enable_headtracker = False
         # initialization of variables
-        self.default_position = [[50, 20], [290, 20], [170, 50],
-                                 [50, 320], [290, 320], [290, 170]]
+        self.default_position = [[50, 20], [290, 20], [170, 50], [50, 320],
+                                 [290, 320], [170, 290], [50, 120], [290, 120],
+                                 [50, 220], [290, 220]]
 
     def check_error(self):
         if len(self.error_message) > 0:

@@ -13,13 +13,6 @@ import threading
 import multiprocessing
 
 
-# head tracker
-enable_headtracker = False
-# initialization of variables
-default_position = [[50, 20], [290, 20], [170, 50],
-                    [50, 320], [290, 320], [290, 170]]
-
-
 class MainWindow(QtGui.QWidget):
 
     def __init__(self):
@@ -95,7 +88,7 @@ class MainWindow(QtGui.QWidget):
         layout.addWidget(self.buffersize_spin_box, 8, 1, 1, 1)
 
         # initialize head tracker, connect signal and slots
-        if enable_headtracker:
+        if self.state.enable_headtracker:
             self.head_tracker = gui_utils.Headtracker()
             self.update_headtracker_timer = QtCore.QTimer()
             self.update_headtracker_timer.timeout.connect(self.update_head)
@@ -170,14 +163,14 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.Slot()
     def add_speaker(self):
-        if len(self.state.gui_dict) < 6:
+        if len(self.state.gui_dict) < 10:
             index = len(self.state.gui_dict)
             self.speaker_property.added.connect(self.add2scene)
 
             # calculate current default position
             audience_pos = self.state.audience_pos
-            x = default_position[index][0]
-            y = default_position[index][1]
+            x = self.state.default_position[index][0]
+            y = self.state.default_position[index][1]
             dx = x - audience_pos.x()
             dy = audience_pos.y() - y
             dis = (dx ** 2 + dy ** 2) ** 0.5
@@ -205,7 +198,7 @@ class MainWindow(QtGui.QWidget):
     @QtCore.Slot()
     def add2scene(self):
 
-        if len(self.state.gui_dict) < 6:
+        if len(self.state.gui_dict) < 10:
             # read in data
             index = len(self.state.gui_dict)
             path = self.speaker_property.path
@@ -279,8 +272,8 @@ class MainWindow(QtGui.QWidget):
     def positions(self):
 
         for index, speaker in enumerate(self.state.speaker_list):
-            x = default_position[index][0]
-            y = default_position[index][1]
+            x = self.state.default_position[index][0]
+            y = self.sate.default_position[index][1]
             self.state.speaker_list[index].setPos(x, y)
             self.state.speaker_list[index].cal_rel_pos()
         else:
@@ -320,7 +313,7 @@ class MainWindow(QtGui.QWidget):
 
     def closeEvent(self, event_q_close_event):
         self.room.clear()
-        if enable_headtracker:
+        if self.state.enable_headtracker:
             self.update_headtracker_timer.stop()
         if self.sequence_plot.is_on:
             self.sequence_plot.close()
