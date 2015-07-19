@@ -507,7 +507,7 @@ class SequencePlot(QtGui.QWidget):
         self.setWindowTitle('Sequence Plot')
         self.timer = QtCore.QTimer(self)
 
-    def closeEvent(self, event):
+    def closeEvent(self, event):   # flake8: noqa
         self.timer.timeout.disconnect()
         self.timer.stop()
         self.is_on = False

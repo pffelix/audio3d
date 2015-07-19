@@ -46,6 +46,7 @@ class MainWindow(QtGui.QWidget):
         self.sequence_plot.plot_on.connect(self.update_sequence_dicts)
 
         self.dsp_obj = None
+        self.dsp_thread = None
         # return_ex: save whether playback was successful
         self.return_ex = multiprocessing.Queue()
         self.init_ui()
@@ -284,10 +285,9 @@ class MainWindow(QtGui.QWidget):
             self.dsp_obj = Dsp(self.state,
                                self.return_ex)
             # start dsp thread
-            dspthread = threading.Thread(
+            self.dspthread = threading.Thread(
                 target=self.dsp_obj.run)
-            dspthread.start()
-
+            self.dspthread.start()
 
     @QtCore.Slot()
     def pause(self):
@@ -354,4 +354,5 @@ class MainWindow(QtGui.QWidget):
         self.state.mtx_pause.acquire()
         self.state.dsp_pause = False
         self.state.mtx_pause.release()
+        self.dsp_thread.join()
         event_q_close_event.accept()

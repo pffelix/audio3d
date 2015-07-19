@@ -52,6 +52,21 @@ class DspIn:
                                                  np.zeros((self.fft_blocksize
                                                            // 2 + 1, 2),
                                                           dtype=np.complex128))
+        # initialize fft magnitude spectrum array for every speaker signal
+        self.state.sp_spectrum_dict = {sp: np.zeros((
+            self.fft_blocksize // 2 + 1, 2), dtype=np.float16) for
+            sp in range(len(state_init.gui_sp_dict))}
+
+        # initialize fft magnitude spectrum array of left and right hrtf for
+        # every speaker
+        self.state.hrtf_spectrum_dict = {sp: [np.zeros((
+            self.fft_blocksize // 2 + 1, 2), dtype=np.float16),
+            np.zeros((self.fft_blocksize // 2 + 1, 2), dtype=np.float16)]
+            for sp in range(len(state_init.gui_sp_dict))}
+
+        # set fft frequency values of fft magnitude spectrum arrays
+        self.set_fftfreq(self.fft_blocksize, self.wave_param_common[0])
+
         # Define blocksize, blocktime, overlap and hopsize
         self.sp_blocksize, self.sp_blocktime, self.overlap, self.hopsize = \
             self.get_block_param(self.wave_param_common,
@@ -744,11 +759,17 @@ class DspIn:
                                                                copy=False)
 
     # @author Felix Pfreundtner
-    def get_fftfreq(self, fft_blocksize, samplerate):
+    def set_fftfreq(self, fft_blocksize, samplerate):
         freq_spacing = samplerate / fft_blocksize
         freq_number = fft_blocksize // 2 + 1
-        freq = np.arange(0, freq_number, dtype=int) * freq_spacing
-        return freq
+        freq = np.arange(0, freq_number, dtype=np.float16) * freq_spacing
+        # set frequency values of speaker spectrum
+        for sp in self.state.sp_spectrum_dict:
+            self.state.sp_spectrum_dict[sp][:, 0] = freq
+        # set frequency values of hrtf spectrum
+        for sp in self.state.hrtf_spectrum_dict:
+            for l_r in range(2):
+                self.state.hrtf_spectrum_dict[sp][l_r][:, 0] = freq
 
     # @brief Function convolves hrtf and data of the music file
     # @details Function takes one hrtf block and one data block (their size
@@ -765,18 +786,8 @@ class DspIn:
         sp_block_fft_sp = rfft(self.sp_block_dict[sp], self.fft_blocksize)
         # save fft magnitude spectrum of sp_block in sp_spectrum and
         # hrtf_block in hrtf_spectrum to be shown by gui
-        # create array of all calculated FFT frequencies
-        freq_all = self.get_fftfreq(self.fft_blocksize,
-                                   self.wave_param_common[0])
-        # set position of only positive frequencies (neg. frequencies
-        # redundant)
-        position_freq = np.where(freq_all >= 0)
-        # set array of only positive FFT frequencies (neg. frequ. redundant)
-        freqs = freq_all[position_freq]
-        self.state.sp_spectrum_dict[sp][:, 0] = freqs
-        self.state.hrtf_spectrum_dict[sp][l_r][:, 0] = freqs
-        # get magnitued spectrum of sp_block
-        sp_magnitude_spectrum = abs(sp_block_fft_sp[position_freq])
+        # get magnitum spectrum of sp_block
+        sp_magnitude_spectrum = abs(sp_block_fft_sp)
         # normalize spectrum to get int16 values
         max_amplitude_output = 32767
         max_amplitude_sp_magnitude_spectrum = np.amax(np.abs(
@@ -789,8 +800,7 @@ class DspIn:
         else:
             self.state.sp_spectrum_dict[sp][:, 1] = np.zeros((
                 self.fft_blocksize // 2 + 1, ), dtype=np.float16)
-        hrtf_magnitude_spectrum = abs(self.hrtf_block_fft_dict[sp][:, l_r][
-                                      position_freq])
+        hrtf_magnitude_spectrum = abs(self.hrtf_block_fft_dict[sp][:, l_r])
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(
             hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0 and \
