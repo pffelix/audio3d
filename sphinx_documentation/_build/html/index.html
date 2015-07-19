@@ -1,0 +1,433 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Group B: 3D Audio’s documentation! &mdash; Group B: 3D Audio 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Group B: 3D Audio 1.0 documentation" href="#" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-group-b-3d-audio-s-documentation">
+<h1>Welcome to Group B: 3D Audio&#8217;s documentation!<a class="headerlink" href="#welcome-to-group-b-3d-audio-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<span class="target" id="module-main"></span><p>Created on Fri Jun  12 15:30:53 2015</p>
+<p>&#64;author: Felix Pfreundtner</p>
+<span class="target" id="module-dsp"></span><p>Created on Fri May 22 16:27:57 2015</p>
+<p>&#64;author: Felix Pfreundtner</p>
+<span class="target" id="module-dsp_in"></span><p>Created on Fri Jun  5 10:30:53 2015</p>
+<p>&#64;author: Felix Pfreundtner</p>
+<span class="target" id="module-dsp_out"></span><p>Created on Fri Jun  5 10:31:01 2015</p>
+<p>&#64;author: Felix Pfreundtner</p>
+<span class="target" id="module-dsp_tests"></span><span class="target" id="module-dt2"></span><span class="target" id="module-gui_main_window"></span><p>GUI Main Window of Audio 3D Project, Group B
+author: H. Zhu, M. Heiss</p>
+<span class="target" id="module-gui_tests"></span><p>Created on Thu Jul  2 13:46:25 2015</p>
+<p>&#64;author: mh</p>
+<span class="target" id="module-gui_utils"></span><p>Library for GUI of Audio 3D Project, Group B
+author: H. Zhu, M. Heiss</p>
+<span class="target" id="module-headtracker_data"></span><p>Created on Tue Jun 23 16:46:54 2015</p>
+<p>&#64;author: mh</p>
+<span class="target" id="module-test_headtracker"></span><span class="target" id="module-plot"></span><dl class="class">
+<dt id="dsp.Dsp">
+<em class="property">class </em><code class="descclassname">dsp.</code><code class="descname">Dsp</code><span class="sig-paren">(</span><em>state_init</em>, <em>return_ex_init</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp.html#Dsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp.Dsp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="dsp_in.DspIn">
+<em class="property">class </em><code class="descclassname">dsp_in.</code><code class="descname">DspIn</code><span class="sig-paren">(</span><em>state_init</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class contains all functions executed before the convolution in
+the run-function of the Dsp-class. This includes particularly to read
+parameters of blocks and hrtfs, to read blocks and hrtfs from their
+databases, to normalize hrtfs, round numbers and to create all necessary
+kinds of windows.</p>
+<dl class="method">
+<dt id="dsp_in.DspIn.apply_window_on_sp_block">
+<code class="descname">apply_window_on_sp_block</code><span class="sig-paren">(</span><em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.apply_window_on_sp_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.apply_window_on_sp_block" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Gets and reads the correct hrtf_file from database</strong></p>
+<p>If the input-flag normalize_flag_sp is True, measure the maximum
+amplitude occurring in the .wav-file. After that, reduce all
+entries of sp_block_dict by the ratio that decreases the max value
+to 2^15-1</p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.build_hann_window">
+<code class="descname">build_hann_window</code><span class="sig-paren">(</span><em>sp_blocksize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.build_hann_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.build_hann_window" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate and construct the hann window in dependency of
+sp_blocksize.
+Return values:
+* hann_window: Numpy-array of the length of sp_blocksize
+Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.fft_convolution">
+<code class="descname">fft_convolution</code><span class="sig-paren">(</span><em>binaural_block_dict_sp</em>, <em>sp</em>, <em>l_r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.fft_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.fft_convolution" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Function convolves hrtf and data of the music file</strong></p>
+<p>Function takes one hrtf block and one data block (their size is
+defined by fft_blocksize), normalizes their values to int16-signals
+and then executes the convolution. After that, the signal is
+retransformed to  time-domain and normalized again. The final
+values are written then to the binaural_block_dict.</p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.get_block_param">
+<code class="descname">get_block_param</code><span class="sig-paren">(</span><em>wave_param_common</em>, <em>hrtf_blocksize</em>, <em>fft_blocksize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_block_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_block_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method uses the parameters of the input .wav-file and the
+blocksizes of the fft and the hrtf to calculate the blocksize and
+blocktime needed from the speaker.
+Return values
+* sp_blocksize: Amount of samples taken from the input file per block
+* sp_blocktime: Time it takes to play one block in [s]
+* overlap: overlap between two binaural output blocks in decimal</p>
+<blockquote>
+<div>value [calculated default is 0.5]</div></blockquote>
+<p>Author Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.get_hrtf_block_fft">
+<code class="descname">get_hrtf_block_fft</code><span class="sig-paren">(</span><em>gui_sp_dict_sp</em>, <em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_hrtf_block_fft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_hrtf_block_fft" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Gets and reads the correct hrtf_file from database</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.get_hrtf_param">
+<code class="descname">get_hrtf_param</code><span class="sig-paren">(</span><em>gui_settings_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_hrtf_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_hrtf_param" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Get all parameters for the hrtf set by the settings in gui</strong></p>
+<p>This function calculates all necessary parameters of the hrtf to be
+later able to get the correct hrtf-files for the convolution with
+the speaker-file signal.</p>
+<p>Return values:
+* hrtf_database_name: Tells which database the listener has chosen
+(available are: normal ear, big ear and a compact version)
+* hrtf_blocksize: Simply set to default value 513 since
+fft_blocksize is defaulted to 1024
+* kemar_inverse_filter: Boolean value that tells whether check-box
+in gui was activated or not</p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.get_sp_block">
+<code class="descname">get_sp_block</code><span class="sig-paren">(</span><em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_sp_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_sp_block" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Gets the current block for the speaker.</strong></p>
+<p>Return value:
+<a href="#id1"><span class="problematic" id="id2">*</span></a>Continue input: Boolean that tells whether its the last block of
+the file or not</p>
+<p>Author: Matthias Lederle</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.hrtf_database_fft">
+<code class="descname">hrtf_database_fft</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.hrtf_database_fft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.hrtf_database_fft" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Converts the whole HRTF-database in frequency domain</strong></p>
+<p>Return values:
+<a href="#id3"><span class="problematic" id="id4">*</span></a>hrtf_database_fft: The HRTF database converted to frequency domain.</p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.init_read_sp">
+<code class="descname">init_read_sp</code><span class="sig-paren">(</span><em>gui_sp_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.init_read_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.init_read_sp" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Get 10 important parameters of the files to be played by the
+get_block_function</strong></p>
+<p>This method gets all important data from the .wav files that will
+be played by the speakers. Input is a gui_sp_dict, containing the
+filename at place [2]. The output is another dict called sp_param,
+which holds one of the properties as values for each speaker given
+by the gui_sp_dict.</p>
+<p>Return values:
+sp_param: Returns a dictionary containing 10 properties of each
+speaker-file.</p>
+<p>Author: Matthias Lederle</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.init_set_block_begin_end">
+<code class="descname">init_set_block_begin_end</code><span class="sig-paren">(</span><em>gui_sp_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.init_set_block_begin_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.init_set_block_begin_end" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Initializes a list with the number of the first and last sample
+of the first block</strong></p>
+<p>This function calculates a list called block_begin_end containing
+two elements: [0] is the first sample of the first block, [1] is
+the last sample of the first block; The entries of following block
+will then be calculated by the set_block_begin_end-function.</p>
+<p>Return value:
+<a href="#id5"><span class="problematic" id="id6">*</span></a>block_begin_end: List of the first ([0]) and last ([0]) sample of</p>
+<blockquote>
+<div>the FIRST block.</div></blockquote>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.normalize">
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>normalize_bool</em>, <em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Gets and reads the correct hrtf_file from database</strong></p>
+<p>If the input-flag normalize_flag_sp is True, measure the maximum
+amplitude occurring in the .wav-file. After that, reduce all
+entries of sp_block_dict by the ratio that decreases the max value
+to 2^15-1</p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.read_hrtf_database">
+<code class="descname">read_hrtf_database</code><span class="sig-paren">(</span><em>gui_sp_dict_sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.read_hrtf_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.read_hrtf_database" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Preloads all hrtf Files</strong></p>
+<p>Return values:
+* hrtf_database: A numpy array that contains either the
+kemar_normal_ear or the kemar_full_ear HRTFs.</p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.read_sp">
+<code class="descname">read_sp</code><span class="sig-paren">(</span><em>gui_sp_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.read_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.read_sp" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Reads one block of samples</strong></p>
+<p>This method reads a block of samples of a speaker-.wav-file and
+writes in a numpyarray sp_block_dict[sp] (containing one 16-bit-int
+for each sample) and a flag that tells whether the end of the file
+is reached or not. This function will be applied in the while loop
+of the dsp-class: I.e. a optimum performance is required.</p>
+<p>Author: Matthias Lederle</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.rnd">
+<code class="descname">rnd</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.rnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.rnd" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function does a normal school arithmetic round (choose lower
+int until .4 and higher int from .5 on) and returns the rounded
+value. It is NOT equal to pythons round() method.
+Return values:
+* value: Is the rounded int of any input number.
+Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.set_block_begin_end">
+<code class="descname">set_block_begin_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.set_block_begin_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.set_block_begin_end" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Every while-loop the number of the first and last sample is
+calculated</strong></p>
+<p>This function replaces the values set by the
+init_set_block_begin_end-function every while-loop according to the
+current location in the speaker-file that needs to be read. Since
+the values are replaced, there are no input and output variables.</p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_in.DspIn.set_fftfreq">
+<code class="descname">set_fftfreq</code><span class="sig-paren">(</span><em>fft_blocksize</em>, <em>samplerate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.set_fftfreq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.set_fftfreq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dsp_out.DspOut">
+<em class="property">class </em><code class="descclassname">dsp_out.</code><code class="descname">DspOut</code><span class="sig-paren">(</span><em>state_init</em>, <em>fft_blocksize</em>, <em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="dsp_tests.DspTests">
+<em class="property">class </em><code class="descclassname">dsp_tests.</code><code class="descname">DspTests</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="gui_main_window.MainWindow">
+<em class="property">class </em><code class="descclassname">gui_main_window.</code><code class="descname">MainWindow</code><a class="reference internal" href="_modules/gui_main_window.html#MainWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="gui_utils.State">
+<em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">State</code><a class="reference internal" href="_modules/gui_utils.html#State"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.State" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="gui_utils.Headtracker">
+<em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">Headtracker</code><a class="reference internal" href="_modules/gui_utils.html#Headtracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Headtracker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="gui_utils.Item">
+<em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">Item</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Item" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="gui_utils.Room">
+<em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">Room</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Room"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Room" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="gui_utils.View">
+<em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">View</code><span class="sig-paren">(</span><em>state</em>, <em>scene</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#View"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.View" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="gui_utils.SignalHandler">
+<em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">SignalHandler</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SignalHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SignalHandler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="gui_utils.Speaker">
+<em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">Speaker</code><span class="sig-paren">(</span><em>state</em>, <em>index</em>, <em>path</em>, <em>posx=0</em>, <em>posy=0</em>, <em>norm=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Speaker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Speaker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="gui_utils.Audience">
+<em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">Audience</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Audience"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Audience" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="gui_utils.SpeakerProperty">
+<em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">SpeakerProperty</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SpeakerProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SpeakerProperty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="gui_utils.SequencePlot">
+<em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">SequencePlot</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SequencePlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SequencePlot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="plot.GLPlotWidget">
+<em class="property">class </em><code class="descclassname">plot.</code><code class="descname">GLPlotWidget</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="plot.GLPlotWidget.initializeGL">
+<code class="descname">initializeGL</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.initializeGL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.initializeGL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize OpenGL, VBOs, upload data on the GPU, etc.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="plot.GLPlotWidget.paintEvent">
+<code class="descname">paintEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.paintEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.paintEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Paint the scene.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="plot.GLPlotWidget.resizeGL">
+<code class="descname">resizeGL</code><span class="sig-paren">(</span><em>width</em>, <em>height</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.resizeGL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.resizeGL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called upon window resizing: reinitialize the viewport.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dt2.DT2">
+<em class="property">class </em><code class="descclassname">dt2.</code><code class="descname">DT2</code><a class="reference internal" href="_modules/dt2.html#DT2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dt2.DT2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="gui_tests.GuiTests">
+<em class="property">class </em><code class="descclassname">gui_tests.</code><code class="descname">GuiTests</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="test_headtracker.TestHeadtracker">
+<em class="property">class </em><code class="descclassname">test_headtracker.</code><code class="descname">TestHeadtracker</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test_headtracker.html#TestHeadtracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test_headtracker.TestHeadtracker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to Group B: 3D Audio&#8217;s documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Felix Pfreundtner, Huaijiang Zhu, Manuela Heiss, Matthias Lederle".
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+      |
+      <a href="_sources/index.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

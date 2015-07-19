@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dsp_out &mdash; Group B: 3D Audio 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Group B: 3D Audio 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for dsp_out</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Fri Jun  5 10:31:01 2015</span>
+
+<span class="sd">@author: Felix Pfreundtner</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.io.wavfile</span>
+<span class="kn">import</span> <span class="nn">pyaudio</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">queue</span>
+
+
+<div class="viewcode-block" id="DspOut"><a class="viewcode-back" href="../index.html#dsp_out.DspOut">[docs]</a><span class="k">class</span> <span class="nc">DspOut</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_init</span><span class="p">,</span> <span class="n">fft_blocksize</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">sp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span>
+            <span class="n">fft_blocksize</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span>
+                <span class="n">state_init</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">))}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict_out</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span>
+            <span class="n">state_init</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">hopsize</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict_add</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span>
+            <span class="n">state_init</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">fft_blocksize</span> <span class="o">-</span> <span class="n">hopsize</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                                          <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">hopsize</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binaural</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">fft_blocksize</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continue_convolution_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span>
+            <span class="n">state_init</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">played_frames_end</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">played_block_counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prior_played_block_counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">playbuffer</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">deque</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">playback_finished</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">playback_successful</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">playqueue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+    <span class="c"># @brief Applies the overlap-add-method to the signal.</span>
+    <span class="c"># @details Adds the last part of the prior fft-block to calculate the</span>
+    <span class="c"># overlapp-values (which decrease the desharmonic sounds in the output</span>
+    <span class="c"># signal.)</span>
+    <span class="c"># @author Felix Pfreundtner</span>
+    <span class="k">def</span> <span class="nf">overlap_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fft_blocksize</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
+        <span class="c"># get current binaural block output of sp</span>
+        <span class="c"># 1. take binaural block output of current fft which don&#39;t overlap</span>
+        <span class="c"># with next blocks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict_out</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span>
+            <span class="mi">0</span><span class="p">:</span><span class="n">hopsize</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="c"># 2. add relevant still remaining block output of prior ffts to</span>
+        <span class="c"># binaural block output of current block</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict_out</span><span class="p">[</span><span class="n">sp</span><span class="p">][:,</span> <span class="p">:]</span> <span class="o">+=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict_add</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">hopsize</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="c"># create a new array to save remaining block output of current fft</span>
+        <span class="c"># and add it to the still remaining block output of prior ffts</span>
+        <span class="c"># 1. create new array binaural_block_dict_add_sp_new with size (</span>
+        <span class="c"># fft_blocksize - hopsize)</span>
+        <span class="n">add_sp_arraysize</span> <span class="o">=</span> <span class="p">(</span><span class="n">fft_blocksize</span> <span class="o">-</span> <span class="n">hopsize</span><span class="p">)</span>
+        <span class="n">binaural_block_dict_add_sp_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">add_sp_arraysize</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                                                  <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="c"># 2. take still remaining block output of prior ffts and add it to</span>
+        <span class="c"># the zero array on front position</span>
+        <span class="n">binaural_block_dict_add_sp_new</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">add_sp_arraysize</span> <span class="o">-</span> <span class="n">hopsize</span><span class="p">,</span>
+                                       <span class="p">:]</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict_add</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="n">hopsize</span><span class="p">:,</span> <span class="p">:]</span>
+        <span class="c"># 3. take remaining block output of current fft and add it to the</span>
+        <span class="c"># array on back position</span>
+        <span class="n">binaural_block_dict_add_sp_new</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">+=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="n">hopsize</span><span class="p">:,</span> <span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict_add</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">binaural_block_dict_add_sp_new</span>
+
+    <span class="c"># @brief Calculate the signal for all speakers taking into account the</span>
+    <span class="c"># distance to the speakers.</span>
+    <span class="c"># @author Felix Pfreundtner</span>
+    <span class="k">def</span> <span class="nf">mix_binaural_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">,</span> <span class="n">gui_sp_dict</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">hopsize</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="c"># maximum distance of a speaker to head in window with borderlength</span>
+        <span class="c"># 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)</span>
+        <span class="c"># max([gui_sp_dict[sp][1] for sp in gui_sp_dict])</span>
+        <span class="n">distance_max</span> <span class="o">=</span> <span class="mf">3.5</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c"># get total number of speakers from gui_sp_dict</span>
+        <span class="n">total_number_of_sp</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gui_sp_dict</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict_out</span><span class="p">:</span>
+            <span class="c"># get distance speaker to head from gui_sp_dict</span>
+            <span class="n">distance_sp</span> <span class="o">=</span> <span class="n">gui_sp_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c"># sound pressure decreases with distance 1/r</span>
+            <span class="n">sp_gain_factor</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">distance_sp</span> <span class="o">/</span> <span class="n">distance_max</span>
+            <span class="c"># add gained sp block output to a summarized block output of all</span>
+            <span class="c"># speakers</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict_out</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">*</span> \
+                <span class="n">sp_gain_factor</span> <span class="o">/</span> <span class="n">total_number_of_sp</span>
+            <span class="c"># if convolution for this speaker will be skipped on the</span>
+            <span class="c"># next iteration set binaural_block_dict_out to zeros</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">continue_convolution_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block_dict_out</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">hopsize</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+                                                            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+                                                         <span class="n">copy</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="c"># @brief Adds the newly calculated blocks to a dict that contains all the</span>
+    <span class="c">#  blocks calculated before.</span>
+    <span class="c"># @retval &lt;binaural&gt; A dict of all the output-blocks of the signal added</span>
+    <span class="c">#  to one another up to the current block.</span>
+    <span class="c"># another up to the current</span>
+    <span class="c"># @author Felix Pfreundtner</span>
+    <span class="k">def</span> <span class="nf">overlapp_add_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binaural_block_dict_sp</span><span class="p">,</span> <span class="n">blockcounter</span><span class="p">,</span>
+                            <span class="n">fft_blocksize</span><span class="p">,</span> <span class="n">binaural</span><span class="p">):</span>
+        <span class="n">delay</span> <span class="o">=</span> <span class="mi">256</span>
+        <span class="k">if</span> <span class="n">blockcounter</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">binaural</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">fft_blocksize</span> <span class="o">*</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blockcounter</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">binaural</span><span class="p">[</span><span class="n">blockcounter</span> <span class="o">*</span> <span class="n">delay</span><span class="p">:</span><span class="n">blockcounter</span> <span class="o">*</span> <span class="n">delay</span> <span class="o">+</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> \
+                <span class="n">binaural_block_dict_sp</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">binaural</span><span class="p">[</span><span class="n">blockcounter</span> <span class="o">*</span> <span class="n">delay</span><span class="p">:</span><span class="n">blockcounter</span> <span class="o">*</span> <span class="n">delay</span> <span class="o">+</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> \
+                <span class="n">binaural_block_dict_sp</span>
+        <span class="k">return</span> <span class="n">binaural</span>
+
+    <span class="c"># @brief Concatenates the current block to the binaural signal.</span>
+    <span class="c"># @author Felix Pfreundtner</span>
+    <span class="k">def</span> <span class="nf">add_to_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blockcounter</span><span class="p">):</span>
+        <span class="c"># if blockcounter == 0:</span>
+        <span class="c">#     self.binaural = self.binaural_block.astype(np.int16, copy=False)</span>
+        <span class="c">#     q.put(self.binaural_block.astype(np.int16, copy=False))</span>
+        <span class="c"># else:</span>
+        <span class="c">#     self.binaural = np.concatenate((self.binaural,</span>
+        <span class="c">#                                     self.binaural_block.astype(</span>
+        <span class="c">#                                         np.int16, copy=False)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">playqueue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binaural_block</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">,</span>
+                                                      <span class="n">copy</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">tostring</span><span class="p">())</span>
+
+    <span class="c"># @brief Writes the binaural output signal.</span>
+    <span class="c"># @author Felix Pfreundtner</span>
+    <span class="k">def</span> <span class="nf">writebinauraloutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binaural</span><span class="p">,</span> <span class="n">wave_param_common</span><span class="p">,</span> <span class="n">gui_sp_dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s">&quot;./audio_out/&quot;</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s">&quot;./audio_out/&quot;</span><span class="p">)</span>
+        <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">wavfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;./audio_out/binauralmix.wav&quot;</span><span class="p">,</span>
+                               <span class="n">wave_param_common</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">binaural</span><span class="p">)</span>
+
+    <span class="c"># @brief</span>
+    <span class="c"># @author Felix Pfreundtner</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_data</span><span class="p">,</span> <span class="n">frame_count</span><span class="p">,</span> <span class="n">time_info</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Playback Error: </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">status</span><span class="p">)</span>
+        <span class="c"># played_frames_begin = self.played_frames_end</span>
+        <span class="c"># self.played_frames_end += frame_count</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">playqueue</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">playqueue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="n">returnflag</span> <span class="o">=</span> <span class="n">pyaudio</span><span class="o">.</span><span class="n">paContinue</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">returnflag</span> <span class="o">=</span> <span class="n">pyaudio</span><span class="o">.</span><span class="n">paComplete</span>
+        <span class="c"># data = self.binaural[played_frames_begin:self.played_frames_end, :]</span>
+        <span class="c"># print(&quot;Played Block: &quot; + str(self.played_block_counter))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">played_block_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c"># print(&quot;Play: &quot; + str(self.played_block_counter))</span>
+        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">returnflag</span>
+
+    <span class="c"># @brief Streams the calculated files as a output signal.</span>
+    <span class="c"># @author Felix Pfreundtner</span>
+    <span class="k">def</span> <span class="nf">audiooutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samplerate</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">):</span>
+        <span class="n">pa</span> <span class="o">=</span> <span class="n">pyaudio</span><span class="o">.</span><span class="n">PyAudio</span><span class="p">()</span>
+        <span class="n">audiostream</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="n">pyaudio</span><span class="o">.</span><span class="n">paInt16</span><span class="p">,</span>
+                              <span class="n">channels</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                              <span class="n">rate</span><span class="o">=</span><span class="n">samplerate</span><span class="p">,</span>
+                              <span class="n">output</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                              <span class="n">frames_per_buffer</span><span class="o">=</span><span class="n">hopsize</span><span class="p">,</span>
+                              <span class="n">stream_callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">,</span>
+                              <span class="p">)</span>
+        <span class="n">audiostream</span><span class="o">.</span><span class="n">start_stream</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">audiostream</span><span class="o">.</span><span class="n">is_active</span><span class="p">()</span> <span class="ow">or</span> <span class="n">audiostream</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">():</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c"># handle playback pause</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">audiostream</span><span class="o">.</span><span class="n">stop_stream</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">audiostream</span><span class="o">.</span><span class="n">is_stopped</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+                <span class="n">audiostream</span><span class="o">.</span><span class="n">start_stream</span><span class="p">()</span>
+            <span class="c"># handle playblack stop</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">audiostream</span><span class="o">.</span><span class="n">stop_stream</span><span class="p">()</span>
+        <span class="n">audiostream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">pa</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="c"># execute commands when when playback finished successfully</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">continue_convolution_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="ow">is</span> <span class="bp">True</span> <span class="ow">and</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Error PC to slow - Playback Stopped&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">continue_convolution_dict</span><span class="p">:</span>
+                <span class="c"># self.played_frames_end += sp_blocksize</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">continue_convolution_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">playback_successful</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">playback_finished</span> <span class="o">=</span> <span class="bp">True</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Felix Pfreundtner, Huaijiang Zhu, Manuela Heiss, Matthias Lederle".
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
