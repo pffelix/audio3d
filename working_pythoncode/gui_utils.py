@@ -38,9 +38,7 @@ class State(QtCore.QObject):
     def __init__(self):
         super(State, self).__init__()
         self.gui_dict = {}
-        self.gui_settings_dict = {"hrtf_database": "kemar_normal_ear",
-                                  "inverse_filter_active": True,
-                                  "bufferblocks": 5}
+        self.gui_settings_dict = {}
         self.dsp_run = False
         self.gui_stop = False
         self.gui_pause = False
@@ -49,17 +47,6 @@ class State(QtCore.QObject):
         self.speaker_list = []
         self.error_message = []
         self.speaker_to_show = 0
-
-
-    # @brief gui_dict is continuously updated,
-    #        managed by update_timer every 10sec
-    # @details
-    # @author
-    def update_gui_dict(self, deg):
-
-        if self.gui_stop is False:
-            for speaker in self.speaker_list:
-                speaker.cal_rel_pos(deg)
 
     # @brief stop playback and convolution of dsp algorithm
     # @details
@@ -83,20 +70,6 @@ class State(QtCore.QObject):
             self.gui_pause = False
         return self.gui_pause
 
-    # @brief returns new position of item
-    # @details
-    # @author
-    def get_abs_pos(self, azimuth, dist):
-        audience_pos = self.audience_pos
-
-        x0 = audience_pos.x()
-        y0 = audience_pos.y()
-
-        x = x0 + dist * sin(radians(azimuth))
-        y = y0 - dist * cos(radians(azimuth))
-
-        return x, y
-
     def check_error(self):
         if len(self.error_message) > 0:
             print(self.error_message.pop(0))
@@ -104,17 +77,6 @@ class State(QtCore.QObject):
     def send_error(self, message):
         if message not in self.error_message:
             self.error_message.append(message)
-
-
-    # @brief gui_dict is continuously updated,
-    #        managed by update_timer every 10sec
-    # @details
-    # @author
-    def update_gui_dict(self, deg):
-
-        if self.gui_stop is False:
-            for speaker in self.speaker_list:
-                speaker.cal_rel_pos(deg)
 
     # @brief stop playback and convolution of dsp algorithm
     # @details
@@ -265,6 +227,18 @@ class Room(QtGui.QGraphicsScene):
 
         except AttributeError:
             pass
+
+    # @brief returns new position of item
+    # @details
+    # @author
+    def get_abs_pos(self, azimuth, dist):
+        x0 = self.state.audience_pos.x()
+        y0 = self.state.audience_pos.y()
+
+        x = x0 + dist * sin(radians(azimuth))
+        y = y0 - dist * cos(radians(azimuth))
+
+        return x, y
 
     # @brief returns new position of item
     # @details

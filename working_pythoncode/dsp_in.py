@@ -561,8 +561,8 @@ class DspIn:
                     # self.sp_param[sp][3] != 1" or "2") and can't be
                     # processed!")
         # file.close()
-        #print("timer read_sp (Matthias) in ms: " + str(int((time.time() -
-                                                          start) * 1000)))
+        # print("timer read_sp (Matthias) in ms: " + str(int((time.time() -
+        # start) * 1000)))
         return scipy_sp_dict      # , scipy_sp_dict or sp_dict
 
     # @brief Gets and reads the correct hrtf-file from database

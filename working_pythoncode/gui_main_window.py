@@ -26,9 +26,10 @@ class MainWindow(QtGui.QWidget):
         # set items
         self.state = gui_utils.State()
         self.audience = gui_utils.Audience(self.state)
-        self.default_speaker_position = [[50, 20], [290, 20], [170, 50], [50, 320],
-                                 [290, 320], [170, 290], [50, 120], [290, 120],
-                                 [50, 220], [290, 220]]
+        self.default_speaker_position = [[50, 20], [290, 20], [170, 50],
+                                         [50, 320], [290, 320], [170, 290],
+                                         [50, 120], [290, 120], [50, 220],
+                                         [290, 220]]
         # set scene and view
         self.room = gui_utils.Room(self.state)
         self.room.setSceneRect(0, 0, 400, 400)
@@ -125,7 +126,17 @@ class MainWindow(QtGui.QWidget):
     def update_head(self):
         if self.state.gui_stop is False and self.state.gui_pause is False:
             self.head_tracker.cal_head_deg()
-            self.state.update_gui_dict(self.head_tracker.get_head_deg())
+            self.update_gui_dict(self.head_tracker.get_head_deg())
+
+    # @brief gui_dict is continuously updated,
+    #        managed by update_timer every 10sec
+    # @details
+    # @author
+    def update_gui_dict(self, deg):
+
+        if self.gui_stop is False:
+            for speaker in self.speaker_list:
+                speaker.cal_rel_pos(deg)
 
     def inverse_disable(self):
         if self.combo_box.currentText() == 'kemar_compact':
