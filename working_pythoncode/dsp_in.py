@@ -146,16 +146,6 @@ class DspIn:
         hopsize = self.rnd((1 - overlap) * sp_blocksize)
         return sp_blocksize, sp_blocktime, overlap, hopsize
 
-    # @brief
-    # @details This function calculates a list called block_begin_end
-    #          containing two elements: [0] is the first sample of the first
-    #          block, [1] is the last sample of the first block; The entries of
-    #          following block will then be calculated by the
-    #          set_block_begin_end-function.
-    # @retval <block_begin_end> List of the first ([0]) and last ([0]) sample
-    #         of the FIRST block.
-    # @author Felix Pfreundtner
-
     def init_set_block_begin_end(self, gui_sp_dict):
         """
         H2 -- init_set_block_begin_end
@@ -178,14 +168,6 @@ class DspIn:
                            int((self.sp_blocksize) * (self.overlap))]
         return block_begin_end
 
-    # @brief Every while-loop the number of the first and last sample is
-    #         calculated
-    # @details This function replaces the values set by the
-    #          init_set_block_begin_end-function every while-loop according to
-    #          the current location in the speaker-file that needs to be
-    #          read. Since the values are replaced, there are no input and
-    #          output variables.
-    # @author Felix Pfreundtner
     def set_block_begin_end(self):
         """
         H2 -- set_block_begin_end
@@ -203,18 +185,6 @@ class DspIn:
         self.block_begin_end[0] += int(self.sp_blocksize * (1 - self.overlap))
         self.block_begin_end[1] += int(self.sp_blocksize * (1 - self.overlap))
 
-    # @brief Get all parameters for the hrtf set by the settings in gui
-    # @details This function calculates all necessary parameters of the hrtf
-    #          to be later able to get the correct hrtf-files for the
-    #          convolution with the speaker-file signal.
-    # @retval <hrtf_database_name> Tells which database the listener has
-    #          chosen (available are: normal ear, big ear and a compact
-    #          version)
-    # @retval <hrtf_blocksize> Simply set to default value 513 since
-    #         fft_blocksize is defaulted to 1024
-    # @retval <kemar_inverse_filter> Boolean value that tells whether
-    #         check-box in gui was activated or not
-    # @author Felix Pfreundtner
     def get_hrtf_param(self, gui_settings_dict):
         """
         H2 -- get_hrtf_param
@@ -332,8 +302,6 @@ class DspIn:
                     temp_hrtf_l_r[:, 1]
         return hrtf_database
 
-    # @brief brings the whole hrtf database in frequency domain
-    # @author Felix Pfreundtner
     def hrtf_database_fft(self):
         """
         H2 -- hrtf_database_fft
@@ -342,6 +310,7 @@ class DspIn:
 
         Return values:
         *hrtf_database_fft: The HRTF database converted to frequency domain.
+
         Author: Felix Pfreundtner
         """
         hrtf_database_fft = np.zeros((self.fft_blocksize // 2 + 1,
@@ -356,35 +325,38 @@ class DspIn:
                                                      self.fft_blocksize)
         return hrtf_database_fft
 
-    # @brief get 10 important parameters of the files to be played by the
-    #         get_block_function
-    # @details This method gets all important data from the .wav files that
-    #          will be played by the speakers. Input is a gui_sp_dict, containing
-    #          the filename at place [2]. The output is another dict called
-    #          sp_param, which holds one of the properties as values for each
-    #          speaker given by the gui_sp_dict.
-    # @retval <sp_param> Returns a dictionary containing following values for
-    #         each key [sp]
-    # sp_param[sp][0] = total number of samples in the file
-    # sp_param[sp][1] = sample-rate, default: 44100 (but adjustable later)
-    # sp_param[sp][2] = number of bits per sample (8-/16-/??-int for one
-    #                   sample)
-    # sp_param[sp][3] = number of channels (mono = 1, stereo = 2)
-    # sp_param[sp][4] = format of file (< = RIFF, > = RIFX)
-    # sp_param[sp][5] = size of data-chunk in bytes
-    # sp_param[sp][6] = total-header-size (= number of bytes until data begins)
-    # sp_param[sp][7] = bitfactor (8-bit --> 1, 16-bit --> 2)
-    # sp_param[sp][8] = total number of bytes until data-chunk ends
-    # sp_param[sp][9] = format character for correct encoding of data}
-    # @author Matthias Lederle
     def init_read_sp(self, gui_sp_dict):
         """
         H2 -- init_read_sp
         ===================
-        **get 10 important parameters of the files to be played by the 
+        **Get 10 important parameters of the files to be played by the
         get_block_function**
 
+        This method gets all important data from the .wav files that will
+        be played by the speakers. Input is a gui_sp_dict, containing the
+        filename at place [2]. The output is another dict called sp_param,
+        which holds one of the properties as values for each speaker given
+        by the gui_sp_dict.
+
+        Return values:
+        sp_param: Returns a dictionary containing 10 properties of each
+        speaker-file.
+
+        Author: Matthias Lederle
         """
+        # List of the Parameters:
+        # sp_param[sp][0] = total number of samples in the file
+        # sp_param[sp][1] = sample-rate, default: 44100 (but adjustable later)
+        # sp_param[sp][2] = number of bits per sample (8-/16-/??-int for one
+        #                   sample)
+        # sp_param[sp][3] = number of channels (mono = 1, stereo = 2)
+        # sp_param[sp][4] = format of file (< = RIFF, > = RIFX)
+        # sp_param[sp][5] = size of data-chunk in bytes
+        # sp_param[sp][6] = total-header-size (= number of bytes until data
+        #  begins)
+        # sp_param[sp][7] = bitfactor (8-bit --> 1, 16-bit --> 2)
+        # sp_param[sp][8] = total number of bytes until data-chunk ends
+        # sp_param[sp][9] = format character for correct encoding of data
         # initialize dict with 10 (empty) values per key with list
         # comprehension
         sp_param = {sp: [None] * 10 for sp in range(len(gui_sp_dict))}
@@ -475,21 +447,19 @@ class DspIn:
                 # self.signal_handler.send_error(errmsg)
         return sp_param
 
-    # @brief reads one block of samples
-    # @details This method reads a block of samples of a speaker-.wav-file
-    #          and writes in a numpyarray sp_block_dict[sp] (containing one
-    #          16-bit-int for each sample) and a flag that tells whether the
-    #          end of the file is reached or not. This function will be
-    #          applied in the while loop of the dsp-class: I.e. a optimum
-    #          performance is required.
-    # @retval <continue_output> boolean value whether the last block of file
-    #         was read or any other block
-    # @author Matthias Lederle
     def read_sp(self, gui_sp_dict):
         """
-        H2 --
+        H2 -- read_sp
         ===================
+        **Reads one block of samples**
 
+        This method reads a block of samples of a speaker-.wav-file and
+        writes in a numpyarray sp_block_dict[sp] (containing one 16-bit-int
+        for each sample) and a flag that tells whether the end of the file
+        is reached or not. This function will be applied in the while loop
+        of the dsp-class: I.e. a optimum performance is required.
+
+        Author: Matthias Lederle
         """
         # initialize an empty array with blocksize sp_blocksize for every
         # speaker in dictionary sp_dict
@@ -662,14 +632,13 @@ class DspIn:
         # start) * 1000)))
         return scipy_sp_dict      # , scipy_sp_dict or sp_dict
 
-    # @brief Gets and reads the correct hrtf-file from database
-    # @details
-    # @author Felix Pfreundtner
     def get_hrtf_block_fft(self, gui_sp_dict_sp, sp):
         """
-        H2 --
+        H2 -- get_hrtf_block_fft
         ===================
+        **Gets and reads the correct hrtf_file from database**
 
+        Author: Felix Pfreundtner
         """
         # get filename of the relevant hrtf for each ear
         # version according to settings in gui
@@ -714,6 +683,17 @@ class DspIn:
 
     # @author Matthias Lederle
     def get_sp_block(self, sp):
+        """
+        H2 -- get_sp_block
+        ===================
+        **Gets the current block for the speaker.**
+
+        Return value:
+        *Continue input: Boolean that tells whether its the last block of
+        the file or not
+
+        Author: Matthias Lederle
+        """
         # if current block end is smaller than last sample in sp
         if self.block_begin_end[1] <= self.sp_param[sp][0]:
             self.sp_block_dict[sp] = self.sp_dict[sp][self.block_begin_end[
@@ -730,13 +710,19 @@ class DspIn:
         self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))
         return continue_input
 
-    # @brief Normalize the .wav-signal to have maximum of int16 amplitude
-    # @details If the input-flag normalize_flag_sp is True, measure the
-    #          maximum amplitude occurring in the .wav-file. After that,
-    #          reduce all entries of sp_block_dict by the ratio that
-    #          decreases the max value to 2^15-1
-    # @author Felix Pfreundtner
     def normalize(self, normalize_bool, sp):
+        """
+        H2 -- get_hrtf_block_fft
+        ===================
+        **Gets and reads the correct hrtf_file from database**
+
+        If the input-flag normalize_flag_sp is True, measure the maximum
+        amplitude occurring in the .wav-file. After that, reduce all
+        entries of sp_block_dict by the ratio that decreases the max value
+        to 2^15-1
+
+        Author: Felix Pfreundtner
+        """
         if normalize_bool is True:
             # take maximum amplitude of original wave file of raw sp block
             max_amplitude_input = self.sp_max_amp_dict[sp]
@@ -752,14 +738,30 @@ class DspIn:
                 self.sp_max_amp_dict[sp] = np.amax(np.abs(
                     self.sp_block_dict[sp][:, ]))
 
-    # @author Felix Pfreundtner
     def apply_window_on_sp_block(self, sp):
+        """
+        H2 -- apply_window_on_sp_block
+        ===================
+        **Gets and reads the correct hrtf_file from database**
+
+        If the input-flag normalize_flag_sp is True, measure the maximum
+        amplitude occurring in the .wav-file. After that, reduce all
+        entries of sp_block_dict by the ratio that decreases the max value
+        to 2^15-1
+
+        Author: Felix Pfreundtner
+        """
         self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
         self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.float32,
                                                                copy=False)
 
     # @author Felix Pfreundtner
     def set_fftfreq(self, fft_blocksize, samplerate):
+        """
+        H2 -- set_fftfreq
+        ===================
+        Author: Felix Pfreundtner
+        """
         freq_spacing = samplerate / fft_blocksize
         freq_number = fft_blocksize // 2 + 1
         freq = np.arange(0, freq_number, dtype=np.float16) * freq_spacing
@@ -771,15 +773,20 @@ class DspIn:
             for l_r in range(2):
                 self.state.hrtf_spectrum_dict[sp][l_r][:, 0] = freq
 
-    # @brief Function convolves hrtf and data of the music file
-    # @details Function takes one hrtf block and one data block (their size
-    # is defined by fft_blocksize), normalizes their values to int16-signals
-    # and then executes the convolution. After that, the signal is
-    # retransformed to  time-domain and normalized again. The final values
-    # are written then to the binaural_block_dict.
-    # @author Felix Pfreundtner
     def fft_convolution(self, binaural_block_dict_sp, sp, l_r):
+        """
+        H2 -- fft_convolution
+        ===================
+        **Function convolves hrtf and data of the music file**
 
+        Function takes one hrtf block and one data block (their size is
+        defined by fft_blocksize), normalizes their values to int16-signals
+        and then executes the convolution. After that, the signal is
+        retransformed to  time-domain and normalized again. The final
+        values are written then to the binaural_block_dict.
+
+        Author: Felix Pfreundtner
+        """
         # zeropad sp_block_dict[sp] to fft_blocksize and bring time domain into
         # frequency domain
         # sp_block_fft_sp = fft(self.sp_block_dict[sp], self.fft_blocksize)
