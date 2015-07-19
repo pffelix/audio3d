@@ -18,17 +18,13 @@ class MainWindow(QtGui.QWidget):
     """
     H1 -- MainWindow
     ************************
-    The class implements the main window of the GUI as a container for all components
-    including graphical view, buttons, property/plot window. 
+    **This class sets up the main window which includes all necessaries to
+    start/stop and control the DSP algorithm. It also includes all user 
+    interactions, corresponding functions and executing and updating these.**
     """
-
+    
+    """Constructor of the MainWindow class."""
     def __init__(self):
-        """
-        H2 -- Main Window Constructor
-        ===================
-        ** Initialize the main window of the GUI**
-
-        """
         super(MainWindow, self).__init__()
         self.setAcceptDrops(True)
 
@@ -66,16 +62,6 @@ class MainWindow(QtGui.QWidget):
         self.return_ex.put(False)
 
     def init_ui(self):
-
-        """
-        H2 -- init_ui
-        ===================
-        **Initialize UI Components**
-
-        Buttons, combo boxes and the graphical view will be added.
-        Signal/Slots will be connected.
-
-        """
 
         # set buttons
         add_speaker_button = QtGui.QPushButton('Add Speaker')
@@ -147,12 +133,11 @@ class MainWindow(QtGui.QWidget):
         """
         H2 -- update_head
         ===================
-        **Update head tracker data**
-
-        Azimuth degree will be obtained from the head tracker if it is enabled.
-        During the playback it will constantly call the update_gui_sp_dict to
-        adjust the positional data according to the current head position.
-
+        **This function is nessecary if the program is run in connection with
+        a headtracking system.**
+        If the DSP algorithm is running the Headtracking angle output is
+        requested and the speaker dictonary is updated.
+        A threading.Lock() avoids read-write overlaps of the dsp_run variable.
         """
         self.state.mtx_run.acquire()
         if self.state.dsp_run is True:
@@ -160,12 +145,18 @@ class MainWindow(QtGui.QWidget):
             self.update_gui_sp_dict(self.head_tracker.get_head_deg())
         self.state.mtx_run.release()
 
+    # @brief gui_sp_dict is continuously updated,
+    #        managed by update_timer every 10sec
+    # @details
+    # @author
     def update_gui_sp_dict(self, deg):
         """
         H2 -- update_gui_sp_dict
         ===================
-        **Adjust the positional data given the azimuth from the head tracker**
-
+        **This function is continuously updating the speaker dictonary.**
+        It is called every 10 sec by a timer and updating the speaker 
+        dictionary for every present speaker.
+        A threading.Lock() avoids read-write overlaps of the dsp_run variable.
         """
         self.state.mtx_run.acquire()
         if self.dsp_run is True:
@@ -175,10 +166,13 @@ class MainWindow(QtGui.QWidget):
 
     def inverse_disable(self):
         """
-        H2 -- inverse_disabl
+        H2 -- inverse_disable
         ===================
-        **Disable inverse filter if kemar compact data bank is applied**
-
+        **This function is needed to disable the CheckBox for inverse filtering
+        if the kemarr_compact database is selected.**
+        The kemar_compact database already includes inverse filtering of the
+        measurement speaker disturbtions which can therefore not be optional
+        for this setting.
         """
         if self.combo_box.currentText() == 'kemar_compact':
             self.inverse_box.setCheckState(QtCore.Qt.Unchecked)
@@ -190,11 +184,15 @@ class MainWindow(QtGui.QWidget):
         """
         H2 -- show_property
         ===================
-        **This function will be called when the speaker icon is double clicked**
-
-        Read the information of the selected speaker and show it in the property
-        window.
-
+        **With this function the speaker property widget from gui_utils is
+        opened and handeled.**
+        If a new speaker is added or by double click on an existing one 
+        gui_utils' SpeakerProperty widget, containing the default or 
+        instantaneous settings respectively, is opened to define/change the
+        individual speaker settings.
+        The change_property function is called to save changes.
+        A threading.Lock() avoids read-write overlaps of the gui_sp_dict
+        variable.
         """
         i = self.state.speaker_to_show
         self.state.mtx_sp.acquire()
@@ -219,10 +217,10 @@ class MainWindow(QtGui.QWidget):
         """
         H2 -- change_property
         ===================
-        **This function will be called when the confirm button is clicked**
-
-        Take the changes in the property window and update the information of the speaker.
-
+        **With this function transfers the speaker property changes and updates
+        the speaker list and gui_sp_dict variables.**
+        A threading.Lock() avoids read-write overlaps of the gui_sp_dict
+        variable.
         """
         i = self.state.speaker_to_show
         x_new = self.speaker_property.posx
@@ -243,11 +241,11 @@ class MainWindow(QtGui.QWidget):
         """
         H2 -- add_speaker
         ===================
-        **This function will be called when the add button is clicked**
-
-        Show the property window for adding new speaker when the total number of
-        speakers is fewer than 10.
-
+        **This function is called when a new speaker is added to the scene.**
+        Up to 10 speakers can be added successively to the GUIscene on the
+        MainWindow. 
+        The current default position is calculated depending on the number
+        of speakers and relative to the position of the audience item.
         """
         if len(self.state.gui_sp_dict) < 10:
             index = len(self.state.gui_sp_dict)
@@ -285,11 +283,13 @@ class MainWindow(QtGui.QWidget):
         """
         H2 -- add2scene
         ===================
-        **This function will be called when the confirm button is clicked**
-
-        Create new speaker object according to the data from property window
-        and add it to the graphical scene.
-
+        **This function creates a new speaker item.**
+        The function is called by the confirm button of gui_utils'
+        SpeakerProperty widget.
+        A new speaker item is created with arguments defined in the speaker
+        property widget. Furthermore the gui_utils' room.addItem function
+        is called to add the new speaker to the GuiScene.
+        Finally the GuiView is updated to display the change.
         """
         if len(self.state.gui_sp_dict) < 10:
             # read in data
@@ -315,8 +315,9 @@ class MainWindow(QtGui.QWidget):
         """
         H2 -- reset
         ===================
-        **This will delete all the existed speakers**
-
+        **This function is called by the MainWindow reset button and removes
+        all existing speakers from the GuiScene and resets also the gui_sp_dict
+        .**
         """
         self.state.mtx_run.acquire()
         self.state.mtx_sp.acquire()
@@ -338,12 +339,12 @@ class MainWindow(QtGui.QWidget):
         """
         H2 -- play
         ===================
-        **This will start/stop the sount output**
-
-        Dsp object will be initialized if it is not already. Every click will
-        switch the status of play or stop.
-
+        **This function is called by the MainWindow play/stop button .**
+        The algorithm specific stettings such as the HRTF database, the
+        inverse filter and the bufferblock size are recorded and
+        an DSP object is initialized and run in a seperate thread.
         """
+
         # check whether speaker has been selected
         if len(self.state.gui_sp_dict) == 0:
             msgbox = QtGui.QMessageBox()
@@ -384,8 +385,10 @@ class MainWindow(QtGui.QWidget):
         """
         H2 -- pause
         ===================
-        **This will pause/resume the sount output**
-
+        **The algorithm can be paused by the pause button of MainWindow.**
+        The state variable switch_pause_playback remembers the status of the
+        algorithm and enables pausing and restarting of the play-back of the
+        dsp algorithm.
         """
         self.state.switch_pause_playback()
 
@@ -393,8 +396,10 @@ class MainWindow(QtGui.QWidget):
         """
         H2 -- positions
         ===================
-        **This function will set all the speakers to their default position**
-
+        **This function places all speakers on their respective default
+        positions.**
+        Depending on their order every speakers default position is defined
+        in the default_speaker_position variable.
         """
 
         for index, speaker in enumerate(self.state.speaker_list):
@@ -409,10 +414,12 @@ class MainWindow(QtGui.QWidget):
         """
         H2 -- plot_sequence
         ===================
-        **This will show the plot window**
-
-        Plotting information will be obtained from the data exchange object.
+        **This function is called by MainWindow plot button and shows the 
+        gui_utils' SequencePlot of the last selected speaker.**
+        The sequences are continously updated by the update_sequence_dicts in
+        connection with a QTimer.
         """
+
         sp = self.state.speaker_to_show
         print("initialize")
 
@@ -434,9 +441,10 @@ class MainWindow(QtGui.QWidget):
         """
         H2 -- update_sequence_dicts
         ===================
-        **This updates the plotting information every 50ms**
-
+        **This function is used to update speaker spectrum while it is
+        displayed in the SequencePlot widget.**
         """
+
         sp = self.state.speaker_to_show
         self.sequence_plot.speaker_spec.update_data(
             self.state.sp_spectrum_dict[sp][:, 0],
@@ -452,11 +460,14 @@ class MainWindow(QtGui.QWidget):
         """
         H2 -- closeEvent
         ===================
-        **Qt built-in virtual function to close the program safely**
-
-        Header tracker will not be updated, plot/property window will be closed
-        The sound output will be stopped.
+        **This function is responsible for a smooth closure of the MainWindow
+        .**
+        Whenever the MainWindow is closed by the user all widgets such as
+        the SpeakerProperty and SequencePlot have to be closed. If the
+        headtracking system is used its continuous updating is stopped.
+        And the algorithm control variables are set repsectively.
         """
+
         self.room.clear()
         if self.state.enable_headtracker:
             self.update_headtracker_timer.stop()
@@ -469,13 +480,12 @@ class MainWindow(QtGui.QWidget):
         #     self.state.switch_stop_playback()
         # if self.dspthread is not None and self.state.dsp_pause is True:
 
-        if self.dsp_obj is not None:
-            # stop dsp Thread
-            self.state.mtx_pause.acquire()
-            self.state.dsp_pause = False
-            self.state.mtx_pause.release()
-            self.state.mtx_stop.acquire()
-            self.state.dsp_stop = True
-            self.state.mtx_stop.release()
-            self.dsp_thread.join()
+        # stop dsp Thread
+        self.state.mtx_stop.acquire()
+        self.state.dsp_stop = True
+        self.state.mtx_stop.release()
+        self.state.mtx_pause.acquire()
+        self.state.dsp_pause = False
+        self.state.mtx_pause.release()
+        self.dsp_thread.join()
         event_q_close_event.accept()
