@@ -25,6 +25,7 @@ class DspIn:
     """
     """Constructor of the DspIn class."""
     def __init__(self, state_init):
+        self.state = state_init
         # Dict with a key and two values for every hrtf to be fetched from the
         # database. The values are the max. values of the hrtfs of
         # each ear.
@@ -663,8 +664,7 @@ class DspIn:
     # retransformed to  time-domain and normalized again. The final values
     # are written then to the binaural_block_dict.
     # @author Felix Pfreundtner
-    def fft_convolution(self, sp_spectrum_dict_sp, hrtf_spectrum_dict_sp_l_r,
-                        binaural_block_dict_sp, sp, l_r):
+    def fft_convolution(self, binaural_block_dict_sp, sp, l_r):
 
         # zeropad sp_block_dict[sp] to fft_blocksize and bring time domain into
         # frequency domain
@@ -679,8 +679,8 @@ class DspIn:
         position_freq = np.where(freq_all >= 0)
         # set array of only positive FFT frequencies (neg. frequ. redundant)
         freqs = freq_all[position_freq]
-        sp_spectrum_dict_sp[:, 0] = freqs
-        hrtf_spectrum_dict_sp_l_r[:, 0] = freqs
+        self.state.sp_spectrum_dict[sp][:, 0] = freqs
+        self.state.hrtf_spectrum_dict[sp][l_r][:, 0] = freqs
         # get magnitued spectrum of sp_block
         sp_magnitude_spectrum = abs(sp_block_fft_sp[position_freq])
         # normalize spectrum to get int16 values
@@ -689,11 +689,11 @@ class DspIn:
             sp_magnitude_spectrum))
         if max_amplitude_sp_magnitude_spectrum != 0:
             # get magnitude spectrum of hrtf-block
-            sp_spectrum_dict_sp[:, 1] = sp_magnitude_spectrum / (
+            self.state.sp_spectrum_dict[sp][:, 1] = sp_magnitude_spectrum / (
                 max_amplitude_sp_magnitude_spectrum / self.sp_max_amp_dict[
                     sp] * max_amplitude_output)
         else:
-            sp_spectrum_dict_sp[:, 1] = np.zeros((
+            self.state.sp_spectrum_dict[sp][:, 1] = np.zeros((
                 self.fft_blocksize // 2 + 1, ), dtype=np.float16)
         hrtf_magnitude_spectrum = abs(self.hrtf_block_fft_dict[sp][:, l_r][
                                       position_freq])
@@ -701,15 +701,16 @@ class DspIn:
             hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0 and \
                 max_amplitude_sp_magnitude_spectrum != 0:
-            hrtf_spectrum_dict_sp_l_r[:, 1] = hrtf_magnitude_spectrum\
-                / (max_amplitude_hrtf_magnitude_spectrum /
-                   self.hrtf_max_amp_dict[sp][l_r] * max_amplitude_output)
+            self.state.hrtf_spectrum_dict[sp][l_r][:, 1] =\
+                hrtf_magnitude_spectrum / (
+                    max_amplitude_hrtf_magnitude_spectrum /
+                    self.hrtf_max_amp_dict[sp][l_r] * max_amplitude_output)
         else:
-            hrtf_spectrum_dict_sp_l_r[:, 1] = np.zeros((
+            self.state.hrtf_spectrum_dict[sp][l_r][:, 1] = np.zeros((
                 self.fft_blocksize // 2 + 1, ), dtype=np.float16)
         # set FFT DC Value to zero
-        sp_spectrum_dict_sp[0, 1] = 0
-        hrtf_spectrum_dict_sp_l_r[0, 1] = 0
+        self.state.sp_spectrum_dict[sp][0, 1] = 0
+        self.state.hrtf_spectrum_dict[sp][l_r][0, 1] = 0
 
         # execute convolution of speaker input and hrtf input: multiply
         # complex frequency domain vectors
@@ -738,5 +739,4 @@ class DspIn:
                                        self.hrtf_max_amp_dict[sp][l_r] * 32767)
         binaural_block_dict_sp[:, l_r] = \
             binaural_block_sp_time.astype(np.float32, copy=False)
-        return binaural_block_dict_sp, sp_spectrum_dict_sp, \
-            hrtf_spectrum_dict_sp_l_r
+        return binaural_block_dict_sp

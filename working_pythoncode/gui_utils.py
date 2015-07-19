@@ -44,6 +44,8 @@ class State(QtCore.QObject):
         self.dsp_run = False
         self.dsp_stop = False
         self.dsp_pause = False
+        self.dsp_sp_spectrum_dict = {}
+        self.dsp_hrtf_spectrum_dict = {}
 
         # mutex for exchanging data between gui and dsp algorithm
         self.mtx_sp = threading.Lock()

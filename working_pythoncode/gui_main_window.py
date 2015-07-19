@@ -258,10 +258,6 @@ class MainWindow(QtGui.QWidget):
             msgbox = QtGui.QMessageBox()
             msgbox.setText("Please add a speaker.")
             msgbox.exec_()
-        elif self.state.dsp_run is True:
-            msgbox = QtGui.QMessageBox()
-            msgbox.setText("Binaural audio already played")
-            msgbox.exec_()
         else:
             # don't let the playback and convolution start more than one time
             if self.return_ex.empty() is True:
@@ -308,18 +304,18 @@ class MainWindow(QtGui.QWidget):
             return
 
     def plot_sequence(self):
-        i = self.state.speaker_to_show
+        sp = self.state.speaker_to_show
         print("initialize")
 
         self.sequence_plot.speaker_spec.initialize_data(
-            self.dsp_obj.sp_spectrum_dict[i][:, 0],
-            self.dsp_obj.sp_spectrum_dict[i][:, 1])
+            self.state.sp_spectrum_dict[sp][:, 0],
+            self.state.sp_spectrum_dict[sp][:, 1])
         self.sequence_plot.lhrtf_spec.initialize_data(
-            self.dsp_obj.hrtf_spectrum_dict[i][0][:, 0],
-            self.dsp_obj.hrtf_spectrum_dict[i][0][:, 1])
+            self.state.hrtf_spectrum_dict[sp][0][:, 0],
+            self.state.hrtf_spectrum_dict[sp][0][:, 1])
         self.sequence_plot.rhrtf_spec.initialize_data(
-            self.dsp_obj.hrtf_spectrum_dict[i][1][:, 0],
-            self.dsp_obj.hrtf_spectrum_dict[i][1][:, 1])
+            self.state.hrtf_spectrum_dict[sp][1][:, 0],
+            self.state.hrtf_spectrum_dict[sp][1][:, 1])
         self.sequence_plot.show()
         self.sequence_plot.is_on = True
         self.sequence_plot.timer.timeout.connect(self.update_sequence_dicts)
@@ -327,16 +323,16 @@ class MainWindow(QtGui.QWidget):
 
     def update_sequence_dicts(self):
 
-        i = self.state.speaker_to_show
+        sp = self.state.speaker_to_show
         self.sequence_plot.speaker_spec.update_data(
-            self.dsp_obj.sp_spectrum_dict[i][:, 0],
-            self.dsp_obj.sp_spectrum_dict[i][:, 1])
+            self.state.sp_spectrum_dict[sp][:, 0],
+            self.state.sp_spectrum_dict[sp][:, 1])
         self.sequence_plot.lhrtf_spec.update_data(
-            self.dsp_obj.hrtf_spectrum_dict[i][0][:, 0],
-            self.dsp_obj.hrtf_spectrum_dict[i][0][:, 1])
+            self.state.hrtf_spectrum_dict[sp][0][:, 0],
+            self.state.hrtf_spectrum_dict[sp][0][:, 1])
         self.sequence_plot.rhrtf_spec.update_data(
-            self.dsp_obj.hrtf_spectrum_dict[i][1][:, 0],
-            self.dsp_obj.hrtf_spectrum_dict[i][1][:, 1])
+            self.state.hrtf_spectrum_dict[sp][1][:, 0],
+            self.state.hrtf_spectrum_dict[sp][1][:, 1])
 
     def closeEvent(self, event_q_close_event):  # flake8: noqa
         self.room.clear()

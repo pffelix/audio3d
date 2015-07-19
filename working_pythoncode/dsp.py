@@ -31,12 +31,12 @@ class Dsp:
                                          self.dspin_obj.fft_blocksize,
                                          self.dspin_obj.hopsize)
         # magnitude spectrum of current wave block for every speaker
-        self.sp_spectrum_dict = {sp: np.zeros((
+        self.state.sp_spectrum_dict = {sp: np.zeros((
             self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16) for
             sp in range(len(state_init.gui_sp_dict))}
 
         # magnitude spectrum of current left and right hrtf for every speaker
-        self.hrtf_spectrum_dict = {sp: [np.zeros((
+        self.state.hrtf_spectrum_dict = {sp: [np.zeros((
             self.dspin_obj.fft_blocksize // 2 + 1, 2), dtype=np.float16),
             np.zeros((self.dspin_obj.fft_blocksize // 2 + 1, 2),
             dtype=np.float16)] for sp in range(len(state_init.gui_sp_dict))}
@@ -102,12 +102,8 @@ class Dsp:
                         # convolve hrtf with speaker block input to get
                         # binaural stereo block output
                         start = time.time()
-                        self.dspout_obj.binaural_block_dict[sp], \
-                            self.sp_spectrum_dict[sp],\
-                            self.hrtf_spectrum_dict[sp][l_r] = \
+                        self.dspout_obj.binaural_block_dict[sp] = \
                             self.dspin_obj.fft_convolution(
-                                self.sp_spectrum_dict[sp],
-                                self.hrtf_spectrum_dict[sp][l_r],
                                 self.dspout_obj.binaural_block_dict[sp], sp,
                                 l_r)
                         self.time["fft"] += time.time() - start
