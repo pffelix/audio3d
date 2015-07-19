@@ -89,7 +89,7 @@ class State(QtCore.QObject):
 
     def send_error(self, message):
         if message not in self.error_message:
-            self.error_message.append(message)
+            self.error_messagqe.append(message)
 
     # @brief stop playback and convolution of dsp algorithm
     # @details
@@ -115,7 +115,9 @@ class State(QtCore.QObject):
 
     def check_error(self):
         if len(self.error_message) > 0:
-            print(self.error_message.pop(0))
+            msgBox = QtGui.QMessageBox()
+            msgBox.setText(self.error_message.pop(0))
+            ret = msgBox.exec_()
 
     def send_error(self, message):
         if message not in self.error_message:
