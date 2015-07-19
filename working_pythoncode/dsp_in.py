@@ -28,10 +28,10 @@ class DspIn:
         # Dict with a key and two values for every hrtf to be fetched from the
         # database. The values are the max. values of the hrtfs of
         # each ear.
-        self.hrtf_max_amp_dict = dict.fromkeys(state_init.gui_dict, [0, 0])
+        self.hrtf_max_amp_dict = dict.fromkeys(state_init.gui_sp_dict, [0, 0])
         # Dict with a key for every speaker and two values. These
         # are the max. values fetched from the speaker-file.
-        self.sp_max_amp_dict = dict.fromkeys(state_init.gui_dict, [])
+        self.sp_max_amp_dict = dict.fromkeys(state_init.gui_sp_dict, [])
         # Standard samplerate, sampledepth
         self.wave_param_common = [44100, 16]
         # Set number of output blocks per second
@@ -47,7 +47,7 @@ class DspIn:
         # bring whole hrtf database to frequency domainv
         self.hrtf_database_fft = self.hrtf_database_fft()
         # Initialize a dict for the hrtf block values to be stored in.
-        self.hrtf_block_fft_dict = dict.fromkeys(state_init.gui_dict,
+        self.hrtf_block_fft_dict = dict.fromkeys(state_init.gui_sp_dict,
                                                  np.zeros((self.fft_blocksize
                                                            // 2 + 1, 2),
                                                           dtype=np.complex128))
@@ -56,14 +56,14 @@ class DspIn:
             self.get_block_param(self.wave_param_common,
                                  self.hrtf_blocksize, self.fft_blocksize)
         # Get necessary parameters of input-file and store to sp_param-dict.
-        self.sp_param = self.init_read_sp(state_init.gui_dict)
+        self.sp_param = self.init_read_sp(state_init.gui_sp_dict)
         # read in whole wave file of all speakers
-        self.sp_dict = self.read_sp(state_init.gui_dict)
+        self.sp_dict = self.read_sp(state_init.gui_sp_dict)
         self.block_begin_end = self.init_set_block_begin_end(
-            state_init.gui_dict)
+            state_init.gui_sp_dict)
         # initialize empty numpy array where to save samples of each
         # speaker block
-        self.sp_block_dict = dict.fromkeys(state_init.gui_dict, np.zeros((
+        self.sp_block_dict = dict.fromkeys(state_init.gui_sp_dict, np.zeros((
             self.sp_blocksize,), dtype=np.float32))
         # build a hann window with sp_blocksize
         self.hann = self.build_hann_window(self.sp_blocksize)
@@ -140,7 +140,7 @@ class DspIn:
     # @retval <block_begin_end> List of the first ([0]) and last ([0]) sample
     #         of the FIRST block.
     # @author Felix Pfreundtner
-    def init_set_block_begin_end(self, gui_dict):
+    def init_set_block_begin_end(self, gui_sp_dict):
         block_begin_end = [int(-(self.sp_blocksize) * (1 - self.overlap)),
                            int((self.sp_blocksize) * (self.overlap))]
         return block_begin_end
@@ -215,7 +215,7 @@ class DspIn:
 
     # @brief Preloads all hrtf Files
     # @author Felix Pfreundtner
-    def read_hrtf_database(self, gui_dict_sp):
+    def read_hrtf_database(self, gui_sp_dict_sp):
         angle_stepsize = 5
         # angle_begin = 0
         # just look at horizontal plane
@@ -274,10 +274,10 @@ class DspIn:
     # @brief get 10 important parameters of the files to be played by the
     #         get_block_function
     # @details This method gets all important data from the .wav files that
-    #          will be played by the speakers. Input is a gui_dict, containing
+    #          will be played by the speakers. Input is a gui_sp_dict, containing
     #          the filename at place [2]. The output is another dict called
     #          sp_param, which holds one of the properties as values for each
-    #          speaker given by the gui_dict.
+    #          speaker given by the gui_sp_dict.
     # @retval <sp_param> Returns a dictionary containing following values for
     #         each key [sp]
     # sp_param[sp][0] = total number of samples in the file
@@ -292,13 +292,13 @@ class DspIn:
     # sp_param[sp][8] = total number of bytes until data-chunk ends
     # sp_param[sp][9] = format character for correct encoding of data}
     # @author Matthias Lederle
-    def init_read_sp(self, gui_dict):
+    def init_read_sp(self, gui_sp_dict):
         # initialize dict with 10 (empty) values per key with list
         # comprehension
-        sp_param = {sp: [None] * 10 for sp in range(len(gui_dict))}
+        sp_param = {sp: [None] * 10 for sp in range(len(gui_sp_dict))}
         # go through all speakers
         for sp in sp_param:
-            if gui_dict[sp][2] == 'unknown' or gui_dict[sp][2] == '':
+            if gui_sp_dict[sp][2] == 'unknown' or gui_sp_dict[sp][2] == '':
                 # ERROR message -- no file selected
                 print("No file selected")
                 # errmsg = "No audio source was selected. Please press " \
@@ -306,7 +306,7 @@ class DspIn:
                 # self.signal_handler.send_error(errmsg)
             else:
                 # open the file
-                file = open(gui_dict[sp][2], 'rb')
+                file = open(gui_sp_dict[sp][2], 'rb')
                 # checks whether file is RIFX or RIFF
                 _big_endian = False
                 str1 = file.read(4)
@@ -393,19 +393,19 @@ class DspIn:
     # @retval <continue_output> boolean value whether the last block of file
     #         was read or any other block
     # @author Matthias Lederle
-    def read_sp(self, gui_dict):
+    def read_sp(self, gui_sp_dict):
         # initialize an empty array with blocksize sp_blocksize for every
         # speaker in dictionary sp_dict
         sp_dict = {}
-        for sp in gui_dict:
+        for sp in gui_sp_dict:
             sp_dict[sp] = np.zeros((self.sp_param[sp][0],), dtype=np.float32)
 
         # # scipy io reference function
         start = time.time()
         scipy_sp_dict_raw = {}
         scipy_sp_dict = {}
-        for sp in gui_dict:
-            _, scipy_sp_dict_raw[sp] = scipy.io.wavfile.read(gui_dict[sp][2])
+        for sp in gui_sp_dict:
+            _, scipy_sp_dict_raw[sp] = scipy.io.wavfile.read(gui_sp_dict[sp][2])
             lenarray = len(scipy_sp_dict_raw[sp])
             # append zeros to scipy_sp_dict_raw to reach that output is
             # divideable by sp_blocksize
@@ -430,7 +430,7 @@ class DspIn:
         #     end_block = self.sp_param[sp][0]
         #     continue_input = True
         #     # open file of current speaker here
-        #     file = open(gui_dict[sp][2], 'rb')
+        #     file = open(gui_sp_dict[sp][2], 'rb')
         #     # calculate begin_block as byte-number
         #     first_byte_of_block = self.sp_param[sp][6] + (begin_block *
         #         self.sp_param[sp][7] * self.sp_param[sp][3])
@@ -568,21 +568,21 @@ class DspIn:
     # @brief Gets and reads the correct hrtf-file from database
     # @details
     # @author Felix Pfreundtner
-    def get_hrtf_block_fft(self, gui_dict_sp, sp):
+    def get_hrtf_block_fft(self, gui_sp_dict_sp, sp):
         # get filename of the relevant hrtf for each ear
         # version according to settings in gui
-        rounddifference = gui_dict_sp[0] % 5
+        rounddifference = gui_sp_dict_sp[0] % 5
         # if angle from gui exactly matches angle of the file
         if rounddifference == 0:
-            angle_exact = gui_dict_sp[0]
+            angle_exact = gui_sp_dict_sp[0]
 
         # If gui's angle doesn't exactly match, go to closest angle
         # available in database
         else:
             if rounddifference < 2.5:
-                angle_exact = gui_dict_sp[0] - rounddifference
+                angle_exact = gui_sp_dict_sp[0] - rounddifference
             else:
-                angle_exact = gui_dict_sp[0] + 5 - rounddifference
+                angle_exact = gui_sp_dict_sp[0] + 5 - rounddifference
 
         # get rounded integer angle
         angle = self.rnd(angle_exact)

@@ -37,13 +37,24 @@ class State(QtCore.QObject):
 
     def __init__(self):
         super(State, self).__init__()
-        self.gui_dict = {}
+        # variables which are shared between gui and dsp algorithm
+        self.gui_sp_dict = {}
         self.gui_settings_dict = {}
         self.dsp_run = False
         self.gui_stop = False
         self.gui_pause = False
+
+        # mutex for exchanging data between gui and dsp algorithm
+        self.mtx_sp = threading.Lock()
+        self.mtx_settings = threading.Lock()
+        self.mtx_run = threading.Lock()
+        self.mtx_stop = threading.Lock()
+        self.mtx_pause = threading.Lock()
+
+        # gui state variables
+        # enable head tracker
+        self.enable_headtracker = False
         self.audience_pos = QtCore.QPoint(170, 170)
-        self.mtx = threading.Lock()
         self.speaker_list = []
         self.error_message = []
         self.speaker_to_show = 0
@@ -52,11 +63,13 @@ class State(QtCore.QObject):
     # @details
     # @author Felix
     def switch_stop_playback(self):
+        self.mtx.lock()
         if self.gui_stop is False:
             self.gui_stop = True
         else:
             self.gui_stop = False
         return self.gui_stop
+        self.mtx.unlock()
 
     # @brief pause button clicked alternates gui_pause boolean
     # @details
@@ -325,7 +338,6 @@ class Speaker(Item):
     # @author
     def cal_rel_pos(self, head_deg=0):
 
-        gui_dict = self.state.gui_dict
         audience_pos = self.state.audience_pos
 
         dx = self.x() - audience_pos.x()
@@ -344,9 +356,10 @@ class Speaker(Item):
 
         if deg <= 0:
             deg += 360
-        self.state.mtx.acquire()
-        gui_dict[self.index] = [deg, dis / 100, self.path, self.norm]
-        self.state.mtx.release()
+        self.state.mtx_sp.acquire()
+        # write new relative position in exchange variable gui - dsp
+        self.state.gui_sp_dict[self.index] = [deg, dis / 100, self.path, self.norm]
+        self.state.mtx_sp.release()
         return deg, dis
 
     # @brief double click on speaker item offers the opportunity to change

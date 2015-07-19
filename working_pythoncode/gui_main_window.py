@@ -20,8 +20,6 @@ class MainWindow(QtGui.QWidget):
         super(MainWindow, self).__init__()
         self.setAcceptDrops(True)
 
-        # enable head tracker
-        self.enable_headtracker = False
 
         # set items
         self.state = gui_utils.State()
@@ -95,7 +93,7 @@ class MainWindow(QtGui.QWidget):
         layout.addWidget(self.buffersize_spin_box, 8, 1, 1, 1)
 
         # initialize head tracker, connect signal and slots
-        if self.enable_headtracker:
+        if self.state.enable_headtracker:
             self.head_tracker = gui_utils.Headtracker()
             self.update_headtracker_timer = QtCore.QTimer()
             self.update_headtracker_timer.timeout.connect(self.update_head)
@@ -126,13 +124,13 @@ class MainWindow(QtGui.QWidget):
     def update_head(self):
         if self.state.gui_stop is False and self.state.gui_pause is False:
             self.head_tracker.cal_head_deg()
-            self.update_gui_dict(self.head_tracker.get_head_deg())
+            self.update_gui_sp_dict(self.head_tracker.get_head_deg())
 
-    # @brief gui_dict is continuously updated,
+    # @brief gui_sp_dict is continuously updated,
     #        managed by update_timer every 10sec
     # @details
     # @author
-    def update_gui_dict(self, deg):
+    def update_gui_sp_dict(self, deg):
 
         if self.gui_stop is False:
             for speaker in self.speaker_list:
@@ -147,10 +145,10 @@ class MainWindow(QtGui.QWidget):
     @QtCore.Slot()
     def show_property(self):
         i = self.state.speaker_to_show
-        path = str(self.state.gui_dict[i][2])
-        azimuth = "{:.0f}".format(self.state.gui_dict[i][0])
-        dist = "{:.2f}".format(self.state.gui_dict[i][1])
-        if self.state.gui_dict[i][3] is True:
+        path = str(self.state.gui_sp_dict[i][2])
+        azimuth = "{:.0f}".format(self.state.gui_sp_dict[i][0])
+        dist = "{:.2f}".format(self.state.gui_sp_dict[i][1])
+        if self.state.gui_sp_dict[i][3] is True:
             self.speaker_property.normalize_box.setCheckState(
                 QtCore.Qt.Checked)
         else:
@@ -172,14 +170,14 @@ class MainWindow(QtGui.QWidget):
         self.state.speaker_list[i].path = path_new
         self.state.speaker_list[i].cal_rel_pos()
         if self.speaker_property.normalize_box.isChecked():
-            self.state.gui_dict[i][3] = True
+            self.state.gui_sp_dict[i][3] = True
         else:
-            self.state.gui_dict[i][3] = False
+            self.state.gui_sp_dict[i][3] = False
 
     @QtCore.Slot()
     def add_speaker(self):
-        if len(self.state.gui_dict) < 10:
-            index = len(self.state.gui_dict)
+        if len(self.state.gui_sp_dict) < 10:
+            index = len(self.state.gui_sp_dict)
             self.speaker_property.added.connect(self.add2scene)
 
             # calculate current default position
@@ -212,9 +210,9 @@ class MainWindow(QtGui.QWidget):
     @QtCore.Slot()
     def add2scene(self):
 
-        if len(self.state.gui_dict) < 10:
+        if len(self.state.gui_sp_dict) < 10:
             # read in data
-            index = len(self.state.gui_dict)
+            index = len(self.state.gui_sp_dict)
             path = self.speaker_property.path
             x = self.speaker_property.posx
             y = self.speaker_property.posy
@@ -240,7 +238,7 @@ class MainWindow(QtGui.QWidget):
 
         else:
             self.room.clear()
-            self.state.gui_dict.clear()
+            self.state.gui_sp_dict.clear()
             del self.state.speaker_list[:]
             new_audience = gui_utils.Audience(self.state)
             self.room.addItem(new_audience)
@@ -248,9 +246,9 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.Slot()
     def play(self):
-        gui_dict = self.state.gui_dict
+        gui_sp_dict = self.state.gui_sp_dict
         # check whether speaker has been selected
-        if len(gui_dict) == 0:
+        if len(gui_sp_dict) == 0:
             msgbox = QtGui.QMessageBox()
             msgbox.setText("Please add a speaker.")
             msgbox.exec_()
@@ -335,7 +333,7 @@ class MainWindow(QtGui.QWidget):
 
     def closeEvent(self, event_q_close_event):
         self.room.clear()
-        if self.enable_headtracker:
+        if self.state.enable_headtracker:
             self.update_headtracker_timer.stop()
         if self.sequence_plot.is_on:
             self.sequence_plot.close()

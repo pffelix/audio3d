@@ -20,16 +20,16 @@ class DspOut:
     def __init__(self, state_init, fft_blocksize, hopsize):
         self.binaural_block_dict = {sp: np.zeros((
             fft_blocksize, 2), dtype=np.float32) for sp in range(len(
-                state_init.gui_dict))}
+                state_init.gui_sp_dict))}
         self.binaural_block_dict_out = dict.fromkeys(
-            state_init.gui_dict, np.zeros((hopsize, 2), dtype=np.float32))
+            state_init.gui_sp_dict, np.zeros((hopsize, 2), dtype=np.float32))
         self.binaural_block_dict_add = dict.fromkeys(
-            state_init.gui_dict, np.zeros((fft_blocksize - hopsize, 2),
+            state_init.gui_sp_dict, np.zeros((fft_blocksize - hopsize, 2),
                                           dtype=np.float32))
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
         self.continue_convolution_dict = dict.fromkeys(
-            state_init.gui_dict, True)
+            state_init.gui_sp_dict, True)
         self.played_frames_end = 0
         self.played_block_counter = 0
         self.prior_played_block_counter = 0
@@ -75,17 +75,17 @@ class DspOut:
     # @brief Calculate the signal for all speakers taking into account the
     # distance to the speakers.
     # @author Felix Pfreundtner
-    def mix_binaural_block(self, hopsize, gui_dict):
+    def mix_binaural_block(self, hopsize, gui_sp_dict):
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         # maximum distance of a speaker to head in window with borderlength
         # 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
-        # max([gui_dict[sp][1] for sp in gui_dict])
+        # max([gui_sp_dict[sp][1] for sp in gui_sp_dict])
         distance_max = 3.5 * math.sqrt(2)
-        # get total number of speakers from gui_dict
-        total_number_of_sp = len(gui_dict)
+        # get total number of speakers from gui_sp_dict
+        total_number_of_sp = len(gui_sp_dict)
         for sp in self.binaural_block_dict_out:
-            # get distance speaker to head from gui_dict
-            distance_sp = gui_dict[sp][1]
+            # get distance speaker to head from gui_sp_dict
+            distance_sp = gui_sp_dict[sp][1]
             # sound pressure decreases with distance 1/r
             sp_gain_factor = 1 - distance_sp / distance_max
             # add gained sp block output to a summarized block output of all
@@ -134,7 +134,7 @@ class DspOut:
 
     # @brief Writes the binaural output signal.
     # @author Felix Pfreundtner
-    def writebinauraloutput(self, binaural, wave_param_common, gui_dict):
+    def writebinauraloutput(self, binaural, wave_param_common, gui_sp_dict):
         if not os.path.exists("./audio_out/"):
             os.makedirs("./audio_out/")
         scipy.io.wavfile.write("./audio_out/binauralmix.wav",
