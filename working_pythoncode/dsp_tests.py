@@ -13,7 +13,7 @@ class DspTests(unittest.TestCase):
         # initialize GUI state
         self.state = gui_utils.State()
         # modify GUI state
-        self.state.gui_dict = {
+        self.state.gui = {
             0: [90, 0, "./audio_in/sine_1kHz_(44.1,1,16).wav", False],
             1: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav", True]
             # 2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav", #  True]
@@ -23,9 +23,9 @@ class DspTests(unittest.TestCase):
                                         "bufferblocks": 5}
         self.state.gui_stop = False
         self.state.gui_pause = False
-        self.dspin_testobj = dsp_in.DspIn(self.state, self.state.gui_dict,
+        self.dspin_testobj = dsp_in.DspIn(self.state, self.state.gui,
                                           self.state.gui_settings)
-        self.dspout_testobj = dsp_out.DspOut(self.state, self.state.gui_dict,
+        self.dspout_testobj = dsp_out.DspOut(self.state, self.state.gui,
                                              self.dspin_testobj.fft_blocksize,
                                              self.dspin_testobj.hopsize,
                                              self.dspin_testobj,
@@ -78,7 +78,7 @@ class DspTests(unittest.TestCase):
 
     # @brief Tests the values of init_block_begin_end on symmetry to 0
     def test_init_set_block_begin_end(self):
-        res = self.dspin_testobj.init_set_block_begin_end(self.gui_dict)
+        res = self.dspin_testobj.init_set_block_begin_end(self.gui)
         errmsg = "The entries in init_block_begin_end are not symmetric to 0"
         self.assertTrue(abs(res[0]) == abs(res[1]), msg=errmsg)
 
@@ -125,32 +125,32 @@ class DspTests(unittest.TestCase):
     # @brief Compare get_sp-function to scipy-function-results.
 
     # Skip Test for all files besides the electrical guitar
-    @unittest.skipUnless(lambda self: self.self.gui_dict[0][2] ==
+    @unittest.skipUnless(lambda self: self.self.gui[0][2] ==
                          "./audio_in/electrical_guitar_(44.1,1,16).wav",
                          "Otherwise total_no_of_samples is wrong")
     def test_get_sp(self):
         sp = 1
-        scipy_sp_dict = {}
-        scipy_sp_dict[sp] = np.zeros((220672, ),
+        scipy_sp_input = {}
+        scipy_sp_input[sp] = np.zeros((220672, ),
                                      dtype=np.int16)
-        scipy_sp_dict_raw = {}
-        for sp in self.gui_dict:
-            _, scipy_sp_dict_raw[sp] = scipy.io.wavfile.read(
-                self.gui_dict[sp][2])
-            lenarray = len(scipy_sp_dict_raw[sp])
-            # append zeros to scipy_sp_dict_raw to reach that output is
+        scipy_sp_input_raw = {}
+        for sp in self.gui:
+            _, scipy_sp_input_raw[sp] = scipy.io.wavfile.read(
+                self.gui[sp][2])
+            lenarray = len(scipy_sp_input_raw[sp])
+            # append zeros to scipy_sp_input_raw to reach that output is
             # divideable by sp_blocksize
             if lenarray % self.dspin_testobj.sp_blocksize != 0:
-                scipy_sp_dict[sp] = np.zeros((lenarray +
+                scipy_sp_input[sp] = np.zeros((lenarray +
                                               self.dspin_testobj.sp_blocksize -
                                               lenarray %
                                               self.dspin_testobj.sp_blocksize,
                                               ), dtype=np.int16)
-                scipy_sp_dict[sp][0:lenarray, ] = scipy_sp_dict_raw[sp]
+                scipy_sp_input[sp][0:lenarray, ] = scipy_sp_input_raw[sp]
             else:
-                scipy_sp_dict[sp] = scipy_sp_dict_raw[sp]
-        sol = scipy_sp_dict
-        res = self.dspin_testobj.read_sp(self.gui_dict)
+                scipy_sp_input[sp] = scipy_sp_input_raw[sp]
+        sol = scipy_sp_input
+        res = self.dspin_testobj.read_sp(self.gui)
         errmsg = "get_sp doesn't get same values as scipy function"
         # Following while-loop only for bug-fixes:
         # i = 0

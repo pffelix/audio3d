@@ -18,20 +18,19 @@ import queue
 
 class DspOut:
     def __init__(self, state_init, fft_blocksize, hopsize):
+        self.state = state_init
         # Number of all speakers
-        self.spn = len(state_init.gui_sp)
-        self.binaural_block_dict = {sp: np.zeros((
-            fft_blocksize, 2), dtype=np.float32) for sp in range(len(
-                state_init.gui_sp))}
-        self.binaural_block_dict_out = dict.fromkeys(
-            state_init.gui_sp, np.zeros((hopsize, 2), dtype=np.float32))
-        self.binaural_block_dict_add = dict.fromkeys(
-            state_init.gui_sp, np.zeros((fft_blocksize - hopsize, 2),
-                                          dtype=np.float32))
+        self.spn = len(self.state.gui_sp)
+        self.sp_binaural_block = [np.zeros((
+            fft_blocksize, 2), dtype=np.float32) for sp in range(self.spn)]
+        self.sp_binaural_block_out = [np.zeros((hopsize, 2), dtype=np.float32)
+                                   for sp in range(self.spn)]
+        self.sp_binaural_block_add = [np.zeros((fft_blocksize - hopsize, 2),
+                                            dtype=np.float32) for sp in
+                                   range(self.spn)]
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
-        self.continue_convolution_dict = dict.fromkeys(
-            state_init.gui_sp, True)
+        self.continue_convolution = [True for sp in range(self.spn)]
         self.played_frames_end = 0
         self.played_block_counter = 0
         self.prior_played_block_counter = 0
@@ -50,76 +49,54 @@ class DspOut:
         # get current binaural block output of sp
         # 1. take binaural block output of current fft which don't overlap
         # with next blocks
-        self.binaural_block_dict_out[sp] = self.binaural_block_dict[sp][
+        self.sp_binaural_block_out[sp] = self.sp_binaural_block[sp][
             0:hopsize, :]
         # 2. add relevant still remaining block output of prior ffts to
         # binaural block output of current block
-        self.binaural_block_dict_out[sp][:, :] += \
-            self.binaural_block_dict_add[sp][0:hopsize, :]
+        self.sp_binaural_block_out[sp][:, :] += \
+            self.sp_binaural_block_add[sp][0:hopsize, :]
         # create a new array to save remaining block output of current fft
         # and add it to the still remaining block output of prior ffts
-        # 1. create new array binaural_block_dict_add_sp_new with size (
+        # 1. create new array binaural_block_add_sp_new with size (
         # fft_blocksize - hopsize)
         add_sp_arraysize = (fft_blocksize - hopsize)
-        binaural_block_dict_add_sp_new = np.zeros((add_sp_arraysize, 2),
-                                                  dtype=np.float32)
+        sp_binaural_block_add_sp_new = np.zeros((add_sp_arraysize, 2),
+                                                dtype=np.float32)
         # 2. take still remaining block output of prior ffts and add it to
         # the zero array on front position
-        binaural_block_dict_add_sp_new[0:add_sp_arraysize - hopsize,
-                                       :] = \
-            self.binaural_block_dict_add[sp][hopsize:, :]
+        sp_binaural_block_add_sp_new[0:add_sp_arraysize - hopsize, :] = \
+            self.sp_binaural_block_add[sp][hopsize:, :]
         # 3. take remaining block output of current fft and add it to the
         # array on back position
-        binaural_block_dict_add_sp_new[:, :] += \
-            self.binaural_block_dict[sp][hopsize:, :]
-        self.binaural_block_dict_add[sp] = binaural_block_dict_add_sp_new
+        sp_binaural_block_add_sp_new[:, :] += \
+            self.sp_binaural_block[sp][hopsize:, :]
+        self.sp_binaural_block_add[sp] = sp_binaural_block_add_sp_new
 
     # @brief Calculate the signal for all speakers taking into account the
     # distance to the speakers.
     # @author Felix Pfreundtner
-    def mix_binaural_block(self, hopsize, gui_sp):
+    def mix_binaural_block(self, hopsize):
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         # maximum distance of a speaker to head in window with borderlength
         # 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
         # max([gui_sp[sp][1] for sp in gui_sp])
         distance_max = 3.5 * math.sqrt(2)
-        # get total number of speakers from gui_sp
-        total_number_of_sp = len(gui_sp)
-        for sp in self.binaural_block_dict_out:
+        for sp in range(self.spn):
             # get distance speaker to head from gui_sp
-            distance_sp = gui_sp[sp][1]
+            distance_sp = self.state.gui_sp[sp]["distance"]
             # sound pressure decreases with distance 1/r
             sp_gain_factor = 1 - distance_sp / distance_max
             # add gained sp block output to a summarized block output of all
             # speakers
-            self.binaural_block += self.binaural_block_dict_out[sp] * \
-                sp_gain_factor / total_number_of_sp
+            self.binaural_block += self.sp_binaural_block_out[sp] * \
+                sp_gain_factor / self.spn
             # if convolution for this speaker will be skipped on the
-            # next iteration set binaural_block_dict_out to zeros
-            if self.continue_convolution_dict[sp] is False:
-                self.binaural_block_dict_out[sp] = np.zeros((hopsize, 2),
-                                                            dtype=np.float32)
+            # next iteration set binaural_block_out to zeros
+            if self.continue_convolution[sp] is False:
+                self.sp_binaural_block_out[sp] = np.zeros((hopsize, 2),
+                                                          dtype=np.float32)
         self.binaural_block = self.binaural_block.astype(np.float32,
                                                          copy=False)
-
-    # @brief Adds the newly calculated blocks to a dict that contains all the
-    #  blocks calculated before.
-    # @retval <binaural> A dict of all the output-blocks of the signal added
-    #  to one another up to the current block.
-    # another up to the current
-    # @author Felix Pfreundtner
-    def overlapp_add_window(self, binaural_block_dict_sp, blockcounter,
-                            fft_blocksize, binaural):
-        delay = 256
-        if blockcounter == 0:
-            binaural = np.zeros((fft_blocksize * 1500, 2), dtype=np.float32)
-        if blockcounter % 2 != 0:
-            binaural[blockcounter * delay:blockcounter * delay + 1024, 1] += \
-                binaural_block_dict_sp
-        else:
-            binaural[blockcounter * delay:blockcounter * delay + 1024, 1] += \
-                binaural_block_dict_sp
-        return binaural
 
     # @brief Concatenates the current block to the binaural signal.
     # @author Felix Pfreundtner
@@ -136,7 +113,7 @@ class DspOut:
 
     # @brief Writes the binaural output signal.
     # @author Felix Pfreundtner
-    def writebinauraloutput(self, binaural, wave_param_common, gui_sp):
+    def writebinauraloutput(self, binaural, wave_param_common):
         if not os.path.exists("./audio_out/"):
             os.makedirs("./audio_out/")
         scipy.io.wavfile.write("./audio_out/binauralmix.wav",
@@ -176,22 +153,22 @@ class DspOut:
         while audiostream.is_active() or audiostream.is_stopped():
             time.sleep(1)
             # handle playback pause
-            if self.dsp_pause is True:
+            if self.state.dsp_pause is True:
                 audiostream.stop_stream()
-            if audiostream.is_stopped() and self.dsp_pause is False:
+            if audiostream.is_stopped() and self.state.dsp_pause is False:
                 audiostream.start_stream()
             # handle playblack stop
-            if self.dsp_stop is True:
+            if self.state.dsp_stop is True:
                 break
         audiostream.stop_stream()
         audiostream.close()
         pa.terminate()
         # execute commands when when playback finished successfully
-        if any(self.continue_convolution_dict.values()) is True and \
-                self.dsp_stop is False:
+        if any(self.continue_convolution) is True and \
+                self.state.dsp_stop is False:
             print("Error PC to slow - Playback Stopped")
-            for sp in self.continue_convolution_dict:
+            for continue_convolution_sp in self.continue_convolution:
                 # self.played_frames_end += sp_blocksize
-                self.continue_convolution_dict[sp] = False
+                continue_convolution_sp = False
             self.playback_successful = False
         self.playback_finished = True

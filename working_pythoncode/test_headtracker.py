@@ -17,7 +17,7 @@ class TestHeadtracker(unittest.TestCase):
         get_head_deg.return_value = 30
         sp = gui_utils.Speaker(self.state, 1, 'unknown')
         sp.cal_rel_pos(get_head_deg())
-        result = self.state.gui_dict[1][0]
+        result = self.state.gui[1][0]
         self.assertEqual(result, 285)
 
     @patch('gui_utils.Headtracker.get_head_deg')
@@ -26,7 +26,7 @@ class TestHeadtracker(unittest.TestCase):
         get_head_deg.return_value = 320
         sp = gui_utils.Speaker(self.state, 1, 'unknown')
         sp.cal_rel_pos(get_head_deg())
-        result = self.state.gui_dict[1][0]
+        result = self.state.gui[1][0]
         self.assertEqual(result, 355)
 
 if __name__ == '__main__':

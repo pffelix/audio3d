@@ -32,7 +32,10 @@ class GLPlotWidget(QGLWidget):
 
         # Huaijiang
         self.ymax = np.max(ydata)
-        self.ydata = ydata/self.ymax
+        if self.ymax != 0:
+            self.ydata = ydata/self.ymax
+        else:
+            self.ydata = ydata
         # this line might be not needed in a futre version: the named axis
         # with Hz scale should reach from self.begin_hz to self.end_hz not
         # -1 Hz to 1 Hz -> the self.xdata = linspace(begin, end) command above

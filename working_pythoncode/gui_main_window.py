@@ -51,7 +51,7 @@ class MainWindow(QtGui.QWidget):
 
         # set plot window
         self.sequence_plot = gui_utils.SequencePlot()
-        self.sequence_plot.plot_on.connect(self.update_sequence_dicts)
+        self.sequence_plot.plot_on.connect(self.update_sequences)
 
         self.dsp_obj = None
         self.dsp_thread = None
@@ -119,10 +119,10 @@ class MainWindow(QtGui.QWidget):
         default_position_button.clicked.connect(self.positions)
         self.plot_button.clicked.connect(self.plot_sequence)
         self.combo_box.currentIndexChanged.connect(self.inverse_disable)
-#        self.combo_box.currentIndexChanged.connect(self.update_settings_dict)
+#        self.combo_box.currentIndexChanged.connect(self.update_settings)
         self.inverse_box.stateChanged.connect(self.inverse_disable)
-#        self.inverse_box.stateChanged.connect(self.update_settings_dict)
-#        self.buffersize_spin_box.valueChanged.connect(self.update_settings_dict)
+#        self.inverse_box.stateChanged.connect(self.update_settings)
+#        self.buffersize_spin_box.valueChanged.connect(self.update_settings)
 
         # set window
         self.setLayout(layout)
@@ -136,7 +136,7 @@ class MainWindow(QtGui.QWidget):
         **This function is nessecary if the program is run in connection with
         a headtracking system.**
         If the DSP algorithm is running the Headtracking angle output is
-        requested and the speaker dictonary is updated.
+        requested and the speaker list is updated.
         A threading.Lock() avoids read-write overlaps of the dsp_run variable.
         """
         self.state.mtx_run.acquire()
@@ -157,7 +157,7 @@ class MainWindow(QtGui.QWidget):
         **This function is continuously updating the list with the settings
         for each speaker**
         It is called every 10 sec by a timer and updating the speaker 
-        dictionary for every present speaker.
+        list for every present speaker.
         A threading.Lock() avoids read-write overlaps of the dsp_run variable.
         """
         self.state.mtx_run.acquire()
@@ -320,7 +320,7 @@ class MainWindow(QtGui.QWidget):
         H2 -- reset
         ===================
         **This function is called by the MainWindow reset button and removes
-        all existing speakers from the GuiScene and resets also the gui_sp_dict
+        all existing speakers from the GuiScene and resets also the gui_sp_input
         .**
         """
         self.state.mtx_run.acquire()
@@ -420,7 +420,7 @@ class MainWindow(QtGui.QWidget):
         ===================
         **This function is called by MainWindow plot button and shows the 
         gui_utils' SequencePlot of the last selected speaker.**
-        The sequences are continously updated by the update_sequence_dicts in
+        The sequences are continously updated by the update_sequences in
         connection with a QTimer.
         """
 
@@ -438,12 +438,12 @@ class MainWindow(QtGui.QWidget):
             self.state.dsp_hrtf_spectrum[sp][1][:, 1])
         self.sequence_plot.show()
         self.sequence_plot.is_on = True
-        self.sequence_plot.timer.timeout.connect(self.update_sequence_dicts)
+        self.sequence_plot.timer.timeout.connect(self.update_sequences)
         self.sequence_plot.timer.start(50)
 
-    def update_sequence_dicts(self):
+    def update_sequences(self):
         """
-        H2 -- update_sequence_dicts
+        H2 -- update_sequences
         ===================
         **This function is used to update speaker spectrum while it is
         displayed in the SequencePlot widget.**

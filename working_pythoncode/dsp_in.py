@@ -27,45 +27,42 @@ class DspIn:
     def __init__(self, state_init):
         self.state = state_init
         # Number of all speakers
-        self.spn = len(state_init.gui_sp)
+        self.spn = len(self.state.gui_sp)
         # Dict with a key and two values for every hrtf to be fetched from the
         # database. The values are the max. values of the hrtfs of
         # each ear.
-        self.hrtf_max_amp_dict = dict.fromkeys(state_init.gui_sp, [0, 0])
+        self.hrtf_max_amp = [[0, 0] for sp in range(self.spn)]
         # Dict with a key for every speaker and two values. These
         # are the max. values fetched from the speaker-file.
-        self.sp_max_amp_dict = dict.fromkeys(state_init.gui_sp, [])
+        self.sp_max_amp = [None for sp in range(self.spn)]
         # Standard samplerate, sampledepth
         self.wave_param_common = [44100, 16]
         # Set number of output blocks per second
         self.fft_blocksize = 1024
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
-        self.hrtf_database_name, self.hrtf_blocksize, \
-            self.hrtf_blocksize_real, self.kemar_inverse_filter, \
-            self.kemar_inverse_filter_fft, self.kemar_inverse_filter_active = \
-            self.get_hrtf_param(state_init.gui_settings)
+        self.hrtf_blocksize, self.hrtf_blocksize_real, \
+            self.kemar_inverse_filter, self.kemar_inverse_filter_fft, \
+            self.kemar_inverse_filter_active = self.get_hrtf_param()
         # read in whole hrtf datatabas from impulse responses in time domain
-        self.hrtf_database = self.read_hrtf_database(
-            state_init.gui_settings)
+        self.hrtf_database = self.read_hrtf_database()
         # bring whole hrtf database to frequency domainv
         self.hrtf_database_fft = self.hrtf_database_fft()
-        # Initialize a dict for the hrtf block values to be stored in.
-        self.hrtf_block_fft_dict = dict.fromkeys(state_init.gui_sp,
-                                                 np.zeros((self.fft_blocksize
-                                                           // 2 + 1, 2),
-                                                          dtype=np.complex128))
+        # Initialize a list for the hrtf block values to be stored in.
+        self.hrtf_block_fft = [np.zeros((self.fft_blocksize // 2 + 1, 2),
+                                        dtype=np.complex128) for sp in range(
+            self.spn)]
         # initialize fft magnitude spectrum array for every speaker signal
         self.state.dsp_sp_spectrum = [np.zeros((self.fft_blocksize // 2 + 1,
                                       2), dtype=np.float16) for
-                                      sp in state_init.gui_sp]
+                                      sp in range(self.spn)]
 
         # initialize fft magnitude spectrum array of left and right hrtf for
         # every speaker
         self.state.dsp_hrtf_spectrum = [[np.zeros((
                                         self.fft_blocksize // 2 + 1, 2),
             dtype=np.float16), np.zeros((self.fft_blocksize // 2 + 1, 2),
-                                        dtype=np.float16)] for sp in
-            state_init.gui_sp]
+                                        dtype=np.float16)] for sp in range(
+            self.spn)]
 
         # set fft frequency values of fft magnitude spectrum arrays
         self.set_fftfreq(self.fft_blocksize, self.wave_param_common[0])
@@ -74,16 +71,15 @@ class DspIn:
         self.sp_blocksize, self.sp_blocktime, self.overlap, self.hopsize = \
             self.get_block_param(self.wave_param_common,
                                  self.hrtf_blocksize, self.fft_blocksize)
-        # Get necessary parameters of input-file and store to sp_param-dict.
-        self.sp_param = self.init_read_sp(state_init.gui_sp)
+        # Get necessary parameters of input-file and store to sp_param.
+        self.sp_param = self.init_read_sp()
         # read in whole wave file of all speakers
-        self.sp_dict = self.read_sp(state_init.gui_sp)
-        self.block_begin_end = self.init_set_block_begin_end(
-            state_init.gui_sp)
+        self.sp_input = self.read_sp()
+        self.block_begin_end = self.init_set_block_begin_end()
         # initialize empty numpy array where to save samples of each
         # speaker block
-        self.sp_block_dict = dict.fromkeys(state_init.gui_sp, np.zeros((
-            self.sp_blocksize,), dtype=np.float32))
+        self.sp_block = [np.zeros((self.sp_blocksize,), dtype=np.float32) for
+                         sp in range(self.spn)]
         # build a hann window with sp_blocksize
         self.hann = self.build_hann_window(self.sp_blocksize)
 
@@ -149,7 +145,7 @@ class DspIn:
         hopsize = self.rnd((1 - overlap) * sp_blocksize)
         return sp_blocksize, sp_blocktime, overlap, hopsize
 
-    def init_set_block_begin_end(self, gui_sp):
+    def init_set_block_begin_end(self):
         """
         H2 -- init_set_block_begin_end
         ===================
@@ -188,7 +184,7 @@ class DspIn:
         self.block_begin_end[0] += int(self.sp_blocksize * (1 - self.overlap))
         self.block_begin_end[1] += int(self.sp_blocksize * (1 - self.overlap))
 
-    def get_hrtf_param(self, gui_settings):
+    def get_hrtf_param(self):
         """
         H2 -- get_hrtf_param
         ===================
@@ -199,8 +195,6 @@ class DspIn:
         the speaker-file signal.
 
         Return values:
-        * hrtf_database_name: Tells which database the listener has chosen
-        (available are: normal ear, big ear and a compact version)
         * hrtf_blocksize: Simply set to default value 513 since
         fft_blocksize is defaulted to 1024
         * kemar_inverse_filter: Boolean value that tells whether check-box
@@ -208,13 +202,12 @@ class DspIn:
 
         Author: Felix Pfreundtner
         """
-        hrtf_database_name = gui_settings["hrtf_database"]
         # write variable which contains whether inverse filter is
         # activated in gui
-        kemar_inverse_filter_active = gui_settings[
+        kemar_inverse_filter_active = self.state.gui_settings[
             "inverse_filter_active"]
-        if hrtf_database_name == "kemar_normal_ear" or hrtf_database_name == \
-                "kemar_big_ear":
+        if self.state.gui_settings["hrtf_database"] == "kemar_normal_ear" or \
+           self.state.gui_settings["hrtf_database"] == "kemar_big_ear":
             # wave hrtf size 512 samples: zeropad hrtf to 513 samples to
             # reach even sp_blocksize which is integer divisible by 2 (50%
             # overlap needed -> sp_blocksize/2)
@@ -233,7 +226,7 @@ class DspIn:
             # time domain into frequency domain
             kemar_inverse_filter_fft = rfft(kemar_inverse_filter,
                                             self.fft_blocksize)
-        if hrtf_database_name == "kemar_compact":
+        if self.state.gui_settings["hrtf_database"] == "kemar_compact":
             # wave hrtf size 128 samples: zeropad hrtf to 513 samples to
             # reach even sp_blocksize which is integer divisible by 2 (50%
             # overlap needed -> sp_blocksize/2)
@@ -247,13 +240,13 @@ class DspIn:
             kemar_inverse_filter_fft = np.zeros((self.fft_blocksize // 2 + 1,),
                                                 dtype=np.complex128)
 
-        return hrtf_database_name, hrtf_blocksize, hrtf_blocksize_real, \
+        return hrtf_blocksize, hrtf_blocksize_real, \
             kemar_inverse_filter, kemar_inverse_filter_fft, \
             kemar_inverse_filter_active
 
     # @brief Preloads all hrtf Files
     # @author Felix Pfreundtner
-    def read_hrtf_database(self, gui_sp_sp):
+    def read_hrtf_database(self):
         """
         H2 -- read_hrtf_database
         ===================
@@ -272,7 +265,7 @@ class DspIn:
         number_of_hrtfs = 72
         hrtf_database = np.zeros((self.hrtf_blocksize, number_of_hrtfs),
                                  dtype=np.float32)
-        if self.hrtf_database_name == "kemar_normal_ear":
+        if self.state.gui_settings["hrtf_database"] == "kemar_normal_ear":
             angle_end = 360
             for angle in range(0, angle_end, 5):
                 hrtf_filename = "./kemar/full/elev" + str(elevation) + "/L" \
@@ -282,7 +275,7 @@ class DspIn:
                                  angle / angle_stepsize] = \
                     scipy.io.wavfile.read(hrtf_filename)
 
-        if self.hrtf_database_name == "kemar_big_ear":
+        if self.state.gui_settings["hrtf_database"] == "kemar_big_ear":
             angle_end = 360
             for angle in range(0, angle_end, 5):
                 hrtf_filename = "./kemar/full/elev" + str(elevation) + "/R" \
@@ -291,7 +284,7 @@ class DspIn:
                 _, hrtf_database[:self.hrtf_blocksize_real,
                                  angle / angle_stepsize] = \
                     scipy.io.wavfile.read(hrtf_filename)
-        if self.hrtf_database_name == "kemar_compact":
+        if self.state.gui_settings["hrtf_database"] == "kemar_compact":
             angle_end = 180
             for angle in range(0, angle_end, 5):
                 hrtf_filename = "./kemar/compact/elev" + str(elevation) + \
@@ -328,7 +321,7 @@ class DspIn:
                                                      self.fft_blocksize)
         return hrtf_database_fft
 
-    def init_read_sp(self, gui_sp):
+    def init_read_sp(self):
         """
         H2 -- init_read_sp
         ===================
@@ -336,13 +329,12 @@ class DspIn:
         get_block_function**
 
         This method gets all important data from the .wav files that will
-        be played by the speakers. Input is a gui_sp, containing the
-        filename at place [2]. The output is another dict called sp_param,
+        be played by the speakers. The output is another list called sp_param,
         which holds one of the properties as values for each speaker given
         by the gui_sp.
 
         Return values:
-        sp_param: Returns a dictionary containing 10 properties of each
+        sp_param: Returns a list containing 10 properties of each
         speaker-file.
 
         Author: Matthias Lederle
@@ -360,20 +352,22 @@ class DspIn:
         # sp_param[sp][7] = bitfactor (8-bit --> 1, 16-bit --> 2)
         # sp_param[sp][8] = total number of bytes until data-chunk ends
         # sp_param[sp][9] = format character for correct encoding of data
-        # initialize dict with 10 (empty) values per key with list
+
+        # initialize list with 10 (empty) values per key with list
         # comprehension
-        sp_param = {sp: [None] * 10 for sp in range(len(gui_sp))}
+        sp_param = [[None] * 10 for sp in range(self.spn)]
         # go through all speakers
-        for sp in sp_param:
-            if gui_sp[sp][2] == 'unknown' or gui_sp[sp][2] == '':
+        for sp in range(self.spn):
+            if self.state.gui_sp[sp]["path"] == 'unknown' or \
+               self.state.gui_sp[sp]["path"] == '':
                 # ERROR message -- no file selected
-                print("No file selected")
+                self.state.send_error("No file selected")
                 # errmsg = "No audio source was selected. Please press " \
                 # "'Reset' and add speaker(s) with valid pathname again."
                 # self.signal_handler.send_error(errmsg)
             else:
                 # open the file
-                file = open(gui_sp[sp][2], 'rb')
+                file = open(self.state.gui_sp[sp]["path"], 'rb')
                 # checks whether file is RIFX or RIFF
                 _big_endian = False
                 str1 = file.read(4)
@@ -450,14 +444,14 @@ class DspIn:
                 # self.signal_handler.send_error(errmsg)
         return sp_param
 
-    def read_sp(self, gui_sp):
+    def read_sp(self):
         """
         H2 -- read_sp
         ===================
         **Reads one block of samples**
 
         This method reads a block of samples of a speaker-.wav-file and
-        writes in a numpyarray sp_block_dict[sp] (containing one 16-bit-int
+        writes in a numpyarray sp_block[sp] (containing one 16-bit-int
         for each sample) and a flag that tells whether the end of the file
         is reached or not. This function will be applied in the while loop
         of the dsp-class: I.e. a optimum performance is required.
@@ -465,27 +459,27 @@ class DspIn:
         Author: Matthias Lederle
         """
         # initialize an empty array with blocksize sp_blocksize for every
-        # speaker in dictionary sp_dict
-        sp_dict = {}
-        for sp in gui_sp:
-            sp_dict[sp] = np.zeros((self.sp_param[sp][0],), dtype=np.float32)
+        # speaker in list sp_input
+        sp_input_old = [np.zeros((self.sp_param[sp][0],), dtype=np.float32)
+                       for sp in range(self.spn)]
 
         # # scipy io reference function
         start = time.time()
-        scipy_sp_dict_raw = {}
-        scipy_sp_dict = {}
-        for sp in gui_sp:
-            _, scipy_sp_dict_raw[sp] = scipy.io.wavfile.read(gui_sp[sp][2])
-            lenarray = len(scipy_sp_dict_raw[sp])
-            # append zeros to scipy_sp_dict_raw to reach that output is
+        sp_input = []
+        for sp in range(self.spn):
+            _, sp_input_raw = scipy.io.wavfile.read(
+                self.state.gui_sp[sp]["path"])
+            print
+            lenarray = len(sp_input_raw)
+            # append zeros to scipy_sp_input_raw to reach that output is
             # divideable by sp_blocksize
             if lenarray % self.sp_blocksize != 0:
-                scipy_sp_dict[sp] = np.zeros((lenarray + self.sp_blocksize -
-                                              lenarray % self.sp_blocksize, ),
-                                             dtype=np.float32)
-                scipy_sp_dict[sp][0:lenarray, ] = scipy_sp_dict_raw[sp]
+                sp_input.append(np.zeros((lenarray + self.sp_blocksize -
+                                         lenarray % self.sp_blocksize, ),
+                                         dtype=np.float32))
+                sp_input[sp][0:lenarray, ] = sp_input_raw
             else:
-                scipy_sp_dict[sp] = scipy_sp_dict_raw[sp]
+                sp_input.append(sp_input_raw)
 
         print("timer read_sp (Scipy Reference) in ms: " + str(int((time.time()
               - start) * 1000)))
@@ -493,7 +487,7 @@ class DspIn:
         # Matthias
         # start = time.time()
         # # iterate over all speakers to read in all speaker wave files
-        # for sp in sp_dict:
+        # for sp in sp_input:
         #     # start reading at sample 0 in speaker wave file
         #     begin_block = 0
         #     # stop reading at last sample in speaker wave file
@@ -509,7 +503,7 @@ class DspIn:
         #         self.sp_param[sp][7] * self.sp_param[sp][3])
         #     # go to first byte of block and start "reading"
         #     file.seek(first_byte_of_block)
-        #     # if input file is mono, write sp_dict[sp] in this part
+        #     # if input file is mono, write sp_input[sp] in this part
         #     if self.sp_param[sp][3] == 1:
         #         # if play is not yet at the end of the file use this
         #         # Put all variables needed in the while-loop into simple
@@ -523,11 +517,11 @@ class DspIn:
         #         # new while-loop:
         #         # j = 0
         #         # while j < sample_no:
-        #         #     sp_dict[sp][j, ] = struct.unpack(self.sp_param[sp][4] +
+        #         #     sp_input[sp][j, ] = struct.unpack(self.sp_param[sp][4] +
         #         #                                  self.sp_param[sp][9],
         #         #                                  file.read(
         #         #                                  self.sp_param[sp][7]))[0]
-        #         #     #print("j =", j, "sp_dict[sp][j, ] =", sp_dict[sp][j, ])
+        #         #     #print("j =", j, "sp_input[sp][j, ] =", sp_input[sp][j, ])
         #         #     j += 1
         #         # simple loop:
         #         if last_byte_of_block < byteno:
@@ -535,7 +529,7 @@ class DspIn:
         #             # while i < blocklength, read every loop one sample
         #             # !!!!Very often in while-loop!!!!
         #             while i < sp_bs:
-        #                 sp_dict[sp][i, ] = struct.unpack(fmt1 + fmt2,
+        #                 sp_input[sp][i, ] = struct.unpack(fmt1 + fmt2,
         #                     file.read(bf))[0]
         #                 print("i = ", i)
         #                 i += 1
@@ -551,13 +545,13 @@ class DspIn:
         #             # continue_input
         #             # to "False"
         #             while i < remaining_samples:
-        #                 sp_dict[sp][i, ] = struct.unpack(
+        #                 sp_input[sp][i, ] = struct.unpack(
         #                     fmt1 + fmt2,
         #                     file.read(bf))[0]
         #                 i += 1
         #             print("A")
         #             continue_input = False
-        #     # If input file is stereo, make mono and write sp_dict[sp]
+        #     # If input file is stereo, make mono and write sp_input[sp]
         #     elif self.sp_param[sp][3] == 2:
         #         # First: Write left and right signal in independent lists
         #         samplelist_of_one_block_left = []
@@ -605,14 +599,14 @@ class DspIn:
         #                 i += 1
         #             continue_input = False
         #         # Second: Get mean value and merge the two lists and write in
-        #         # sp_dict[sp]
+        #         # sp_input[sp]
         #         if remaining_samples == 10000:
         #             i = 0
         #             while i < self.sp_blocksize:
         #                 mean_value = int((samplelist_of_one_block_left[i] +
         #                                 samplelist_of_one_block_right[i])
         #                                  / 2)
-        #                 sp_dict[sp][i, ] = mean_value
+        #                 sp_input[sp][i, ] = mean_value
         #                 i += 1
         #         else:
         #             i = 0
@@ -620,7 +614,7 @@ class DspIn:
         #                 mean_value = int((samplelist_of_one_block_left[i] +
         #                                   samplelist_of_one_block_right[i])
         #                                  / 2)
-        #                 sp_dict[sp][i, ] = mean_value
+        #                 sp_input[sp][i, ] = mean_value
         #                 i += 1
         #             continue_input = False
                     # else:
@@ -633,9 +627,9 @@ class DspIn:
         # file.close()
         # print("timer read_sp (Matthias) in ms: " + str(int((time.time() -
         # start) * 1000)))
-        return scipy_sp_dict      # , scipy_sp_dict or sp_dict
+        return sp_input      # , scipy_sp_input or sp_input
 
-    def get_hrtf_block_fft(self, gui_sp_sp, sp):
+    def get_hrtf_block_fft(self, sp):
         """
         H2 -- get_hrtf_block_fft
         ===================
@@ -645,18 +639,18 @@ class DspIn:
         """
         # get filename of the relevant hrtf for each ear
         # version according to settings in gui
-        rounddifference = gui_sp_sp[0] % 5
+        rounddifference = self.state.gui_sp[sp]["angle"] % 5
         # if angle from gui exactly matches angle of the file
         if rounddifference == 0:
-            angle_exact = gui_sp_sp[0]
+            angle_exact = self.state.gui_sp[sp]["angle"]
 
         # If gui's angle doesn't exactly match, go to closest angle
         # available in database
         else:
             if rounddifference < 2.5:
-                angle_exact = gui_sp_sp[0] - rounddifference
+                angle_exact = self.state.gui_sp[sp]["angle"] - rounddifference
             else:
-                angle_exact = gui_sp_sp[0] + 5 - rounddifference
+                angle_exact = self.state.gui_sp[sp]["angle"] + 5-rounddifference
 
         # get rounded integer angle
         angle = self.rnd(angle_exact)
@@ -665,11 +659,10 @@ class DspIn:
             # -> identical to angle = 0°
             angle = 0
         # get the maximum amplitude of the left ear hrtf time signal
-        self.hrtf_max_amp_dict[sp][0] = np.amax(np.abs(self.hrtf_database[
-                                                       :, angle / 5]))
+        self.hrtf_max_amp[sp][0] = np.amax(np.abs(self.hrtf_database[:,
+                                                  angle / 5]))
         # get left ear hrtf fft values
-        self.hrtf_block_fft_dict[sp][:, 0] = self.hrtf_database_fft[:,
-                                                                    angle / 5]
+        self.hrtf_block_fft[sp][:, 0] = self.hrtf_database_fft[:, angle / 5]
 
         # calculate the symectrical angle for the right ear
         angle = 360 - angle
@@ -678,11 +671,10 @@ class DspIn:
             # -> identical to angle = 0°
             angle = 0
         # get the maximum amplitude of the right ear hrtf time signal
-        self.hrtf_max_amp_dict[sp][1] = np.amax(np.abs(
+        self.hrtf_max_amp[sp][1] = np.amax(np.abs(
             self.hrtf_database[:, angle / 5]))
         # get right ear hrtf fft values
-        self.hrtf_block_fft_dict[sp][:, 1] = self.hrtf_database_fft[:,
-                                                                    angle / 5]
+        self.hrtf_block_fft[sp][:, 1] = self.hrtf_database_fft[:, angle / 5]
 
     # @author Matthias Lederle
     def get_sp_block(self, sp):
@@ -699,21 +691,20 @@ class DspIn:
         """
         # if current block end is smaller than last sample in sp
         if self.block_begin_end[1] <= self.sp_param[sp][0]:
-            self.sp_block_dict[sp] = self.sp_dict[sp][self.block_begin_end[
+            self.sp_block[sp] = self.sp_input[sp][self.block_begin_end[
                 0]: self.block_begin_end[1], ]
             continue_input = True
         # if current block end is LARGER, we enter the else-condition
         else:
-            self.sp_block_dict[sp] = np.zeros((self.sp_blocksize),
-                                              dtype=np.float32)
-            self.sp_block_dict[sp][0:self.sp_param[sp][0] -
-                                   self.block_begin_end[0], ] = self.sp_dict[
+            self.sp_block[sp] = np.zeros((self.sp_blocksize), dtype=np.float32)
+            self.sp_block[sp][0:self.sp_param[sp][0] - self.block_begin_end[
+                0], ] = self.sp_input[
                 sp][self.block_begin_end[0]:self.sp_param[sp][0], ]
             continue_input = False
-        self.sp_max_amp_dict[sp] = np.amax(np.abs(self.sp_block_dict[sp][:, ]))
+        self.sp_max_amp[sp] = np.amax(np.abs(self.sp_block[sp][:, ]))
         return continue_input
 
-    def normalize(self, normalize_bool, sp):
+    def normalize(self, sp):
         """
         H2 -- get_hrtf_block_fft
         ===================
@@ -721,25 +712,25 @@ class DspIn:
 
         If the input-flag normalize_flag_sp is True, measure the maximum
         amplitude occurring in the .wav-file. After that, reduce all
-        entries of sp_block_dict by the ratio that decreases the max value
+        entries of sp_block by the ratio that decreases the max value
         to 2^15-1
 
         Author: Felix Pfreundtner
         """
-        if normalize_bool is True:
+        if self.state.gui_sp[sp]["normalize"] is True:
             # take maximum amplitude of original wave file of raw sp block
-            max_amplitude_input = self.sp_max_amp_dict[sp]
+            max_amplitude_input = self.sp_max_amp[sp]
             if max_amplitude_input != 0:
                 # normalize to have the maximum int16 amplitude
                 max_amplitude_output = 32767
-                sp_block_dict_sp_norm = self.sp_block_dict[sp] / (
+                sp_block_sp_norm = self.sp_block[sp] / (
                     max_amplitude_input /
                     max_amplitude_output)
-                self.sp_block_dict[sp] = sp_block_dict_sp_norm
-                self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(
+                self.sp_block[sp] = sp_block_sp_norm
+                self.sp_block[sp] = self.sp_block[sp].astype(
                     np.float32, copy=False)
-                self.sp_max_amp_dict[sp] = np.amax(np.abs(
-                    self.sp_block_dict[sp][:, ]))
+                self.sp_max_amp[sp] = np.amax(np.abs(
+                    self.sp_block[sp][:, ]))
 
     def apply_window_on_sp_block(self, sp):
         """
@@ -749,14 +740,13 @@ class DspIn:
 
         If the input-flag normalize_flag_sp is True, measure the maximum
         amplitude occurring in the .wav-file. After that, reduce all
-        entries of sp_block_dict by the ratio that decreases the max value
+        entries of sp_block by the ratio that decreases the max value
         to 2^15-1
 
         Author: Felix Pfreundtner
         """
-        self.sp_block_dict[sp] = self.sp_block_dict[sp] * self.hann
-        self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.float32,
-                                                               copy=False)
+        self.sp_block[sp] = self.sp_block[sp] * self.hann
+        self.sp_block[sp] = self.sp_block[sp].astype(np.float32, copy=False)
 
     # @author Felix Pfreundtner
     def set_fftfreq(self, fft_blocksize, samplerate):
@@ -776,7 +766,7 @@ class DspIn:
             for dsp_hrtf_spectrum_sp_l_r in dsp_hrtf_spectrum_sp:
                 dsp_hrtf_spectrum_sp_l_r[:, 0] = freq
 
-    def fft_convolution(self, binaural_block_dict_sp, sp, l_r):
+    def fft_convolution(self, sp_binaural_block_sp, sp, l_r):
         """
         H2 -- fft_convolution
         ===================
@@ -786,14 +776,14 @@ class DspIn:
         defined by fft_blocksize), normalizes their values to int16-signals
         and then executes the convolution. After that, the signal is
         retransformed to  time-domain and normalized again. The final
-        values are written then to the binaural_block_dict.
+        values are written then to the sp_binaural_block.
 
         Author: Felix Pfreundtner
         """
-        # zeropad sp_block_dict[sp] to fft_blocksize and bring time domain into
+        # zeropad sp_block[sp] to fft_blocksize and bring time domain into
         # frequency domain
-        # sp_block_fft_sp = fft(self.sp_block_dict[sp], self.fft_blocksize)
-        sp_block_fft_sp = rfft(self.sp_block_dict[sp], self.fft_blocksize)
+        # sp_block_fft_sp = fft(self.sp_block[sp], self.fft_blocksize)
+        sp_block_fft_sp = rfft(self.sp_block[sp], self.fft_blocksize)
         # save fft magnitude spectrum of sp_block in dsp_sp_spectrum and
         # hrtf_block in dsp_hrtf_spectrum to be shown by gui
         # get magnitum spectrum of sp_block
@@ -805,12 +795,12 @@ class DspIn:
         if max_amplitude_sp_magnitude_spectrum != 0:
             # get magnitude spectrum of hrtf-block
             self.state.dsp_sp_spectrum[sp][:, 1] = sp_magnitude_spectrum / (
-                max_amplitude_sp_magnitude_spectrum / self.sp_max_amp_dict[
+                max_amplitude_sp_magnitude_spectrum / self.sp_max_amp[
                     sp] * max_amplitude_output)
         else:
             self.state.dsp_sp_spectrum[sp][:, 1] = np.zeros((
                 self.fft_blocksize // 2 + 1, ), dtype=np.float16)
-        hrtf_magnitude_spectrum = abs(self.hrtf_block_fft_dict[sp][:, l_r])
+        hrtf_magnitude_spectrum = abs(self.hrtf_block_fft[sp][:, l_r])
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(
             hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0 and \
@@ -818,7 +808,7 @@ class DspIn:
             self.state.dsp_hrtf_spectrum[sp][l_r][:, 1] =\
                 hrtf_magnitude_spectrum / (
                     max_amplitude_hrtf_magnitude_spectrum /
-                    self.hrtf_max_amp_dict[sp][l_r] * max_amplitude_output)
+                    self.hrtf_max_amp[sp][l_r] * max_amplitude_output)
         else:
             self.state.dsp_hrtf_spectrum[sp][l_r][:, 1] = np.zeros((
                 self.fft_blocksize // 2 + 1, ), dtype=np.float16)
@@ -828,29 +818,29 @@ class DspIn:
 
         # execute convolution of speaker input and hrtf input: multiply
         # complex frequency domain vectors
-        binaural_block_sp_frequency = sp_block_fft_sp * \
-            self.hrtf_block_fft_dict[sp][:, l_r]
+        sp_binaural_block_sp_frequency = sp_block_fft_sp * \
+            self.hrtf_block_fft[sp][:, l_r]
 
         # if kemar full is selected furthermore convolve with (approximated
         #  1024 samples) inverse impulse response of optimus pro 7 speaker
         if self.kemar_inverse_filter_active:
-            binaural_block_sp_frequency = binaural_block_sp_frequency * \
+            sp_binaural_block_sp_frequency = sp_binaural_block_sp_frequency * \
                 self.kemar_inverse_filter_fft
 
         # bring multiplied spectrum back to time domain, disneglected small
         # complex time parts resulting from numerical fft approach
-        binaural_block_sp_time = irfft(binaural_block_sp_frequency,
-                                       self.fft_blocksize).real
+        sp_binaural_block_sp_time = irfft(sp_binaural_block_sp_frequency,
+                                          self.fft_blocksize).real
 
         # normalize multiplied spectrum back to 16bit integer, consider
         # maximum amplitude value of sp block and hrtf impulse to get
         # dynamical volume output
-        binaural_block_sp_time_max_amp = int(np.amax(np.abs(
-            binaural_block_sp_time)))
-        if binaural_block_sp_time_max_amp != 0:
-            binaural_block_sp_time /= (binaural_block_sp_time_max_amp /
-                                       self.sp_max_amp_dict[sp] /
-                                       self.hrtf_max_amp_dict[sp][l_r] * 32767)
-        binaural_block_dict_sp[:, l_r] = \
-            binaural_block_sp_time.astype(np.float32, copy=False)
-        return binaural_block_dict_sp
+        sp_binaural_block_sp_time_max_amp = int(np.amax(np.abs(
+            sp_binaural_block_sp_time)))
+        if sp_binaural_block_sp_time_max_amp != 0:
+            sp_binaural_block_sp_time /= (sp_binaural_block_sp_time_max_amp /
+                                          self.sp_max_amp[sp] /
+                                          self.hrtf_max_amp[sp][l_r] * 32767)
+        sp_binaural_block_sp[:, l_r] = \
+            sp_binaural_block_sp_time.astype(np.float32, copy=False)
+        return sp_binaural_block_sp
