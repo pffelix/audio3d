@@ -87,17 +87,20 @@ class State(QtCore.QObject):
             self.dsp_pause = False
         self.mtx_pause.release()
 
-    def check_error(self):
-        self.mtx_error.acquire()
-        if len(self.gui_error) > 0:
-            print(self.gui_error.pop(0))
-        self.mtx_error.release()
-
     def send_error(self, message):
         self.mtx_error.acquire()
         if message not in self.gui_error:
             self.gui_error.append(message)
         self.mtx_error.release()
+
+    def check_error(self):
+        self.mtx_error.acquire()
+        if len(self.gui_error) > 0:
+            msgbox = QtGui.QMessageBox()
+            msgbox.setText(self.gui_error.pop(0))
+            msgbox.exec_()
+        self.mtx_error.release()
+
 
 # @class <Headtracker> This class integrates the headtracker
 #

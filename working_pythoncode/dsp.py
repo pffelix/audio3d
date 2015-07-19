@@ -53,6 +53,7 @@ class Dsp:
     def run(self):
         # tell gui that dsp algorithm is running
         self.state.dsp_run = True
+        self.state.send_error('error test')
         # run the main while loop as long as there are still samples to be
         # read from speaker wave files
         while any(self.dspout_obj.continue_convolution_dict.values()) \
