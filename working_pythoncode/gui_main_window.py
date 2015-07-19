@@ -15,8 +15,20 @@ import multiprocessing
 
 
 class MainWindow(QtGui.QWidget):
+    """
+    H1 -- MainWindow
+    ************************
+    The class implements the main window of the GUI as a container for all components
+    including graphical view, buttons, property/plot window. 
+    """
 
     def __init__(self):
+        """
+        H2 -- Main Window Constructor
+        ===================
+        ** Initialize the main window of the GUI**
+
+        """
         super(MainWindow, self).__init__()
         self.setAcceptDrops(True)
 
@@ -54,6 +66,16 @@ class MainWindow(QtGui.QWidget):
         self.return_ex.put(False)
 
     def init_ui(self):
+
+        """
+        H2 -- init_ui
+        ===================
+        **Initialize UI Components**
+
+        Buttons, combo boxes and the graphical view will be added.
+        Signal/Slots will be connected.
+
+        """
 
         # set buttons
         add_speaker_button = QtGui.QPushButton('Add Speaker')
@@ -122,17 +144,29 @@ class MainWindow(QtGui.QWidget):
         self.show()
 
     def update_head(self):
+        """
+        H2 -- update_head
+        ===================
+        **Update head tracker data**
+
+        Azimuth degree will be obtained from the head tracker if it is enabled.
+        During the playback it will constantly call the update_gui_sp_dict to
+        adjust the positional data according to the current head position.
+
+        """
         self.state.mtx_run.acquire()
         if self.state.dsp_run is True:
             self.head_tracker.cal_head_deg()
             self.update_gui_sp_dict(self.head_tracker.get_head_deg())
         self.state.mtx_run.release()
 
-    # @brief gui_sp_dict is continuously updated,
-    #        managed by update_timer every 10sec
-    # @details
-    # @author
     def update_gui_sp_dict(self, deg):
+        """
+        H2 -- update_gui_sp_dict
+        ===================
+        **Adjust the positional data given the azimuth from the head tracker**
+
+        """
         self.state.mtx_run.acquire()
         if self.dsp_run is True:
             for speaker in self.speaker_list:
@@ -140,6 +174,12 @@ class MainWindow(QtGui.QWidget):
         self.state.mtx_run.release()
 
     def inverse_disable(self):
+        """
+        H2 -- inverse_disabl
+        ===================
+        **Disable inverse filter if kemar compact data bank is applied**
+
+        """
         if self.combo_box.currentText() == 'kemar_compact':
             self.inverse_box.setCheckState(QtCore.Qt.Unchecked)
         else:
@@ -147,6 +187,15 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.Slot()
     def show_property(self):
+        """
+        H2 -- show_property
+        ===================
+        **This function will be called when the speaker icon is double clicked**
+
+        Read the information of the selected speaker and show it in the property
+        window.
+
+        """
         i = self.state.speaker_to_show
         self.state.mtx_sp.acquire()
         path = str(self.state.gui_sp_dict[i][2])
@@ -167,6 +216,14 @@ class MainWindow(QtGui.QWidget):
         self.speaker_property.added.connect(self.change_property)
 
     def change_property(self):
+        """
+        H2 -- change_property
+        ===================
+        **This function will be called when the confirm button is clicked**
+
+        Take the changes in the property window and update the information of the speaker.
+
+        """
         i = self.state.speaker_to_show
         x_new = self.speaker_property.posx
         y_new = self.speaker_property.posy
@@ -183,6 +240,15 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.Slot()
     def add_speaker(self):
+        """
+        H2 -- add_speaker
+        ===================
+        **This function will be called when the add button is clicked**
+
+        Show the property window for adding new speaker when the total number of
+        speakers is fewer than 10.
+
+        """
         if len(self.state.gui_sp_dict) < 10:
             index = len(self.state.gui_sp_dict)
             self.speaker_property.added.connect(self.add2scene)
@@ -216,6 +282,15 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.Slot()
     def add2scene(self):
+        """
+        H2 -- add2scene
+        ===================
+        **This function will be called when the confirm button is clicked**
+
+        Create new speaker object according to the data from property window
+        and add it to the graphical scene.
+
+        """
         if len(self.state.gui_sp_dict) < 10:
             # read in data
             index = len(self.state.gui_sp_dict)
@@ -237,6 +312,12 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.Slot()
     def reset(self):
+        """
+        H2 -- reset
+        ===================
+        **This will delete all the existed speakers**
+
+        """
         self.state.mtx_run.acquire()
         self.state.mtx_sp.acquire()
         if self.state.dsp_run is True:
@@ -254,6 +335,15 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.Slot()
     def play(self):
+        """
+        H2 -- play
+        ===================
+        **This will start/stop the sount output**
+
+        Dsp object will be initialized if it is not already. Every click will
+        switch the status of play or stop.
+
+        """
         # check whether speaker has been selected
         if len(self.state.gui_sp_dict) == 0:
             msgbox = QtGui.QMessageBox()
@@ -291,9 +381,21 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.Slot()
     def pause(self):
+        """
+        H2 -- pause
+        ===================
+        **This will pause/resume the sount output**
+
+        """
         self.state.switch_pause_playback()
 
     def positions(self):
+        """
+        H2 -- positions
+        ===================
+        **This function will set all the speakers to their default position**
+
+        """
 
         for index, speaker in enumerate(self.state.speaker_list):
             x = self.default_speaker_position[index][0]
@@ -304,6 +406,13 @@ class MainWindow(QtGui.QWidget):
             return
 
     def plot_sequence(self):
+        """
+        H2 -- plot_sequence
+        ===================
+        **This will show the plot window**
+
+        Plotting information will be obtained from the data exchange object.
+        """
         sp = self.state.speaker_to_show
         print("initialize")
 
@@ -322,7 +431,12 @@ class MainWindow(QtGui.QWidget):
         self.sequence_plot.timer.start(50)
 
     def update_sequence_dicts(self):
+        """
+        H2 -- update_sequence_dicts
+        ===================
+        **This updates the plotting information every 50ms**
 
+        """
         sp = self.state.speaker_to_show
         self.sequence_plot.speaker_spec.update_data(
             self.state.sp_spectrum_dict[sp][:, 0],
@@ -335,6 +449,14 @@ class MainWindow(QtGui.QWidget):
             self.state.hrtf_spectrum_dict[sp][1][:, 1])
 
     def closeEvent(self, event_q_close_event):  # flake8: noqa
+        """
+        H2 -- closeEvent
+        ===================
+        **Qt built-in virtual function to close the program safely**
+
+        Header tracker will not be updated, plot/property window will be closed
+        The sound output will be stopped.
+        """
         self.room.clear()
         if self.state.enable_headtracker:
             self.update_headtracker_timer.stop()
