@@ -24,10 +24,10 @@ class DspOut:
         self.sp_binaural_block = [np.zeros((
             fft_blocksize, 2), dtype=np.float32) for sp in range(self.spn)]
         self.sp_binaural_block_out = [np.zeros((hopsize, 2), dtype=np.float32)
-                                   for sp in range(self.spn)]
+                                      for sp in range(self.spn)]
         self.sp_binaural_block_add = [np.zeros((fft_blocksize - hopsize, 2),
-                                            dtype=np.float32) for sp in
-                                   range(self.spn)]
+                                      dtype=np.float32) for sp in range(
+            self.spn)]
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
         self.continue_convolution = [True for sp in range(self.spn)]

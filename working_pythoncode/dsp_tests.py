@@ -13,23 +13,21 @@ class DspTests(unittest.TestCase):
         # initialize GUI state
         self.state = gui_utils.State()
         # modify GUI state
-        self.state.gui = {
-            0: [90, 0, "./audio_in/sine_1kHz_(44.1,1,16).wav", False],
-            1: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav", True]
-            # 2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav", #  True]
-        }
+        self.state.gui_sp.append({"angle": 90, "distance": 0, "path":
+                                  "./audio_in/sine_1kHz_(44.1,1,16).wav",
+                                  "normalize": False})
+        self.state.gui_sp.append({"angle": 120, "distance": 1, "path":
+                                  "./audio_in/electrical_guitar_(44.1,1,"
+                                  "16).wav", "normalize": True})
         self.state.gui_settings = {"hrtf_database": "kemar_normal_ear",
-                                        "inverse_filter_active": True,
-                                        "bufferblocks": 5}
+                                   "inverse_filter_active": True,
+                                   "bufferblocks": 5}
         self.state.gui_stop = False
         self.state.gui_pause = False
-        self.dspin_testobj = dsp_in.DspIn(self.state, self.state.gui,
-                                          self.state.gui_settings)
-        self.dspout_testobj = dsp_out.DspOut(self.state, self.state.gui,
+        self.dspin_testobj = dsp_in.DspIn(self.state)
+        self.dspout_testobj = dsp_out.DspOut(self.state,
                                              self.dspin_testobj.fft_blocksize,
-                                             self.dspin_testobj.hopsize,
-                                             self.dspin_testobj,
-                                             self.state.gui_pause)
+                                             self.dspin_testobj.hopsize)
 
     # @brief Tests rnd for one particular number.
     def test_rnd_int(self):
@@ -78,7 +76,7 @@ class DspTests(unittest.TestCase):
 
     # @brief Tests the values of init_block_begin_end on symmetry to 0
     def test_init_set_block_begin_end(self):
-        res = self.dspin_testobj.init_set_block_begin_end(self.gui)
+        res = self.dspin_testobj.init_set_block_begin_end()
         errmsg = "The entries in init_block_begin_end are not symmetric to 0"
         self.assertTrue(abs(res[0]) == abs(res[1]), msg=errmsg)
 
@@ -125,18 +123,17 @@ class DspTests(unittest.TestCase):
     # @brief Compare get_sp-function to scipy-function-results.
 
     # Skip Test for all files besides the electrical guitar
-    @unittest.skipUnless(lambda self: self.self.gui[0][2] ==
+    @unittest.skipUnless(lambda self: self.state.gui_sp[0]["path"] ==
                          "./audio_in/electrical_guitar_(44.1,1,16).wav",
                          "Otherwise total_no_of_samples is wrong")
     def test_get_sp(self):
         sp = 1
         scipy_sp_input = {}
-        scipy_sp_input[sp] = np.zeros((220672, ),
-                                     dtype=np.int16)
+        scipy_sp_input[sp] = np.zeros((220672, ), dtype=np.int16)
         scipy_sp_input_raw = {}
-        for sp in self.gui:
+        for sp in range(len(self.state.gui_sp)):
             _, scipy_sp_input_raw[sp] = scipy.io.wavfile.read(
-                self.gui[sp][2])
+                self.state.gui_sp[sp]["path"])
             lenarray = len(scipy_sp_input_raw[sp])
             # append zeros to scipy_sp_input_raw to reach that output is
             # divideable by sp_blocksize
@@ -144,13 +141,13 @@ class DspTests(unittest.TestCase):
                 scipy_sp_input[sp] = np.zeros((lenarray +
                                               self.dspin_testobj.sp_blocksize -
                                               lenarray %
-                                              self.dspin_testobj.sp_blocksize,
-                                              ), dtype=np.int16)
+                                              self.dspin_testobj.sp_blocksize,)
+                                            , dtype=np.int16)
                 scipy_sp_input[sp][0:lenarray, ] = scipy_sp_input_raw[sp]
             else:
                 scipy_sp_input[sp] = scipy_sp_input_raw[sp]
         sol = scipy_sp_input
-        res = self.dspin_testobj.read_sp(self.gui)
+        res = self.dspin_testobj.read_sp()
         errmsg = "get_sp doesn't get same values as scipy function"
         # Following while-loop only for bug-fixes:
         # i = 0
