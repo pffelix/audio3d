@@ -76,7 +76,7 @@ class DspIn:
         This function does a normal school arithmetic round (choose lower
         int until .4 and higher int from .5 on) and returns the rounded
         value. It is NOT equal to pythons round() method.
-        Return values are:
+        Return values:
         * value: Is the rounded int of any input number.
         Author: Felix Pfreundtner
         """
@@ -131,8 +131,7 @@ class DspIn:
         hopsize = self.rnd((1 - overlap) * sp_blocksize)
         return sp_blocksize, sp_blocktime, overlap, hopsize
 
-    # @brief Initializes a list with the number of the first and last sample
-    #         of the first block
+    # @brief
     # @details This function calculates a list called block_begin_end
     #          containing two elements: [0] is the first sample of the first
     #          block, [1] is the last sample of the first block; The entries of
@@ -141,7 +140,25 @@ class DspIn:
     # @retval <block_begin_end> List of the first ([0]) and last ([0]) sample
     #         of the FIRST block.
     # @author Felix Pfreundtner
+
     def init_set_block_begin_end(self, gui_sp_dict):
+        """
+        H2 -- init_set_block_begin_end
+        ===================
+        **Initializes a list with the number of the first and last sample
+        of the first block**
+
+        This function calculates a list called block_begin_end containing
+        two elements: [0] is the first sample of the first block, [1] is
+        the last sample of the first block; The entries of following block
+        will then be calculated by the set_block_begin_end-function.
+
+        Return value:
+        *block_begin_end: List of the first ([0]) and last ([0]) sample of
+                          the FIRST block.
+
+        Author: Felix Pfreundtner
+        """
         block_begin_end = [int(-(self.sp_blocksize) * (1 - self.overlap)),
                            int((self.sp_blocksize) * (self.overlap))]
         return block_begin_end
@@ -155,6 +172,19 @@ class DspIn:
     #          output variables.
     # @author Felix Pfreundtner
     def set_block_begin_end(self):
+        """
+        H2 -- set_block_begin_end
+        ===================
+        **Every while-loop the number of the first and last sample is
+        calculated**
+
+        This function replaces the values set by the
+        init_set_block_begin_end-function every while-loop according to the
+        current location in the speaker-file that needs to be read. Since
+        the values are replaced, there are no input and output variables.
+
+        Author: Felix Pfreundtner
+        """
         self.block_begin_end[0] += int(self.sp_blocksize * (1 - self.overlap))
         self.block_begin_end[1] += int(self.sp_blocksize * (1 - self.overlap))
 
@@ -171,6 +201,25 @@ class DspIn:
     #         check-box in gui was activated or not
     # @author Felix Pfreundtner
     def get_hrtf_param(self, gui_settings_dict):
+        """
+        H2 -- get_hrtf_param
+        ===================
+        **Get all parameters for the hrtf set by the settings in gui**
+
+        This function calculates all necessary parameters of the hrtf to be
+        later able to get the correct hrtf-files for the convolution with
+        the speaker-file signal.
+
+        Return values:
+        * hrtf_database_name: Tells which database the listener has chosen
+        (available are: normal ear, big ear and a compact version)
+        * hrtf_blocksize: Simply set to default value 513 since
+        fft_blocksize is defaulted to 1024
+        * kemar_inverse_filter: Boolean value that tells whether check-box
+        in gui was activated or not
+
+        Author: Felix Pfreundtner
+        """
         hrtf_database_name = gui_settings_dict["hrtf_database"]
         # write variable which contains whether inverse filter is
         # activated in gui
@@ -217,6 +266,17 @@ class DspIn:
     # @brief Preloads all hrtf Files
     # @author Felix Pfreundtner
     def read_hrtf_database(self, gui_sp_dict_sp):
+        """
+        H2 -- read_hrtf_database
+        ===================
+        **Preloads all hrtf Files**
+
+        Return values:
+        * hrtf_database: A numpy array that contains either the
+        kemar_normal_ear or the kemar_full_ear HRTFs.
+
+        Author: Felix Pfreundtner
+        """
         angle_stepsize = 5
         # angle_begin = 0
         # just look at horizontal plane
@@ -260,6 +320,15 @@ class DspIn:
     # @brief brings the whole hrtf database in frequency domain
     # @author Felix Pfreundtner
     def hrtf_database_fft(self):
+        """
+        H2 -- hrtf_database_fft
+        ===================
+        **Converts the whole HRTF-database in frequency domain**
+
+        Return values:
+        *hrtf_database_fft: The HRTF database converted to frequency domain.
+        Author: Felix Pfreundtner
+        """
         hrtf_database_fft = np.zeros((self.fft_blocksize // 2 + 1,
                                       self.hrtf_database.shape[1]),
                                      dtype=np.complex128)
@@ -294,6 +363,13 @@ class DspIn:
     # sp_param[sp][9] = format character for correct encoding of data}
     # @author Matthias Lederle
     def init_read_sp(self, gui_sp_dict):
+        """
+        H2 -- init_read_sp
+        ===================
+        **get 10 important parameters of the files to be played by the 
+        get_block_function**
+
+        """
         # initialize dict with 10 (empty) values per key with list
         # comprehension
         sp_param = {sp: [None] * 10 for sp in range(len(gui_sp_dict))}
@@ -395,6 +471,11 @@ class DspIn:
     #         was read or any other block
     # @author Matthias Lederle
     def read_sp(self, gui_sp_dict):
+        """
+        H2 --
+        ===================
+
+        """
         # initialize an empty array with blocksize sp_blocksize for every
         # speaker in dictionary sp_dict
         sp_dict = {}
@@ -570,6 +651,11 @@ class DspIn:
     # @details
     # @author Felix Pfreundtner
     def get_hrtf_block_fft(self, gui_sp_dict_sp, sp):
+        """
+        H2 --
+        ===================
+
+        """
         # get filename of the relevant hrtf for each ear
         # version according to settings in gui
         rounddifference = gui_sp_dict_sp[0] % 5
