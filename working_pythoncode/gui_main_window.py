@@ -347,12 +347,13 @@ class MainWindow(QtGui.QWidget):
         #     self.state.switch_stop_playback()
         # if self.dspthread is not None and self.state.dsp_pause is True:
 
-        # stop dsp Thread
-        self.state.mtx_stop.acquire()
-        self.state.dsp_stop = True
-        self.state.mtx_stop.release()
-        self.state.mtx_pause.acquire()
-        self.state.dsp_pause = False
-        self.state.mtx_pause.release()
-        self.dsp_thread.join()
+        if self.dsp_obj is not None:
+            # stop dsp Thread
+            self.state.mtx_pause.acquire()
+            self.state.dsp_pause = False
+            self.state.mtx_pause.release()
+            self.state.mtx_stop.acquire()
+            self.state.dsp_stop = True
+            self.state.mtx_stop.release()
+            self.dsp_thread.join()
         event_q_close_event.accept()
