@@ -40,13 +40,15 @@ class State(QtCore.QObject):
         # variables which are shared between gui and dsp algorithm
         self.gui_sp_dict = {}
         self.gui_settings_dict = {}
+        self.gui_error = []
         self.dsp_run = False
-        self.gui_stop = False
-        self.gui_pause = False
+        self.dsp_stop = False
+        self.dsp_pause = False
 
         # mutex for exchanging data between gui and dsp algorithm
         self.mtx_sp = threading.Lock()
         self.mtx_settings = threading.Lock()
+        self.mtx_error = threading.Lock()
         self.mtx_run = threading.Lock()
         self.mtx_stop = threading.Lock()
         self.mtx_pause = threading.Lock()
@@ -54,72 +56,48 @@ class State(QtCore.QObject):
         # gui state variables
         # enable head tracker
         self.enable_headtracker = False
+        # head position in gui coordinates
         self.audience_pos = QtCore.QPoint(170, 170)
         self.speaker_list = []
-        self.error_message = []
         self.speaker_to_show = 0
 
-    # @brief stop playback and convolution of dsp algorithm
+    # @brief stop button clicked alternates dsp_stop boolean and stops dsp
+    # algorithm
     # @details
     # @author Felix
     def switch_stop_playback(self):
-        self.mtx.lock()
-        if self.gui_stop is False:
-            self.gui_stop = True
+        self.mtx_stop.acquire()
+        if self.dsp_stop is False:
+            self.dsp_stop = True
         else:
-            self.gui_stop = False
-        return self.gui_stop
-        self.mtx.unlock()
+            self.dsp_stop = False
+        self.mtx_stop.release()
 
-    # @brief pause button clicked alternates gui_pause boolean
+    # @brief pause button clicked alternates dsp_pause boolean and pause dsp
+    # algorithm
     # @details
     # @author Felix
     def switch_pause_playback(self):
         # start pause
-        if self.gui_pause is False:
-            self.gui_pause = True
+        self.mtx_pause.acquire()
+        if self.dsp_pause is False:
+            self.dsp_pause = True
         # end pause
         else:
-            self.gui_pause = False
-        return self.gui_pause
+            self.dsp_pause = False
+        self.mtx_pause.release()
 
     def check_error(self):
-        if len(self.error_message) > 0:
-            print(self.error_message.pop(0))
+        self.mtx_error.acquire()
+        if len(self.gui_error) > 0:
+            print(self.gui_error.pop(0))
+        self.mtx_error.release()
 
     def send_error(self, message):
-        if message not in self.error_message:
-            self.error_message.append(message)
-
-    # @brief stop playback and convolution of dsp algorithm
-    # @details
-    # @author Felix
-    def switch_stop_playback(self):
-        if self.gui_stop is False:
-            self.gui_stop = True
-        else:
-            self.gui_stop = False
-        return self.gui_stop
-
-    # @brief pause button clicked alternates gui_pause boolean
-    # @details
-    # @author Felix
-    def switch_pause_playback(self):
-        # start pause
-        if self.gui_pause is False:
-            self.gui_pause = True
-        # end pause
-        else:
-            self.gui_pause = False
-        return self.gui_pause
-
-    def check_error(self):
-        if len(self.error_message) > 0:
-            print(self.error_message.pop(0))
-
-    def send_error(self, message):
-        if message not in self.error_message:
-            self.error_message.append(message)
+        self.mtx_error.acquire()
+        if message not in self.gui_error:
+            self.gui_error.append(message)
+        self.mtx_error.release()
 
 # @class <Headtracker> This class integrates the headtracker
 #
@@ -338,10 +316,8 @@ class Speaker(Item):
     # @author
     def cal_rel_pos(self, head_deg=0):
 
-        audience_pos = self.state.audience_pos
-
-        dx = self.x() - audience_pos.x()
-        dy = audience_pos.y() - self.y()
+        dx = self.x() - self.state.audience_pos.x()
+        dy = self.state.audience_pos.y() - self.y()
         dis = (dx ** 2 + dy ** 2) ** 0.5
         if dis == 0:
             dis += 0.1
@@ -358,7 +334,8 @@ class Speaker(Item):
             deg += 360
         self.state.mtx_sp.acquire()
         # write new relative position in exchange variable gui - dsp
-        self.state.gui_sp_dict[self.index] = [deg, dis / 100, self.path, self.norm]
+        self.state.gui_sp_dict[self.index] = [deg, dis / 100, self.path,
+                                              self.norm]
         self.state.mtx_sp.release()
         return deg, dis
 
@@ -486,7 +463,7 @@ class SpeakerProperty(QtGui.QWidget):
         self.posx = 0
         self.posy = 0
 
-    def closeEvent(self, q_close_event):
+    def closeEvent(self, q_close_event):   # flake8: noqa
         self.is_on = False
         self.added.disconnect()
         self.clear()

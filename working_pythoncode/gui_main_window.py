@@ -20,7 +20,6 @@ class MainWindow(QtGui.QWidget):
         super(MainWindow, self).__init__()
         self.setAcceptDrops(True)
 
-
         # set items
         self.state = gui_utils.State()
         self.audience = gui_utils.Audience(self.state)
@@ -122,19 +121,22 @@ class MainWindow(QtGui.QWidget):
         self.show()
 
     def update_head(self):
-        if self.state.gui_stop is False and self.state.gui_pause is False:
+        self.state.mtx_run.acquire()
+        if self.state.dsp_run is True:
             self.head_tracker.cal_head_deg()
             self.update_gui_sp_dict(self.head_tracker.get_head_deg())
+        self.state.mtx_run.release()
 
     # @brief gui_sp_dict is continuously updated,
     #        managed by update_timer every 10sec
     # @details
     # @author
     def update_gui_sp_dict(self, deg):
-
-        if self.gui_stop is False:
+        self.state.mtx_run.acquire()
+        if self.dsp_run is True:
             for speaker in self.speaker_list:
                 speaker.cal_rel_pos(deg)
+        self.state.mtx_run.release()
 
     def inverse_disable(self):
         if self.combo_box.currentText() == 'kemar_compact':
@@ -145,6 +147,7 @@ class MainWindow(QtGui.QWidget):
     @QtCore.Slot()
     def show_property(self):
         i = self.state.speaker_to_show
+        self.state.mtx_sp.acquire()
         path = str(self.state.gui_sp_dict[i][2])
         azimuth = "{:.0f}".format(self.state.gui_sp_dict[i][0])
         dist = "{:.2f}".format(self.state.gui_sp_dict[i][1])
@@ -154,6 +157,7 @@ class MainWindow(QtGui.QWidget):
         else:
             self.speaker_property.normalize_box.setCheckState(
                 QtCore.Qt.Unchecked)
+        self.state.mtx_sp.release()
         self.speaker_property.path_line_edit.setText(path)
         self.speaker_property.azimuth_line_edit.setText(azimuth)
         self.speaker_property.distance_line_edit.setText(dist)
@@ -169,10 +173,12 @@ class MainWindow(QtGui.QWidget):
         self.state.speaker_list[i].setPos(x_new, y_new)
         self.state.speaker_list[i].path = path_new
         self.state.speaker_list[i].cal_rel_pos()
+        self.state.mtx_sp.acquire()
         if self.speaker_property.normalize_box.isChecked():
             self.state.gui_sp_dict[i][3] = True
         else:
             self.state.gui_sp_dict[i][3] = False
+        self.state.mtx_sp.release()
 
     @QtCore.Slot()
     def add_speaker(self):
@@ -209,7 +215,6 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.Slot()
     def add2scene(self):
-
         if len(self.state.gui_sp_dict) < 10:
             # read in data
             index = len(self.state.gui_sp_dict)
@@ -226,13 +231,13 @@ class MainWindow(QtGui.QWidget):
                 self.show_property)
             self.room.addItem(self.state.speaker_list[-1])
             self.view.viewport().update()
-
         else:
             return
 
     @QtCore.Slot()
     def reset(self):
-
+        self.state.mtx_run.acquire()
+        self.state.mtx_sp.acquire()
         if self.state.dsp_run is True:
             pass
 
@@ -243,12 +248,13 @@ class MainWindow(QtGui.QWidget):
             new_audience = gui_utils.Audience(self.state)
             self.room.addItem(new_audience)
             self.view.viewport().update()
+        self.state.mtx_run.release()
+        self.state.mtx_sp.release()
 
     @QtCore.Slot()
     def play(self):
-        gui_sp_dict = self.state.gui_sp_dict
         # check whether speaker has been selected
-        if len(gui_sp_dict) == 0:
+        if len(self.state.gui_sp_dict) == 0:
             msgbox = QtGui.QMessageBox()
             msgbox.setText("Please add a speaker.")
             msgbox.exec_()
@@ -277,18 +283,19 @@ class MainWindow(QtGui.QWidget):
                 self.inverse_box.isChecked()
             self.state.gui_settings_dict["bufferblocks"] = \
                 self.buffersize_spin_box.value()
-
             self.plot_button.setEnabled(True)
+
             self.dsp_obj = Dsp(self.state,
                                self.return_ex)
+            # start dsp thread
             dspthread = threading.Thread(
                 target=self.dsp_obj.run)
             dspthread.start()
 
+
     @QtCore.Slot()
     def pause(self):
         self.state.switch_pause_playback()
-        print(self.state.gui_pause)
 
     def positions(self):
 
@@ -331,7 +338,7 @@ class MainWindow(QtGui.QWidget):
             self.dsp_obj.hrtf_spectrum_dict[i][1][:, 0],
             self.dsp_obj.hrtf_spectrum_dict[i][1][:, 1])
 
-    def closeEvent(self, event_q_close_event):
+    def closeEvent(self, event_q_close_event):  # flake8: noqa
         self.room.clear()
         if self.state.enable_headtracker:
             self.update_headtracker_timer.stop()
@@ -339,10 +346,16 @@ class MainWindow(QtGui.QWidget):
             self.sequence_plot.close()
         if self.speaker_property.is_on:
             self.speaker_property.close()
-        # if self.dspthread is not None and self.state.gui_stop is False \
+        # if self.dspthread is not None and self.state.dsp_stop is False \
         #         or self.dspthread is not None and self.state.dsp_run is True:
         #     self.state.switch_stop_playback()
-        # if self.dspthread is not None and self.state.gui_pause is True:
-        self.state.gui_stop = True
-        self.state.gui_pause = False
+        # if self.dspthread is not None and self.state.dsp_pause is True:
+
+        # stop dsp Thread
+        self.state.mtx_stop.acquire()
+        self.state.dsp_stop = True
+        self.state.mtx_stop.release()
+        self.state.mtx_pause.acquire()
+        self.state.dsp_pause = False
+        self.state.mtx_pause.release()
         event_q_close_event.accept()

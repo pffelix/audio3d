@@ -61,8 +61,8 @@ class Dsp:
             # lock state object
             self.state.mtx_sp.acquire()
             # actualize variables with gui
-            self.dspout_obj.gui_stop = self.state.gui_stop
-            self.dspout_obj.gui_pause = self.state.gui_pause
+            self.dspout_obj.dsp_stop = self.state.dsp_stop
+            self.dspout_obj.dsp_pause = self.state.dsp_pause
             self.gui_sp_dict = self.state.gui_sp_dict
             # print the number of already done FFT / Block iterations
             # print("FFT Block " + str(self.blockcounter) + ":")
@@ -170,21 +170,21 @@ class Dsp:
                 self.blockcounter += 1
                 self.time["while"] += time.time() - start
             # handle playback pause
-            while self.dspout_obj.gui_pause is True:
+            while self.dspout_obj.dsp_pause is True:
                 time.sleep(0.1)
-                self.dspout_obj.gui_pause = self.state.gui_pause
+                self.dspout_obj.dsp_pause = self.state.dsp_pause
             # handle playback stop
-            if self.dspout_obj.gui_stop is True:
+            if self.dspout_obj.dsp_stop is True:
                 break
 
         # set correct playback output if stop button was pressed
-        if self.dspout_obj.gui_stop is True:
+        if self.dspout_obj.dsp_stop is True:
             self.dspout_obj.playback_successful = True
         # excecute commands when playback finished successfully
         if self.dspout_obj.playback_successful is True and \
-           self.dspout_obj.gui_stop is \
+           self.dspout_obj.dsp_stop is \
                 False:
-            self.state.gui_stop = True
+            self.state.dsp_stop = True
         # show plot of the output signal binaural_dict_scaled
         # plt.plot(self.dspout_obj.binaural[:, l_r])
         # plt.show()

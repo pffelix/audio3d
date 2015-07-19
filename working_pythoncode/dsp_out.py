@@ -174,19 +174,19 @@ class DspOut:
         while audiostream.is_active() or audiostream.is_stopped():
             time.sleep(1)
             # handle playback pause
-            if self.gui_pause is True:
+            if self.dsp_pause is True:
                 audiostream.stop_stream()
-            if audiostream.is_stopped() and self.gui_pause is False:
+            if audiostream.is_stopped() and self.dsp_pause is False:
                 audiostream.start_stream()
             # handle playblack stop
-            if self.gui_stop is True:
+            if self.dsp_stop is True:
                 break
         audiostream.stop_stream()
         audiostream.close()
         pa.terminate()
         # execute commands when when playback finished successfully
         if any(self.continue_convolution_dict.values()) is True and \
-                self.gui_stop is False:
+                self.dsp_stop is False:
             print("Error PC to slow - Playback Stopped")
             for sp in self.continue_convolution_dict:
                 # self.played_frames_end += sp_blocksize
