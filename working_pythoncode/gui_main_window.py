@@ -125,14 +125,14 @@ class MainWindow(QtGui.QWidget):
         self.state.mtx_run.acquire()
         if self.state.dsp_run is True:
             self.head_tracker.cal_head_deg()
-            self.update_gui_sp_dict(self.head_tracker.get_head_deg())
+            self.update_gui_sp(self.head_tracker.get_head_deg())
         self.state.mtx_run.release()
 
-    # @brief gui_sp_dict is continuously updated,
+    # @brief gui_sp is continuously updated,
     #        managed by update_timer every 10sec
     # @details
     # @author
-    def update_gui_sp_dict(self, deg):
+    def update_gui_sp(self, deg):
         self.state.mtx_run.acquire()
         if self.dsp_run is True:
             for speaker in self.speaker_list:
@@ -149,10 +149,10 @@ class MainWindow(QtGui.QWidget):
     def show_property(self):
         i = self.state.speaker_to_show
         self.state.mtx_sp.acquire()
-        path = str(self.state.gui_sp_dict[i][2])
-        azimuth = "{:.0f}".format(self.state.gui_sp_dict[i][0])
-        dist = "{:.2f}".format(self.state.gui_sp_dict[i][1])
-        if self.state.gui_sp_dict[i][3] is True:
+        path = str(self.state.gui_sp[i][2])
+        azimuth = "{:.0f}".format(self.state.gui_sp[i][0])
+        dist = "{:.2f}".format(self.state.gui_sp[i][1])
+        if self.state.gui_sp[i][3] is True:
             self.speaker_property.normalize_box.setCheckState(
                 QtCore.Qt.Checked)
         else:
@@ -176,15 +176,15 @@ class MainWindow(QtGui.QWidget):
         self.state.speaker_list[i].cal_rel_pos()
         self.state.mtx_sp.acquire()
         if self.speaker_property.normalize_box.isChecked():
-            self.state.gui_sp_dict[i][3] = True
+            self.state.gui_sp[i][3] = True
         else:
-            self.state.gui_sp_dict[i][3] = False
+            self.state.gui_sp[i][3] = False
         self.state.mtx_sp.release()
 
     @QtCore.Slot()
     def add_speaker(self):
-        if len(self.state.gui_sp_dict) < 10:
-            index = len(self.state.gui_sp_dict)
+        if len(self.state.gui_sp) < 10:
+            index = len(self.state.gui_sp)
             self.speaker_property.added.connect(self.add2scene)
 
             # calculate current default position
@@ -216,9 +216,9 @@ class MainWindow(QtGui.QWidget):
 
     @QtCore.Slot()
     def add2scene(self):
-        if len(self.state.gui_sp_dict) < 10:
+        if len(self.state.gui_sp) < 10:
             # read in data
-            index = len(self.state.gui_sp_dict)
+            index = len(self.state.gui_sp)
             path = self.speaker_property.path
             x = self.speaker_property.posx
             y = self.speaker_property.posy
@@ -244,7 +244,7 @@ class MainWindow(QtGui.QWidget):
 
         else:
             self.room.clear()
-            self.state.gui_sp_dict.clear()
+            self.state.gui_sp.clear()
             del self.state.speaker_list[:]
             new_audience = gui_utils.Audience(self.state)
             self.room.addItem(new_audience)
@@ -255,7 +255,7 @@ class MainWindow(QtGui.QWidget):
     @QtCore.Slot()
     def play(self):
         # check whether speaker has been selected
-        if len(self.state.gui_sp_dict) == 0:
+        if len(self.state.gui_sp) == 0:
             msgbox = QtGui.QMessageBox()
             msgbox.setText("Please add a speaker.")
             msgbox.exec_()
@@ -273,12 +273,12 @@ class MainWindow(QtGui.QWidget):
             # while not self.return_ex.empty():
             #   self.return_ex.get()
 
-            # update gui_settings_dict
-            self.state.gui_settings_dict["hrtf_database"] = \
+            # update gui_settings
+            self.state.gui_settings["hrtf_database"] = \
                 self.combo_box.currentText()
-            self.state.gui_settings_dict["inverse_filter_active"] = \
+            self.state.gui_settings["inverse_filter_active"] = \
                 self.inverse_box.isChecked()
-            self.state.gui_settings_dict["bufferblocks"] = \
+            self.state.gui_settings["bufferblocks"] = \
                 self.buffersize_spin_box.value()
             self.plot_button.setEnabled(True)
 
@@ -308,14 +308,14 @@ class MainWindow(QtGui.QWidget):
         print("initialize")
 
         self.sequence_plot.speaker_spec.initialize_data(
-            self.state.sp_spectrum_dict[sp][:, 0],
-            self.state.sp_spectrum_dict[sp][:, 1])
+            self.state.dsp_sp_spectrum[sp][:, 0],
+            self.state.dsp_sp_spectrum[sp][:, 1])
         self.sequence_plot.lhrtf_spec.initialize_data(
-            self.state.hrtf_spectrum_dict[sp][0][:, 0],
-            self.state.hrtf_spectrum_dict[sp][0][:, 1])
+            self.state.dsp_hrtf_spectrum[sp][0][:, 0],
+            self.state.dsp_hrtf_spectrum[sp][0][:, 1])
         self.sequence_plot.rhrtf_spec.initialize_data(
-            self.state.hrtf_spectrum_dict[sp][1][:, 0],
-            self.state.hrtf_spectrum_dict[sp][1][:, 1])
+            self.state.dsp_hrtf_spectrum[sp][1][:, 0],
+            self.state.dsp_hrtf_spectrum[sp][1][:, 1])
         self.sequence_plot.show()
         self.sequence_plot.is_on = True
         self.sequence_plot.timer.timeout.connect(self.update_sequence_dicts)
@@ -325,14 +325,14 @@ class MainWindow(QtGui.QWidget):
 
         sp = self.state.speaker_to_show
         self.sequence_plot.speaker_spec.update_data(
-            self.state.sp_spectrum_dict[sp][:, 0],
-            self.state.sp_spectrum_dict[sp][:, 1])
+            self.state.dsp_sp_spectrum[sp][:, 0],
+            self.state.dsp_sp_spectrum[sp][:, 1])
         self.sequence_plot.lhrtf_spec.update_data(
-            self.state.hrtf_spectrum_dict[sp][0][:, 0],
-            self.state.hrtf_spectrum_dict[sp][0][:, 1])
+            self.state.dsp_hrtf_spectrum[sp][0][:, 0],
+            self.state.dsp_hrtf_spectrum[sp][0][:, 1])
         self.sequence_plot.rhrtf_spec.update_data(
-            self.state.hrtf_spectrum_dict[sp][1][:, 0],
-            self.state.hrtf_spectrum_dict[sp][1][:, 1])
+            self.state.dsp_hrtf_spectrum[sp][1][:, 0],
+            self.state.dsp_hrtf_spectrum[sp][1][:, 1])
 
     def closeEvent(self, event_q_close_event):  # flake8: noqa
         self.room.clear()

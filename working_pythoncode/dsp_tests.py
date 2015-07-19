@@ -18,13 +18,13 @@ class DspTests(unittest.TestCase):
             1: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav", True]
             # 2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav", #  True]
         }
-        self.state.gui_settings_dict = {"hrtf_database": "kemar_normal_ear",
+        self.state.gui_settings = {"hrtf_database": "kemar_normal_ear",
                                         "inverse_filter_active": True,
                                         "bufferblocks": 5}
         self.state.gui_stop = False
         self.state.gui_pause = False
         self.dspin_testobj = dsp_in.DspIn(self.state, self.state.gui_dict,
-                                          self.state.gui_settings_dict)
+                                          self.state.gui_settings)
         self.dspout_testobj = dsp_out.DspOut(self.state, self.state.gui_dict,
                                              self.dspin_testobj.fft_blocksize,
                                              self.dspin_testobj.hopsize,

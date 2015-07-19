@@ -18,14 +18,14 @@ class State(QtCore.QObject):
     def __init__(self):
         super(State, self).__init__()
         # variables which are shared between gui and dsp algorithm
-        self.gui_sp_dict = {}
-        self.gui_settings_dict = {}
+        self.gui_sp = {}
+        self.gui_settings = {}
         self.gui_error = []
         self.dsp_run = False
         self.dsp_stop = False
         self.dsp_pause = False
-        self.dsp_sp_spectrum_dict = {}
-        self.dsp_hrtf_spectrum_dict = {}
+        self.dsp_sp_spectrum = []
+        self.dsp_hrtf_spectrum = []
 
         # mutex for exchanging data between gui and dsp algorithm
         self.mtx_sp = threading.Lock()
@@ -327,7 +327,7 @@ class Speaker(Item):
             deg += 360
         self.state.mtx_sp.acquire()
         # write new relative position in exchange variable gui - dsp
-        self.state.gui_sp_dict[self.index] = [deg, dis / 100, self.path,
+        self.state.gui_sp[self.index] = [deg, dis / 100, self.path,
                                               self.norm]
         self.state.mtx_sp.release()
         return deg, dis

@@ -22,17 +22,17 @@ def main():
                            # 0: [90, 2,
                            # "./audio_in/music_mix_(44.1,2,16).wav", True]
                            }
-        gui_settings_dict_mockup = {"hrtf_database": "kemar_normal_ear",
+        gui_settings_mockup = {"hrtf_database": "kemar_normal_ear",
                                     "inverse_filter_active": True,
                                     "bufferblocks": 5}
-        if gui_settings_dict_mockup["hrtf_database"] == "kemar_compact":
-            gui_settings_dict_mockup["inverse_filter_active"] = False
+        if gui_settings_mockup["hrtf_database"] == "kemar_compact":
+            gui_settings_mockup["inverse_filter_active"] = False
         gui_stop_mockup = False
         gui_pause_mockup = False
         return_exe_mockup = multiprocessing.Queue()
         return_exe_mockup.put(False)
         dsp_object = dsp.Dsp(gui_dict_mockup, gui_stop_mockup,
-                             gui_pause_mockup, gui_settings_dict_mockup,
+                             gui_pause_mockup, gui_settings_mockup,
                              return_exe_mockup)
         dsp_object.run()
         print()

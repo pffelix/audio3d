@@ -52,7 +52,10 @@ class GLPlotWidget(QGLWidget):
         # interpolate y Values
         ydata = np.interp(self.xdata, xdata_raw, ydata_raw)
         self.ymax = np.max(ydata)
-        self.ydata = ydata/self.ymax
+        if self.ymax != 0:
+            self.ydata = ydata/self.ymax
+        else:
+            self.ydata = ydata
         self.data[1::2] = self.ydata
 
     def update_data(self, xdata_raw, ydata_raw):

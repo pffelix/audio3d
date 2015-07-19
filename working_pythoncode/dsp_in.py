@@ -26,13 +26,15 @@ class DspIn:
     """Constructor of the DspIn class."""
     def __init__(self, state_init):
         self.state = state_init
+        # Number of all speakers
+        self.spn = len(state_init.gui_sp)
         # Dict with a key and two values for every hrtf to be fetched from the
         # database. The values are the max. values of the hrtfs of
         # each ear.
-        self.hrtf_max_amp_dict = dict.fromkeys(state_init.gui_sp_dict, [0, 0])
+        self.hrtf_max_amp_dict = dict.fromkeys(state_init.gui_sp, [0, 0])
         # Dict with a key for every speaker and two values. These
         # are the max. values fetched from the speaker-file.
-        self.sp_max_amp_dict = dict.fromkeys(state_init.gui_sp_dict, [])
+        self.sp_max_amp_dict = dict.fromkeys(state_init.gui_sp, [])
         # Standard samplerate, sampledepth
         self.wave_param_common = [44100, 16]
         # Set number of output blocks per second
@@ -41,28 +43,29 @@ class DspIn:
         self.hrtf_database_name, self.hrtf_blocksize, \
             self.hrtf_blocksize_real, self.kemar_inverse_filter, \
             self.kemar_inverse_filter_fft, self.kemar_inverse_filter_active = \
-            self.get_hrtf_param(state_init.gui_settings_dict)
+            self.get_hrtf_param(state_init.gui_settings)
         # read in whole hrtf datatabas from impulse responses in time domain
         self.hrtf_database = self.read_hrtf_database(
-            state_init.gui_settings_dict)
+            state_init.gui_settings)
         # bring whole hrtf database to frequency domainv
         self.hrtf_database_fft = self.hrtf_database_fft()
         # Initialize a dict for the hrtf block values to be stored in.
-        self.hrtf_block_fft_dict = dict.fromkeys(state_init.gui_sp_dict,
+        self.hrtf_block_fft_dict = dict.fromkeys(state_init.gui_sp,
                                                  np.zeros((self.fft_blocksize
                                                            // 2 + 1, 2),
                                                           dtype=np.complex128))
         # initialize fft magnitude spectrum array for every speaker signal
-        self.state.sp_spectrum_dict = {sp: np.zeros((
-            self.fft_blocksize // 2 + 1, 2), dtype=np.float16) for
-            sp in range(len(state_init.gui_sp_dict))}
+        self.state.dsp_sp_spectrum = [np.zeros((self.fft_blocksize // 2 + 1,
+                                      2), dtype=np.float16) for
+                                      sp in state_init.gui_sp]
 
         # initialize fft magnitude spectrum array of left and right hrtf for
         # every speaker
-        self.state.hrtf_spectrum_dict = {sp: [np.zeros((
-            self.fft_blocksize // 2 + 1, 2), dtype=np.float16),
-            np.zeros((self.fft_blocksize // 2 + 1, 2), dtype=np.float16)]
-            for sp in range(len(state_init.gui_sp_dict))}
+        self.state.dsp_hrtf_spectrum = [[np.zeros((
+                                        self.fft_blocksize // 2 + 1, 2),
+            dtype=np.float16), np.zeros((self.fft_blocksize // 2 + 1, 2),
+                                        dtype=np.float16)] for sp in
+            state_init.gui_sp]
 
         # set fft frequency values of fft magnitude spectrum arrays
         self.set_fftfreq(self.fft_blocksize, self.wave_param_common[0])
@@ -72,14 +75,14 @@ class DspIn:
             self.get_block_param(self.wave_param_common,
                                  self.hrtf_blocksize, self.fft_blocksize)
         # Get necessary parameters of input-file and store to sp_param-dict.
-        self.sp_param = self.init_read_sp(state_init.gui_sp_dict)
+        self.sp_param = self.init_read_sp(state_init.gui_sp)
         # read in whole wave file of all speakers
-        self.sp_dict = self.read_sp(state_init.gui_sp_dict)
+        self.sp_dict = self.read_sp(state_init.gui_sp)
         self.block_begin_end = self.init_set_block_begin_end(
-            state_init.gui_sp_dict)
+            state_init.gui_sp)
         # initialize empty numpy array where to save samples of each
         # speaker block
-        self.sp_block_dict = dict.fromkeys(state_init.gui_sp_dict, np.zeros((
+        self.sp_block_dict = dict.fromkeys(state_init.gui_sp, np.zeros((
             self.sp_blocksize,), dtype=np.float32))
         # build a hann window with sp_blocksize
         self.hann = self.build_hann_window(self.sp_blocksize)
@@ -146,7 +149,7 @@ class DspIn:
         hopsize = self.rnd((1 - overlap) * sp_blocksize)
         return sp_blocksize, sp_blocktime, overlap, hopsize
 
-    def init_set_block_begin_end(self, gui_sp_dict):
+    def init_set_block_begin_end(self, gui_sp):
         """
         H2 -- init_set_block_begin_end
         ===================
@@ -185,7 +188,7 @@ class DspIn:
         self.block_begin_end[0] += int(self.sp_blocksize * (1 - self.overlap))
         self.block_begin_end[1] += int(self.sp_blocksize * (1 - self.overlap))
 
-    def get_hrtf_param(self, gui_settings_dict):
+    def get_hrtf_param(self, gui_settings):
         """
         H2 -- get_hrtf_param
         ===================
@@ -205,10 +208,10 @@ class DspIn:
 
         Author: Felix Pfreundtner
         """
-        hrtf_database_name = gui_settings_dict["hrtf_database"]
+        hrtf_database_name = gui_settings["hrtf_database"]
         # write variable which contains whether inverse filter is
         # activated in gui
-        kemar_inverse_filter_active = gui_settings_dict[
+        kemar_inverse_filter_active = gui_settings[
             "inverse_filter_active"]
         if hrtf_database_name == "kemar_normal_ear" or hrtf_database_name == \
                 "kemar_big_ear":
@@ -250,7 +253,7 @@ class DspIn:
 
     # @brief Preloads all hrtf Files
     # @author Felix Pfreundtner
-    def read_hrtf_database(self, gui_sp_dict_sp):
+    def read_hrtf_database(self, gui_sp_sp):
         """
         H2 -- read_hrtf_database
         ===================
@@ -325,7 +328,7 @@ class DspIn:
                                                      self.fft_blocksize)
         return hrtf_database_fft
 
-    def init_read_sp(self, gui_sp_dict):
+    def init_read_sp(self, gui_sp):
         """
         H2 -- init_read_sp
         ===================
@@ -333,10 +336,10 @@ class DspIn:
         get_block_function**
 
         This method gets all important data from the .wav files that will
-        be played by the speakers. Input is a gui_sp_dict, containing the
+        be played by the speakers. Input is a gui_sp, containing the
         filename at place [2]. The output is another dict called sp_param,
         which holds one of the properties as values for each speaker given
-        by the gui_sp_dict.
+        by the gui_sp.
 
         Return values:
         sp_param: Returns a dictionary containing 10 properties of each
@@ -359,10 +362,10 @@ class DspIn:
         # sp_param[sp][9] = format character for correct encoding of data
         # initialize dict with 10 (empty) values per key with list
         # comprehension
-        sp_param = {sp: [None] * 10 for sp in range(len(gui_sp_dict))}
+        sp_param = {sp: [None] * 10 for sp in range(len(gui_sp))}
         # go through all speakers
         for sp in sp_param:
-            if gui_sp_dict[sp][2] == 'unknown' or gui_sp_dict[sp][2] == '':
+            if gui_sp[sp][2] == 'unknown' or gui_sp[sp][2] == '':
                 # ERROR message -- no file selected
                 print("No file selected")
                 # errmsg = "No audio source was selected. Please press " \
@@ -370,7 +373,7 @@ class DspIn:
                 # self.signal_handler.send_error(errmsg)
             else:
                 # open the file
-                file = open(gui_sp_dict[sp][2], 'rb')
+                file = open(gui_sp[sp][2], 'rb')
                 # checks whether file is RIFX or RIFF
                 _big_endian = False
                 str1 = file.read(4)
@@ -447,7 +450,7 @@ class DspIn:
                 # self.signal_handler.send_error(errmsg)
         return sp_param
 
-    def read_sp(self, gui_sp_dict):
+    def read_sp(self, gui_sp):
         """
         H2 -- read_sp
         ===================
@@ -464,15 +467,15 @@ class DspIn:
         # initialize an empty array with blocksize sp_blocksize for every
         # speaker in dictionary sp_dict
         sp_dict = {}
-        for sp in gui_sp_dict:
+        for sp in gui_sp:
             sp_dict[sp] = np.zeros((self.sp_param[sp][0],), dtype=np.float32)
 
         # # scipy io reference function
         start = time.time()
         scipy_sp_dict_raw = {}
         scipy_sp_dict = {}
-        for sp in gui_sp_dict:
-            _, scipy_sp_dict_raw[sp] = scipy.io.wavfile.read(gui_sp_dict[sp][2])
+        for sp in gui_sp:
+            _, scipy_sp_dict_raw[sp] = scipy.io.wavfile.read(gui_sp[sp][2])
             lenarray = len(scipy_sp_dict_raw[sp])
             # append zeros to scipy_sp_dict_raw to reach that output is
             # divideable by sp_blocksize
@@ -497,7 +500,7 @@ class DspIn:
         #     end_block = self.sp_param[sp][0]
         #     continue_input = True
         #     # open file of current speaker here
-        #     file = open(gui_sp_dict[sp][2], 'rb')
+        #     file = open(gui_sp[sp][2], 'rb')
         #     # calculate begin_block as byte-number
         #     first_byte_of_block = self.sp_param[sp][6] + (begin_block *
         #         self.sp_param[sp][7] * self.sp_param[sp][3])
@@ -632,7 +635,7 @@ class DspIn:
         # start) * 1000)))
         return scipy_sp_dict      # , scipy_sp_dict or sp_dict
 
-    def get_hrtf_block_fft(self, gui_sp_dict_sp, sp):
+    def get_hrtf_block_fft(self, gui_sp_sp, sp):
         """
         H2 -- get_hrtf_block_fft
         ===================
@@ -642,18 +645,18 @@ class DspIn:
         """
         # get filename of the relevant hrtf for each ear
         # version according to settings in gui
-        rounddifference = gui_sp_dict_sp[0] % 5
+        rounddifference = gui_sp_sp[0] % 5
         # if angle from gui exactly matches angle of the file
         if rounddifference == 0:
-            angle_exact = gui_sp_dict_sp[0]
+            angle_exact = gui_sp_sp[0]
 
         # If gui's angle doesn't exactly match, go to closest angle
         # available in database
         else:
             if rounddifference < 2.5:
-                angle_exact = gui_sp_dict_sp[0] - rounddifference
+                angle_exact = gui_sp_sp[0] - rounddifference
             else:
-                angle_exact = gui_sp_dict_sp[0] + 5 - rounddifference
+                angle_exact = gui_sp_sp[0] + 5 - rounddifference
 
         # get rounded integer angle
         angle = self.rnd(angle_exact)
@@ -766,12 +769,12 @@ class DspIn:
         freq_number = fft_blocksize // 2 + 1
         freq = np.arange(0, freq_number, dtype=np.float16) * freq_spacing
         # set frequency values of speaker spectrum
-        for sp in self.state.sp_spectrum_dict:
-            self.state.sp_spectrum_dict[sp][:, 0] = freq
+        for dsp_sp_spectrum_sp in self.state.dsp_sp_spectrum:
+            dsp_sp_spectrum_sp[:, 0] = freq
         # set frequency values of hrtf spectrum
-        for sp in self.state.hrtf_spectrum_dict:
-            for l_r in range(2):
-                self.state.hrtf_spectrum_dict[sp][l_r][:, 0] = freq
+        for dsp_hrtf_spectrum_sp in self.state.dsp_hrtf_spectrum:
+            for dsp_hrtf_spectrum_sp_l_r in dsp_hrtf_spectrum_sp:
+                dsp_hrtf_spectrum_sp_l_r[:, 0] = freq
 
     def fft_convolution(self, binaural_block_dict_sp, sp, l_r):
         """
@@ -791,8 +794,8 @@ class DspIn:
         # frequency domain
         # sp_block_fft_sp = fft(self.sp_block_dict[sp], self.fft_blocksize)
         sp_block_fft_sp = rfft(self.sp_block_dict[sp], self.fft_blocksize)
-        # save fft magnitude spectrum of sp_block in sp_spectrum and
-        # hrtf_block in hrtf_spectrum to be shown by gui
+        # save fft magnitude spectrum of sp_block in dsp_sp_spectrum and
+        # hrtf_block in dsp_hrtf_spectrum to be shown by gui
         # get magnitum spectrum of sp_block
         sp_magnitude_spectrum = abs(sp_block_fft_sp)
         # normalize spectrum to get int16 values
@@ -801,27 +804,27 @@ class DspIn:
             sp_magnitude_spectrum))
         if max_amplitude_sp_magnitude_spectrum != 0:
             # get magnitude spectrum of hrtf-block
-            self.state.sp_spectrum_dict[sp][:, 1] = sp_magnitude_spectrum / (
+            self.state.dsp_sp_spectrum[sp][:, 1] = sp_magnitude_spectrum / (
                 max_amplitude_sp_magnitude_spectrum / self.sp_max_amp_dict[
                     sp] * max_amplitude_output)
         else:
-            self.state.sp_spectrum_dict[sp][:, 1] = np.zeros((
+            self.state.dsp_sp_spectrum[sp][:, 1] = np.zeros((
                 self.fft_blocksize // 2 + 1, ), dtype=np.float16)
         hrtf_magnitude_spectrum = abs(self.hrtf_block_fft_dict[sp][:, l_r])
         max_amplitude_hrtf_magnitude_spectrum = np.amax(np.abs(
             hrtf_magnitude_spectrum))
         if max_amplitude_hrtf_magnitude_spectrum != 0 and \
                 max_amplitude_sp_magnitude_spectrum != 0:
-            self.state.hrtf_spectrum_dict[sp][l_r][:, 1] =\
+            self.state.dsp_hrtf_spectrum[sp][l_r][:, 1] =\
                 hrtf_magnitude_spectrum / (
                     max_amplitude_hrtf_magnitude_spectrum /
                     self.hrtf_max_amp_dict[sp][l_r] * max_amplitude_output)
         else:
-            self.state.hrtf_spectrum_dict[sp][l_r][:, 1] = np.zeros((
+            self.state.dsp_hrtf_spectrum[sp][l_r][:, 1] = np.zeros((
                 self.fft_blocksize // 2 + 1, ), dtype=np.float16)
         # set FFT DC Value to zero
-        self.state.sp_spectrum_dict[sp][0, 1] = 0
-        self.state.hrtf_spectrum_dict[sp][l_r][0, 1] = 0
+        self.state.dsp_sp_spectrum[sp][0, 1] = 0
+        self.state.dsp_hrtf_spectrum[sp][l_r][0, 1] = 0
 
         # execute convolution of speaker input and hrtf input: multiply
         # complex frequency domain vectors
