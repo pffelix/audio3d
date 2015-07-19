@@ -11,26 +11,6 @@ import headtracker_data as headtracker
 import threading
 
 
-# @brief keeps cursor inside gui_scene
-# @details
-# @author Huijiang
-def get_bound_pos(x, y):
-
-    if x >= 350 and y >= 350:
-        x = 350
-        y = 350
-    if x >= 350 and y <= 0:
-        x = 350
-        y = 0
-    if x <= 0 and y <= 0:
-        x = 0
-        y = 0
-    if x <= 0 and y >= 350:
-        x = 0
-        y = 350
-
-    return x, y
-
 
 
 class State(QtCore.QObject):
@@ -197,8 +177,8 @@ class Room(QtGui.QGraphicsScene):
         try:
             self.current_item.setPos(e.scenePos().x() - 25, e.scenePos().y(
             ) - 25)
-            bounded_x, bounded_y = get_bound_pos(e.scenePos().x() - 25,
-                                                 e.scenePos().y() - 25)
+            bounded_x, bounded_y = self.get_bound_pos(e.scenePos().x() - 25,
+                                                      e.scenePos().y() - 25)
             self.current_item.setPos(bounded_x, bounded_y)
 
             if self.current_item.type == 'audience':
@@ -209,7 +189,7 @@ class Room(QtGui.QGraphicsScene):
                     if dis < 50:
                         x, y = self.get_abs_pos(deg, 50,
                                                 self.state.audience_pos)
-                        x, y = get_bound_pos(x, y)
+                        x, y = self.get_bound_pos(x, y)
                         speaker.setPos(x, y)
                     speaker.cal_rel_pos()
 
@@ -224,6 +204,26 @@ class Room(QtGui.QGraphicsScene):
         except AttributeError:
             pass
 
+    # @brief keeps cursor inside gui_scene
+    # @details
+    # @author Huijiang
+    def get_bound_pos(self, x, y):
+
+        if x >= 350 and y >= 350:
+            x = 350
+            y = 350
+        if x >= 350 and y <= 0:
+            x = 350
+            y = 0
+        if x <= 0 and y <= 0:
+            x = 0
+            y = 0
+        if x <= 0 and y >= 350:
+            x = 0
+            y = 350
+
+        return x, y
+
     # @brief returns new position of item
     # @details
     # @author
@@ -236,17 +236,6 @@ class Room(QtGui.QGraphicsScene):
 
         return x, y
 
-    # @brief returns new position of item
-    # @details
-    # @author
-    def get_abs_pos(self, azimuth, dist, audience_pos):
-        x0 = audience_pos.x()
-        y0 = audience_pos.y()
-
-        x = x0 + dist * sin(radians(azimuth))
-        y = y0 - dist * cos(radians(azimuth))
-
-        return x, y
 
 # @class <View> This class is responsible for displaying the contents of on the
 # QGraphicsScene
@@ -452,7 +441,7 @@ class SpeakerProperty(QtGui.QWidget):
         x = self.posx
         y = self.posy
 
-        self.posx, self.posy = get_bound_pos(x, y)
+        self.posx, self.posy = self.get_bound_pos(x, y)
         self.added.emit()
         self.close()
 
@@ -473,6 +462,25 @@ class SpeakerProperty(QtGui.QWidget):
         self.added.disconnect()
         self.clear()
 
+    # @brief keeps cursor inside gui_scene
+    # @details
+    # @author Huijiang
+    def get_bound_pos(self, x, y):
+
+        if x >= 350 and y >= 350:
+            x = 350
+            y = 350
+        if x >= 350 and y <= 0:
+            x = 350
+            y = 0
+        if x <= 0 and y <= 0:
+            x = 0
+            y = 0
+        if x <= 0 and y >= 350:
+            x = 0
+            y = 350
+
+        return x, y
 
 # @class <SequencePlot> Additional window is created to display plot of speaker
 # and HRTF spectrum while .wav is played
