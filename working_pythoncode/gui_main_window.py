@@ -193,15 +193,15 @@ class MainWindow(QtGui.QWidget):
         instantaneous settings respectively, is opened to define/change the
         individual speaker settings.
         The change_property function is called to save changes.
-        A threading.Lock() avoids read-write overlaps of the gui_sp_dict
+        A threading.Lock() avoids read-write overlaps of the gui_sp
         variable.
         """
-        i = self.state.speaker_to_show
+        sp = self.state.speaker_to_show
         self.state.mtx_sp.acquire()
-        path = str(self.state.gui_sp[i][2])
-        azimuth = "{:.0f}".format(self.state.gui_sp[i][0])
-        dist = "{:.2f}".format(self.state.gui_sp[i][1])
-        if self.state.gui_sp[i][3] is True:
+        path = str(self.state.gui_sp[sp]["path"])
+        azimuth = "{:.0f}".format(self.state.gui_sp[sp]["angle"])
+        dist = "{:.2f}".format(self.state.gui_sp[sp]["distance"])
+        if self.state.gui_sp[sp]["normalize"] is True:
             self.speaker_property.normalize_box.setCheckState(
                 QtCore.Qt.Checked)
         else:
@@ -220,22 +220,22 @@ class MainWindow(QtGui.QWidget):
         H2 -- change_property
         ===================
         **With this function transfers the speaker property changes and updates
-        the speaker list and gui_sp_dict variables.**
-        A threading.Lock() avoids read-write overlaps of the gui_sp_dict
+        the speaker list and gui_sp variables.**
+        A threading.Lock() avoids read-write overlaps of the gui_sp
         variable.
         """
-        i = self.state.speaker_to_show
+        sp = self.state.speaker_to_show
         x_new = self.speaker_property.posx
         y_new = self.speaker_property.posy
         path_new = self.speaker_property.path
-        self.state.speaker_list[i].setPos(x_new, y_new)
-        self.state.speaker_list[i].path = path_new
-        self.state.speaker_list[i].cal_rel_pos()
+        self.state.speaker_list[sp].setPos(x_new, y_new)
+        self.state.speaker_list[sp].path = path_new
+        self.state.speaker_list[sp].cal_rel_pos()
         self.state.mtx_sp.acquire()
         if self.speaker_property.normalize_box.isChecked():
-            self.state.gui_sp[i][3] = True
+            self.state.gui_sp[sp]["normalize"] = True
         else:
-            self.state.gui_sp[i][3] = False
+            self.state.gui_sp[sp]["normalize"] = False
         self.state.mtx_sp.release()
 
     @QtCore.Slot()
@@ -330,7 +330,7 @@ class MainWindow(QtGui.QWidget):
 
         else:
             self.room.clear()
-            self.state.gui_sp.clear()
+            del self.state.gui_sp[:]
             del self.state.speaker_list[:]
             new_audience = gui_utils.Audience(self.state)
             self.room.addItem(new_audience)

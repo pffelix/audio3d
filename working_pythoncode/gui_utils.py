@@ -18,7 +18,7 @@ class State(QtCore.QObject):
     def __init__(self):
         super(State, self).__init__()
         # variables which are shared between gui and dsp algorithm
-        self.gui_sp = {}
+        self.gui_sp = []
         self.gui_settings = {}
         self.gui_error = []
         self.dsp_run = False
@@ -299,6 +299,10 @@ class Speaker(Item):
         self.norm = norm
         self.signal_handler = SignalHandler(self.index)
         speaker_list.append(self)
+        self.state.mtx_sp.acquire()
+        self.state.gui_sp.append({"angle": None, "distance": None, "path":
+                                  self.path, "normalize": self.norm})
+        self.state.mtx_sp.release()
         self.cal_rel_pos()
 
     # @brief this function returns the relative position of the speaker
@@ -327,8 +331,8 @@ class Speaker(Item):
             deg += 360
         self.state.mtx_sp.acquire()
         # write new relative position in exchange variable gui - dsp
-        self.state.gui_sp[self.index] = [deg, dis / 100, self.path,
-                                              self.norm]
+        self.state.gui_sp[self.index]["angle"] = deg
+        self.state.gui_sp[self.index]["distance"] = dis / 100
         self.state.mtx_sp.release()
         return deg, dis
 
