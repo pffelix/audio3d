@@ -9,7 +9,7 @@ import scipy.io.wavfile
 import struct
 import numpy as np
 import math
-from numpy.fft import rfft, irfft, rfftfreq
+from numpy.fft import rfft, irfft
 import time
 
 
@@ -657,6 +657,13 @@ class DspIn:
         self.sp_block_dict[sp] = self.sp_block_dict[sp].astype(np.float32,
                                                                copy=False)
 
+    # @author Felix Pfreundtner
+    def get_fftfreq(self, fft_blocksize, samplerate):
+        freq_spacing = samplerate / fft_blocksize
+        freq_number = fft_blocksize // 2 + 1
+        freq = np.arange(0, freq_number, dtype=int) * freq_spacing
+        return freq
+
     # @brief Function convolves hrtf and data of the music file
     # @details Function takes one hrtf block and one data block (their size
     # is defined by fft_blocksize), normalizes their values to int16-signals
@@ -673,7 +680,8 @@ class DspIn:
         # save fft magnitude spectrum of sp_block in sp_spectrum and
         # hrtf_block in hrtf_spectrum to be shown by gui
         # create array of all calculated FFT frequencies
-        freq_all = rfftfreq(self.fft_blocksize, 1 / self.wave_param_common[0])
+        freq_all = self.get_fftfreq(self.fft_blocksize,
+                                   self.wave_param_common[0])
         # set position of only positive frequencies (neg. frequencies
         # redundant)
         position_freq = np.where(freq_all >= 0)
