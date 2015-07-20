@@ -8,7 +8,7 @@ setup(
     package_data = {
         'audio3d': ['*.png','*.wav'],
     },
-    install_requires = ['pyopengl','pyaudio','pyside'],
+    install_requires = ['scipy','numpy','pyopengl','pyaudio','pyside'],
     entry_points={
         'console_scripts': [
             'audio3d = audio3d.__main__:main',
