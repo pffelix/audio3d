@@ -37,7 +37,7 @@ class TestHeadtracker(unittest.TestCase):
         """
         H2 -- test_head_deg
         ===================
-        **This tests wheter the azimuthal angle is correctly applied if the
+        **This tests whether the azimuthal angle is correctly applied if the
         angle would result in something greater than 360°.**
         """
 

@@ -292,6 +292,7 @@ class MainWindow(QtGui.QWidget):
             self.speaker_property.show()
             self.speaker_property.is_on = True
         else:
+            self.state.send_error("speaker number limited to 10")
             return
 
     @QtCore.Slot()
@@ -336,19 +337,27 @@ class MainWindow(QtGui.QWidget):
         variable.**
         """
         self.state.mtx_run.acquire()
-        self.state.mtx_sp.acquire()
+        self.state.mtx_stop.acquire()
+        # stop dsp thread when audio is currently convolved
         if self.state.dsp_run is True:
-            pass
-
-        else:
-            self.room.clear()
-            del self.state.gui_sp[:]
-            del self.state.speaker_list[:]
-            new_audience = gui_utils.Audience(self.state)
-            self.room.addItem(new_audience)
-            self.view.viewport().update()
+            self.state.dsp_stop = True
         self.state.mtx_run.release()
+        self.state.mtx_stop.release()
+        # wait until thread finished
+        if self.dspthread is not None:
+            self.dspthread.join()
+
+        self.room.clear()
+
+        self.state.mtx_sp.acquire()
+        del self.state.gui_sp[:]
         self.state.mtx_sp.release()
+
+        del self.state.speaker_list[:]
+        new_audience = gui_utils.Audience(self.state)
+        self.room.addItem(new_audience)
+        self.view.viewport().update()
+
 
     @QtCore.Slot()
     def play(self):
