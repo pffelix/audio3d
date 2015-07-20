@@ -1,4 +1,4 @@
-include 3daudio/image *png
-recursive-include 3daudio/audio_in *.wav
-recursive-include 3daudio/kemar *.wav
+include audio3d/image *png
+recursive-include audio3d/audio_in *.wav
+recursive-include audio3d/kemar *.wav
 
