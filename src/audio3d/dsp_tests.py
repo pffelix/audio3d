@@ -20,7 +20,7 @@ class DspTests(unittest.TestCase):
         # initialize GUI state
         self.state = audio3d.gui_utils.State()
         # modify GUI state
-        self.state.gui_dict = {
+        self.state.gui_dict = []
             0: [90, 0, "./audio_in/sine_1kHz_(44.1,1,16).wav", False],
             1: [120, 1, "./audio_in/electrical_guitar_(44.1,1,16).wav", True]
             # 2: [0, 1, "./audio_in/synthesizer_(44.1,1,16).wav", #  True]
@@ -30,15 +30,11 @@ class DspTests(unittest.TestCase):
                                         "bufferblocks": 5}
         self.state.gui_stop = False
         self.state.gui_pause = False
-        self.dspin_testobj = audio3d.dsp_in.DspIn(self.state,
-                                                  self.state.gui_dict,
-                                                  self.state.gui_settings_dict)
+        self.dspin_testobj = audio3d.dsp_in.DspIn(self.state)
         self.dspout_testobj = \
-            audio3d.dsp_out.DspOut(self.state, self.state.gui_dict,
+            audio3d.dsp_out.DspOut(self.state,
                                    self.dspin_testobj.fft_blocksize,
-                                   self.dspin_testobj.hopsize,
-                                   self.dspin_testobj,
-                                   self.state.gui_pause)
+                                   self.dspin_testobj.hopsize)
 
     def test_rnd_int(self):
         """
