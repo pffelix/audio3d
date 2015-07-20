@@ -8,6 +8,11 @@ import time
 
 
 class Dsp:
+    """
+    H1 -- Dsp
+    ************************
+    **Main class of the project's Digital Signal Processing part.**
+    """
     def __init__(self, state_init):
         self.state = state_init
         # Number of all speakers
@@ -29,10 +34,28 @@ class Dsp:
         # blocks
         self.blockcounter = 0
 
-    # @brief Runs the dsp algorithm as one process on one cpu core.
-    # @details
-    # @author Felix Pfreundtner, Matthias Lederle
     def run(self):
+        """
+        H2 -- run
+        ===================
+        **Runs the dsp algorithm as one process on one cpu core as a big
+        while-loop**
+
+        The steps of the loop are:
+        1. Lock shared variables.
+        2. Set the begin and end of the speaker wave block which needs to
+        be read in this iteration.
+        3. Iterate over all active speakers sp.
+        4. Mix binaural stereo blockoutput of every speaker to one binaural
+        stereo block output having regard to speaker distances.
+        5. Mix binaural stereo blockoutput of every speaker.
+        6. Add mixed binaural stereo block to play queue.
+        7. Unlock shared variables.
+        8. Synchronize with PortAudio Playback Thread
+        9. Finish DSP Algorithm.
+
+        Authors: Felix Pfreundtner, Matthias Lederle
+        """
         # tell gui that dsp algorithm is running
         self.state.dsp_run = True
         # run the main while loop as long as there are still samples to be
@@ -149,8 +172,8 @@ class Dsp:
                 # Start PortAudio playback thread
                 playthread.start()
 
-            # when less blocks than than the bufferblocksize has been
-            # convolved (playback thread not started yet).
+            # when less blocks than the bufferblocksize has been convolved (
+            # playback thread not started yet).
             if self.blockcounter <= self.bufferblocks:
                 # increment number of already convolved block iterations
                 self.blockcounter += 1
