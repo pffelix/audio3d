@@ -5,12 +5,17 @@ PORT = 50105
 UDPPORT = 6666
 
 
-# @class <DT2> This class builts up a networking interface using the python
-# package socket to extract information gained by an ARTTRACK tracking
-# system
-# @author Marko Durkovic
 class DT2(object):
+    """
+    H1 -- SequencePlot
+    ************************
+    **This class builts up a networking interface using the python
+    package socket to extract information gained by an ARTTRACK tracking
+    system.**
+    Author: Marko Durkovic
+    """
 
+    """Constructor of the DT2 class."""
     def __init__(self):
         self.tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.tcp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -36,17 +41,24 @@ class DT2(object):
         print(data)
         return data
 
-    # @brief function returns the the received data from the headtracker
-    #
-    # @author Marko Durkovic
     def get_measurements(self):
+        """
+        H2 -- get_measurements
+        ===================
+        **Function returns the the received data from the headtracker.**
+        Author: Marko Durkovic
+        """
         return self.udp.recvfrom(200)[0]
 
-    # @brief this function reterns the data linewise
-    # @details returned data format:
-    # ['6d 1 [0 1.000] [x y z polar azimuthal] [3x3 rotation matrix]\r']
-    # @author Marko Durkovic
     def angle(self):
+        """
+        H2 -- angle
+        ===================
+        **This function returns the data linewise.**
+        Returned data format:
+        *['6d 1 [0 1.000] [x y z polar azimuthal] [3x3 rotation matrix]\r']
+        Author: Marko Durkovic
+        """
         data = self.get_measurements().decode('utf-8')
         data = data.split('\n')
         sixds = [i for i in data if i.startswith('6d ')]
