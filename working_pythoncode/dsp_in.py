@@ -467,6 +467,7 @@ class DspIn:
         """
 
         sp_input = []
+        max_sp_samplenumber = 0
         # read in wave audio input files for every speaker
         for sp in range(self.spn):
             _, sp_input_scipy = scipy.io.wavfile.read(
@@ -476,7 +477,7 @@ class DspIn:
             sp_input.append(np.zeros((self.sp_param[sp][0] + self.sp_blocksize -
                                      self.sp_param[sp][0] %
                                       self.sp_blocksize, ), dtype=np.float32))
-            # if speaker has two chanells make it mono
+            # if speaker has two channels make it mono
             if self.sp_param[sp][3] == 2:
                 sp_input[sp][0:self.sp_param[sp][0], ] = sp_input_scipy[:,
                                                          0] + sp_input_scipy[:,

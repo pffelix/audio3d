@@ -358,7 +358,6 @@ class MainWindow(QtGui.QWidget):
         self.room.addItem(new_audience)
         self.view.viewport().update()
 
-
     @QtCore.Slot()
     def play(self):
         """

@@ -37,6 +37,7 @@ class DspOut:
         self.playbuffer = collections.deque()
         self.playback_successful = True
         self.playqueue = queue.Queue()
+        self.recordqueue = queue.Queue()
 
     # @brief Applies the overlap-add-method to the signal.
     # @details Adds the last part of the prior fft-block to calculate the
@@ -96,26 +97,20 @@ class DspOut:
         self.binaural_block = self.binaural_block.astype(np.float32,
                                                          copy=False)
 
-    # @brief Concatenates the current block to the binaural signal.
+    # @brief sends the created binaural block of the dsp thread to the play
+    # thread with the playqueue
     # @author Felix Pfreundtner
-    def add_to_queue(self, blockcounter):
-        # if blockcounter == 0:
-        #     self.binaural = self.binaural_block.astype(np.int16, copy=False)
-        #     q.put(self.binaural_block.astype(np.int16, copy=False))
-        # else:
-        #     self.binaural = np.concatenate((self.binaural,
-        #                                     self.binaural_block.astype(
-        #                                         np.int16, copy=False)))
+    def add_to_playqueue(self):
         self.playqueue.put(self.binaural_block.astype(np.int16,
                                                       copy=False).tostring())
-
-    # @brief Writes the binaural output signal.
+    # @brief sends the created binaural block of the dsp thread to the record
+    #  queue, which collects all cretaed binaural blocks. Later the queue is
+    #  read by writerecordfile().
     # @author Felix Pfreundtner
-    def writebinauraloutput(self, binaural, samplerate):
-        if not os.path.exists("./audio_out/"):
-            os.makedirs("./audio_out/")
-        scipy.io.wavfile.write("./audio_out/binauralmix.wav", samplerate,
-                               binaural)
+
+    def add_to_recordqueue(self):
+        self.recordqueue.put(self.binaural_block.astype(np.int16,
+                                                        copy=False))
 
     # @brief
     # @author Felix Pfreundtner
@@ -179,3 +174,20 @@ class DspOut:
         self.state.dsp_pause = False
         # finally mark audio as stopped
         self.state.dsp_stop = True
+
+    # @brief Writes the whole binaural output as wave file.
+    # @author Felix Pfreundtner
+    def writerecordfile(self, samplerate, hopsize):
+        if not os.path.exists("./audio_out/"):
+            os.makedirs("./audio_out/")
+
+        binaural_record = np.zeros((self.recordqueue.qsize() * hopsize, 2),
+                                   dtype=np.int16)
+        position = 0
+        while self.recordqueue.empty() is False:
+                binaural_record[position:position+hopsize, :] = \
+                    self.recordqueue.get()
+                position += hopsize
+
+        scipy.io.wavfile.write("./audio_out/binauralmix.wav", samplerate,
+                               binaural_record)

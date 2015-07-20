@@ -127,9 +127,13 @@ class Dsp:
             self.state.mtx_stop.release()
             self.state.mtx_pause.release()
 
+            # Add mixed binaural stereo block to play queue which is read by
+            # PortAudio Play Thread
+            self.dspout_obj.add_to_playqueue()
+
             # Add mixed binaural stereo block to a time continuing binaural
-            # output of all blocks
-            self.dspout_obj.add_to_queue(self.blockcounter)
+            # wave output output array of all mixed blocks
+            self.dspout_obj.add_to_recordqueue()
 
             # Create PortAudio playback thread if specified number of
             # bufferblocks has been convolved
@@ -162,8 +166,8 @@ class Dsp:
                 time.sleep(0.1)
 
         # Write generated output signal binaural_scaled to file
-        self.dspout_obj.writebinauraloutput(
-            self.dspout_obj.binaural, self.dspin_obj.samplerate)
+        self.dspout_obj.writerecordfile(self.dspin_obj.samplerate,
+                                            self.dspin_obj.hopsize)
 
         # mark dsp algorithm as finished
         self.state.dsp_run = False
