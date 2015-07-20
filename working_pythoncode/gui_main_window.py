@@ -145,10 +145,6 @@ class MainWindow(QtGui.QWidget):
             self.update_gui_sp(self.head_tracker.get_head_deg())
         self.state.mtx_run.release()
 
-    # @brief gui_sp is continuously updated,
-    #        managed by update_timer every 10sec
-    # @details
-    # @author
 
     def update_gui_sp(self, deg):
         """
@@ -320,8 +316,8 @@ class MainWindow(QtGui.QWidget):
         H2 -- reset
         ===================
         **This function is called by the MainWindow reset button and removes
-        all existing speakers from the GuiScene and resets also the gui_sp_input
-        .**
+        all existing speakers from the GuiScene and resets also the gui_sp
+        variable.**
         """
         self.state.mtx_run.acquire()
         self.state.mtx_sp.acquire()
