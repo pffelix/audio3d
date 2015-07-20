@@ -9,9 +9,11 @@ import sys
 import audio3d.gui_main_window
 
 def main():
-    w = audio3d.gui_main_window.MainWindow()
-    print(type(w))
-    return qApp.exec_()
+    app = QApplication(sys.argv)
+    mainwindow = audio3d.gui_main_window.MainWindow()
+    mainwindow.show()
+    #print(type(w))
+    return app.exec_()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

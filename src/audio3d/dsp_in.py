@@ -10,7 +10,6 @@ import struct
 import numpy as np
 import math
 from numpy.fft import rfft, irfft
-import time
 
 
 class DspIn:
@@ -481,9 +480,8 @@ class DspIn:
                                       self.sp_blocksize, ), dtype=np.float32))
             # if speaker has two channels make it mono
             if self.sp_param[sp][3] == 2:
-                sp_input[sp][0:self.sp_param[sp][0], ] = sp_input_scipy[:,
-                                                         0] + sp_input_scipy[:,
-                                                              1] / 2
+                sp_input[sp][0:self.sp_param[sp][0], ]\
+                    = sp_input_scipy[:, 0] + sp_input_scipy[:, 1] / 2
             else:
                 sp_input[sp][0:self.sp_param[sp][0], ] = sp_input_scipy
 
@@ -691,8 +689,9 @@ class DspIn:
         sp_binaural_block_sp_l_r_time = irfft(sp_binaural_block_sp_frequency,
                                               self.fft_blocksize).real
 
-         # normalize multiplied spectrum back to 16bit integer, consider
-        # maximum amplitude value of sp block and hrtf impulse to get       # dynamical volume output
+        # normalize multiplied spectrum back to 16bit integer, consider
+        # maximum amplitude value of sp block and hrtf impulse to get
+        # dynamical volume output
         sp_binaural_block_sp_time_max_amp = int(np.amax(np.abs(
             sp_binaural_block_sp_l_r_time)))
         if sp_binaural_block_sp_time_max_amp != 0:
