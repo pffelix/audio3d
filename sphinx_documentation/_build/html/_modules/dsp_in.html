@@ -8,7 +8,7 @@
     
     <title>dsp_in &mdash; Group B: 3D Audio 1.0 documentation</title>
     
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -24,13 +24,22 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Group B: 3D Audio 1.0 documentation" href="../index.html" />
-    <link rel="up" title="Module code" href="index.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="up" title="Module code" href="index.html" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Group B: 3D Audio 1.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -54,7 +63,6 @@
 
 <div class="viewcode-block" id="DspIn"><a class="viewcode-back" href="../index.html#dsp_in.DspIn">[docs]</a><span class="k">class</span> <span class="nc">DspIn</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ************************</span>
 <span class="sd">    H1 -- DspIn</span>
 <span class="sd">    ************************</span>
 <span class="sd">    This class contains all functions executed before the convolution in</span>
@@ -123,8 +131,7 @@
 
 <div class="viewcode-block" id="DspIn.rnd"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.rnd">[docs]</a>    <span class="k">def</span> <span class="nf">rnd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- This is a header of 2nd level text</span>
+<span class="sd">        H2 -- This is a header of 2nd level text</span>
 <span class="sd">        ===================</span>
 <span class="sd">        This function does a normal school arithmetic round (choose lower</span>
 <span class="sd">        int until .4 and higher int from .5 on) and returns the rounded</span>
@@ -147,8 +154,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.build_hann_window"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.build_hann_window">[docs]</a>    <span class="k">def</span> <span class="nf">build_hann_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp_blocksize</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- build_hann_window</span>
+<span class="sd">        H2 -- build_hann_window</span>
 <span class="sd">        ===================</span>
 <span class="sd">        Calculate and construct the hann window in dependency of</span>
 <span class="sd">        sp_blocksize.</span>
@@ -164,8 +170,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.get_block_param"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.get_block_param">[docs]</a>    <span class="k">def</span> <span class="nf">get_block_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- get_block_param</span>
+<span class="sd">        H2 -- get_block_param</span>
 <span class="sd">        ===================</span>
 <span class="sd">        This method uses the parameters of the input wav-file and the</span>
 <span class="sd">        blocksizes of the fft and the hrtf to calculate the blocksize and</span>
@@ -187,8 +192,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.init_set_block_begin_end"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.init_set_block_begin_end">[docs]</a>    <span class="k">def</span> <span class="nf">init_set_block_begin_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- init_set_block_begin_end</span>
+<span class="sd">        H2 -- init_set_block_begin_end</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Initializes a list with the number of the first and last sample</span>
 <span class="sd">        of the first block**</span>
@@ -210,8 +214,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.set_block_begin_end"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.set_block_begin_end">[docs]</a>    <span class="k">def</span> <span class="nf">set_block_begin_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- set_block_begin_end</span>
+<span class="sd">        H2 -- set_block_begin_end</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Every while-loop the number of the first and last sample is</span>
 <span class="sd">        calculated**</span>
@@ -228,8 +231,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.get_hrtf_param"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.get_hrtf_param">[docs]</a>    <span class="k">def</span> <span class="nf">get_hrtf_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- get_hrtf_param</span>
+<span class="sd">        H2 -- get_hrtf_param</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Get all parameters for the hrtf set by the settings in gui**</span>
 
@@ -294,8 +296,7 @@
     <span class="c"># @author Felix Pfreundtner</span></div>
 <div class="viewcode-block" id="DspIn.read_hrtf_database"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.read_hrtf_database">[docs]</a>    <span class="k">def</span> <span class="nf">read_hrtf_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- read_hrtf_database</span>
+<span class="sd">        H2 -- read_hrtf_database</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Preloads all hrtf Files**</span>
 
@@ -350,8 +351,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.hrtf_database_fft"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.hrtf_database_fft">[docs]</a>    <span class="k">def</span> <span class="nf">hrtf_database_fft</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- hrtf_database_fft</span>
+<span class="sd">        H2 -- hrtf_database_fft</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Converts the whole HRTF-database in frequency domain**</span>
 
@@ -374,8 +374,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.init_read_sp"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.init_read_sp">[docs]</a>    <span class="k">def</span> <span class="nf">init_read_sp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- init_read_sp</span>
+<span class="sd">        H2 -- init_read_sp</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Get 10 important parameters of the files to be played by the</span>
 <span class="sd">        get_block_function**</span>
@@ -508,8 +507,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.read_sp"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.read_sp">[docs]</a>    <span class="k">def</span> <span class="nf">read_sp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- read_sp</span>
+<span class="sd">        H2 -- read_sp</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Reads one block of samples**</span>
 
@@ -545,8 +543,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.get_hrtf_block_fft"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.get_hrtf_block_fft">[docs]</a>    <span class="k">def</span> <span class="nf">get_hrtf_block_fft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- get_hrtf_block_fft</span>
+<span class="sd">        H2 -- get_hrtf_block_fft</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Gets and reads the correct hrtf_file from database**</span>
 
@@ -593,8 +590,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.get_sp_block"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.get_sp_block">[docs]</a>    <span class="k">def</span> <span class="nf">get_sp_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- get_sp_block</span>
+<span class="sd">        H2 -- get_sp_block</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Gets the current block for the speaker.**</span>
 
@@ -621,8 +617,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.normalize"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.normalize">[docs]</a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- get_hrtf_block_fft</span>
+<span class="sd">        H2 -- get_hrtf_block_fft</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Gets and reads the correct hrtf_file from database**</span>
 
@@ -650,8 +645,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.apply_window_on_sp_block"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.apply_window_on_sp_block">[docs]</a>    <span class="k">def</span> <span class="nf">apply_window_on_sp_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- apply_window_on_sp_block</span>
+<span class="sd">        H2 -- apply_window_on_sp_block</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Gets and reads the correct hrtf_file from database**</span>
 
@@ -668,8 +662,7 @@
     <span class="c"># @author Felix Pfreundtner</span></div>
 <div class="viewcode-block" id="DspIn.set_fftfreq"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.set_fftfreq">[docs]</a>    <span class="k">def</span> <span class="nf">set_fftfreq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fft_blocksize</span><span class="p">,</span> <span class="n">samplerate</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- set_fftfreq</span>
+<span class="sd">        H2 -- set_fftfreq</span>
 <span class="sd">        ===================</span>
 <span class="sd">        Author: Felix Pfreundtner</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -686,8 +679,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.fft_convolution"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.fft_convolution">[docs]</a>    <span class="k">def</span> <span class="nf">fft_convolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp_binaural_block_sp</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">l_r</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        ===================</span>
-<span class="sd">        H1 -- fft_convolution</span>
+<span class="sd">        H2 -- fft_convolution</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Function convolves hrtf and data of the music file**</span>
 
@@ -767,15 +759,7 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
@@ -793,17 +777,22 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, Felix Pfreundtner, Huaijiang Zhu, Manuela Heiss, Matthias Lederle".
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Group B: 3D Audio 1.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Felix Pfreundtner, Huaijiang Zhu, Manuela Heiss, Matthias Lederle&#34;.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>

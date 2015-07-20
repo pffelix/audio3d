@@ -62,6 +62,13 @@ Contents:
 .. autoclass:: test_headtracker.TestHeadtracker
     :members:
 
+.. autosummary::
+   :toctree: stubs
+   :template: class.rst
+
+   Dsp
+   DspIn
+   DspOut
 
 Indices and tables
 ==================
