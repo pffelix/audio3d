@@ -54,12 +54,8 @@ class MainWindow(QtGui.QWidget):
         self.sequence_plot.plot_on.connect(self.update_sequences)
 
         self.dsp_obj = None
-        self.dsp_thread = None
-        # return_ex: save whether playback was successful
-        self.return_ex = multiprocessing.Queue()
+        self.dspthread = None
         self.init_ui()
-        # return_ex: Playback not run yet -> unsuccessful
-        self.return_ex.put(False)
 
     def init_ui(self):
 
@@ -350,15 +346,15 @@ class MainWindow(QtGui.QWidget):
             msgbox = QtGui.QMessageBox()
             msgbox.setText("Please add a speaker.")
             msgbox.exec_()
+            return
         else:
-            # don't let the playback and convolution start more than one time
-            if self.return_ex.empty() is True:
+            # if algorithm is alread running
+            if self.state.dsp_run is True:
+                # switch stop variable: mark stop as True
                 self.state.switch_stop_playback()
                 return
-            # if playback was stopped as user pressed stop button switch stop
-            # variable to playmode
-            if self.return_ex.empty() is False and self.return_ex.get() is \
-                    True:
+            else:
+                # switch stop variable: mark stop as False
                 self.state.switch_stop_playback()
 
             # update gui_settings
@@ -370,11 +366,13 @@ class MainWindow(QtGui.QWidget):
                 self.buffersize_spin_box.value()
             self.plot_button.setEnabled(True)
 
-            self.dsp_obj = Dsp(self.state,
-                               self.return_ex)
-            # start dsp thread
+            # create a dsp algorithm object
+            self.dsp_obj = Dsp(self.state)
+            # create a new thread dsp thread which executes the dsp object run
+            #  function
             self.dspthread = threading.Thread(
                 target=self.dsp_obj.run)
+            # start dsp thread
             self.dspthread.start()
 
     @QtCore.Slot()
@@ -478,7 +476,7 @@ class MainWindow(QtGui.QWidget):
         # if self.dspthread is not None and self.state.dsp_pause is True:
 
         # stop dsp Thread
-        if self.dsp_thread is not None:
+        if self.dspthread is not None:
             # stop dsp Thread
             self.state.mtx_pause.acquire()
             self.state.dsp_pause = False
@@ -486,5 +484,5 @@ class MainWindow(QtGui.QWidget):
             self.state.mtx_stop.acquire()
             self.state.dsp_stop = True
             self.state.mtx_stop.release()
-            self.dsp_thread.join()
+            self.dspthread.join()
         event_q_close_event.accept()

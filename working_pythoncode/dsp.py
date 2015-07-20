@@ -8,12 +8,13 @@ import time
 
 
 class Dsp:
-    def __init__(self, state_init, return_ex_init):
+    def __init__(self, state_init):
         self.state = state_init
         # Number of all speakers
         self.spn = len(self.state.gui_sp)
+        # Azimuth head angle which was convolved in prior iteration for every
+        # speaker
         self.prior_head_angle = [None for sp in range(self.spn)]
-        self.return_ex = return_ex_init
         # Set number of bufferblocks between fft block convolution and audio
         # block playback
         self.bufferblocks = state_init.gui_settings["bufferblocks"]
@@ -117,13 +118,14 @@ class Dsp:
             # output of all blocks
             self.dspout_obj.add_to_queue(self.blockcounter)
 
-            # Begin audio playback if specified number of bufferblocks
-            # has been convolved
+            # Create PortAudio playback thread if specified number of
+            # bufferblocks has been convolved
             if self.blockcounter == self.bufferblocks:
                 playthread = threading.Thread(
                     target=self.dspout_obj.audiooutput, args=(
                         self.dspin_obj.wave_param_common[0],
                         self.dspin_obj.hopsize))
+                # Start PortAudio playback thread
                 playthread.start()
 
             # when less blocks than than the bufferblocksize has been
@@ -155,6 +157,5 @@ class Dsp:
             self.dspout_obj.binaural,
             self.dspin_obj.wave_param_common)
 
-        self.return_ex.put(self.dspout_obj.playback_successful)
         # mark dsp algorithm as finished
         self.state.dsp_run = False

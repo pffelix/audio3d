@@ -147,17 +147,22 @@ class DspOut:
                               frames_per_buffer=hopsize,
                               stream_callback=self.callback,
                               )
+        # start PortAudio audio stream
         audiostream.start_stream()
+        # as long as stream is active (enough input) or audiostream has been
+        # stopped by user
         while audiostream.is_active() or audiostream.is_stopped():
             time.sleep(0.5)
-            # handle playback pause
+            # handle playblack pause: stop PortAudio audio playback again
             if self.state.dsp_pause is True:
                 audiostream.stop_stream()
+            # handle playblack continue: start PortAudio audio playback again
             if audiostream.is_stopped() and self.state.dsp_pause is False:
                 audiostream.start_stream()
-            # handle playblack stop
+            # handle playblack stop: break while loop
             if self.state.dsp_stop is True:
                 break
+        # stop PortAudio playback
         audiostream.stop_stream()
         audiostream.close()
         pa.terminate()
@@ -167,11 +172,10 @@ class DspOut:
             # when not the whole input has been convolved
             if any(self.continue_convolution) is True:
                 self.state.send_error("Error PC to slow - Playback Stopped")
-                for sp in range(self.spn):
-                    self.continue_convolution[sp] = False
+                # set playback to unsuccessful
                 self.playback_successful = False
 
-        # mark audio as not paused
+        # finally mark audio as not paused
         self.state.dsp_pause = False
-        # mark audio as stopped
+        # finally mark audio as stopped
         self.state.dsp_stop = True

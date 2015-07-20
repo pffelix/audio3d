@@ -29,7 +29,7 @@ class State(QtCore.QObject):
         self.gui_settings = {}
         self.gui_error = []
         self.dsp_run = False
-        self.dsp_stop = False
+        self.dsp_stop = True
         self.dsp_pause = False
         self.dsp_sp_spectrum = []
         self.dsp_hrtf_spectrum = []
