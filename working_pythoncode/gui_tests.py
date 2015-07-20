@@ -19,7 +19,8 @@ class GuiTests(unittest.TestCase):
         ===================
         **This tests function switch_stop_playback() from gui_utils.**
         """
-        sol = self.state.switch_stop_playback()
+        self.state.switch_stop_playback()
+        sol = self.state.dsp_stop
         error_msg = "test_switch_stop_playback failed!"
         self.assertEqual(sol, True, msg=error_msg)
 
@@ -29,7 +30,8 @@ class GuiTests(unittest.TestCase):
         ===================
         **This tests function switch_pause_playback() from gui_utils.**
         """
-        sol = self.state.switch_pause_playback()
+        self.state.switch_pause_playback()
+        sol = self.state.dsp_pause
         error_msg = "test_switch_pause_playback failed!"
         self.assertEqual(sol, True, msg=error_msg)
 
@@ -42,7 +44,8 @@ class GuiTests(unittest.TestCase):
         """
         x = 350
         y = -30
-        solx, soly = gui_utils.get_bound_pos(x, y)
+        room = gui_utils.Room(self.state)
+        solx, soly = gui_utils.Room.get_bound_pos(room, x, y)
         res_x = 350
         res_y = 0
         error_msg = "test_get_bound_pos_negative failed!"
@@ -58,7 +61,8 @@ class GuiTests(unittest.TestCase):
         """
         x = 370
         y = 0.0
-        solx, soly = gui_utils.get_bound_pos(x, y)
+        room = gui_utils.Room(self.state)
+        solx, soly = gui_utils.Room.get_bound_pos(room, x, y)
         res_x = 350
         res_y = 0
         error_msg = "test_get_bound_pos_float failed!"
@@ -72,7 +76,8 @@ class GuiTests(unittest.TestCase):
         **This tests function get_abs_pos() from gui_utils for zero entries.**
         """
         res = [170, 170]
-        solx, soly = self.state.get_abs_pos(90, 0)
+        room = gui_utils.Room(self.state)
+        solx, soly = gui_utils.Room.get_abs_pos(room, 90, 0)
         error_msg = "test_get_abs_pos_zero failed!"
         self.assertEqual(solx, res[0], msg=error_msg)
         self.assertEqual(soly, res[1], msg=error_msg)
@@ -84,7 +89,8 @@ class GuiTests(unittest.TestCase):
         **This tests function get_abs_pos() from gui_utils for floats.**
         """
         res = [170, 170]
-        solx, soly = self.state.get_abs_pos(1.0, 0)
+        room = gui_utils.Room(self.state)
+        solx, soly = gui_utils.Room.get_abs_pos(room, 1.0, 0)
         error_msg = "test_get_abs_pos_float failed!"
         self.assertEqual(solx, res[0], msg=error_msg)
         self.assertEqual(soly, res[1], msg=error_msg)
@@ -96,7 +102,8 @@ class GuiTests(unittest.TestCase):
         **This tests function get_abs_pos() from gui_utils.**
         """
         res = [170, 270]
-        solx, soly = self.state.get_abs_pos(180, 100)
+        room = gui_utils.Room(self.state)
+        solx, soly = gui_utils.Room.get_abs_pos(room, 180, 100)
         error_msg = "test_get_abs_pos failed!"
         self.assertEqual(solx, res[0], msg=error_msg)
         self.assertEqual(soly, res[1], msg=error_msg)
