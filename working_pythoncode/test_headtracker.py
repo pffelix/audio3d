@@ -29,7 +29,7 @@ class TestHeadtracker(unittest.TestCase):
         get_head_deg.return_value = 30
         sp = gui_utils.Speaker(self.state, 1, 'unknown')
         sp.cal_rel_pos(get_head_deg())
-        result = self.state.gui[1][0]
+        result = self.state.gui_sp[1]["angle"]
         self.assertEqual(result, 285)
 
     @patch('gui_utils.Headtracker.get_head_deg')
@@ -37,14 +37,14 @@ class TestHeadtracker(unittest.TestCase):
         """
         H2 -- test_head_deg
         ===================
-        **This tests wheter the azimuthal angle is correctly applied if the
+        **This tests whether the azimuthal angle is correctly applied if the
         angle would result in something greater than 360°.**
         """
 
         get_head_deg.return_value = 320
         sp = gui_utils.Speaker(self.state, 1, 'unknown')
         sp.cal_rel_pos(get_head_deg())
-        result = self.state.gui[1][0]
+        result = self.state.gui_sp[1]["angle"]
         self.assertEqual(result, 355)
 
 if __name__ == '__main__':

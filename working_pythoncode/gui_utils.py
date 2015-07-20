@@ -473,7 +473,6 @@ class Speaker(Item):
         self.state.gui_sp[self.index]["distance"] = dis / 100
         self.state.gui_sp[self.index]["path"] = self.path
         self.state.gui_sp[self.index]["normalize"] = self.norm
-
         self.state.mtx_sp.release()
         return deg, dis
 
