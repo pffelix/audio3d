@@ -38,81 +38,117 @@
           <div class="body" role="main">
             
   <h1>Source code for gui_tests</h1><div class="highlight"><pre>
-<span class="c"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Created on Thu Jul  2 13:46:25 2015</span>
-
-<span class="sd">@author: mh</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
 <span class="kn">import</span> <span class="nn">unittest</span>
-<span class="kn">import</span> <span class="nn">gui_utils</span>
+<span class="kn">import</span> <span class="nn">audio3d.gui_utils</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
 
 <div class="viewcode-block" id="GuiTests"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests">[docs]</a><span class="k">class</span> <span class="nc">GuiTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- GuiTests</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **Test class for GUI.**</span>
+<span class="sd">    Athor: Huijiang, Manuela</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">State</span><span class="p">()</span>
 
-    <span class="c"># @brief tests function switch_stop_playback() from gui_utils</span>
-    <span class="k">def</span> <span class="nf">test_switch_stop_playback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_stop_playback</span><span class="p">()</span>
+<div class="viewcode-block" id="GuiTests.test_switch_stop_playback"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_switch_stop_playback">[docs]</a>    <span class="k">def</span> <span class="nf">test_switch_stop_playback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- test_switch_stop_playback</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This tests function switch_stop_playback() from gui_utils.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_stop_playback</span><span class="p">()</span>
+        <span class="n">sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_switch_stop_playback failed!&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
-
-    <span class="c"># @brief tests function switch_pause_playbac() from gui_utils</span>
-    <span class="k">def</span> <span class="nf">test_switch_pause_playback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_pause_playback</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="GuiTests.test_switch_pause_playback"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_switch_pause_playback">[docs]</a>    <span class="k">def</span> <span class="nf">test_switch_pause_playback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- test_switch_pause_playback</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This tests function switch_pause_playback() from gui_utils.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_pause_playback</span><span class="p">()</span>
+        <span class="n">sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_pause</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_switch_pause_playback failed!&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
-
-    <span class="c"># @brief tests function get_bound_pos() from gui_utils</span>
-    <span class="k">def</span> <span class="nf">test_get_bound_pos_negative</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="GuiTests.test_get_bound_pos_negative"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_get_bound_pos_negative">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_bound_pos_negative</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- test_get_bound_pos_negative</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This tests function get_bound_pos() from gui_utils for netative</span>
+<span class="sd">        values.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="mi">350</span>
         <span class="n">y</span> <span class="o">=</span> <span class="o">-</span><span class="mi">30</span>
-        <span class="n">solx</span><span class="p">,</span> <span class="n">soly</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">get_bound_pos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">room</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Room</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">solx</span><span class="p">,</span> <span class="n">soly</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Room</span><span class="o">.</span><span class="n">get_bound_pos</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="n">res_x</span> <span class="o">=</span> <span class="mi">350</span>
         <span class="n">res_y</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_get_bound_pos_negative failed!&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">solx</span><span class="p">,</span> <span class="n">res_x</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">soly</span><span class="p">,</span> <span class="n">res_y</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
-
-    <span class="c"># @brief tests function get_bound_pos() from gui_utils</span>
-    <span class="k">def</span> <span class="nf">test_get_bound_pos_float</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="GuiTests.test_get_bound_pos_float"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_get_bound_pos_float">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_bound_pos_float</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- test_get_bound_pos_float</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This tests function get_bound_pos() from gui_utils for float</span>
+<span class="sd">        values.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span> <span class="o">=</span> <span class="mi">370</span>
         <span class="n">y</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">solx</span><span class="p">,</span> <span class="n">soly</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">get_bound_pos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">room</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Room</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">solx</span><span class="p">,</span> <span class="n">soly</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Room</span><span class="o">.</span><span class="n">get_bound_pos</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="n">res_x</span> <span class="o">=</span> <span class="mi">350</span>
         <span class="n">res_y</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_get_bound_pos_float failed!&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">solx</span><span class="p">,</span> <span class="n">res_x</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">soly</span><span class="p">,</span> <span class="n">res_y</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
-
-    <span class="c"># @brief tests function get_abs_pos() from gui_utils</span>
-    <span class="k">def</span> <span class="nf">test_get_abs_pos_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="GuiTests.test_get_abs_pos_zero"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_get_abs_pos_zero">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_abs_pos_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- test_get_abs_pos_zero</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This tests function get_abs_pos() from gui_utils for zero entries.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="mi">170</span><span class="p">,</span> <span class="mi">170</span><span class="p">]</span>
-        <span class="n">solx</span><span class="p">,</span> <span class="n">soly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">get_abs_pos</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">room</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Room</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">solx</span><span class="p">,</span> <span class="n">soly</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Room</span><span class="o">.</span><span class="n">get_abs_pos</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_get_abs_pos_zero failed!&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">solx</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">soly</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
-
-    <span class="c"># @brief tests function get_abs_pos() from gui_utils</span>
-    <span class="k">def</span> <span class="nf">test_get_abs_pos_float</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="GuiTests.test_get_abs_pos_float"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_get_abs_pos_float">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_abs_pos_float</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- test_get_abs_pos_float</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This tests function get_abs_pos() from gui_utils for floats.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="mi">170</span><span class="p">,</span> <span class="mi">170</span><span class="p">]</span>
-        <span class="n">solx</span><span class="p">,</span> <span class="n">soly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">get_abs_pos</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">room</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Room</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">solx</span><span class="p">,</span> <span class="n">soly</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Room</span><span class="o">.</span><span class="n">get_abs_pos</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_get_abs_pos_float failed!&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">solx</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">soly</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
-
-    <span class="c"># @brief tests function get_abs_pos() from gui_utils</span>
-    <span class="k">def</span> <span class="nf">test_get_abs_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="GuiTests.test_get_abs_pos"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_get_abs_pos">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_abs_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- test_get_abs_pos_float</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This tests function get_abs_pos() from gui_utils.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="mi">170</span><span class="p">,</span> <span class="mi">270</span><span class="p">]</span>
-        <span class="n">solx</span><span class="p">,</span> <span class="n">soly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">get_abs_pos</span><span class="p">(</span><span class="mi">180</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">room</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Room</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">solx</span><span class="p">,</span> <span class="n">soly</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Room</span><span class="o">.</span><span class="n">get_abs_pos</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_get_abs_pos failed!&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">solx</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">soly</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
 
-</div>
+</div></div>
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>

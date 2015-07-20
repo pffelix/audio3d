@@ -39,196 +39,205 @@
             
   <h1>Source code for dsp</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Created on Fri May 22 16:27:57 2015</span>
 
-<span class="sd">@author: Felix Pfreundtner</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">dsp_in</span>
-<span class="kn">import</span> <span class="nn">dsp_out</span>
+<span class="kn">import</span> <span class="nn">audio3d.dsp_in</span>
+<span class="kn">import</span> <span class="nn">audio3d.dsp_out</span>
 <span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
 
 <div class="viewcode-block" id="Dsp"><a class="viewcode-back" href="../index.html#dsp.Dsp">[docs]</a><span class="k">class</span> <span class="nc">Dsp</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_init</span><span class="p">,</span> <span class="n">return_ex_init</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- Dsp</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **Main class of the project&#39;s Digital Signal Processing part.**</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_init</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state_init</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gui_sp_dict</span> <span class="o">=</span> <span class="n">state_init</span><span class="o">.</span><span class="n">gui_sp_dict</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gui_settings_dict</span> <span class="o">=</span> <span class="n">state_init</span><span class="o">.</span><span class="n">gui_settings_dict</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prior_head_angle_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">return_ex</span> <span class="o">=</span> <span class="n">return_ex_init</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">outputsignal_sample_number</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="c"># Number of all speakers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spn</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">)</span>
+        <span class="c"># Azimuth head angle which was convolved in prior iteration for every</span>
+        <span class="c"># speaker</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prior_head_angle</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spn</span><span class="p">)]</span>
         <span class="c"># Set number of bufferblocks between fft block convolution and audio</span>
         <span class="c"># block playback</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bufferblocks</span> <span class="o">=</span> <span class="n">state_init</span><span class="o">.</span><span class="n">gui_settings_dict</span><span class="p">[</span><span class="s">&quot;bufferblocks&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bufferblocks</span> <span class="o">=</span> <span class="n">state_init</span><span class="o">.</span><span class="n">gui_settings</span><span class="p">[</span><span class="s">&quot;bufferblocks&quot;</span><span class="p">]</span>
         <span class="c"># Create Input Object which contains mono input samples of sources</span>
         <span class="c"># and hrtf impulse responses samples</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span> <span class="o">=</span> <span class="n">dsp_in</span><span class="o">.</span><span class="n">DspIn</span><span class="p">(</span><span class="n">state_init</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">dsp_in</span><span class="o">.</span><span class="n">DspIn</span><span class="p">(</span><span class="n">state_init</span><span class="p">)</span>
         <span class="c"># Create Output Object which contains binaural output samples</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span> <span class="o">=</span> <span class="n">dsp_out</span><span class="o">.</span><span class="n">DspOut</span><span class="p">(</span><span class="n">state_init</span><span class="p">,</span>
-                                         <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">fft_blocksize</span><span class="p">,</span>
-                                         <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">hopsize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">dsp_out</span><span class="o">.</span><span class="n">DspOut</span><span class="p">(</span><span class="n">state_init</span><span class="p">,</span>
+                                                 <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">fft_blocksize</span><span class="p">,</span>
+                                                 <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">hopsize</span><span class="p">)</span>
         <span class="c"># Blockcounter initialized to count number of already convolved</span>
         <span class="c"># blocks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">blockcounter</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="c"># timer variable which logs how long functions where running</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;while&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;fft&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
 
-    <span class="c"># @brief Runs the dsp algorithm as one process on one cpu core.</span>
-    <span class="c"># @details</span>
-    <span class="c"># @author Felix Pfreundtner, Matthias Lederle</span>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Dsp.run"><a class="viewcode-back" href="../index.html#dsp.Dsp.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- run</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Runs the dsp algorithm as one process on one cpu core as a big</span>
+<span class="sd">        while-loop**</span>
+
+<span class="sd">        The steps of the loop are:</span>
+<span class="sd">        1. Lock shared variables.</span>
+<span class="sd">        2. Set the begin and end of the speaker wave block which needs to</span>
+<span class="sd">        be read in this iteration.</span>
+<span class="sd">        3. Iterate over all active speakers sp.</span>
+<span class="sd">        4. Mix binaural stereo blockoutput of every speaker to one binaural</span>
+<span class="sd">        stereo block output having regard to speaker distances.</span>
+<span class="sd">        5. Mix binaural stereo blockoutput of every speaker.</span>
+<span class="sd">        6. Add mixed binaural stereo block to play queue.</span>
+<span class="sd">        7. Unlock shared variables.</span>
+<span class="sd">        8. Synchronize with PortAudio Playback Thread</span>
+<span class="sd">        9. Finish DSP Algorithm.</span>
+
+<span class="sd">        Authors: Felix Pfreundtner, Matthias Lederle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># tell gui that dsp algorithm is running</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_run</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">send_error</span><span class="p">(</span><span class="s">&#39;error test&#39;</span><span class="p">)</span>
         <span class="c"># run the main while loop as long as there are still samples to be</span>
         <span class="c"># read from speaker wave files</span>
-        <span class="k">while</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">continue_convolution_dict</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> \
-                <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">while</span> <span class="nb">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">continue_convolution</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
             <span class="c"># render new binaural block</span>
-            <span class="c"># lock state object</span>
+
+            <span class="c"># lock shared variables: gui should not change any input</span>
+            <span class="c"># parameter during the creation of one block</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-            <span class="c"># actualize variables with gui</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_pause</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">gui_sp_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_settings</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_error</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_stop</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_pause</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+
+            <span class="c"># handle playback stop</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="c"># audio playback is stopped: release all shared variables</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_settings</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_error</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_stop</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_pause</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="c"># break convolution while loop</span>
+                <span class="k">break</span>
+
             <span class="c"># print the number of already done FFT / Block iterations</span>
             <span class="c"># print(&quot;FFT Block &quot; + str(self.blockcounter) + &quot;:&quot;)</span>
             <span class="c"># set the begin and end of the speaker wave block which needs to</span>
             <span class="c"># be read in this iteration</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">set_block_begin_end</span><span class="p">()</span>
             <span class="c"># iterate over all active speakers sp</span>
-            <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spn</span><span class="p">):</span>
                 <span class="c"># if speaker wave file still has unread samples start</span>
                 <span class="c"># convolution, else skip convolution</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">continue_convolution_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">continue_convolution</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
                     <span class="c"># check whether head position to speaker sp has changed</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior_head_angle_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;angle&quot;</span><span class="p">]</span> <span class="o">!=</span>  \
+                            <span class="bp">self</span><span class="o">.</span><span class="n">prior_head_angle</span><span class="p">[</span><span class="n">sp</span><span class="p">]:</span>
                         <span class="c"># if yes, load new fitting hrtf frequency values</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">get_hrtf_block_fft</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">],</span>
-                                                          <span class="n">sp</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">get_hrtf_block_fft</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
                         <span class="c"># save head position to speaker of this block in</span>
-                        <span class="c"># prior_head_angle_dict</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">prior_head_angle_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="c"># prior_head_angle</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">prior_head_angle</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span>
+                            <span class="s">&quot;angle&quot;</span><span class="p">]</span>
 
                     <span class="c"># Load wave block of speaker sp with speaker_blocksize (</span>
                     <span class="c"># fft_blocksize-hrtf_blocksize+1) and current block</span>
                     <span class="c"># begin_end</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">continue_convolution_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">continue_convolution</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> \
                         <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">get_sp_block</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
-                    <span class="c"># plt.plot(self.dspin_obj.sp_block_dict[sp])</span>
+                    <span class="c"># plt.plot(self.dspin_obj.sp_block[sp])</span>
                     <span class="c"># plt.show()</span>
 
                     <span class="c"># normalize sp block if requested</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span> <span class="n">sp</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
 
-                    <span class="c"># apply window to sp input in sp_block_dict</span>
+                    <span class="c"># apply window to sp input in sp_block</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">apply_window_on_sp_block</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
                     <span class="c"># for the left and the right ear channel</span>
                     <span class="k">for</span> <span class="n">l_r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
                         <span class="c"># convolve hrtf with speaker block input to get</span>
                         <span class="c"># binaural stereo block output</span>
-                        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">binaural_block_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">sp_binaural_block</span><span class="p">[</span><span class="n">sp</span><span class="p">][:,</span> <span class="n">l_r</span><span class="p">]</span> <span class="o">=</span> \
                             <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">fft_convolution</span><span class="p">(</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">binaural_block_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">],</span> <span class="n">sp</span><span class="p">,</span>
-                                <span class="n">l_r</span><span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="s">&quot;fft&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
-                        <span class="c"># model speaker position change about 1° per block</span>
-                        <span class="c"># (0.02s) in</span>
-                        <span class="c"># clockwise rotation</span>
-                        <span class="c"># self.gui_sp_dict[sp][0]+=30</span>
-                        <span class="c"># if self.gui_sp_dict[sp][0] &gt;= 360:</span>
-                        <span class="c"># self.gui_sp_dict[sp][0] -= 360</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">sp_binaural_block</span><span class="p">[</span><span class="n">sp</span><span class="p">],</span> <span class="n">sp</span><span class="p">,</span> <span class="n">l_r</span><span class="p">)</span>
 
-                        <span class="c"># overlap and add binaural stereo block output of</span>
-                        <span class="c"># speaker sp</span>
-                        <span class="c">#  to prior binaural stereo block output of speaker sp</span>
+                    <span class="c"># overlap and add binaural stereo block output of</span>
+                    <span class="c"># speaker sp to prior binaural stereo block output of</span>
+                    <span class="c"># speaker sp</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">overlap_add</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">fft_blocksize</span><span class="p">,</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">hopsize</span><span class="p">,</span> <span class="n">sp</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">hopsize</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">sp_max_amp</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">hrtf_max_amp</span><span class="p">,</span> <span class="n">sp</span><span class="p">)</span>
 
             <span class="c"># Mix binaural stereo blockoutput of every speaker to one</span>
             <span class="c"># binaural stereo block output having regard to speaker distances</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">mix_binaural_block</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">hopsize</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">)</span>
-            <span class="c"># binaural block rendered: unlock state object</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">mix_binaural_block</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">hopsize</span><span class="p">)</span>
+
+            <span class="c"># Add mixed binaural stereo block to play queue which is read by</span>
+            <span class="c"># PortAudio Play Thread</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">add_to_playqueue</span><span class="p">()</span>
+
+            <span class="c"># If record box is checked: Add mixed binaural stereo block to a</span>
+            <span class="c"># time record queue which is later saved to file by</span>
+            <span class="c"># writerecordfile()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_settings</span><span class="p">[</span><span class="s">&quot;record&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">add_to_recordqueue</span><span class="p">()</span>
+
+            <span class="c"># rendering of binaural block finshed:</span>
+
+            <span class="c"># unlock shared variables: block was created succesffuly,</span>
+            <span class="c"># gui can change parameters now before the next block creation</span>
+            <span class="c"># starts</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
-            <span class="c"># Add mixed binaural stereo block to a time continuing binaural</span>
-            <span class="c"># output of all blocks</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">add_to_queue</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">blockcounter</span><span class="p">)</span>
-            <span class="k">finally</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
-            <span class="c"># Begin audio playback if specified number of bufferblocks</span>
-            <span class="c"># has been convolved</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_settings</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_error</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_stop</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_pause</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+            <span class="c"># Synchronize with PortAudio Playback Thread:</span>
+
+            <span class="c"># Create PortAudio playback thread if specified number of</span>
+            <span class="c"># bufferblocks has been convolved</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blockcounter</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">bufferblocks</span><span class="p">:</span>
                 <span class="n">playthread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span>
                     <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">audiooutput</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">wave_param_common</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">samplerate</span><span class="p">,</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">hopsize</span><span class="p">))</span>
+                <span class="c"># Start PortAudio playback thread</span>
                 <span class="n">playthread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-            <span class="c"># increment block counter of run function when less blocks than</span>
-            <span class="c"># than the bufferblocksize has been convolved (playback not</span>
-            <span class="c"># started yet). Also increment blockcounter of every convolve</span>
-            <span class="c"># process</span>
+            <span class="c"># when less blocks than the bufferblocksize has been convolved (</span>
+            <span class="c"># playback thread not started yet).</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blockcounter</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bufferblocks</span><span class="p">:</span>
+                <span class="c"># increment number of already convolved block iterations</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">blockcounter</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="c"># if playback already started</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
                 <span class="c"># wait until the the new block has been played</span>
                 <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">played_block_counter</span> <span class="o">&lt;=</span> \
-                        <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">prior_played_block_counter</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span>\
-                        <span class="n">dspout_obj</span><span class="o">.</span><span class="n">playback_finished</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">wave_param_common</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                    <span class="c"># print(&quot;FFT: &quot; + str(self.blockcounter))</span>
-                    <span class="c"># print(&quot;wait&quot;)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">prior_played_block_counter</span> <span class="ow">and</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">samplerate</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span>
                 <span class="c"># increment number of last played block</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">prior_played_block_counter</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="c"># increment number of already convolved blocks</span>
+                <span class="c"># increment number of already convolved block iterations</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">blockcounter</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="s">&quot;while&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+
             <span class="c"># handle playback pause</span>
-            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_pause</span>
-            <span class="c"># handle playback stop</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
-                <span class="k">break</span>
 
-        <span class="c"># set correct playback output if stop button was pressed</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">playback_successful</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="c"># excecute commands when playback finished successfully</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">playback_successful</span> <span class="ow">is</span> <span class="bp">True</span> <span class="ow">and</span> \
-           <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="ow">is</span> \
-                <span class="bp">False</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="c"># show plot of the output signal binaural_dict_scaled</span>
-        <span class="c"># plt.plot(self.dspout_obj.binaural[:, l_r])</span>
-        <span class="c"># plt.show()</span>
-        <span class="c"># Write generated output signal binaural_dict_scaled to file</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">writebinauraloutput</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">binaural</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">wave_param_common</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">)</span>
-        <span class="c"># print out maximum integer amplitude value of whole played binaural</span>
-        <span class="c"># output</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;maximum output amplitude: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">binaural</span><span class="p">))))</span>
+        <span class="c"># Finish DSP Algorithm:</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">return_ex</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">playback_successful</span><span class="p">)</span>
-        <span class="c"># tell gui that dsp algorithm has finished</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_run</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="c"># print timer variables</span>
-        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">)</span></div>
+        <span class="c"># If record box is checked: Read record queue and write WAVE File</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_settings</span><span class="p">[</span><span class="s">&quot;record&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">writerecordfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">samplerate</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">hopsize</span><span class="p">)</span>
+        <span class="c"># mark dsp algorithm as finished</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_run</span> <span class="o">=</span> <span class="bp">False</span></div></div>
 </pre></div>
 
           </div>

@@ -48,50 +48,54 @@
 
 <span class="kn">from</span> <span class="nn">PySide</span> <span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">acos</span><span class="p">,</span> <span class="n">degrees</span>
-<span class="kn">import</span> <span class="nn">gui_utils</span>
-<span class="kn">from</span> <span class="nn">dsp</span> <span class="kn">import</span> <span class="n">Dsp</span>
+<span class="kn">import</span> <span class="nn">audio3d.gui_utils</span>
+<span class="kn">from</span> <span class="nn">audio3d.dsp</span> <span class="kn">import</span> <span class="n">Dsp</span>
 <span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 
 
 <div class="viewcode-block" id="MainWindow"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow">[docs]</a><span class="k">class</span> <span class="nc">MainWindow</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
-
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- MainWindow</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **This class sets up the main window which includes all necessaries to</span>
+<span class="sd">    start/stop and control the DSP algorithm. It also includes all user </span>
+<span class="sd">    interactions, corresponding functions and executing and updating these.**</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="sd">&quot;&quot;&quot;Constructor of the MainWindow class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MainWindow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setAcceptDrops</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="c"># set items</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">State</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">audience</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Audience</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">State</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">audience</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">Audience</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default_speaker_position</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">290</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">170</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span>
                                          <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">320</span><span class="p">],</span> <span class="p">[</span><span class="mi">290</span><span class="p">,</span> <span class="mi">320</span><span class="p">],</span> <span class="p">[</span><span class="mi">170</span><span class="p">,</span> <span class="mi">290</span><span class="p">],</span>
                                          <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="p">[</span><span class="mi">290</span><span class="p">,</span> <span class="mi">120</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">220</span><span class="p">],</span>
                                          <span class="p">[</span><span class="mi">290</span><span class="p">,</span> <span class="mi">220</span><span class="p">]]</span>
         <span class="c"># set scene and view</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">room</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Room</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">room</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">Room</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">room</span><span class="o">.</span><span class="n">setSceneRect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">room</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">audience</span><span class="p">)</span>
 
         <span class="c"># set view</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">view</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">View</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">room</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">View</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">room</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">setFixedSize</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">setHorizontalScrollBarPolicy</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ScrollBarAlwaysOff</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">setVerticalScrollBarPolicy</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ScrollBarAlwaysOff</span><span class="p">)</span>
 
         <span class="c"># set property window</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">SpeakerProperty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">SpeakerProperty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
 
         <span class="c"># set plot window</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">SequencePlot</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">plot_on</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_sequence_dicts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">SequencePlot</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">plot_on</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_sequences</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dsp_thread</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="c"># return_ex: save whether playback was successful</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">return_ex</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dspthread</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">init_ui</span><span class="p">()</span>
-        <span class="c"># return_ex: Playback not run yet -&gt; unsuccessful</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">return_ex</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">init_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -111,7 +115,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">combo_box</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s">&#39;kemar_compact&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">database_label</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&#39;Select Database:&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inverse_box</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s">&#39;Inverse Filter&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">record_box</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s">&#39;Record Output&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buffersize_label</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&#39;Buffer Size:&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headtracker_box</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QCheckBox</span><span class="p">(</span><span class="s">&#39;Headtracker&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buffersize_spin_box</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSpinBox</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buffersize_spin_box</span><span class="o">.</span><span class="n">setMinimum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">buffersize_spin_box</span><span class="o">.</span><span class="n">setMaximum</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
@@ -129,12 +135,15 @@
         <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">database_label</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combo_box</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inverse_box</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_box</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffersize_label</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffersize_spin_box</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">headtracker_box</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c"># initialize head tracker, connect signal and slots</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headtracker_box</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">activate_headtracker</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">enable_headtracker</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">head_tracker</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Headtracker</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">head_tracker</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">Headtracker</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_headtracker_timer</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QTimer</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_headtracker_timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_head</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_headtracker_timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
@@ -151,48 +160,102 @@
         <span class="n">default_position_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positions</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">plot_button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plot_sequence</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">combo_box</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inverse_disable</span><span class="p">)</span>
-<span class="c">#        self.combo_box.currentIndexChanged.connect(self.update_settings_dict)</span>
+<span class="c">#        self.combo_box.currentIndexChanged.connect(self.update_settings)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inverse_box</span><span class="o">.</span><span class="n">stateChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inverse_disable</span><span class="p">)</span>
-<span class="c">#        self.inverse_box.stateChanged.connect(self.update_settings_dict)</span>
-<span class="c">#        self.buffersize_spin_box.valueChanged.connect(self.update_settings_dict)</span>
+<span class="c">#        self.inverse_box.stateChanged.connect(self.update_settings)</span>
+<span class="c">#        self.buffersize_spin_box.valueChanged.connect(self.update_settings)</span>
 
         <span class="c"># set window</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s">&#39;3D Audio&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">update_head</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">activate_headtracker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">headtracker_box</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">head_tracker</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">Headtracker</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_headtracker_timer</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QTimer</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_headtracker_timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_head</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_headtracker_timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">headtracker_box</span><span class="o">.</span><span class="n">setCheckState</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Unchecked</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">msgbox</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMessageBox</span><span class="p">()</span>
+                    <span class="n">msgbox</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Headtracking is not possible on this PC!&quot;</span><span class="p">)</span>
+                    <span class="n">msgbox</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+                <span class="k">except</span> <span class="n">BrokenPipeError</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">head_tracker</span><span class="o">.</span><span class="n">dt2</span><span class="o">.</span><span class="n">__del__</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span>
+
+<div class="viewcode-block" id="MainWindow.update_head"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.update_head">[docs]</a>    <span class="k">def</span> <span class="nf">update_head</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- update_head</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function is nessecary if the program is run in connection with</span>
+<span class="sd">        a headtracking system.**</span>
+<span class="sd">        If the DSP algorithm is running the Headtracking angle output is</span>
+<span class="sd">        requested and the speaker list is updated.</span>
+<span class="sd">        A threading.Lock() avoids read-write overlaps of the dsp_run variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_run</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">head_tracker</span><span class="o">.</span><span class="n">cal_head_deg</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_gui_sp_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">head_tracker</span><span class="o">.</span><span class="n">get_head_deg</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_gui_sp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">head_tracker</span><span class="o">.</span><span class="n">get_head_deg</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
-
-    <span class="c"># @brief gui_sp_dict is continuously updated,</span>
-    <span class="c">#        managed by update_timer every 10sec</span>
-    <span class="c"># @details</span>
-    <span class="c"># @author</span>
-    <span class="k">def</span> <span class="nf">update_gui_sp_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deg</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="MainWindow.update_gui_sp"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.update_gui_sp">[docs]</a>    <span class="k">def</span> <span class="nf">update_gui_sp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- update_gui_sp</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function is continuously updating the list with the settings</span>
+<span class="sd">        for each speaker**</span>
+<span class="sd">        It is called every 10 sec by a timer and updating the speaker </span>
+<span class="sd">        list for every present speaker.</span>
+<span class="sd">        A threading.Lock() avoids read-write overlaps of the dsp_run variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_run</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">speaker</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">:</span>
                 <span class="n">speaker</span><span class="o">.</span><span class="n">cal_rel_pos</span><span class="p">(</span><span class="n">deg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">inverse_disable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="MainWindow.inverse_disable"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.inverse_disable">[docs]</a>    <span class="k">def</span> <span class="nf">inverse_disable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- inverse_disable</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function is needed to disable the CheckBox for inverse filtering</span>
+<span class="sd">        if the kemarr_compact database is selected.**</span>
+<span class="sd">        The kemar_compact database already includes inverse filtering of the</span>
+<span class="sd">        measurement speaker disturbtions which can therefore not be optional</span>
+<span class="sd">        for this setting.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">combo_box</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span> <span class="o">==</span> <span class="s">&#39;kemar_compact&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">inverse_box</span><span class="o">.</span><span class="n">setCheckState</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Unchecked</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span>
-
+</div>
     <span class="nd">@QtCore.Slot</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">show_property</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_to_show</span>
+<div class="viewcode-block" id="MainWindow.show_property"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.show_property">[docs]</a>    <span class="k">def</span> <span class="nf">show_property</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- show_property</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **With this function the speaker property widget from gui_utils is</span>
+<span class="sd">        opened and handeled.**</span>
+<span class="sd">        If a new speaker is added or by double click on an existing one </span>
+<span class="sd">        gui_utils&#39; SpeakerProperty widget, containing the default or </span>
+<span class="sd">        instantaneous settings respectively, is opened to define/change the</span>
+<span class="sd">        individual speaker settings.</span>
+<span class="sd">        The change_property function is called to save changes.</span>
+<span class="sd">        A threading.Lock() avoids read-write overlaps of the gui_sp</span>
+<span class="sd">        variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_to_show</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
-        <span class="n">azimuth</span> <span class="o">=</span> <span class="s">&quot;{:.0f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">dist</span> <span class="o">=</span> <span class="s">&quot;{:.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;path&quot;</span><span class="p">])</span>
+        <span class="n">azimuth</span> <span class="o">=</span> <span class="s">&quot;{:.0f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;angle&quot;</span><span class="p">])</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="s">&quot;{:.2f}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;distance&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;normalize&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">normalize_box</span><span class="o">.</span><span class="n">setCheckState</span><span class="p">(</span>
                 <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Checked</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -205,26 +268,45 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">is_on</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">added</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">change_property</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">change_property</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_to_show</span>
+</div>
+<div class="viewcode-block" id="MainWindow.change_property"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.change_property">[docs]</a>    <span class="k">def</span> <span class="nf">change_property</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- change_property</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **With this function transfers the speaker property changes and updates</span>
+<span class="sd">        the speaker list and gui_sp variables.**</span>
+<span class="sd">        A threading.Lock() avoids read-write overlaps of the gui_sp</span>
+<span class="sd">        variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_to_show</span>
         <span class="n">x_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">posx</span>
         <span class="n">y_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">posy</span>
         <span class="n">path_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path_new</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">cal_rel_pos</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path_new</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span><span class="o">.</span><span class="n">cal_rel_pos</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">normalize_box</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;normalize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;normalize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
-
+</div>
     <span class="nd">@QtCore.Slot</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">add_speaker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- add_speaker</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function is called when a new speaker is added to the scene.**</span>
+<span class="sd">        Up to 10 speakers can be added successively to the GUIscene on the</span>
+<span class="sd">        MainWindow. </span>
+<span class="sd">        The current default position is calculated depending on the number</span>
+<span class="sd">        of speakers and relative to the position of the audience item.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">added</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">add2scene</span><span class="p">)</span>
 
             <span class="c"># calculate current default position</span>
@@ -252,88 +334,141 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">is_on</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">send_error</span><span class="p">(</span><span class="s">&quot;speaker number limited to 10&quot;</span><span class="p">)</span>
             <span class="k">return</span>
 
     <span class="nd">@QtCore.Slot</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">add2scene</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+<div class="viewcode-block" id="MainWindow.add2scene"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.add2scene">[docs]</a>    <span class="k">def</span> <span class="nf">add2scene</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- add2scene</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function creates a new speaker item.**</span>
+<span class="sd">        The function is called by the confirm button of gui_utils&#39;</span>
+<span class="sd">        SpeakerProperty widget.</span>
+<span class="sd">        A new speaker item is created with arguments defined in the speaker</span>
+<span class="sd">        property widget. Furthermore the gui_utils&#39; room.addItem function</span>
+<span class="sd">        is called to add the new speaker to the GuiScene.</span>
+<span class="sd">        Finally the GuiView is updated to display the change.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
             <span class="c"># read in data</span>
-            <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">)</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">)</span>
             <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">path</span>
             <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">posx</span>
             <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">posy</span>
             <span class="c"># create new speaker</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">speaker_property</span><span class="o">.</span><span class="n">normalize_box</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
-                <span class="n">new_speaker</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Speaker</span><span class="p">(</span>
+                <span class="n">new_speaker</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">Speaker</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">new_speaker</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Speaker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                <span class="n">new_speaker</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">Speaker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span>
+                                                        <span class="n">path</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
             <span class="n">new_speaker</span><span class="o">.</span><span class="n">signal_handler</span><span class="o">.</span><span class="n">show_property</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">show_property</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">room</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">viewport</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span>
-
+</div>
     <span class="nd">@QtCore.Slot</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MainWindow.reset"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- reset</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function is called by the MainWindow reset button and removes</span>
+<span class="sd">        all existing speakers from the GuiScene and resets also the gui_sp</span>
+<span class="sd">        variable.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_stop</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="c"># stop dsp thread when audio is currently convolved</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_run</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
-            <span class="k">pass</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">room</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">[:]</span>
-            <span class="n">new_audience</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Audience</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">room</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">new_audience</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">viewport</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_stop</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="c"># wait until thread finished</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspthread</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dspthread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">room</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[:]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">[:]</span>
+        <span class="n">new_audience</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">Audience</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">room</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">new_audience</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">viewport</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+</div>
     <span class="nd">@QtCore.Slot</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MainWindow.play"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.play">[docs]</a>    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- play</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function is called by the MainWindow play/stop button .**</span>
+<span class="sd">        The algorithm specific stettings such as the HRTF database, the</span>
+<span class="sd">        inverse filter and the bufferblock size are recorded and</span>
+<span class="sd">        an DSP object is initialized and run in a seperate thread.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="c"># check whether speaker has been selected</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">msgbox</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMessageBox</span><span class="p">()</span>
             <span class="n">msgbox</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s">&quot;Please add a speaker.&quot;</span><span class="p">)</span>
             <span class="n">msgbox</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+            <span class="k">return</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c"># don&#39;t let the playback and convolution start more than one time</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_ex</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="c"># if algorithm is alread running</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_run</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="c"># switch stop variable: mark stop as True</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_stop_playback</span><span class="p">()</span>
                 <span class="k">return</span>
-            <span class="c"># if playback was stopped as user pressed stop button switch stop</span>
-            <span class="c"># variable to playmode</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_ex</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">False</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_ex</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="ow">is</span> \
-                    <span class="bp">True</span><span class="p">:</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># switch stop variable: mark stop as False</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_stop_playback</span><span class="p">()</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;continue&quot;</span><span class="p">)</span>
-            <span class="c"># while not self.return_ex.empty():</span>
-            <span class="c">#   self.return_ex.get()</span>
 
-            <span class="c"># update gui_settings_dict</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_settings_dict</span><span class="p">[</span><span class="s">&quot;hrtf_database&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="c"># update gui_settings</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_settings</span><span class="p">[</span><span class="s">&quot;hrtf_database&quot;</span><span class="p">]</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">combo_box</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_settings_dict</span><span class="p">[</span><span class="s">&quot;inverse_filter_active&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_settings</span><span class="p">[</span><span class="s">&quot;inverse_filter_active&quot;</span><span class="p">]</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">inverse_box</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_settings_dict</span><span class="p">[</span><span class="s">&quot;bufferblocks&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_settings</span><span class="p">[</span><span class="s">&quot;bufferblocks&quot;</span><span class="p">]</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">buffersize_spin_box</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_settings</span><span class="p">[</span><span class="s">&quot;record&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">record_box</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">plot_button</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span> <span class="o">=</span> <span class="n">Dsp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
-                               <span class="bp">self</span><span class="o">.</span><span class="n">return_ex</span><span class="p">)</span>
-            <span class="c"># start dsp thread</span>
+            <span class="c"># create a dsp algorithm object</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span> <span class="o">=</span> <span class="n">Dsp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+            <span class="c"># create a new thread dsp thread which executes the dsp object run</span>
+            <span class="c">#  function</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dspthread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span>
                 <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
+            <span class="c"># start dsp thread</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dspthread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-
+</div>
     <span class="nd">@QtCore.Slot</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">pause</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="MainWindow.pause"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.pause">[docs]</a>    <span class="k">def</span> <span class="nf">pause</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- pause</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **The algorithm can be paused by the pause button of MainWindow.**</span>
+<span class="sd">        The state variable switch_pause_playback remembers the status of the</span>
+<span class="sd">        algorithm and enables pausing and restarting of the play-back of the</span>
+<span class="sd">        dsp algorithm.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_pause_playback</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="MainWindow.positions"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.positions">[docs]</a>    <span class="k">def</span> <span class="nf">positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- positions</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function places all speakers on their respective default</span>
+<span class="sd">        positions.**</span>
+<span class="sd">        Depending on their order every speakers default position is defined</span>
+<span class="sd">        in the default_speaker_position variable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">speaker</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">):</span>
             <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_speaker_position</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
@@ -342,39 +477,64 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">cal_rel_pos</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span>
+</div>
+<div class="viewcode-block" id="MainWindow.plot_sequence"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.plot_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">plot_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- plot_sequence</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function is called by MainWindow plot button and shows the </span>
+<span class="sd">        gui_utils&#39; SequencePlot of the last selected speaker.**</span>
+<span class="sd">        The sequences are continously updated by the update_sequences in</span>
+<span class="sd">        connection with a QTimer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">plot_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">sp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_to_show</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;initialize&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">speaker_spec</span><span class="o">.</span><span class="n">initialize_data</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">sp_spectrum_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">sp_spectrum_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_sp_spectrum</span><span class="p">[</span><span class="n">sp</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_sp_spectrum</span><span class="p">[</span><span class="n">sp</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">lhrtf_spec</span><span class="o">.</span><span class="n">initialize_data</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">hrtf_spectrum_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">hrtf_spectrum_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_hrtf_spectrum</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_hrtf_spectrum</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">rhrtf_spec</span><span class="o">.</span><span class="n">initialize_data</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">hrtf_spectrum_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">1</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">hrtf_spectrum_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">1</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_hrtf_spectrum</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">1</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_hrtf_spectrum</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">1</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">is_on</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_sequence_dicts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_sequences</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">update_sequence_dicts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="MainWindow.update_sequences"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.update_sequences">[docs]</a>    <span class="k">def</span> <span class="nf">update_sequences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- update_sequences</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function is used to update speaker spectrum while it is</span>
+<span class="sd">        displayed in the SequencePlot widget.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">sp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_to_show</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">speaker_spec</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">sp_spectrum_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">sp_spectrum_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_sp_spectrum</span><span class="p">[</span><span class="n">sp</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_sp_spectrum</span><span class="p">[</span><span class="n">sp</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">lhrtf_spec</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">hrtf_spectrum_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">hrtf_spectrum_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_hrtf_spectrum</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_hrtf_spectrum</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_plot</span><span class="o">.</span><span class="n">rhrtf_spec</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">hrtf_spectrum_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">1</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">hrtf_spectrum_dict</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">1</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_hrtf_spectrum</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">1</span><span class="p">][:,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_hrtf_spectrum</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">1</span><span class="p">][:,</span> <span class="mi">1</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="MainWindow.closeEvent"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.closeEvent">[docs]</a>    <span class="k">def</span> <span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_q_close_event</span><span class="p">):</span>  <span class="c"># flake8: noqa</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- closeEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function is responsible for a smooth closure of the MainWindow</span>
+<span class="sd">        .**</span>
+<span class="sd">        Whenever the MainWindow is closed by the user all widgets such as</span>
+<span class="sd">        the SpeakerProperty and SequencePlot have to be closed. If the</span>
+<span class="sd">        headtracking system is used its continuous updating is stopped.</span>
+<span class="sd">        And the algorithm control variables are set repsectively.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_q_close_event</span><span class="p">):</span>  <span class="c"># flake8: noqa</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">room</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">enable_headtracker</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_headtracker_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
@@ -387,7 +547,8 @@
         <span class="c">#     self.state.switch_stop_playback()</span>
         <span class="c"># if self.dspthread is not None and self.state.dsp_pause is True:</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="c"># stop dsp Thread</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspthread</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c"># stop dsp Thread</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_pause</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="o">=</span> <span class="bp">False</span>
@@ -395,8 +556,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_stop</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_stop</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dsp_thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
-        <span class="n">event_q_close_event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dspthread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="n">event_q_close_event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div></div>
 </pre></div>
 
           </div>
