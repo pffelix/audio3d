@@ -14,6 +14,7 @@ import os
 import collections
 import threading
 import queue
+import copy
 
 
 class DspOut:
@@ -47,27 +48,20 @@ class DspOut:
         # get current binaural block output of sp
         # 1. take binaural block output of current fft which don't overlap
         # with next blocks
-        self.sp_binaural_block_out[sp] = self.sp_binaural_block[sp][
-            0:hopsize, :]
+        self.sp_binaural_block_out[sp] = copy.deepcopy(self.sp_binaural_block[sp][
+            0:hopsize, :])
         # 2. add relevant still remaining block output of prior ffts to
         # binaural block output of current block
         self.sp_binaural_block_out[sp] += \
             self.sp_binaural_block_add[sp][0:hopsize, :]
-        # normalize back to 16bit amplitude, consider
-        # maximum amplitude value of sp block and hrtf impulse to get
-        # dynamical volume output
-        #sp_binaural_block_out_sp_max_amp = np.amax(np.abs(
-            #self.sp_binaural_block_out[sp]))
-        #if sp_binaural_block_out_sp_max_amp != 0 and sp_max_amp[sp] != 0:
-            #for l_r in range(2):
-                #if hrtf_max_amp[sp][l_r] != 0:
-                    #self.sp_binaural_block_out[sp][:, l_r] /= (
-                        #sp_binaural_block_out_sp_max_amp / sp_max_amp[sp] /
-                        #hrtf_max_amp[sp][l_r] * 32767)
-        sp_binaural_block_sp_time_max_amp = np.amax(np.abs(
-            self.sp_binaural_block_out[sp][:, :]))
-        if sp_binaural_block_sp_time_max_amp > 35000:
-            print(sp_binaural_block_sp_time_max_amp)
+
+        # check if overlap add led to a amplitude higher than int16 max:
+        sp_binaural_block_out_sp_max_amp = np.amax(np.abs(
+            self.sp_binaural_block_out[sp]))
+        # if yes normalize maximum output amplitude to maximum int16 range
+        if sp_binaural_block_out_sp_max_amp > 32767:
+                self.sp_binaural_block_out[sp] /=  \
+                    sp_binaural_block_out_sp_max_amp * 32767
         # create a new array to save remaining block output of current fft
         # and add it to the still remaining block output of prior ffts
         # 1. create new array binaural_block_add_sp_new with size (
@@ -109,6 +103,10 @@ class DspOut:
             if self.continue_convolution[sp] is False:
                 self.sp_binaural_block_out[sp] = np.zeros((hopsize, 2),
                                                           dtype=np.float32)
+        sp_binaural_block_sp_time_max_amp = np.amax(np.abs(
+            self.sp_binaural_block_out[sp][:, :]))
+        if sp_binaural_block_sp_time_max_amp > 35000:
+            print(sp_binaural_block_sp_time_max_amp)
 
     # @brief sends the created binaural block of the dsp thread to the play
     # thread with the playqueue
