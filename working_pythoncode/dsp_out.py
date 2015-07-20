@@ -114,11 +114,11 @@ class DspOut:
     def add_to_playqueue(self):
         self.playqueue.put(self.binaural_block.astype(np.int16,
                                                       copy=False).tostring())
+
     # @brief sends the created binaural block of the dsp thread to the record
     #  queue, which collects all cretaed binaural blocks. Later the queue is
     #  read by writerecordfile().
     # @author Felix Pfreundtner
-
     def add_to_recordqueue(self):
         self.recordqueue.put(self.binaural_block.astype(np.int16,
                                                         copy=False))

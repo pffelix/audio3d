@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
 import dsp_in
 import dsp_out
 import threading
@@ -121,7 +120,6 @@ class Dsp:
                     for l_r in range(2):
                         # convolve hrtf with speaker block input to get
                         # binaural stereo block output
-                        start = time.time()
                         self.dspout_obj.sp_binaural_block[sp][:, l_r] = \
                             self.dspin_obj.fft_convolution(
                                 self.dspout_obj.sp_binaural_block[sp], sp, l_r)
