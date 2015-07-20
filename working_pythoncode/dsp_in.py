@@ -690,4 +690,13 @@ class DspIn:
         # complex time parts resulting from numerical fft approach
         sp_binaural_block_sp_l_r_time = irfft(sp_binaural_block_sp_frequency,
                                               self.fft_blocksize).real
+
+         # normalize multiplied spectrum back to 16bit integer, consider
+        # maximum amplitude value of sp block and hrtf impulse to get       # dynamical volume output
+        sp_binaural_block_sp_time_max_amp = int(np.amax(np.abs(
+            sp_binaural_block_sp_l_r_time)))
+        if sp_binaural_block_sp_time_max_amp != 0:
+            sp_binaural_block_sp_l_r_time /= (
+                sp_binaural_block_sp_time_max_amp / self.sp_max_amp[sp] /
+                self.hrtf_max_amp[sp][l_r] * 32767)
         return sp_binaural_block_sp_l_r_time

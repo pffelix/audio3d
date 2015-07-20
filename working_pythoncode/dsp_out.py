@@ -56,14 +56,18 @@ class DspOut:
         # normalize back to 16bit amplitude, consider
         # maximum amplitude value of sp block and hrtf impulse to get
         # dynamical volume output
-        sp_binaural_block_out_sp_max_amp = np.amax(np.abs(
-            self.sp_binaural_block_out[sp]))
-        if sp_binaural_block_out_sp_max_amp != 0 and sp_max_amp[sp] != 0:
-            for l_r in range(2):
-                if hrtf_max_amp[sp][l_r] != 0:
-                    self.sp_binaural_block_out[sp][:, l_r] /= (
-                        sp_binaural_block_out_sp_max_amp / sp_max_amp[sp] /
-                        hrtf_max_amp[sp][l_r] * 32767)
+        #sp_binaural_block_out_sp_max_amp = np.amax(np.abs(
+            #self.sp_binaural_block_out[sp]))
+        #if sp_binaural_block_out_sp_max_amp != 0 and sp_max_amp[sp] != 0:
+            #for l_r in range(2):
+                #if hrtf_max_amp[sp][l_r] != 0:
+                    #self.sp_binaural_block_out[sp][:, l_r] /= (
+                        #sp_binaural_block_out_sp_max_amp / sp_max_amp[sp] /
+                        #hrtf_max_amp[sp][l_r] * 32767)
+        sp_binaural_block_sp_time_max_amp = np.amax(np.abs(
+            self.sp_binaural_block_out[sp][:, :]))
+        if sp_binaural_block_sp_time_max_amp > 35000:
+            print(sp_binaural_block_sp_time_max_amp)
         # create a new array to save remaining block output of current fft
         # and add it to the still remaining block output of prior ffts
         # 1. create new array binaural_block_add_sp_new with size (
