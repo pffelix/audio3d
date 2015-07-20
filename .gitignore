@@ -5,4 +5,5 @@ __pycache__/
 */dist
 */build
 *audio_out/
+*env/
 *.pyc

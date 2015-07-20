@@ -4,14 +4,15 @@ Created on Fri Jun  12 15:30:53 2015
 
 @author: Felix Pfreundtner
 """
-from PyQt4.QtGui import *
+from PySide.QtGui import QApplication, qApp
 import sys
-from . import gui_main_window
+import gui_main_window
 
 def main():
-    app = QApplication(sys.argv)
     w = gui_main_window.MainWindow()
-    return app.exec_()
+    print(type(w))
+    return qApp.exec_()
 
 if __name__ == '__main__':
+    app = QApplication(sys.argv)
     main()
