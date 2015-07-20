@@ -80,6 +80,7 @@ class MainWindow(QtGui.QWidget):
         self.database_label = QtGui.QLabel('Select Database:')
         self.inverse_box = QtGui.QCheckBox('Inverse Filter')
         self.buffersize_label = QtGui.QLabel('Buffer Size:')
+        self.headtracker_box = QtGui.QCheckBox('Headtracker')
         self.buffersize_spin_box = QtGui.QSpinBox()
         self.buffersize_spin_box.setMinimum(0)
         self.buffersize_spin_box.setMaximum(1000)
@@ -99,8 +100,10 @@ class MainWindow(QtGui.QWidget):
         layout.addWidget(self.inverse_box, 7, 3, 1, 1)
         layout.addWidget(self.buffersize_label, 8, 0, 1, 1)
         layout.addWidget(self.buffersize_spin_box, 8, 1, 1, 1)
+        layout.addWidget(self.headtracker_box, 8, 3, 1, 1)
 
         # initialize head tracker, connect signal and slots
+        self.headtracker_box.stateChanged.connect(self.activate_headtracker)
         if self.state.enable_headtracker:
             self.head_tracker = gui_utils.Headtracker()
             self.update_headtracker_timer = QtCore.QTimer()
@@ -128,6 +131,24 @@ class MainWindow(QtGui.QWidget):
         self.setLayout(layout)
         self.setWindowTitle('3D Audio')
         self.show()
+
+    def activate_headtracker(self):
+        if self.headtracker_box.isChecked():
+            try:
+                self.head_tracker = gui_utils.Headtracker()
+                self.update_headtracker_timer = QtCore.QTimer()
+                self.update_headtracker_timer.timeout.connect(self.update_head)
+                self.update_headtracker_timer.start(10)
+            except:
+                self.headtracker_box.setCheckState(QtCore.Qt.Unchecked)
+                try:
+                    msgbox = QtGui.QMessageBox()
+                    msgbox.setText("Headtracking is not possible on this PC!")
+                    msgbox.exec_()
+                except BrokenPipeError:
+                    self.head_tracker.dt2.__del__()
+        else:
+            return
 
     def update_head(self):
         """
