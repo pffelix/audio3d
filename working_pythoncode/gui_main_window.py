@@ -162,7 +162,6 @@ class MainWindow(QtGui.QWidget):
             self.update_gui_sp(self.head_tracker.get_head_deg())
         self.state.mtx_run.release()
 
-
     def update_gui_sp(self, deg):
         """
         H2 -- update_gui_sp
@@ -437,7 +436,6 @@ class MainWindow(QtGui.QWidget):
         """
 
         sp = self.state.speaker_to_show
-        print("initialize")
 
         self.sequence_plot.speaker_spec.initialize_data(
             self.state.dsp_sp_spectrum[sp][:, 0],

@@ -111,11 +111,11 @@ class DspOut:
 
     # @brief Writes the binaural output signal.
     # @author Felix Pfreundtner
-    def writebinauraloutput(self, binaural, wave_param_common):
+    def writebinauraloutput(self, binaural, samplerate):
         if not os.path.exists("./audio_out/"):
             os.makedirs("./audio_out/")
-        scipy.io.wavfile.write("./audio_out/binauralmix.wav",
-                               wave_param_common[0], binaural)
+        scipy.io.wavfile.write("./audio_out/binauralmix.wav", samplerate,
+                               binaural)
 
     # @brief
     # @author Felix Pfreundtner
@@ -147,22 +147,22 @@ class DspOut:
                               frames_per_buffer=hopsize,
                               stream_callback=self.callback,
                               )
-        # start PortAudio audio stream
+        # start portaudio audio stream
         audiostream.start_stream()
         # as long as stream is active (enough input) or audiostream has been
         # stopped by user
         while audiostream.is_active() or audiostream.is_stopped():
             time.sleep(0.5)
-            # handle playblack pause: stop PortAudio audio playback again
+            # handle playblack pause: stop portaudio audio playback again
             if self.state.dsp_pause is True:
                 audiostream.stop_stream()
-            # handle playblack continue: start PortAudio audio playback again
+            # handle playblack continue: start portaudio audio playback again
             if audiostream.is_stopped() and self.state.dsp_pause is False:
                 audiostream.start_stream()
             # handle playblack stop: break while loop
             if self.state.dsp_stop is True:
                 break
-        # stop PortAudio playback
+        # stop portaudio playback
         audiostream.stop_stream()
         audiostream.close()
         pa.terminate()

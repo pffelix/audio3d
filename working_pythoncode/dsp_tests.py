@@ -67,10 +67,7 @@ class DspTests(unittest.TestCase):
     def test_get_block_param(self):
         sol = [512, 0.011609977324263039, 0.5, 256]
         res = [None] * 3
-        res[0: 3] = self.dspin_testobj.get_block_param(
-            self.dspin_testobj.wave_param_common,
-            self.dspin_testobj.hrtf_blocksize,
-            self.dspin_testobj.fft_blocksize)
+        res[0: 3] = self.dspin_testobj.get_block_param()
         errmsg = "Function get_block_param (in DspIn) doesn't work properly"
         self.assertListEqual(res, sol, msg=errmsg)
 

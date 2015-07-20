@@ -35,8 +35,8 @@ class DspIn:
         # Dict with a key for every speaker and two values. These
         # are the max. values fetched from the speaker-file.
         self.sp_max_amp = [None for sp in range(self.spn)]
-        # Standard samplerate, sampledepth
-        self.wave_param_common = [44100, 16]
+        # Standard sampledepth
+        self.sampledepth = 16
         # Set number of output blocks per second
         self.fft_blocksize = 1024
         # Number of Samples of HRTFs (KEMAR Compact=128, KEMAR Full=512)
@@ -64,15 +64,11 @@ class DspIn:
                                         dtype=np.float16)] for sp in range(
             self.spn)]
 
-        # set fft frequency values of fft magnitude spectrum arrays
-        self.set_fftfreq(self.fft_blocksize, self.wave_param_common[0])
-
+        # Get necessary parameters of input-file and store to sp_param.
+        self.sp_param, self.samplerate = self.init_read_sp()
         # Define blocksize, blocktime, overlap and hopsize
         self.sp_blocksize, self.sp_blocktime, self.overlap, self.hopsize = \
-            self.get_block_param(self.wave_param_common,
-                                 self.hrtf_blocksize, self.fft_blocksize)
-        # Get necessary parameters of input-file and store to sp_param.
-        self.sp_param = self.init_read_sp()
+            self.get_block_param()
         # read in whole wave file of all speakers
         self.sp_input = self.read_sp()
         self.block_begin_end = self.init_set_block_begin_end()
@@ -82,6 +78,8 @@ class DspIn:
                          sp in range(self.spn)]
         # build a hann window with sp_blocksize
         self.hann = self.build_hann_window(self.sp_blocksize)
+        # set fft frequency values of fft magnitude spectrum arrays
+        self.set_fftfreq(self.fft_blocksize, self.samplerate)
 
     def rnd(self, value):
         """
@@ -122,8 +120,7 @@ class DspIn:
             hann_window[n, ] = 0.5 * (1 - math.cos(2 * math.pi * n / (x)))
         return hann_window
 
-    def get_block_param(self, wave_param_common, hrtf_blocksize,
-                        fft_blocksize):
+    def get_block_param(self):
         """
         H2 -- get_block_param
         ===================
@@ -137,10 +134,10 @@ class DspIn:
             value [calculated default is 0.5]
         Author Felix Pfreundtner
         """
-        sp_blocksize = fft_blocksize - hrtf_blocksize + 1
-        sp_blocktime = sp_blocksize / wave_param_common[0]
+        sp_blocksize = self.fft_blocksize - self.hrtf_blocksize + 1
+        sp_blocktime = sp_blocksize / self.samplerate
         # overlap in decimal 0
-        overlap = (fft_blocksize - sp_blocksize) / fft_blocksize
+        overlap = (self.fft_blocksize - sp_blocksize) / self.fft_blocksize
         # overlap = 0
         hopsize = self.rnd((1 - overlap) * sp_blocksize)
         return sp_blocksize, sp_blocktime, overlap, hopsize
@@ -341,7 +338,7 @@ class DspIn:
         """
         # List of the Parameters:
         # sp_param[sp][0] = total number of samples in the file
-        # sp_param[sp][1] = sample-rate, default: 44100 (but adjustable later)
+        # sp_param[sp][1] = sample-rate, default: 44100
         # sp_param[sp][2] = number of bits per sample (8-/16-/??-int for one
         #                   sample)
         # sp_param[sp][3] = number of channels (mono = 1, stereo = 2)
@@ -420,29 +417,39 @@ class DspIn:
                                                          sp_param[sp][3]))
                 file.close()  # close file opened in the beginning
 
-            # In case of error, send errormessage to gui
-            # If samplerate is not 44100 Hz
-            if not sp_param[sp][1] == 44100:
-                print("error1")
-                # errmsg = "Input signal doesn't have samplerate of 44100 " \
-                #     "samples/sec. and can't be processed. Please choose " \
-                #     "another input file."
-                # self.signal_handler.send_error("error")
+            # If bit format is not 16-bit/sample
+            if sp_param[sp][2] != 16:
+                errmsg = "The bit-format of one input signal is not 16-bit " \
+                         "and can't be processed. Please choose another input" \
+                         " file."
+                self.state.send_error(errmsg)
+                # stop playback
+                self.state.dsp_stop = True
+                break
 
-            # If bit format is not 8- or 16-bit/sample
-            if not sp_param[sp][2] == 8 and not sp_param[sp][2] == 16:
-                print("error2")
-                # errmsg = "The bit-format of the samples is neither 8- nor " \
-                #          "16-bit and can't be processed. Please choose " \
-                #          "another input file."
-                # self.signal_handler.send_error(errmsg)
             # If signal is neither mono nor stereo, send error message to gui.
-            if not sp_param[sp][3] == 1 and not sp_param[sp][3] == 2:
-                print("error3")
-                # errmsg = "Input signal is neither mono nor stereo and
-                # can't be processed. Please choose another input file."
-                # self.signal_handler.send_error(errmsg)
-        return sp_param
+            if sp_param[sp][3] != 1 and sp_param[sp][3] != 2:
+                errmsg = "One Input signal is neither mono nor stereo and " \
+                         "can't be processed. Please choose another input file."
+                self.state.send_error(errmsg)
+                # stop playback
+                self.state.dsp_stop = True
+                break
+
+        # common samplerate of all input wave files
+        samplerate = sp_param[0][1]
+        for sp_param_sp in sp_param:
+            # If sample rate is not the common samplerate
+            if samplerate != sp_param_sp[1]:
+                errmsg = "The sample rates of the speaker samples are not " \
+                         "uniform and can't be processed. Please choose " \
+                         "other input files."
+                self.state.send_error(errmsg)
+                # stop playback
+                self.state.dsp_stop = True
+                break
+
+        return sp_param, samplerate
 
     def read_sp(self):
         """
@@ -458,176 +465,26 @@ class DspIn:
 
         Author: Matthias Lederle
         """
-        # initialize an empty array with blocksize sp_blocksize for every
-        # speaker in list sp_input
-        sp_input_old = [np.zeros((self.sp_param[sp][0],), dtype=np.float32)
-                       for sp in range(self.spn)]
 
-        # # scipy io reference function
-        start = time.time()
         sp_input = []
+        # read in wave audio input files for every speaker
         for sp in range(self.spn):
-            _, sp_input_raw = scipy.io.wavfile.read(
+            _, sp_input_scipy = scipy.io.wavfile.read(
                 self.state.gui_sp[sp]["path"])
-            print
-            lenarray = len(sp_input_raw)
-            # append zeros to scipy_sp_input_raw to reach that output is
-            # divideable by sp_blocksize
-            if lenarray % self.sp_blocksize != 0:
-                sp_input.append(np.zeros((lenarray + self.sp_blocksize -
-                                         lenarray % self.sp_blocksize, ),
-                                         dtype=np.float32))
-                sp_input[sp][0:lenarray, ] = sp_input_raw
+
+            # create a output array which is divideable by sp_blocksize
+            sp_input.append(np.zeros((self.sp_param[sp][0] + self.sp_blocksize -
+                                     self.sp_param[sp][0] %
+                                      self.sp_blocksize, ), dtype=np.float32))
+            # if speaker has two chanells make it mono
+            if self.sp_param[sp][3] == 2:
+                sp_input[sp][0:self.sp_param[sp][0], ] = sp_input_scipy[:,
+                                                         0] + sp_input_scipy[:,
+                                                              1] / 2
             else:
-                sp_input.append(sp_input_raw)
+                sp_input[sp][0:self.sp_param[sp][0], ] = sp_input_scipy
 
-        print("timer read_sp (Scipy Reference) in ms: " + str(int((time.time()
-              - start) * 1000)))
-
-        # Matthias
-        # start = time.time()
-        # # iterate over all speakers to read in all speaker wave files
-        # for sp in sp_input:
-        #     # start reading at sample 0 in speaker wave file
-        #     begin_block = 0
-        #     # stop reading at last sample in speaker wave file
-        #     end_block = self.sp_param[sp][0]
-        #     continue_input = True
-        #     # open file of current speaker here
-        #     file = open(gui_sp[sp][2], 'rb')
-        #     # calculate begin_block as byte-number
-        #     first_byte_of_block = self.sp_param[sp][6] + (begin_block *
-        #         self.sp_param[sp][7] * self.sp_param[sp][3])
-        #     # calculate end_block as byte_number
-        #     last_byte_of_block = self.sp_param[sp][6] + (end_block *
-        #         self.sp_param[sp][7] * self.sp_param[sp][3])
-        #     # go to first byte of block and start "reading"
-        #     file.seek(first_byte_of_block)
-        #     # if input file is mono, write sp_input[sp] in this part
-        #     if self.sp_param[sp][3] == 1:
-        #         # if play is not yet at the end of the file use this
-        #         # Put all variables needed in the while-loop into simple
-        #         # integers
-        #         fmt1 = self.sp_param[sp][4]
-        #         fmt2 = self.sp_param[sp][9]
-        #         byteno = self.sp_param[sp][8]
-        #         sample_no = self.sp_param[sp][5]
-        #         bf = self.sp_param[sp][7]
-        #         sp_bs = self.sp_blocksize
-        #         # new while-loop:
-        #         # j = 0
-        #         # while j < sample_no:
-        #         #     sp_input[sp][j, ] = struct.unpack(self.sp_param[sp][4] +
-        #         #                                  self.sp_param[sp][9],
-        #         #                                  file.read(
-        #         #                                  self.sp_param[sp][7]))[0]
-        #         #     #print("j =", j, "sp_input[sp][j, ] =", sp_input[sp][j, ])
-        #         #     j += 1
-        #         # simple loop:
-        #         if last_byte_of_block < byteno:
-        #             i = 0
-        #             # while i < blocklength, read every loop one sample
-        #             # !!!!Very often in while-loop!!!!
-        #             while i < sp_bs:
-        #                 sp_input[sp][i, ] = struct.unpack(fmt1 + fmt2,
-        #                     file.read(bf))[0]
-        #                 print("i = ", i)
-        #                 i += 1
-        #         # if play has reached the last block of the file, do:
-        #         else:
-        #             # calculate remaining samples
-        #             remaining_samples = int((self.sp_param[sp][8] -
-        #                                      first_byte_of_block) / (
-        #                 self.sp_param[sp][7] *
-        #                 self.sp_param[sp][3]))
-        #             i = 0
-        #             # read remaining samples to the end, then set
-        #             # continue_input
-        #             # to "False"
-        #             while i < remaining_samples:
-        #                 sp_input[sp][i, ] = struct.unpack(
-        #                     fmt1 + fmt2,
-        #                     file.read(bf))[0]
-        #                 i += 1
-        #             print("A")
-        #             continue_input = False
-        #     # If input file is stereo, make mono and write sp_input[sp]
-        #     elif self.sp_param[sp][3] == 2:
-        #         # First: Write left and right signal in independent lists
-        #         samplelist_of_one_block_left = []
-        #         samplelist_of_one_block_right = []
-        #         # set random value that cant be reached by (self.sp_param[
-        #         # sp][5] - current_last_byte) (see below)
-        #         remaining_samples = 10000
-        #         if last_byte_of_block < self.sp_param[sp][8]:
-        #             i = 0
-        #             # while i < blocklength, read every loop one sample
-        #             # !!!!!Very often executed!!!
-        #             while i < self.sp_blocksize:
-        #                 # read one sample for left ear and one for right ear
-        #                 left_int = struct.unpack(self.sp_param[sp][4] +
-        #                                          self.sp_param[sp][9],
-        #                                          file.read(
-        #                                          self.sp_param[sp][7]))[0]
-        #                 right_int = struct.unpack(self.sp_param[sp][4] +
-        #                                           self.sp_param[sp][9],
-        #                                           file.read(
-        #                                           self.sp_param[sp][7]))[0]
-        #                 samplelist_of_one_block_left.append(left_int)
-        #                 samplelist_of_one_block_right.append(right_int)
-        #                 i += 1
-        #         else:  # if we reached last block of file, do:
-        #             # calculate remaining samples
-        #             remaining_samples = int((self.sp_param[sp][8] -
-        #                                      first_byte_of_block) / (
-        #                 self.sp_param[sp][7] *
-        #                 self.sp_param[sp][3]))
-        #             i = 0
-        #             # read remaining samples and write one to left and one
-        #             # to right
-        #             while i < remaining_samples:
-        #                 left_int = struct.unpack(self.sp_param[sp][4] +
-        #                                          self.sp_param[sp][9],
-        #                                          file.read(
-        #                                              self.sp_param[sp][7]))[0]
-        #                 right_int = struct.unpack(self.sp_param[sp][4] +
-        #                                           self.sp_param[sp][9],
-        #                                           file.read(
-        #                                               self.sp_param[sp][7]))[0]
-        #                 samplelist_of_one_block_left.append(left_int)
-        #                 samplelist_of_one_block_right.append(right_int)
-        #                 i += 1
-        #             continue_input = False
-        #         # Second: Get mean value and merge the two lists and write in
-        #         # sp_input[sp]
-        #         if remaining_samples == 10000:
-        #             i = 0
-        #             while i < self.sp_blocksize:
-        #                 mean_value = int((samplelist_of_one_block_left[i] +
-        #                                 samplelist_of_one_block_right[i])
-        #                                  / 2)
-        #                 sp_input[sp][i, ] = mean_value
-        #                 i += 1
-        #         else:
-        #             i = 0
-        #             while i < remaining_samples:
-        #                 mean_value = int((samplelist_of_one_block_left[i] +
-        #                                   samplelist_of_one_block_right[i])
-        #                                  / 2)
-        #                 sp_input[sp][i, ] = mean_value
-        #                 i += 1
-        #             continue_input = False
-                    # else:
-                    # an Matthias: Hier bitte eine Fehlerausgabe über
-                    # DspSignalHandler() schreiben (Fragen zu der Funktion ->
-                    # Huaijiang) --> Wird gemacht!
-                    # print("Signal is neither mono nor stereo(
-                    # self.sp_param[sp][3] != 1" or "2") and can't be
-                    # processed!")
-        # file.close()
-        # print("timer read_sp (Matthias) in ms: " + str(int((time.time() -
-        # start) * 1000)))
-        return sp_input      # , scipy_sp_input or sp_input
+        return sp_input
 
     def get_hrtf_block_fft(self, sp):
         """
@@ -676,7 +533,6 @@ class DspIn:
         # get right ear hrtf fft values
         self.hrtf_block_fft[sp][:, 1] = self.hrtf_database_fft[:, angle / 5]
 
-    # @author Matthias Lederle
     def get_sp_block(self, sp):
         """
         H2 -- get_sp_block

@@ -40,14 +40,26 @@ class Dsp:
         while any(self.dspout_obj.continue_convolution) is True:
             # render new binaural block
 
-            # lock state object: gui should not change any input parameter
-            # during the creation of one block
+            # lock shared variables: gui should not change any input
+            # parameter during the creation of one block
             self.state.mtx_sp.acquire()
             self.state.mtx_settings.acquire()
             self.state.mtx_error.acquire()
             self.state.mtx_run.acquire()
             self.state.mtx_stop.acquire()
             self.state.mtx_pause.acquire()
+
+            # handle playback stop
+            if self.state.dsp_stop is True:
+                # audio playback is stopped: release all shared variables
+                self.state.mtx_sp.release()
+                self.state.mtx_settings.release()
+                self.state.mtx_error.release()
+                self.state.mtx_run.release()
+                self.state.mtx_stop.release()
+                self.state.mtx_pause.release()
+                # break convolution while loop
+                break
 
             # print the number of already done FFT / Block iterations
             # print("FFT Block " + str(self.blockcounter) + ":")
@@ -105,8 +117,9 @@ class Dsp:
 
             # rendering of binaural block finshed:
 
-            # unlock parameters of gui state object: block is created, gui can
-            # change parameters now for the next block
+            # unlock shared variables: block was created succesffuly,
+            # gui can change parameters now before the next block creation
+            # starts
             self.state.mtx_sp.release()
             self.state.mtx_settings.release()
             self.state.mtx_error.release()
@@ -123,7 +136,7 @@ class Dsp:
             if self.blockcounter == self.bufferblocks:
                 playthread = threading.Thread(
                     target=self.dspout_obj.audiooutput, args=(
-                        self.dspin_obj.wave_param_common[0],
+                        self.dspin_obj.samplerate,
                         self.dspin_obj.hopsize))
                 # Start PortAudio playback thread
                 playthread.start()
@@ -138,24 +151,19 @@ class Dsp:
                 while self.dspout_obj.played_block_counter <= \
                         self.dspout_obj.prior_played_block_counter and \
                         self.state.dsp_stop is False:
-                    time.sleep(1 / self.dspin_obj.wave_param_common[0]*10)
+                    time.sleep(1 / self.dspin_obj.samplerate*10)
                 # increment number of last played block
                 self.dspout_obj.prior_played_block_counter += 1
                 # increment number of already convolved block iterations
                 self.blockcounter += 1
 
-            # handle playback stop
-            if self.state.dsp_stop is True:
-                # break convolution while loop
-                break
             # handle playback pause
             while self.state.dsp_pause is True:
                 time.sleep(0.1)
 
         # Write generated output signal binaural_scaled to file
         self.dspout_obj.writebinauraloutput(
-            self.dspout_obj.binaural,
-            self.dspin_obj.wave_param_common)
+            self.dspout_obj.binaural, self.dspin_obj.samplerate)
 
         # mark dsp algorithm as finished
         self.state.dsp_run = False
