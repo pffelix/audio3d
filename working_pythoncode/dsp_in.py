@@ -213,8 +213,9 @@ class DspIn:
             # get inverse minimum phase impulse response response of
             # kemar measurement speaker optimus pro 7 and truncate to
             # fft_blocksize (original size 2048 samples, last samples
-            # nearly zero, the cut off might lead to distortion at low
-            # frequencies )
+            # nearly zero, the kemar filter ist not well designed and produces
+            # distortion at low frequencies, even in the kemar compact
+            # database, where it is integrated in the wave impulse responses)
             _, kemar_inverse_filter = \
                 scipy.io.wavfile.read(
                     "./kemar/full/headphones+spkr/Opti-minphase.wav")
