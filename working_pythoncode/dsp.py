@@ -122,17 +122,17 @@ class Dsp:
                         # convolve hrtf with speaker block input to get
                         # binaural stereo block output
                         start = time.time()
-                        self.dspout_obj.sp_binaural_block[sp] = \
+                        self.dspout_obj.sp_binaural_block[sp][:, l_r] = \
                             self.dspin_obj.fft_convolution(
-                                self.dspout_obj.sp_binaural_block[sp], sp,
-                                l_r)
+                                self.dspout_obj.sp_binaural_block[sp], sp, l_r)
 
                     # overlap and add binaural stereo block output of
                     # speaker sp to prior binaural stereo block output of
                     # speaker sp
                     self.dspout_obj.overlap_add(
                         self.dspin_obj.fft_blocksize,
-                        self.dspin_obj.hopsize, sp)
+                        self.dspin_obj.hopsize, self.dspin_obj.sp_max_amp,
+                        self.dspin_obj.hrtf_max_amp, sp)
 
             # Mix binaural stereo blockoutput of every speaker to one
             # binaural stereo block output having regard to speaker distances
@@ -193,7 +193,7 @@ class Dsp:
                 time.sleep(0.1)
 
         # Finish DSP Algorithm:
-        
+
         # If record box is checked: Read record queue and write WAVE File
         if self.state.gui_settings["record"] is True:
             self.dspout_obj.writerecordfile(self.dspin_obj.samplerate,
