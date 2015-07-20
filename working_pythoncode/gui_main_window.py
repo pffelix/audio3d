@@ -75,6 +75,7 @@ class MainWindow(QtGui.QWidget):
         self.combo_box.addItem('kemar_compact')
         self.database_label = QtGui.QLabel('Select Database:')
         self.inverse_box = QtGui.QCheckBox('Inverse Filter')
+        self.record_box = QtGui.QCheckBox('Record Output')
         self.buffersize_label = QtGui.QLabel('Buffer Size:')
         self.headtracker_box = QtGui.QCheckBox('Headtracker')
         self.buffersize_spin_box = QtGui.QSpinBox()
@@ -94,6 +95,7 @@ class MainWindow(QtGui.QWidget):
         layout.addWidget(self.database_label, 7, 0, 1, 1)
         layout.addWidget(self.combo_box, 7, 1, 1, 2)
         layout.addWidget(self.inverse_box, 7, 3, 1, 1)
+        layout.addWidget(self.record_box, 8, 2, 1, 1)
         layout.addWidget(self.buffersize_label, 8, 0, 1, 1)
         layout.addWidget(self.buffersize_spin_box, 8, 1, 1, 1)
         layout.addWidget(self.headtracker_box, 8, 3, 1, 1)
@@ -392,6 +394,8 @@ class MainWindow(QtGui.QWidget):
                 self.inverse_box.isChecked()
             self.state.gui_settings["bufferblocks"] = \
                 self.buffersize_spin_box.value()
+            self.state.gui_settings["record"] = \
+                self.record_box.isChecked()
             self.plot_button.setEnabled(True)
 
             # create a dsp algorithm object

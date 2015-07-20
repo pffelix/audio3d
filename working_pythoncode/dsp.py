@@ -115,6 +115,16 @@ class Dsp:
             # binaural stereo block output having regard to speaker distances
             self.dspout_obj.mix_binaural_block(self.dspin_obj.hopsize)
 
+            # Add mixed binaural stereo block to play queue which is read by
+            # PortAudio Play Thread
+            self.dspout_obj.add_to_playqueue()
+
+            # If record box is checked: Add mixed binaural stereo block to a
+            # time record queue which is later saved to file by
+            # writerecordfile()
+            if self.state.gui_settings["record"] is True:
+                self.dspout_obj.add_to_recordqueue()
+
             # rendering of binaural block finshed:
 
             # unlock shared variables: block was created succesffuly,
@@ -127,13 +137,7 @@ class Dsp:
             self.state.mtx_stop.release()
             self.state.mtx_pause.release()
 
-            # Add mixed binaural stereo block to play queue which is read by
-            # PortAudio Play Thread
-            self.dspout_obj.add_to_playqueue()
-
-            # Add mixed binaural stereo block to a time continuing binaural
-            # wave output output array of all mixed blocks
-            self.dspout_obj.add_to_recordqueue()
+            # Synchronize with PortAudio Playback Thread:
 
             # Create PortAudio playback thread if specified number of
             # bufferblocks has been convolved
@@ -165,9 +169,11 @@ class Dsp:
             while self.state.dsp_pause is True:
                 time.sleep(0.1)
 
-        # Write generated output signal binaural_scaled to file
-        self.dspout_obj.writerecordfile(self.dspin_obj.samplerate,
+        # Finish DSP Algorithm:
+        
+        # If record box is checked: Read record queue and write WAVE File
+        if self.state.gui_settings["record"] is True:
+            self.dspout_obj.writerecordfile(self.dspin_obj.samplerate,
                                             self.dspin_obj.hopsize)
-
         # mark dsp algorithm as finished
         self.state.dsp_run = False
