@@ -124,7 +124,7 @@ class DspIn:
         """
         H2 -- get_block_param
         ===================
-        This method uses the parameters of the input .wav-file and the
+        This method uses the parameters of the input wav-file and the
         blocksizes of the fft and the hrtf to calculate the blocksize and
         blocktime needed from the speaker.
         Return values
