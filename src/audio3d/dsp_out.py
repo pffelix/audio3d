@@ -200,8 +200,9 @@ class DspOut:
                 binaural_record[position:position+hopsize, :] = \
                     self.recordqueue.get()
                 position += hopsize
-        print(pkg_resources.resource_filename("audio3d",
-                               "audio_out/binauralmix.wav")
+        self.state.send_error("Audio Recorded to File: " +
+                              pkg_resources.resource_filename("audio3d",
+                              "audio_out/binauralmix.wav"))
         scipy.io.wavfile.write(pkg_resources.resource_filename("audio3d",
                                "audio_out/binauralmix.wav"), samplerate,
                                binaural_record)
