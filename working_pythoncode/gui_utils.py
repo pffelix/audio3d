@@ -14,7 +14,14 @@ import threading
 
 
 class State(QtCore.QObject):
-
+    """
+    H1 -- State
+    ************************
+    **This is an exchange class for variables which are read and written by
+    the DSP algorithm and all GUI applications.**
+    """
+    
+    """Constructor of the State class."""
     def __init__(self):
         super(State, self).__init__()
         # variables which are shared between gui and dsp algorithm
@@ -43,11 +50,13 @@ class State(QtCore.QObject):
         self.speaker_list = []
         self.speaker_to_show = 0
 
-    # @brief stop button clicked alternates dsp_stop boolean and stops dsp
-    # algorithm
-    # @details
-    # @author Felix
     def switch_stop_playback(self):
+        """
+        H2 -- switch_stop_playback
+        ===================
+        **This function is called from the MainWindow Play/Stop button and
+        remembers the state and transfers to a DSP command.**
+        """
         self.mtx_stop.acquire()
         if self.dsp_stop is False:
             self.dsp_stop = True
@@ -55,11 +64,13 @@ class State(QtCore.QObject):
             self.dsp_stop = False
         self.mtx_stop.release()
 
-    # @brief pause button clicked alternates dsp_pause boolean and pause dsp
-    # algorithm
-    # @details
-    # @author Felix
     def switch_pause_playback(self):
+        """
+        H2 -- switch_pause_playback
+        ===================
+        **This function is called from the MainWindow Pause button and
+        remembers the state and transfers to respective DSP command.**
+        """
         # start pause
         self.mtx_pause.acquire()
         if self.dsp_pause is False:
@@ -70,12 +81,25 @@ class State(QtCore.QObject):
         self.mtx_pause.release()
 
     def send_error(self, message):
+        """
+        H2 -- send_error
+        ===================
+        **The function can be used by the DSP classes to create case-specific
+        error messages.**
+        """
+
         self.mtx_error.acquire()
         if message not in self.gui_error:
             self.gui_error.append(message)
         self.mtx_error.release()
 
     def check_error(self):
+        """
+        H2 -- check_error
+        ===================
+        **The function creates GUI message box with error message.**
+        """
+
         self.mtx_error.acquire()
         if len(self.gui_error) > 0:
             msgbox = QtGui.QMessageBox()
@@ -84,34 +108,50 @@ class State(QtCore.QObject):
         self.mtx_error.release()
 
 
-# @class <Headtracker> This class integrates the headtracker
-#
-#
-#
 class Headtracker(object):
-
+    """
+    H1 -- Headtracker
+    ************************
+    **This class enables the integration of a headtracking system.**
+    The networking interface from where the data can be extracced is
+    initialized and thus the azimuthal angle can be read out.
+    """
+    
+    """Constructor of the Headtracker class."""
     def __init__(self):
         self.head_deg = 0
         self.dt2 = DT2()
 
-    # @brief This function calls the azimuth_angle function of DT2 object
-    # which only extracts the azimuthal head movement
-    # recorded by the headtracking setup
     def cal_head_deg(self):
+        """
+        H2 -- head_deg
+        ===================
+        **This function calls the azimuth_angle function of DT2 object.**
+        This only extracts the azimuthal head movement
+        recorded by the headtracking setup.
+        """
+
         self.head_deg = headtracker.azimuth_angle(self.dt2.angle()[0])
 
-    # @brief This function returns the azimuth angle, which is recorded
-    #        with the headtracker setup
     def get_head_deg(self):
+        """
+        H2 -- get_head_deg
+        ===================
+        **This function returns the azimuth angle, which is recorded
+        with the headtracker setup**
+        """
         return self.head_deg
 
 
-# Items inside the QGraphicsScene, including Speaker and Audience
-# @class <Itemr> This class defines items inside the QGraphicsScene,
-# including Speaker and Audience.
-#
 class Item(QtGui.QGraphicsPixmapItem):
-
+    """
+    H1 -- Item
+    ************************
+    **This class defines items inside the QGraphicsScene,
+    including Speaker and Audience.**
+    """
+    
+    """Constructor of the Item class."""
     def __init__(self, state):
 
         image = self.origin_image.scaled(
@@ -126,6 +166,12 @@ class Item(QtGui.QGraphicsPixmapItem):
         self.state = state
 
     def mousePressEvent(self, event):
+        """
+        H2 -- mousePressEvent
+        ===================
+        **This function defines the effect of mouse press on items.**
+        Only left mouse click is noticed.
+        """
         if event.button() != QtCore.Qt.LeftButton:
             event.ignore()
             return
@@ -133,6 +179,12 @@ class Item(QtGui.QGraphicsPixmapItem):
         self.setCursor(QtCore.Qt.ClosedHandCursor)
 
     def mouseMoveEvent(self, event):
+        """
+        H2 -- mouseMoveEvent
+        ===================
+        **This function defines the effect of mouse move events in connection
+        with items.**
+        """
 
         if QtCore.QLineF(QtCore.QPointF(event.screenPos()),
                          QtCore.QPointF(event.buttonDownScreenPos(
@@ -147,6 +199,12 @@ class Item(QtGui.QGraphicsPixmapItem):
         self.setCursor(QtCore.Qt.OpenHandCursor)
 
     def mouseReleaseEvent(self, event):
+        """
+        H2 -- mouseReleaseEvent
+        ===================
+        **This function defines the effect of mouse release events in
+        connection with items.** The Cursor symbol is changed.
+        """
         self.setCursor(QtCore.Qt.OpenHandCursor)
 
 
@@ -155,8 +213,16 @@ class Item(QtGui.QGraphicsPixmapItem):
 #
 #
 class Room(QtGui.QGraphicsScene):
+    """
+    H1 -- Room
+    ************************
+    **This class defines the QGraphicsScene on which the items are displayed
+    and handeled.**
+    * current_item: Indexes the item which is selected.
+    """
     current_item = 0
 
+    """Constructor of the Room class."""
     def __init__(self, state):
         super(Room, self).__init__()
         self.state = state
@@ -164,6 +230,12 @@ class Room(QtGui.QGraphicsScene):
     # Definition of mouse move events related to the QGraphicsScene:
 
     def mousePressEvent(self, e):
+        """
+        H2 -- mousePressEvent
+        ===================
+        **This function defines the effect of mouse press on the room.**
+        The item at the respective mouse event position is noticed.
+        """
         self.current_item = self.itemAt(e.scenePos())
         QtGui.QGraphicsScene.mousePressEvent(self, e)
 
@@ -171,7 +243,15 @@ class Room(QtGui.QGraphicsScene):
         e.acceptProposedAction()
 
     def dragMoveEvent(self, e):
-
+        """
+        H2 -- dragMoveEvent
+        ===================
+        **This function defines the effect of mouse move event on the room
+        in connection with an item.**
+        The mouse movement is recorded and the new item positions are extracted
+        and used to calculate the respective positions of speaker(s) and
+        audience.
+        """
         e.acceptProposedAction()
         speaker_list = self.state.speaker_list
         try:
@@ -203,10 +283,14 @@ class Room(QtGui.QGraphicsScene):
         except AttributeError:
             pass
 
-    # @brief keeps cursor inside gui_scene
-    # @details
-    # @author Huijiang
     def get_bound_pos(self, x, y):
+        """
+        H2 -- get_bound_pos
+        ===================
+        **This function is used to avoid dragging outside the visible room
+        area in the MainWindow.** By dragging items inside the QGraphicsScene
+        the cursor can not leave this scene and items can not be hidden.
+        """
 
         if x >= 350 and y >= 350:
             x = 350
@@ -223,10 +307,16 @@ class Room(QtGui.QGraphicsScene):
 
         return x, y
 
-    # @brief returns new position of item
-    # @details
-    # @author
     def get_abs_pos(self, azimuth, dist):
+        """
+        H2 -- get_abs_pos
+        ===================
+        **The function calculates and returns the new speaker position
+        relative to the audience.**
+        Return values:
+        * x: is the horizontal coordinate of the speaker item.
+        * y: is the vertical coordinate of the speaker item.
+        """
         x0 = self.state.audience_pos.x()
         y0 = self.state.audience_pos.y()
 
@@ -236,39 +326,70 @@ class Room(QtGui.QGraphicsScene):
         return x, y
 
 
-# @class <View> This class is responsible for displaying the contents of on the
-# QGraphicsScene
-#
 class View(QtGui.QGraphicsView):
-
+    """
+    H1 -- View
+    ************************
+    **This class is responsible for displaying the contents of on the
+    Room.**
+    """
+    
+    """Constructor of the View class."""
     def __init__(self, state, scene):
         super(View, self).__init__(scene)
         self.state = state
 
     def dragEnterEvent(self, e):
+        """
+        H2 -- dragEnterEvent
+        ===================
+        **This function defines the effect of drag enter event on the view.**
+        """
         e.acceptProposedAction()
         QtGui.QGraphicsView.dragEnterEvent(self, e)
 
     def dropEvent(self, e):
+        """
+        H2 -- dragMoveEvent
+        ===================
+        **This function defines the effect of mouse drop event on the view.**
+        """
         self.viewport().update()
         QtGui.QGraphicsView.dropEvent(self, e)
 
     def dragMoveEvent(self, e):
+        """
+        H2 -- dragMoveEvent
+        ===================
+        **This function defines the effect of mouse move event on the view.**
+        """
         e.acceptProposedAction()
         QtGui.QGraphicsView.dragMoveEvent(self, e)
 
-    # this will disable scrolling of the view
     def wheelEvent(self, q_wheel_event):
+        """
+        H2 -- WheelEvent
+        ===================
+        **This function will disable scrolling of the view.**
+        """
         pass
 
     def keyPressEvent(self, q_key_event):
+        """
+        H2 -- keyPressEvent
+        ===================
+        **This function will disable key usage effects on the view.**
+        """
         pass
 
 
-# @class <SignalHandler> Signal handler for QGraphicsItem
-# which doesn't provide the signal/slot function
-#
 class SignalHandler(QtCore.QObject):
+    """
+    H1 -- SignalHandler
+    ************************
+    **Signal handler class for QGraphicsItem**
+    This doesn't provide the signal/slot function.
+    """
 
     show_property = QtCore.Signal()
 
@@ -282,10 +403,18 @@ class SignalHandler(QtCore.QObject):
 #
 #
 class Speaker(Item):
+    """
+    H1 -- Speaker
+    ************************
+    **This subclass is defining speaker items.**
+    * type: defines the type of the initialized item
+    * path: defines the selected path of the .wav file
+    """
 
     type = 'speaker'
     path = 'unknown'
 
+    """Constructor of the Speaker class."""
     def __init__(self, state, index, path, posx=0, posy=0, norm=False):
 
         self.state = state
@@ -312,6 +441,15 @@ class Speaker(Item):
     # into account
     # @author
     def cal_rel_pos(self, head_deg=0):
+        """
+        H2 -- cal_rel_pos
+        ===================
+        **This function returns the relative position of the speaker
+        to the 'audience', defined by a radial variable deg (defined counter
+        clockwise) and the distance.**
+        *head_deg: takes the azimuthal angle set by the headtracker
+        into account
+        """
 
         dx = self.x() - self.state.audience_pos.x()
         dy = self.state.audience_pos.y() - self.y()
@@ -336,9 +474,16 @@ class Speaker(Item):
         self.state.mtx_sp.release()
         return deg, dis
 
-    # @brief double click on speaker item offers the opportunity to change
-    # the speaker settings in a seperate QWidget window
     def mouseDoubleClickEvent(self, event):
+        """
+        H2 -- mouseDoubleClickEvent
+        ===================
+        **This function defines the effect of double clicking on a speaker
+        item.**
+        Double click on speaker item offers the opportunity to change
+        the speaker settings in the SpeakerProperty widget.
+        """
+    
         self.state.speaker_to_show = self.index
         self.signal_handler.show_property.emit()
 
@@ -347,26 +492,46 @@ class Speaker(Item):
 # without headtracker in the QGraphicsScene
 #
 class Audience(Item):
+    """
+    H1 -- Audience
+    ************************
+    **This sub-class defines the audience item.**
+    An audience item represents the relative user position,
+    without headtracker in the QGraphicsScene.
+    *type: selects the type of item.
+    *origin_image: selects the image representing the audience in the room.
+    """
 
     type = 'audience'
     origin_image = QtGui.QImage('./image/audience.png')
 
+    """Constructor of the Audience class."""
     def __init__(self, state):
         self.state = state
         super(Audience, self).__init__(state)
         self.setPos(170, 170)
 
 
-# @class <SpeakerProperty> Additional widget window to define speaker .wav path
-# speaker position and to activate inverse filtering for speaker before
-# adding it to the scene and afterwards by double click on the speaker item
-#
 class SpeakerProperty(QtGui.QWidget):
+    """
+    H1 -- SpeakerProperty
+    ************************
+    **This class defines a widget window to select speaker properties before
+    adding a new speaker or to change the settings again later on.**
+    Additional widget window to define speaker .wav path
+    speaker position and to activate inverse filtering for speaker before
+    adding it to the scene and afterwards by double click on the speaker item.
+    *added: Signal emitted by the confirm button to connect to MainWindow's
+    functions.
+    *posx = horizontal position of the respective speaker item
+    *posy = vertical position of the respective speaker item
+    """
 
     added = QtCore.Signal()
     posx = 0
     posy = 0
 
+    """Constructor of the SpeakerProperty class."""
     def __init__(self, state):
         super(SpeakerProperty, self).__init__()
         self.state = state
@@ -418,22 +583,28 @@ class SpeakerProperty(QtGui.QWidget):
         self.setLayout(layout)
         self.setWindowTitle('Speaker Properties')
 
-    # @brief function corresponding to the browse button on the settings
-    # widget, to open a file dialog in order to choose a .wav file
-    #
     @QtCore.Slot()
     def browse(self):
+        """
+        H2 -- browse
+        ===================
+        **Function corresponding to the browse button on the settings
+        widget, to open a file dialog in order to choose a .wav file.**
+        """
 
         file_browser = QtGui.QFileDialog()
         self.path = file_browser.getOpenFileName()[0]
         self.path_line_edit.setText(self.path)
 
-    # @brief function corresponding to the confirm button on the settings
-    # widget, to add a speaker to the QGraphicsScene with the choosen
-    # properties
-    #
     @QtCore.Slot()
     def confirm(self):
+        """
+        H2 -- confirm
+        ===================
+        **Function corresponding to the confirm button on the settings
+        widget, to add a speaker to the QGraphicsScene with the choosen
+        properties.**
+        """
         x0 = self.state.audience_pos.x()
         y0 = self.state.audience_pos.y()
         azimuth = float(self.azimuth_line_edit.text())
@@ -450,9 +621,21 @@ class SpeakerProperty(QtGui.QWidget):
 
     @QtCore.Slot()
     def cancel(self):
+        """
+        H2 -- cancel
+        ===================
+        **Function connected to the cancel button of SpeakerProperty.**
+        Closes the SpeakerProperty window without making any changes to the
+        speaker settings.
+        """
         self.close()
 
     def clear(self):
+        """
+        H2 -- clear
+        ===================
+        **Function resets the default settings of the SpeakerProperty window.**
+        """
         self.normalize_box.setCheckState(QtCore.Qt.Unchecked)
         self.path_line_edit.clear()
         self.azimuth_line_edit.clear()
@@ -461,14 +644,21 @@ class SpeakerProperty(QtGui.QWidget):
         self.posy = 0
 
     def closeEvent(self, q_close_event):   # flake8: noqa
+        """
+        H2 -- closeEvent
+        ===================
+        **Function used with manual closing of the SpeakerProperty window.**
+        """
         self.is_on = False
         self.added.disconnect()
         self.clear()
 
-    # @brief keeps cursor inside gui_scene
-    # @details
-    # @author Huijiang
     def get_bound_pos(self, x, y):
+        """
+        H2 -- get_bound_pos
+        ===================
+        **Function avoids setting of coordinates which are outside the room.**
+        """
 
         if x >= 350 and y >= 350:
             x = 350
@@ -489,9 +679,19 @@ class SpeakerProperty(QtGui.QWidget):
 # and HRTF spectrum while .wav is played
 #
 class SequencePlot(QtGui.QWidget):
+    """
+    H1 -- SequencePlot
+    ************************
+    **This class builts up a widget window to display real-time plots of the
+    speaker sequence and HRTF sequence extracted from the DSP algorithm.**
+    GLPlotWidget was preferred over Matplotlib due to performance. The plot
+    is imported from plot.py.
+    *plot_on: Signal to communicate wheter the plot widget is open.
+    """
 
     plot_on = QtCore.Signal()
 
+    """Constructor of the SequencePlot class."""
     def __init__(self, parent=None):
         super(SequencePlot, self).__init__(parent)
         self.is_on = False
@@ -512,6 +712,11 @@ class SequencePlot(QtGui.QWidget):
         self.timer = QtCore.QTimer(self)
 
     def closeEvent(self, event):   # flake8: noqa
+        """
+        H2 -- closeEvent
+        ===================
+        **Function used with manual closing of the SequencePlot window.**
+        """
         self.timer.timeout.disconnect()
         self.timer.stop()
         self.is_on = False
