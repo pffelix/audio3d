@@ -212,8 +212,9 @@ class DspIn:
             hrtf_blocksize = 513
             # get inverse minimum phase impulse response response of
             # kemar measurement speaker optimus pro 7 and truncate to
-            # fft_blocksize (original blocksize 2048 samples, last samples
-            # nearly zero)
+            # fft_blocksize (original size 2048 samples, last samples
+            # nearly zero, the cut off might lead to distortion at low
+            # frequencies )
             _, kemar_inverse_filter = \
                 scipy.io.wavfile.read(
                     "./kemar/full/headphones+spkr/Opti-minphase.wav")
@@ -686,18 +687,6 @@ class DspIn:
 
         # bring multiplied spectrum back to time domain, disneglected small
         # complex time parts resulting from numerical fft approach
-        sp_binaural_block_sp_time = irfft(sp_binaural_block_sp_frequency,
-                                          self.fft_blocksize).real
-
-        # normalize multiplied spectrum back to 16bit integer, consider
-        # maximum amplitude value of sp block and hrtf impulse to get
-        # dynamical volume output
-        sp_binaural_block_sp_time_max_amp = int(np.amax(np.abs(
-            sp_binaural_block_sp_time)))
-        if sp_binaural_block_sp_time_max_amp != 0:
-            sp_binaural_block_sp_time /= (sp_binaural_block_sp_time_max_amp /
-                                          self.sp_max_amp[sp] /
-                                          self.hrtf_max_amp[sp][l_r] * 32767)
-        sp_binaural_block_sp[:, l_r] = \
-            sp_binaural_block_sp_time.astype(np.float32, copy=False)
-        return sp_binaural_block_sp
+        sp_binaural_block_sp_l_r_time = irfft(sp_binaural_block_sp_frequency,
+                                              self.fft_blocksize).real
+        return sp_binaural_block_sp_l_r_time

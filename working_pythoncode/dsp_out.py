@@ -22,14 +22,13 @@ class DspOut:
         # Number of all speakers
         self.spn = len(self.state.gui_sp)
         self.sp_binaural_block = [np.zeros((
-            fft_blocksize, 2), dtype=np.float32) for sp in range(self.spn)]
-        self.sp_binaural_block_out = [np.zeros((hopsize, 2), dtype=np.float32)
+            fft_blocksize, 2), dtype=np.float64) for sp in range(self.spn)]
+        self.sp_binaural_block_out = [np.zeros((hopsize, 2), dtype=np.float64)
                                       for sp in range(self.spn)]
         self.sp_binaural_block_add = [np.zeros((fft_blocksize - hopsize, 2),
-                                      dtype=np.float32) for sp in range(
+                                      dtype=np.float64) for sp in range(
             self.spn)]
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
-        self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
         self.continue_convolution = [True for sp in range(self.spn)]
         self.played_frames_end = 0
         self.played_block_counter = 0
@@ -44,7 +43,7 @@ class DspOut:
     # overlapp-values (which decrease the desharmonic sounds in the output
     # signal.)
     # @author Felix Pfreundtner
-    def overlap_add(self, fft_blocksize, hopsize, sp):
+    def overlap_add(self, fft_blocksize, hopsize, sp_max_amp, hrtf_max_amp, sp):
         # get current binaural block output of sp
         # 1. take binaural block output of current fft which don't overlap
         # with next blocks
@@ -52,8 +51,21 @@ class DspOut:
             0:hopsize, :]
         # 2. add relevant still remaining block output of prior ffts to
         # binaural block output of current block
-        self.sp_binaural_block_out[sp][:, :] += \
+        self.sp_binaural_block_out[sp] += \
             self.sp_binaural_block_add[sp][0:hopsize, :]
+        # normalize back to 16bit amplitude, consider
+        # maximum amplitude value of sp block and hrtf impulse to get
+        # dynamical volume output
+        sp_binaural_block_out_sp_max_amp = np.amax(np.abs(
+            self.sp_binaural_block_out[sp]))
+        if sp_binaural_block_out_sp_max_amp != 0:
+            for l_r in range(2):
+                self.sp_binaural_block_out[sp][:, l_r] /= (
+                    sp_binaural_block_out_sp_max_amp / sp_max_amp[sp] /
+                    hrtf_max_amp[sp][l_r] * 32767)
+        sp_binaural_block_sp_time_max_amp = np.amax(np.abs(self.sp_binaural_block_out[sp][:, :]))
+        if sp_binaural_block_sp_time_max_amp > 20000:
+            print(sp_binaural_block_sp_time_max_amp)
         # create a new array to save remaining block output of current fft
         # and add it to the still remaining block output of prior ffts
         # 1. create new array binaural_block_add_sp_new with size (
@@ -75,6 +87,7 @@ class DspOut:
     # distance to the speakers.
     # @author Felix Pfreundtner
     def mix_binaural_block(self, hopsize):
+
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         # maximum distance of a speaker to head in window with borderlength
         # 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
@@ -94,8 +107,6 @@ class DspOut:
             if self.continue_convolution[sp] is False:
                 self.sp_binaural_block_out[sp] = np.zeros((hopsize, 2),
                                                           dtype=np.float32)
-        self.binaural_block = self.binaural_block.astype(np.float32,
-                                                         copy=False)
 
     # @brief sends the created binaural block of the dsp thread to the play
     # thread with the playqueue
