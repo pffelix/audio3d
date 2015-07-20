@@ -5,6 +5,7 @@ import audio3d.dsp_out
 import numpy as np
 import scipy.io.wavfile
 import audio3d.gui_utils
+import pkg_resources
 
 
 class DspTests(unittest.TestCase):
@@ -161,8 +162,8 @@ class DspTests(unittest.TestCase):
                                      dtype=np.int16)
         scipy_sp_dict_raw = {}
         for sp in self.gui_dict:
-            _, scipy_sp_dict_raw[sp] = scipy.io.wavfile.read(
-                self.gui_dict[sp][2])
+            _, scipy_sp_dict_raw[sp] = scipy.io.wavfile.read(self.gui_dict[sp][
+                                                             2])
             lenarray = len(scipy_sp_dict_raw[sp])
             # append zeros to scipy_sp_dict_raw to reach that output is
             # divideable by sp_blocksize

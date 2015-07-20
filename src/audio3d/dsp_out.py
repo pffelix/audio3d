@@ -12,9 +12,8 @@ import time
 import math
 import os
 import collections
-import threading
 import queue
-import copy
+import pkg_resources
 
 
 class DspOut:
@@ -200,5 +199,6 @@ class DspOut:
                     self.recordqueue.get()
                 position += hopsize
 
-        scipy.io.wavfile.write("./audio_out/binauralmix.wav", samplerate,
+        scipy.io.wavfile.write(pkg_resources.resource_filename("audio3d",
+                               "audio_out/binauralmix.wav"), samplerate,
                                binaural_record)

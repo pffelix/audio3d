@@ -10,7 +10,7 @@ import struct
 import numpy as np
 import math
 from numpy.fft import rfft, irfft
-
+import pkg_resources
 
 class DspIn:
     """
@@ -216,8 +216,9 @@ class DspIn:
             # distortion at low frequencies, even in the kemar compact
             # database, where it is integrated in the wave impulse responses)
             _, kemar_inverse_filter = \
-                scipy.io.wavfile.read(
-                    "./kemar/full/headphones+spkr/Opti-minphase.wav")
+                scipy.io.wavfile.read(pkg_resources.resource_filename(
+                    "audio3d",
+                    "kemar/full/headphones+spkr/Opti-minphase.wav"))
             kemar_inverse_filter = \
                 kemar_inverse_filter[0:self.fft_blocksize, ]
             # zeropad kemar_inverse_filter_fft to fft_blocksize and bring
@@ -266,29 +267,32 @@ class DspIn:
         if self.state.gui_settings["hrtf_database"] == "kemar_normal_ear":
             angle_end = 360
             for angle in range(0, angle_end, 5):
-                hrtf_filename = "./kemar/full/elev" + str(elevation) + "/L" \
+                hrtf_filename = "kemar/full/elev" + str(elevation) + "/L" \
                                 + str(elevation) + "e" +\
                                 str(angle).zfill(3) + "a.wav"
                 _, hrtf_database[:self.hrtf_blocksize_real,
                                  angle / angle_stepsize] = \
-                    scipy.io.wavfile.read(hrtf_filename)
+                    scipy.io.wavfile.read(pkg_resources.resource_filename(
+                        "audio3d", hrtf_filename))
 
         if self.state.gui_settings["hrtf_database"] == "kemar_big_ear":
             angle_end = 360
             for angle in range(0, angle_end, 5):
-                hrtf_filename = "./kemar/full/elev" + str(elevation) + "/R" \
+                hrtf_filename = "kemar/full/elev" + str(elevation) + "/R" \
                                 + str(elevation) + "e" +\
                                 str(angle).zfill(3) + "a.wav"
                 _, hrtf_database[:self.hrtf_blocksize_real,
                                  angle / angle_stepsize] = \
-                    scipy.io.wavfile.read(hrtf_filename)
+                    scipy.io.wavfile.read(pkg_resources.resource_filename(
+                        "audio3d", hrtf_filename))
         if self.state.gui_settings["hrtf_database"] == "kemar_compact":
             angle_end = 180
             for angle in range(0, angle_end, 5):
-                hrtf_filename = "./kemar/compact/elev" + str(elevation) + \
+                hrtf_filename = "kemar/compact/elev" + str(elevation) + \
                                 "/H" + str(elevation) + "e" +\
                                 str(angle).zfill(3) + "a.wav"
-                _, temp_hrtf_l_r = scipy.io.wavfile.read(hrtf_filename)
+                _, temp_hrtf_l_r = scipy.io.wavfile.read(
+                    pkg_resources.resource_filename("audio3d", hrtf_filename))
                 hrtf_database[:self.hrtf_blocksize_real, angle
                               / angle_stepsize] = temp_hrtf_l_r[:, 0]
                 hrtf_database[:self.hrtf_blocksize_real,
@@ -471,8 +475,9 @@ class DspIn:
         max_sp_samplenumber = 0
         # read in wave audio input files for every speaker
         for sp in range(self.spn):
-            _, sp_input_scipy = scipy.io.wavfile.read(
-                self.state.gui_sp[sp]["path"])
+
+            _, sp_input_scipy = \
+                scipy.io.wavfile.read(self.state.gui_sp[sp]["path"])
 
             # create a output array which is divideable by sp_blocksize
             sp_input.append(np.zeros((self.sp_param[sp][0] + self.sp_blocksize -

@@ -9,6 +9,7 @@ from audio3d.dt2 import DT2
 from math import acos, degrees, cos, sin, radians
 import audio3d.headtracker_data as headtracker
 import threading
+import pkg_resources
 
 
 class State(QtCore.QObject):
@@ -418,8 +419,9 @@ class Speaker(Item):
         self.state = state
         speaker_list = self.state.speaker_list
         self.index = index
-        image_path = './image/speaker' + str(index + 1) + '.png'
-        self.origin_image = QtGui.QImage(image_path)
+        image_path = 'image/speaker' + str(index + 1) + '.png'
+        self.origin_image = QtGui.QImage(pkg_resources.resource_filename(
+            "audio3d", image_path))
         super(Speaker, self).__init__(state)
         self.setPos(posx, posy)
         self.path = path
@@ -502,7 +504,8 @@ class Audience(Item):
     """
 
     type = 'audience'
-    origin_image = QtGui.QImage('./image/audience.png')
+    origin_image = QtGui.QImage(
+        pkg_resources.resource_filename("audio3d", 'image/audience.png'))
 
     """Constructor of the Audience class."""
     def __init__(self, state):
