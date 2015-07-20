@@ -6,7 +6,15 @@ import numpy as np
 
 
 class GLPlotWidget(QGLWidget):
+    """
+    H1 -- GLPlotWidget
+    ************************
+    **This class sets up a GLPlot used for real-time plotting of the
+    speaker and HRTF seuqences during the DSP algorithm is running as an
+    additional feature in the MainWindow.**
+    """
 
+    """Constructor of the GLPlotWidget class."""
     def __init__(self, parent=None):
         super(GLPlotWidget, self).__init__(
             QtOpenGL.QGLFormat(QtOpenGL.QGL.SampleBuffers), parent)
@@ -16,6 +24,12 @@ class GLPlotWidget(QGLWidget):
         self.setAutoFillBackground(False)
 
     def initialize_data(self, xdata_raw, ydata_raw):
+        """
+        H2 -- initialize_data
+        ===================
+        **This function sets the frequence intervall, defines the
+        interpolation and adapts the plot to the sequence.**
+        """
         # Felix
         # interpolate x and y Values
         # first frequency
@@ -52,6 +66,12 @@ class GLPlotWidget(QGLWidget):
         self.count = ydata.size
 
     def set_data(self, xdata_raw, ydata_raw):
+        """
+        H2 -- set_data
+        ===================
+        **This function sets the plot variables respective to the sequence
+        data.**
+        """
         # interpolate y Values
         ydata = np.interp(self.xdata, xdata_raw, ydata_raw)
         self.ymax = np.max(ydata)
@@ -62,11 +82,20 @@ class GLPlotWidget(QGLWidget):
         self.data[1::2] = self.ydata
 
     def update_data(self, xdata_raw, ydata_raw):
+        """
+        H2 -- update_data
+        ===================
+        **This function updates the plot.**
+        """
         self.set_data(xdata_raw, ydata_raw)
         self.repaint()
 
     def initializeGL(self):
-        """Initialize OpenGL, VBOs, upload data on the GPU, etc.
+        """
+        H2 -- initializeGL
+        ===================
+        **This function initializes OpenGL, VBOs, upload data on the GPU, etc..
+        .**
         """
         # background color
         gl.glClearColor(0, 0, 0, 0)
@@ -74,7 +103,11 @@ class GLPlotWidget(QGLWidget):
         # create a Vertex Buffer Object with the specified data
 
     def paintEvent(self, event):
-        """Paint the scene.
+        """
+        H2 -- mouseReleaseEvent
+        ===================
+        **This function is nessecary as GLPlotWidget does not offer pre-built
+        plot settings. With this the axis are painted, scaled and named.**
         """
         self.makeCurrent()
         painter = QtGui.QPainter()
@@ -139,7 +172,11 @@ class GLPlotWidget(QGLWidget):
         painter.end()
 
     def resizeGL(self, width, height):
-        """Called upon window resizing: reinitialize the viewport.
+        """
+        H2 -- resizeGL
+        ===================
+        **This function is called upon window resizing to reinitialize
+        the viewport.**
         """
         self.width, self.height = width, height
         gl.glViewport(0, 0, width, height)
