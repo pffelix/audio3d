@@ -11,7 +11,7 @@ setup(
     install_requires = ['pyopengl','pyaudio','pyside'],
     entry_points={
         'console_scripts': [
-            '3daudio = 3daudio.main:main',
+            '3daudio = 3daudio.__main__:main',
         ],
     }
 
