@@ -188,8 +188,10 @@ class DspOut:
     # @brief Writes the whole binaural output as wave file.
     # @author Felix Pfreundtner
     def writerecordfile(self, samplerate, hopsize):
-        if not os.path.exists("./audio_out/"):
-            os.makedirs("./audio_out/")
+        #if not os.path.exists(pkg_resources.resource_filename("audio3d",
+                                                              #"audio_out/")):
+            #os.makedirs(pkg_resources.resource_filename("audio3d",
+                                                        #"audio_out/"))
 
         binaural_record = np.zeros((self.recordqueue.qsize() * hopsize, 2),
                                    dtype=np.int16)
@@ -198,7 +200,8 @@ class DspOut:
                 binaural_record[position:position+hopsize, :] = \
                     self.recordqueue.get()
                 position += hopsize
-
+        print(pkg_resources.resource_filename("audio3d",
+                               "audio_out/binauralmix.wav")
         scipy.io.wavfile.write(pkg_resources.resource_filename("audio3d",
                                "audio_out/binauralmix.wav"), samplerate,
                                binaural_record)

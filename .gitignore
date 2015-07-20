@@ -4,6 +4,5 @@ __pycache__/
 *.egg-info
 */dist
 */build
-*audio_out/
 *env/
 *.pyc
