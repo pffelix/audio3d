@@ -27,8 +27,6 @@ class Dsp:
         # Blockcounter initialized to count number of already convolved
         # blocks
         self.blockcounter = 0
-        # timer variable which logs how long functions where running
-        self.time = {"while": 0, "fft": 0}
 
     # @brief Runs the dsp algorithm as one process on one cpu core.
     # @details
@@ -40,8 +38,16 @@ class Dsp:
         # read from speaker wave files
         while any(self.dspout_obj.continue_convolution) is True:
             # render new binaural block
-            # lock state object
+
+            # lock state object: gui should not change any input parameter
+            # during the creation of one block
             self.state.mtx_sp.acquire()
+            self.state.mtx_settings.acquire()
+            self.state.mtx_error.acquire()
+            self.state.mtx_run.acquire()
+            self.state.mtx_stop.acquire()
+            self.state.mtx_pause.acquire()
+
             # print the number of already done FFT / Block iterations
             # print("FFT Block " + str(self.blockcounter) + ":")
             # set the begin and end of the speaker wave block which needs to
@@ -84,7 +90,6 @@ class Dsp:
                             self.dspin_obj.fft_convolution(
                                 self.dspout_obj.sp_binaural_block[sp], sp,
                                 l_r)
-                        self.time["fft"] += time.time() - start
 
                     # overlap and add binaural stereo block output of
                     # speaker sp to prior binaural stereo block output of
@@ -96,16 +101,22 @@ class Dsp:
             # Mix binaural stereo blockoutput of every speaker to one
             # binaural stereo block output having regard to speaker distances
             self.dspout_obj.mix_binaural_block(self.dspin_obj.hopsize)
-            # binaural block rendered: unlock state object
+
+            # rendering of binaural block finshed:
+
+            # unlock parameters of gui state object: block is created, gui can
+            # change parameters now for the next block
             self.state.mtx_sp.release()
+            self.state.mtx_settings.release()
+            self.state.mtx_error.release()
+            self.state.mtx_run.release()
+            self.state.mtx_stop.release()
+            self.state.mtx_pause.release()
+
             # Add mixed binaural stereo block to a time continuing binaural
             # output of all blocks
-            self.dspout_obj.lock.acquire()
-            try:
-                self.dspout_obj.add_to_queue(
-                    self.blockcounter)
-            finally:
-                self.dspout_obj.lock.release()
+            self.dspout_obj.add_to_queue(self.blockcounter)
+
             # Begin audio playback if specified number of bufferblocks
             # has been convolved
             if self.blockcounter == self.bufferblocks:
@@ -115,56 +126,35 @@ class Dsp:
                         self.dspin_obj.hopsize))
                 playthread.start()
 
-            # increment block counter of run function when less blocks than
-            # than the bufferblocksize has been convolved (playback not
-            # started yet). Also increment blockcounter of every convolve
-            # process
+            # when less blocks than than the bufferblocksize has been
+            # convolved (playback thread not started yet).
             if self.blockcounter <= self.bufferblocks:
+                # increment number of already convolved block iterations
                 self.blockcounter += 1
-            # if playback already started
             else:
-                start = time.time()
                 # wait until the the new block has been played
                 while self.dspout_obj.played_block_counter <= \
-                        self.dspout_obj.prior_played_block_counter and self.\
-                        dspout_obj.playback_finished is False:
-                    time.sleep(1 / self.dspin_obj.wave_param_common[0])
-                    # print("FFT: " + str(self.blockcounter))
-                    # print("wait")
+                        self.dspout_obj.prior_played_block_counter and \
+                        self.state.dsp_stop is False:
+                    time.sleep(1 / self.dspin_obj.wave_param_common[0]*10)
                 # increment number of last played block
                 self.dspout_obj.prior_played_block_counter += 1
-                # increment number of already convolved blocks
+                # increment number of already convolved block iterations
                 self.blockcounter += 1
-                self.time["while"] += time.time() - start
+
+            # handle playback stop
+            if self.state.dsp_stop is True:
+                # break convolution while loop
+                break
             # handle playback pause
             while self.state.dsp_pause is True:
                 time.sleep(0.1)
-            # handle playback stop
-            if self.state.dsp_stop is True:
-                break
 
-        # set correct playback output if stop button was pressed
-        if self.state.dsp_stop is True:
-            self.dspout_obj.playback_successful = True
-        # excecute commands when playback finished successfully
-        if self.dspout_obj.playback_successful is True and \
-           self.state.dsp_stop is \
-                False:
-            self.state.dsp_stop = True
-        # show plot of the output signal binaural_scaled
-        # plt.plot(self.dspout_obj.binaural[:, l_r])
-        # plt.show()
         # Write generated output signal binaural_scaled to file
         self.dspout_obj.writebinauraloutput(
             self.dspout_obj.binaural,
             self.dspin_obj.wave_param_common)
-        # print out maximum integer amplitude value of whole played binaural
-        # output
-        print("maximum output amplitude: " + str(np.amax(np.abs(
-            self.dspout_obj.binaural))))
 
         self.return_ex.put(self.dspout_obj.playback_successful)
-        # tell gui that dsp algorithm has finished
+        # mark dsp algorithm as finished
         self.state.dsp_run = False
-        # print timer variables
-        print(self.time)

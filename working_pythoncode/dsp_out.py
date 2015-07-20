@@ -35,8 +35,6 @@ class DspOut:
         self.played_block_counter = 0
         self.prior_played_block_counter = 0
         self.playbuffer = collections.deque()
-        self.lock = threading.Lock()
-        self.playback_finished = False
         self.playback_successful = True
         self.playqueue = queue.Queue()
 
@@ -151,7 +149,7 @@ class DspOut:
                               )
         audiostream.start_stream()
         while audiostream.is_active() or audiostream.is_stopped():
-            time.sleep(1)
+            time.sleep(0.5)
             # handle playback pause
             if self.state.dsp_pause is True:
                 audiostream.stop_stream()
@@ -163,12 +161,17 @@ class DspOut:
         audiostream.stop_stream()
         audiostream.close()
         pa.terminate()
-        # execute commands when when playback finished successfully
-        if any(self.continue_convolution) is True and \
-                self.state.dsp_stop is False:
-            print("Error PC to slow - Playback Stopped")
-            for continue_convolution_sp in self.continue_convolution:
-                # self.played_frames_end += sp_blocksize
-                continue_convolution_sp = False
-            self.playback_successful = False
-        self.playback_finished = True
+
+        # if stop button was not pressed
+        if self.state.dsp_stop is False:
+            # when not the whole input has been convolved
+            if any(self.continue_convolution) is True:
+                self.state.send_error("Error PC to slow - Playback Stopped")
+                for sp in range(self.spn):
+                    self.continue_convolution[sp] = False
+                self.playback_successful = False
+
+        # mark audio as not paused
+        self.state.dsp_pause = False
+        # mark audio as stopped
+        self.state.dsp_stop = True

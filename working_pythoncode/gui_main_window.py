@@ -360,9 +360,6 @@ class MainWindow(QtGui.QWidget):
             if self.return_ex.empty() is False and self.return_ex.get() is \
                     True:
                 self.state.switch_stop_playback()
-            print("continue")
-            # while not self.return_ex.empty():
-            #   self.return_ex.get()
 
             # update gui_settings
             self.state.gui_settings["hrtf_database"] = \
@@ -481,7 +478,7 @@ class MainWindow(QtGui.QWidget):
         # if self.dspthread is not None and self.state.dsp_pause is True:
 
         # stop dsp Thread
-        if self.dsp_obj is not None:
+        if self.dsp_thread is not None:
             # stop dsp Thread
             self.state.mtx_pause.acquire()
             self.state.dsp_pause = False
