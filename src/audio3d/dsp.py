@@ -38,7 +38,7 @@ class Dsp:
         H2 -- run
         ===================
         **Runs the dsp algorithm as one process on one cpu core as a big
-        while-loop** |br|
+        while-loop**
 
         | The steps of the loop are:
         | 1. Lock shared variables.
