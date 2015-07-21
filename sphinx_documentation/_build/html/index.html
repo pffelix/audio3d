@@ -50,7 +50,7 @@
 <ul class="simple">
 </ul>
 </div>
-<span class="target" id="module-dsp"></span><span class="target" id="module-dsp_in"></span><p>Created on Fri Jun  5 10:30:53 2015</p>
+<span class="target" id="module-__main__"></span><span class="target" id="module-dsp"></span><span class="target" id="module-dsp_in"></span><p>Created on Fri Jun  5 10:30:53 2015</p>
 <p>&#64;author: Felix Pfreundtner</p>
 <span class="target" id="module-dsp_out"></span><p>Created on Fri Jun  5 10:31:01 2015</p>
 <p>&#64;author: Felix Pfreundtner</p>
@@ -68,19 +68,21 @@ author: H. Zhu, M. Heiss</p>
 <dt id="dsp.Dsp.run">
 <code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp.html#Dsp.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp.Dsp.run" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Runs the dsp algorithm as one process on one cpu core as a big
-while-loop</strong></p>
-<p>The steps of the loop are:
-1. Lock shared variables.
-2. Set the begin and end of the speaker wave block which needs to
-be read in this iteration.
-3. Iterate over all active speakers sp.
-4. Mix binaural stereo blockoutput of every speaker to one binaural
-stereo block output having regard to speaker distances.
-5. Mix binaural stereo blockoutput of every speaker.
-6. Add mixed binaural stereo block to play queue.
-7. Unlock shared variables.
-8. Synchronize with PortAudio Playback Thread
-9. Finish DSP Algorithm.</p>
+while-loop</strong> <br /></p>
+<div class="line-block">
+<div class="line">The steps of the loop are:</div>
+<div class="line">1. Lock shared variables.</div>
+<div class="line">2. Set the begin and end of the speaker wave block which needs to
+be read in this iteration.</div>
+<div class="line">3. Iterate over all active speakers sp.</div>
+<div class="line">4. Mix binaural stereo blockoutput of every speaker to one binaural
+stereo block output having regard to speaker distances.</div>
+<div class="line">5. Mix binaural stereo blockoutput of every speaker.</div>
+<div class="line">6. Add mixed binaural stereo block to play queue.</div>
+<div class="line">7. Unlock shared variables.</div>
+<div class="line">8. Synchronize with PortAudio Playback Thread</div>
+<div class="line">9. Finish DSP Algorithm.</div>
+</div>
 <p>Authors: Felix Pfreundtner, Matthias Lederle</p>
 </dd></dl>
 
@@ -1003,19 +1005,21 @@ angle would result in something greater than 360°.</strong></p>
 <dt>
 <code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp.html#Dsp.run"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>Runs the dsp algorithm as one process on one cpu core as a big
-while-loop</strong></p>
-<p>The steps of the loop are:
-1. Lock shared variables.
-2. Set the begin and end of the speaker wave block which needs to
-be read in this iteration.
-3. Iterate over all active speakers sp.
-4. Mix binaural stereo blockoutput of every speaker to one binaural
-stereo block output having regard to speaker distances.
-5. Mix binaural stereo blockoutput of every speaker.
-6. Add mixed binaural stereo block to play queue.
-7. Unlock shared variables.
-8. Synchronize with PortAudio Playback Thread
-9. Finish DSP Algorithm.</p>
+while-loop</strong> <br /></p>
+<div class="line-block">
+<div class="line">The steps of the loop are:</div>
+<div class="line">1. Lock shared variables.</div>
+<div class="line">2. Set the begin and end of the speaker wave block which needs to
+be read in this iteration.</div>
+<div class="line">3. Iterate over all active speakers sp.</div>
+<div class="line">4. Mix binaural stereo blockoutput of every speaker to one binaural
+stereo block output having regard to speaker distances.</div>
+<div class="line">5. Mix binaural stereo blockoutput of every speaker.</div>
+<div class="line">6. Add mixed binaural stereo block to play queue.</div>
+<div class="line">7. Unlock shared variables.</div>
+<div class="line">8. Synchronize with PortAudio Playback Thread</div>
+<div class="line">9. Finish DSP Algorithm.</div>
+</div>
 <p>Authors: Felix Pfreundtner, Matthias Lederle</p>
 </dd></dl>
 
@@ -1983,8 +1987,8 @@ angle would result in something greater than 360°.</strong></p>
 </div>
 <div class="section" id="modules">
 <h1>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="main">
-<h2>main<a class="headerlink" href="#main" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-__main__">
+<span id="main"></span><h2>__main__<a class="headerlink" href="#module-__main__" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="id33">
 <h2>dsp<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h2>
@@ -2071,7 +2075,7 @@ author: H. Zhu, M. Heiss</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#modules">Modules</a><ul>
-<li><a class="reference internal" href="#main">main</a></li>
+<li><a class="reference internal" href="#module-__main__">__main__</a></li>
 <li><a class="reference internal" href="#id33">dsp</a></li>
 <li><a class="reference internal" href="#module-dsp_in">dsp_in</a></li>
 <li><a class="reference internal" href="#module-dsp_out">dsp_out</a></li>

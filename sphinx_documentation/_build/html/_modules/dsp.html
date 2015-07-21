@@ -87,20 +87,20 @@
 <span class="sd">        H2 -- run</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Runs the dsp algorithm as one process on one cpu core as a big</span>
-<span class="sd">        while-loop**</span>
+<span class="sd">        while-loop** |br|</span>
 
-<span class="sd">        The steps of the loop are:</span>
-<span class="sd">        1. Lock shared variables.</span>
-<span class="sd">        2. Set the begin and end of the speaker wave block which needs to</span>
-<span class="sd">        be read in this iteration.</span>
-<span class="sd">        3. Iterate over all active speakers sp.</span>
-<span class="sd">        4. Mix binaural stereo blockoutput of every speaker to one binaural</span>
-<span class="sd">        stereo block output having regard to speaker distances.</span>
-<span class="sd">        5. Mix binaural stereo blockoutput of every speaker.</span>
-<span class="sd">        6. Add mixed binaural stereo block to play queue.</span>
-<span class="sd">        7. Unlock shared variables.</span>
-<span class="sd">        8. Synchronize with PortAudio Playback Thread</span>
-<span class="sd">        9. Finish DSP Algorithm.</span>
+<span class="sd">        | The steps of the loop are:</span>
+<span class="sd">        | 1. Lock shared variables.</span>
+<span class="sd">        | 2. Set the begin and end of the speaker wave block which needs to</span>
+<span class="sd">          be read in this iteration.</span>
+<span class="sd">        | 3. Iterate over all active speakers sp.</span>
+<span class="sd">        | 4. Mix binaural stereo blockoutput of every speaker to one binaural</span>
+<span class="sd">          stereo block output having regard to speaker distances.</span>
+<span class="sd">        | 5. Mix binaural stereo blockoutput of every speaker.</span>
+<span class="sd">        | 6. Add mixed binaural stereo block to play queue.</span>
+<span class="sd">        | 7. Unlock shared variables.</span>
+<span class="sd">        | 8. Synchronize with PortAudio Playback Thread</span>
+<span class="sd">        | 9. Finish DSP Algorithm.</span>
 
 <span class="sd">        Authors: Felix Pfreundtner, Matthias Lederle</span>
 <span class="sd">        &quot;&quot;&quot;</span>
