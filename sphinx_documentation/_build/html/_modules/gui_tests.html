@@ -51,7 +51,6 @@
 <span class="kn">import</span> <span class="nn">audio3d.gui_utils</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
-
 <div class="viewcode-block" id="GuiTests"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests">[docs]</a><span class="k">class</span> <span class="nc">GuiTests</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    H1 -- GuiTests</span>
@@ -59,30 +58,59 @@
 <span class="sd">    **Test class for GUI.**</span>
 <span class="sd">    Athor: Huijiang, Manuela</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c"># calling the constructor of the super class</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GuiTests</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c"># initialze GUI State</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">State</span><span class="p">()</span>
 
-<div class="viewcode-block" id="GuiTests.test_switch_stop_playback"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_switch_stop_playback">[docs]</a>    <span class="k">def</span> <span class="nf">test_switch_stop_playback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GuiTests.test_switch_stop_playback_true"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_switch_stop_playback_true">[docs]</a>    <span class="k">def</span> <span class="nf">test_switch_stop_playback_true</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- test_switch_stop_playback</span>
+<span class="sd">        H2 -- test_switch_stop_playback (condition true)</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **This tests function switch_stop_playback() from gui_utils.**</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_stop_playback</span><span class="p">()</span>
         <span class="n">sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_switch_stop_playback failed!&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="GuiTests.test_switch_pause_playback"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_switch_pause_playback">[docs]</a>    <span class="k">def</span> <span class="nf">test_switch_pause_playback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GuiTests.test_switch_stop_playback_false"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_switch_stop_playback_false">[docs]</a>    <span class="k">def</span> <span class="nf">test_switch_stop_playback_false</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- test_switch_pause_playback</span>
+<span class="sd">        H2 -- test_switch_stop_playback (condition false)</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This tests function switch_stop_playback() from gui_utils.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_stop_playback</span><span class="p">()</span>
+        <span class="n">sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_switch_stop_playback failed!&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GuiTests.test_switch_pause_playback_true"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_switch_pause_playback_true">[docs]</a>    <span class="k">def</span> <span class="nf">test_switch_pause_playback_true</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- test_switch_pause_playback (condition true)</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **This tests function switch_pause_playback() from gui_utils.**</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_pause_playback</span><span class="p">()</span>
         <span class="n">sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_pause</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_switch_pause_playback failed!&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GuiTests.test_switch_pause_playback_false"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_switch_pause_playback_false">[docs]</a>    <span class="k">def</span> <span class="nf">test_switch_pause_playback_false</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- test_switch_pause_playback (condition false)</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This tests function switch_pause_playback() from gui_utils.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_pause_playback</span><span class="p">()</span>
+        <span class="n">sol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_pause</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_switch_pause_playback failed!&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">sol</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="GuiTests.test_get_bound_pos_negative"><a class="viewcode-back" href="../index.html#gui_tests.GuiTests.test_get_bound_pos_negative">[docs]</a>    <span class="k">def</span> <span class="nf">test_get_bound_pos_negative</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -156,7 +184,6 @@
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_get_abs_pos failed!&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">solx</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">soly</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
-
 </div></div>
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>

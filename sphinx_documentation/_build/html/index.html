@@ -306,7 +306,63 @@ the values are replaced, there are no input and output variables.</p>
 <dl class="class">
 <dt id="dsp_out.DspOut">
 <em class="property">class </em><code class="descclassname">dsp_out.</code><code class="descname">DspOut</code><span class="sig-paren">(</span><em>state_init</em>, <em>fft_blocksize</em>, <em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="method">
+<dt id="dsp_out.DspOut.add_to_playqueue">
+<code class="descname">add_to_playqueue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.add_to_playqueue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut.add_to_playqueue" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Sends the created binaural block of the dsp thread to the play
+thread with the playqueue.</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_out.DspOut.add_to_recordqueue">
+<code class="descname">add_to_recordqueue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.add_to_recordqueue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut.add_to_recordqueue" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Adds the binaural block to the record queue.</strong></p>
+<p>Sends the created binaural block of the dsp thread to the record
+queue, which collects all created binaural blocks. Later the queue
+is read by writerecordfile().</p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_out.DspOut.audiooutput">
+<code class="descname">audiooutput</code><span class="sig-paren">(</span><em>samplerate</em>, <em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.audiooutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut.audiooutput" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Streams the calculated files as a output signal.</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_out.DspOut.callback">
+<code class="descname">callback</code><span class="sig-paren">(</span><em>in_data</em>, <em>frame_count</em>, <em>time_info</em>, <em>status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut.callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_out.DspOut.mix_binaural_block">
+<code class="descname">mix_binaural_block</code><span class="sig-paren">(</span><em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.mix_binaural_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut.mix_binaural_block" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Calculate the signal for all speakers taking into account the
+distance to the speakers.</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_out.DspOut.overlap_add">
+<code class="descname">overlap_add</code><span class="sig-paren">(</span><em>fft_blocksize</em>, <em>hopsize</em>, <em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.overlap_add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut.overlap_add" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Applies the overlap-add-method to the signal.</strong></p>
+<p>Adds a part of the prior generated binaural block to the beginning
+of the new generated binaural block (reason: convert fft circular
+convolution to linear convolution)</p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_out.DspOut.writerecordfile">
+<code class="descname">writerecordfile</code><span class="sig-paren">(</span><em>samplerate</em>, <em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.writerecordfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut.writerecordfile" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Write the whole binaural output as wave file.</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="dsp_tests.DspTests">
@@ -852,7 +908,7 @@ Author: Marko Durkovic</p>
 
 <dl class="class">
 <dt id="gui_tests.GuiTests">
-<em class="property">class </em><code class="descclassname">gui_tests.</code><code class="descname">GuiTests</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">gui_tests.</code><code class="descname">GuiTests</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Test class for GUI.</strong>
 Athor: Huijiang, Manuela</p>
 <dl class="method">
@@ -888,14 +944,26 @@ values.</strong></p>
 </dd></dl>
 
 <dl class="method">
-<dt id="gui_tests.GuiTests.test_switch_pause_playback">
-<code class="descname">test_switch_pause_playback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_pause_playback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_switch_pause_playback" title="Permalink to this definition">¶</a></dt>
+<dt id="gui_tests.GuiTests.test_switch_pause_playback_false">
+<code class="descname">test_switch_pause_playback_false</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_pause_playback_false"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_switch_pause_playback_false" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This tests function switch_pause_playback() from gui_utils.</strong></p>
 </dd></dl>
 
 <dl class="method">
-<dt id="gui_tests.GuiTests.test_switch_stop_playback">
-<code class="descname">test_switch_stop_playback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_stop_playback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_switch_stop_playback" title="Permalink to this definition">¶</a></dt>
+<dt id="gui_tests.GuiTests.test_switch_pause_playback_true">
+<code class="descname">test_switch_pause_playback_true</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_pause_playback_true"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_switch_pause_playback_true" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests function switch_pause_playback() from gui_utils.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_tests.GuiTests.test_switch_stop_playback_false">
+<code class="descname">test_switch_stop_playback_false</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_stop_playback_false"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_switch_stop_playback_false" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests function switch_stop_playback() from gui_utils.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_tests.GuiTests.test_switch_stop_playback_true">
+<code class="descname">test_switch_stop_playback_true</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_stop_playback_true"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_switch_stop_playback_true" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This tests function switch_stop_playback() from gui_utils.</strong></p>
 </dd></dl>
 
@@ -1179,7 +1247,63 @@ the values are replaced, there are no input and output variables.</p>
 <dl class="class">
 <dt>
 <em class="property">class </em><code class="descclassname">dsp_out.</code><code class="descname">DspOut</code><span class="sig-paren">(</span><em>state_init</em>, <em>fft_blocksize</em>, <em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut"><span class="viewcode-link">[source]</span></a></dt>
-<dd></dd></dl>
+<dd><dl class="method">
+<dt>
+<code class="descname">add_to_playqueue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.add_to_playqueue"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p><strong>Sends the created binaural block of the dsp thread to the play
+thread with the playqueue.</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">add_to_recordqueue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.add_to_recordqueue"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p><strong>Adds the binaural block to the record queue.</strong></p>
+<p>Sends the created binaural block of the dsp thread to the record
+queue, which collects all created binaural blocks. Later the queue
+is read by writerecordfile().</p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">audiooutput</code><span class="sig-paren">(</span><em>samplerate</em>, <em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.audiooutput"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p><strong>Streams the calculated files as a output signal.</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">callback</code><span class="sig-paren">(</span><em>in_data</em>, <em>frame_count</em>, <em>time_info</em>, <em>status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.callback"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">mix_binaural_block</code><span class="sig-paren">(</span><em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.mix_binaural_block"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p><strong>Calculate the signal for all speakers taking into account the
+distance to the speakers.</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">overlap_add</code><span class="sig-paren">(</span><em>fft_blocksize</em>, <em>hopsize</em>, <em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.overlap_add"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p><strong>Applies the overlap-add-method to the signal.</strong></p>
+<p>Adds a part of the prior generated binaural block to the beginning
+of the new generated binaural block (reason: convert fft circular
+convolution to linear convolution)</p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">writerecordfile</code><span class="sig-paren">(</span><em>samplerate</em>, <em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.writerecordfile"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p><strong>Write the whole binaural output as wave file.</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+</dd></dl>
 
 </div>
 <div class="section" id="dsptests">
@@ -1770,7 +1894,7 @@ Author: Marko Durkovic</p>
 <h2>GuiTests<a class="headerlink" href="#guitests" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt>
-<em class="property">class </em><code class="descclassname">gui_tests.</code><code class="descname">GuiTests</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests"><span class="viewcode-link">[source]</span></a></dt>
+<em class="property">class </em><code class="descclassname">gui_tests.</code><code class="descname">GuiTests</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>Test class for GUI.</strong>
 Athor: Huijiang, Manuela</p>
 <dl class="method">
@@ -1807,13 +1931,25 @@ values.</strong></p>
 
 <dl class="method">
 <dt>
-<code class="descname">test_switch_pause_playback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_pause_playback"><span class="viewcode-link">[source]</span></a></dt>
+<code class="descname">test_switch_pause_playback_false</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_pause_playback_false"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>This tests function switch_pause_playback() from gui_utils.</strong></p>
 </dd></dl>
 
 <dl class="method">
 <dt>
-<code class="descname">test_switch_stop_playback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_stop_playback"><span class="viewcode-link">[source]</span></a></dt>
+<code class="descname">test_switch_pause_playback_true</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_pause_playback_true"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p><strong>This tests function switch_pause_playback() from gui_utils.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">test_switch_stop_playback_false</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_stop_playback_false"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p><strong>This tests function switch_stop_playback() from gui_utils.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">test_switch_stop_playback_true</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_stop_playback_true"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>This tests function switch_stop_playback() from gui_utils.</strong></p>
 </dd></dl>
 

@@ -37,12 +37,18 @@ class DspOut:
         self.playqueue = queue.Queue()
         self.recordqueue = queue.Queue()
 
-    # @brief Applies the overlap-add-method to the signal.
-    # @details Adds a part of the prior generated binaural block to the
-    # beginning of the new generated binaural block (reason: convert
-    # fft circular convolution to linear convolution)
-    # @author Felix Pfreundtner
     def overlap_add(self, fft_blocksize, hopsize, sp):
+        """
+        H2 -- overlap_add
+        ===================
+        **Applies the overlap-add-method to the signal.**
+
+        Adds a part of the prior generated binaural block to the beginning
+        of the new generated binaural block (reason: convert fft circular
+        convolution to linear convolution)
+
+        Author: Felix Pfreundtner
+        """
         # get current binaural block output of sp
         # 1. take binaural block output of current fft which don't overlap
         # with next blocks
@@ -82,7 +88,14 @@ class DspOut:
     # distance to the speakers.
     # @author Felix Pfreundtner
     def mix_binaural_block(self, hopsize):
+        """
+        H2 -- mix_binaural_block
+        ===================
+        **Calculate the signal for all speakers taking into account the
+        distance to the speakers.**
 
+        Author: Felix Pfreundtner
+        """
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         # maximum distance of a speaker to head in window with borderlength
         # 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
@@ -107,10 +120,15 @@ class DspOut:
         if sp_binaural_block_sp_time_max_amp > 35000:
             print(sp_binaural_block_sp_time_max_amp)
 
-    # @brief sends the created binaural block of the dsp thread to the play
-    # thread with the playqueue
-    # @author Felix Pfreundtner
     def add_to_playqueue(self):
+        """
+        H2 -- add_to_playqueue
+        ===================
+        **Sends the created binaural block of the dsp thread to the play
+        thread with the playqueue.**
+
+        Author: Felix Pfreundtner
+        """
         self.playqueue.put(self.binaural_block.astype(np.int16,
                                                       copy=False).tostring())
 
@@ -119,12 +137,27 @@ class DspOut:
     #  read by writerecordfile().
     # @author Felix Pfreundtner
     def add_to_recordqueue(self):
+        """
+        H2 -- add_to_recordqueue
+        ===================
+        **Adds the binaural block to the record queue.**
+
+        Sends the created binaural block of the dsp thread to the record
+        queue, which collects all created binaural blocks. Later the queue
+        is read by writerecordfile().
+
+        Author: Felix Pfreundtner
+        """
         self.recordqueue.put(self.binaural_block.astype(np.int16,
                                                         copy=False))
 
-    # @brief
-    # @author Felix Pfreundtner
     def callback(self, in_data, frame_count, time_info, status):
+        """
+        H2 -- callback
+        ===================
+
+        Author: Felix Pfreundtner
+        """
         if status:
             print("Playback Error: %i" % status)
         # played_frames_begin = self.played_frames_end
@@ -140,9 +173,14 @@ class DspOut:
         # print("Play: " + str(self.played_block_counter))
         return data, returnflag
 
-    # @brief Streams the calculated files as a output signal.
-    # @author Felix Pfreundtner
     def audiooutput(self, samplerate, hopsize):
+        """
+        H2 -- audiooutput
+        ===================
+        **Streams the calculated files as a output signal.**
+
+        Author: Felix Pfreundtner
+        """
         pa = pyaudio.PyAudio()
         audiostream = pa.open(format=pyaudio.paInt16,
                               channels=2,
@@ -184,9 +222,14 @@ class DspOut:
         # finally mark audio as stopped
         self.state.dsp_stop = True
 
-    # @brief Writes the whole binaural output as wave file.
-    # @author Felix Pfreundtner
     def writerecordfile(self, samplerate, hopsize):
+        """
+        H2 -- writerecordfile
+        ===================
+        **Write the whole binaural output as wave file.**
+
+        Author: Felix Pfreundtner
+        """
         binaural_record = np.zeros((self.recordqueue.qsize() * hopsize, 2),
                                    dtype=np.int16)
         position = 0
