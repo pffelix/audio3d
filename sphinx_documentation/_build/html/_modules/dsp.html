@@ -33,9 +33,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Group B: 3D Audio 1.0 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -170,8 +167,7 @@
                         <span class="c"># convolve hrtf with speaker block input to get</span>
                         <span class="c"># binaural stereo block output</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">sp_binaural_block</span><span class="p">[</span><span class="n">sp</span><span class="p">][:,</span> <span class="n">l_r</span><span class="p">]</span> <span class="o">=</span> \
-                            <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">fft_convolution</span><span class="p">(</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">sp_binaural_block</span><span class="p">[</span><span class="n">sp</span><span class="p">],</span> <span class="n">sp</span><span class="p">,</span> <span class="n">l_r</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">fft_convolution</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">l_r</span><span class="p">)</span>
 
                     <span class="c"># overlap and add binaural stereo block output of</span>
                     <span class="c"># speaker sp to prior binaural stereo block output of</span>
@@ -275,9 +271,6 @@
         <li class="right" style="margin-right: 10px">
           <a href="../genindex.html" title="General Index"
              >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">Group B: 3D Audio 1.0 documentation</a> &raquo;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &raquo;</li> 
       </ul>

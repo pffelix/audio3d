@@ -16,60 +16,6 @@ Welcome to 3D Audio Documentation
 
 .. toctree::
    :maxdepth: 2
-.. automodule:: __main__
-.. automodule:: dsp
-.. automodule:: dsp_in
-.. automodule:: dsp_out
-.. automodule:: dsp_tests
-.. automodule:: gui_main_window
-.. automodule:: gui_utils
-.. automodule:: gui_plot
-.. automodule:: gui_tests
-.. automodule:: headtracker_dt2
-.. automodule:: headtracker_data
-.. automodule:: headtracker_tests
-
-.. autoclass:: dsp.Dsp
-    :members:
-.. autoclass:: dsp_in.DspIn
-    :members:
-.. autoclass:: dsp_out.DspOut
-    :members:
-.. autoclass:: dsp_tests.DspTests
-    :members:
-.. autoclass:: gui_main_window.MainWindow
-    :members:
-.. autoclass:: gui_utils.State
-    :members:
-.. autoclass:: gui_utils.Headtracker
-    :members:
-.. autoclass:: gui_utils.Item
-    :members:
-.. autoclass:: gui_utils.Room
-    :members:
-.. autoclass:: gui_utils.View
-    :members:
-.. autoclass:: gui_utils.SignalHandler
-    :members:
-.. autoclass:: gui_utils.Speaker
-    :members:
-.. autoclass:: gui_utils.Audience
-    :members:
-.. autoclass:: gui_utils.SpeakerProperty
-    :members:
-.. autoclass:: gui_utils.SequencePlot
-    :members:
-.. autoclass:: gui_plot.GLPlotWidget
-    :members:
-.. autoclass:: gui_tests.GuiTests
-    :members:
-.. autoclass:: headtracker_dt2.DT2
-    :members:
-.. autoclass:: headtracker_tests.TestHeadtracker
-    :members:
-
-
-
 
 
 Classes
