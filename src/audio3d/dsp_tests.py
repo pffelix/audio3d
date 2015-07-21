@@ -43,6 +43,8 @@ class DspTests(unittest.TestCase):
         H2 -- test_rnd_int
         ===================
         Tests rnd for one particular number.
+
+        Author: Matthias Lederle
         """
         val = 1.9
         sol = 2
@@ -56,6 +58,7 @@ class DspTests(unittest.TestCase):
         ===================
         **Tests rnd for a list of numbers at the same time.**
 
+        Author: Matthias Lederle
         """
         i = 0
         value = [2.55, 7.9, (2 / 3), 0.5, 0.00001, 500.1, -80.1, -1.4142, -9.5]
@@ -199,6 +202,8 @@ class DspTests(unittest.TestCase):
             truelist.append(bool)
             i += 1
         self.assertTrue(truelist, msg=errmsg)
+
+
 
 if __name__ == '__main__':
     unittest.main()

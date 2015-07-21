@@ -5,7 +5,7 @@ author: H. Zhu, M. Heiss
 
 from PySide import QtCore, QtGui
 from audio3d.plot import GLPlotWidget
-from audio3d.dt2 import DT2
+from audio3d.headtracker_dt2 import DT2
 from math import acos, degrees, cos, sin, radians
 import audio3d.headtracker_data as headtracker
 import threading
