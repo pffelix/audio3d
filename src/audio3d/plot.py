@@ -1,6 +1,6 @@
 from PySide import QtGui, QtCore, QtOpenGL
 from PySide.QtOpenGL import QGLWidget
-import OpenGL.GL as gl
+import OpenGL.GL
 import OpenGL.arrays.vbo as glvbo
 import numpy as np
 
@@ -98,7 +98,7 @@ class GLPlotWidget(QGLWidget):
         .**
         """
         # background color
-        gl.glClearColor(0, 0, 0, 0)
+        OpenGL.GL.glClearColor(0, 0, 0, 0)
         self.vbo = glvbo.VBO(self.data)
         # create a Vertex Buffer Object with the specified data
 
@@ -113,28 +113,28 @@ class GLPlotWidget(QGLWidget):
         painter = QtGui.QPainter()
         painter.begin(self)
 
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
-        gl.glColor(1, 1, 0)
+        OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT)
+        OpenGL.GL.glColor(1, 1, 0)
 
-        gl.glPushAttrib(gl.GL_ALL_ATTRIB_BITS)
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glPushMatrix()
-        gl.glMatrixMode(gl.GL_MODELVIEW)
-        gl.glPushMatrix()
+        OpenGL.GL.glPushAttrib(OpenGL.GL.GL_ALL_ATTRIB_BITS)
+        OpenGL.GL.glMatrixMode(OpenGL.GL.GL_PROJECTION)
+        OpenGL.GL.glPushMatrix()
+        OpenGL.GL.glMatrixMode(OpenGL.GL.GL_MODELVIEW)
+        OpenGL.GL.glPushMatrix()
 
         self.vbo = glvbo.VBO(self.data)
         self.vbo.bind()
-        gl.glEnableClientState(gl.GL_VERTEX_ARRAY)
-        gl.glVertexPointer(2, gl.GL_FLOAT, 0, self.vbo)
-        gl.glDrawArrays(gl.GL_POINTS, 0, self.count)
+        OpenGL.GL.glEnableClientState(OpenGL.GL.GL_VERTEX_ARRAY)
+        OpenGL.GL.glVertexPointer(2, OpenGL.GL.GL_FLOAT, 0, self.vbo)
+        OpenGL.GL.glDrawArrays(OpenGL.GL.GL_POINTS, 0, self.count)
         self.vbo.unbind()
-        gl.glDisableClientState(gl.GL_VERTEX_ARRAY)
+        OpenGL.GL.glDisableClientState(OpenGL.GL.GL_VERTEX_ARRAY)
 
-        gl.glMatrixMode(gl.GL_MODELVIEW)
-        gl.glPopMatrix()
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glPopMatrix()
-        gl.glPopAttrib()
+        OpenGL.GL.glMatrixMode(OpenGL.GL.GL_MODELVIEW)
+        OpenGL.GL.glPopMatrix()
+        OpenGL.GL.glMatrixMode(OpenGL.GL.GL_PROJECTION)
+        OpenGL.GL.glPopMatrix()
+        OpenGL.GL.glPopAttrib()
 
         # paint the axis
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -179,7 +179,7 @@ class GLPlotWidget(QGLWidget):
         the viewport.**
         """
         self.width, self.height = width, height
-        gl.glViewport(0, 0, width, height)
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glLoadIdentity()
-        gl.glOrtho(-0.06, 1.05, -0.18, 1.18, -1, 1)
+        OpenGL.GL.glViewport(0, 0, width, height)
+        OpenGL.GL.glMatrixMode(OpenGL.GL.GL_PROJECTION)
+        OpenGL.GL.glLoadIdentity()
+        OpenGL.GL.glOrtho(-0.06, 1.05, -0.18, 1.18, -1, 1)

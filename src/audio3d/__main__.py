@@ -8,11 +8,11 @@ from PySide.QtGui import QApplication, qApp
 import sys
 import audio3d.gui_main_window
 
+
 def main():
     app = QApplication(sys.argv)
     mainwindow = audio3d.gui_main_window.MainWindow()
     mainwindow.show()
-    #print(type(w))
     return app.exec_()
 
 if __name__ == '__main__':

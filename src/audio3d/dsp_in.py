@@ -12,6 +12,7 @@ import math
 from numpy.fft import rfft, irfft
 import pkg_resources
 
+
 class DspIn:
     """
     H1 -- DspIn

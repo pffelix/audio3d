@@ -10,7 +10,6 @@ import scipy.io.wavfile
 import pyaudio
 import time
 import math
-import os
 import collections
 import queue
 import pkg_resources
@@ -136,7 +135,6 @@ class DspOut:
         else:
             data = bytes([0])
             returnflag = pyaudio.paComplete
-        # data = self.binaural[played_frames_begin:self.played_frames_end, :]
         # print("Played Block: " + str(self.played_block_counter))
         self.played_block_counter += 1
         # print("Play: " + str(self.played_block_counter))
@@ -189,11 +187,6 @@ class DspOut:
     # @brief Writes the whole binaural output as wave file.
     # @author Felix Pfreundtner
     def writerecordfile(self, samplerate, hopsize):
-        #if not os.path.exists(pkg_resources.resource_filename("audio3d",
-                                                              #"audio_out/")):
-            #os.makedirs(pkg_resources.resource_filename("audio3d",
-                                                        #"audio_out/"))
-
         binaural_record = np.zeros((self.recordqueue.qsize() * hopsize, 2),
                                    dtype=np.int16)
         position = 0
@@ -201,9 +194,9 @@ class DspOut:
                 binaural_record[position:position+hopsize, :] = \
                     self.recordqueue.get()
                 position += hopsize
-        self.state.send_error("Audio Recorded to File: " +
-                              pkg_resources.resource_filename("audio3d",
-                              "audio_out/binauralmix.wav"))
+        self.state.send_error(
+            "Audio Recorded to File: " + pkg_resources.resource_filename(
+                "audio3d", "audio_out/binauralmix.wav"))
         scipy.io.wavfile.write(pkg_resources.resource_filename("audio3d",
                                "audio_out/binauralmix.wav"), samplerate,
                                binaural_record)

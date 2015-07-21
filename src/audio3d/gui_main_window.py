@@ -11,7 +11,6 @@ from math import acos, degrees
 import audio3d.gui_utils
 from audio3d.dsp import Dsp
 import threading
-import multiprocessing
 
 
 class MainWindow(QtGui.QWidget):
