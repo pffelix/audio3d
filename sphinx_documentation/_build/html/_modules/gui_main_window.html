@@ -71,8 +71,7 @@
 <span class="sd">    start/stop and control the DSP algorithm. It also includes all user </span>
 <span class="sd">    interactions, corresponding functions and executing and updating these.**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="sd">&quot;&quot;&quot;Constructor of the MainWindow class.&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MainWindow</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setAcceptDrops</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
@@ -467,7 +466,12 @@
 <span class="sd">        algorithm and enables pausing and restarting of the play-back of the</span>
 <span class="sd">        dsp algorithm.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_pause_playback</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_pause</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="c"># if algorithm is alread running</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_run</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="c"># switch stop variable: mark pause as true or false</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">switch_pause_playback</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_pause</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="MainWindow.positions"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.positions">[docs]</a>    <span class="k">def</span> <span class="nf">positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
