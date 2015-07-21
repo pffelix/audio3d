@@ -12,6 +12,7 @@ import math
 from numpy.fft import rfft, irfft
 import pkg_resources
 
+
 class DspIn:
     """
     H1 -- DspIn
@@ -451,7 +452,8 @@ class DspIn:
             # If signal is neither mono nor stereo, send error message to gui.
             if sp_param[sp][3] != 1 and sp_param[sp][3] != 2:
                 errmsg = "One Input signal is neither mono nor stereo and " \
-                         "can't be processed. Please choose another input file."
+                         "can't be processed. Please choose another input" \
+                         " file."
                 self.state.send_error(errmsg)
                 # stop playback
                 self.state.dsp_stop = True
@@ -484,7 +486,6 @@ class DspIn:
         """
 
         sp_input = []
-        max_sp_samplenumber = 0
         # read in wave audio input files for every speaker
         for sp in range(self.spn):
 
@@ -492,9 +493,10 @@ class DspIn:
                 scipy.io.wavfile.read(self.state.gui_sp[sp]["path"])
 
             # create a output array which is divideable by sp_blocksize
-            sp_input.append(np.zeros((self.sp_param[sp][0] + self.sp_blocksize -
-                                     self.sp_param[sp][0] %
-                                      self.sp_blocksize, ), dtype=np.float32))
+            sp_input.append(
+                np.zeros((self.sp_param[sp][0] + self.sp_blocksize -
+                          self.sp_param[sp][0] % self.sp_blocksize, ),
+                         dtype=np.float32))
             # if speaker has two channels make it mono
             if self.sp_param[sp][3] == 2:
                 sp_input[sp][0:self.sp_param[sp][0], ]\
@@ -526,7 +528,8 @@ class DspIn:
             if rounddifference < 2.5:
                 angle_exact = self.state.gui_sp[sp]["angle"] - rounddifference
             else:
-                angle_exact = self.state.gui_sp[sp]["angle"] + 5-rounddifference
+                angle_exact = self.state.gui_sp[sp]["angle"] + 5 \
+                    - rounddifference
 
         # get rounded integer angle
         angle = self.rnd(angle_exact)

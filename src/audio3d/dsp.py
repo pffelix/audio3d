@@ -127,10 +127,8 @@ class Dsp:
                     # overlap and add binaural stereo block output of
                     # speaker sp to prior binaural stereo block output of
                     # speaker sp
-                    self.dspout_obj.overlap_add(
-                        self.dspin_obj.fft_blocksize,
-                        self.dspin_obj.hopsize, self.dspin_obj.sp_max_amp,
-                        self.dspin_obj.hrtf_max_amp, sp)
+                    self.dspout_obj.overlap_add(self.dspin_obj.fft_blocksize,
+                                                self.dspin_obj.hopsize, sp)
 
             # Mix binaural stereo blockoutput of every speaker to one
             # binaural stereo block output having regard to speaker distances

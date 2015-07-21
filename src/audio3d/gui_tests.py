@@ -11,7 +11,7 @@ class GuiTests(unittest.TestCase):
     Athor: Huijiang, Manuela
     """
     def setUp(self):
-        self.state = gui_utils.State()
+        self.state = audio3d.gui_utils.State()
 
     def test_switch_stop_playback(self):
         """
@@ -44,8 +44,8 @@ class GuiTests(unittest.TestCase):
         """
         x = 350
         y = -30
-        room = gui_utils.Room(self.state)
-        solx, soly = gui_utils.Room.get_bound_pos(room, x, y)
+        room = audio3d.gui_utils.Room(self.state)
+        solx, soly = audio3d.gui_utils.Room.get_bound_pos(room, x, y)
         res_x = 350
         res_y = 0
         error_msg = "test_get_bound_pos_negative failed!"
@@ -61,8 +61,8 @@ class GuiTests(unittest.TestCase):
         """
         x = 370
         y = 0.0
-        room = gui_utils.Room(self.state)
-        solx, soly = gui_utils.Room.get_bound_pos(room, x, y)
+        room = audio3d.gui_utils.Room(self.state)
+        solx, soly = audio3d.gui_utils.Room.get_bound_pos(room, x, y)
         res_x = 350
         res_y = 0
         error_msg = "test_get_bound_pos_float failed!"
@@ -76,8 +76,8 @@ class GuiTests(unittest.TestCase):
         **This tests function get_abs_pos() from gui_utils for zero entries.**
         """
         res = [170, 170]
-        room = gui_utils.Room(self.state)
-        solx, soly = gui_utils.Room.get_abs_pos(room, 90, 0)
+        room = audio3d.gui_utils.Room(self.state)
+        solx, soly = audio3d.gui_utils.Room.get_abs_pos(room, 90, 0)
         error_msg = "test_get_abs_pos_zero failed!"
         self.assertEqual(solx, res[0], msg=error_msg)
         self.assertEqual(soly, res[1], msg=error_msg)
@@ -89,8 +89,8 @@ class GuiTests(unittest.TestCase):
         **This tests function get_abs_pos() from gui_utils for floats.**
         """
         res = [170, 170]
-        room = gui_utils.Room(self.state)
-        solx, soly = gui_utils.Room.get_abs_pos(room, 1.0, 0)
+        room = audio3d.gui_utils.Room(self.state)
+        solx, soly = audio3d.gui_utils.Room.get_abs_pos(room, 1.0, 0)
         error_msg = "test_get_abs_pos_float failed!"
         self.assertEqual(solx, res[0], msg=error_msg)
         self.assertEqual(soly, res[1], msg=error_msg)
@@ -102,13 +102,13 @@ class GuiTests(unittest.TestCase):
         **This tests function get_abs_pos() from gui_utils.**
         """
         res = [170, 270]
-        room = gui_utils.Room(self.state)
-        solx, soly = gui_utils.Room.get_abs_pos(room, 180, 100)
+        room = audio3d.gui_utils.Room(self.state)
+        solx, soly = audio3d.gui_utils.Room.get_abs_pos(room, 180, 100)
         error_msg = "test_get_abs_pos failed!"
         self.assertEqual(solx, res[0], msg=error_msg)
         self.assertEqual(soly, res[1], msg=error_msg)
 
 
 if __name__ == '__main__':
-    app = gui_utils.QtGui.QApplication(sys.argv)
+    app = audio3d.gui_utils.QtGui.QApplication(sys.argv)
     unittest.main()

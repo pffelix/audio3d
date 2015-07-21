@@ -1,5 +1,6 @@
 __author__ = 'Matthias Lederle'
 import unittest
+import audio3d.dsp
 import audio3d.dsp_in
 import audio3d.dsp_out
 import numpy as np
@@ -20,23 +21,19 @@ class DspTests(unittest.TestCase):
         # initialize GUI state
         self.state = audio3d.gui_utils.State()
         # modify GUI state
-        self.state.gui_dict = []
+        self.state.gui_sp = []
         self.state.gui_sp.append({"angle": 90, "distance": 0, "path":
-                                  "./audio_in/sine_1kHz_(44.1,1,16).wav",
+                                  "audio_in/sine_1kHz_(44.1,1,16).wav",
                                   "normalize": False})
         self.state.gui_sp.append({"angle": 120, "distance": 1, "path":
-                                  "./audio_in/electrical_guitar_(44.1,1,"
+                                  "audio_in/electrical_guitar_(44.1,1,"
                                   "16).wav", "normalize": True})
         self.state.gui_settings = {"hrtf_database": "kemar_normal_ear",
                                    "inverse_filter_active": True,
                                    "bufferblocks": 5}
         self.state.gui_stop = False
         self.state.gui_pause = False
-        self.dspin_testobj = audio3d.dsp_in.DspIn(self.state)
-        self.dspout_testobj = \
-            audio3d.dsp_out.DspOut(self.state,
-                                   self.dspin_testobj.fft_blocksize,
-                                   self.dspin_testobj.hopsize)
+        self.dsp_testobj = audio3d.dsp.Dsp(self.state)
 
     def test_rnd_int(self):
         """
@@ -46,7 +43,7 @@ class DspTests(unittest.TestCase):
         """
         val = 1.9
         sol = 2
-        res = self.dspin_testobj.rnd(val)
+        res = self.dsp_testobj.dspin_testobj.rnd(val)
         error_msg = "test_rnd_int failed!"
         self.assertEqual(res, sol, msg=error_msg)
 
@@ -66,7 +63,7 @@ class DspTests(unittest.TestCase):
         # sol = 2
         while i < len(value):
             # res[i] = res.append(self.dspin_testobj.rnd(value[i]))
-            res[i] = self.dspin_testobj.rnd(value[i])
+            res[i] = self.dsp_testobj.dspin_testobj.rnd(value[i])
             i += 1
         error_msg = "test_rnd failed!"
         self.assertListEqual(res, sol, msg=error_msg)
@@ -82,7 +79,8 @@ class DspTests(unittest.TestCase):
         """
         sol_hannwin_2 = 0.00014997
         sol_hannwin_200 = 0.88477
-        res = self.dspin_testobj.build_hann_window(sp_blocksize=513)
+        res = \
+            self.dsp_testobj.dspin_testobj.build_hann_window(sp_blocksize=513)
         errmsg = "Hanning Window not calculated correctly"
         self.assertAlmostEqual(res[2], sol_hannwin_2, 5, msg=errmsg)
         self.assertAlmostEqual(res[200], sol_hannwin_200, 5, msg=errmsg)
@@ -96,7 +94,7 @@ class DspTests(unittest.TestCase):
         """
         sol = [512, 0.011609977324263039, 0.5, 256]
         res = [None] * 3
-        res[0: 3] = self.dspin_testobj.get_block_param()
+        res[0: 3] = self.dsp_testobj.dspin_testobj.get_block_param()
         errmsg = "Function get_block_param (in DspIn) doesn't work properly"
         self.assertListEqual(res, sol, msg=errmsg)
 
@@ -107,7 +105,7 @@ class DspTests(unittest.TestCase):
         ===================
         **Tests get_block_param by comparing two lists.**
         """
-        res = self.dspin_testobj.init_set_block_begin_end()
+        res = self.dsp_testobj.dspin_testobj.init_set_block_begin_end()
         errmsg = "The entries in init_block_begin_end are not symmetric to 0"
         self.assertTrue(abs(res[0]) == abs(res[1]), msg=errmsg)
 
@@ -121,18 +119,20 @@ class DspTests(unittest.TestCase):
         # it has to be copied manually to the section between the ##### below.
         truelist = []
         i = 1
-        block_begin_end = self.dspin_testobj.block_begin_end
+        block_begin_end = self.dsp_testobj.dspin_testobj.block_begin_end
         while i < 10:
             # Between ##### and ##### has to be the same code as in
             # set_block_begin_end-function
             #####
-            block_begin_end[0] += int(self.dspin_testobj.sp_blocksize * (1 -
-                                      self.dspin_testobj.overlap))
-            block_begin_end[1] += int(self.dspin_testobj.sp_blocksize * (1 -
-                                      self.dspin_testobj.overlap))
+            block_begin_end[0] += int(
+                self.dsp_testobj.dspin_testobj.sp_blocksize *
+                (1 - self.dsp_testobj.dspin_testobj.overlap))
+            block_begin_end[1] += int(
+                self.dsp_testobj.dspin_testobj.sp_blocksize *
+                (1 - self.dsp_testobj.dspin_testobj.overlap))
             #####
             if block_begin_end[1] - block_begin_end[0] == \
-                    self.dspin_testobj.sp_blocksize:
+                    self.dsp_testobj.dspin_testobj.sp_blocksize:
                 bool = True
             else:
                 bool = False
@@ -142,7 +142,7 @@ class DspTests(unittest.TestCase):
         self.assertTrue(truelist, msg=errmsg)
 
     # Skip Test for all files besides the electrical guitar
-    @unittest.skipUnless(lambda self: self.self.gui_dict[0]["path"] ==
+    @unittest.skipUnless(lambda self: self.self.gui_sp[0]["path"] ==
                          "./audio_in/electrical_guitar_(44.1,1,16).wav",
                          "Otherwise total_no_of_samples is wrong")
     def test_get_sp(self):
@@ -156,22 +156,24 @@ class DspTests(unittest.TestCase):
         scipy_sp_input[sp] = np.zeros((220672, ), dtype=np.int16)
         scipy_sp_input_raw = {}
         for sp in range(len(self.state.gui_sp)):
-            _, scipy_sp_input_raw[sp] = scipy.io.wavfile.read(self.state.gui_sp[
-                                                              sp]["path"])
+            _, scipy_sp_input_raw[sp] = scipy.io.wavfile.read(
+                pkg_resources.resource_filename("audio3d",
+                                                self.state.gui_sp[sp]["path"]))
             lenarray = len(scipy_sp_input_raw[sp])
             # append zeros to scipy_sp_dict_raw to reach that output is
             # divideable by sp_blocksize
-            if lenarray % self.dspin_testobj.sp_blocksize != 0:
-                scipy_sp_input[sp] = np.zeros((lenarray +
-                                              self.dspin_testobj.sp_blocksize -
-                                              lenarray %
-                                               self.dspin_testobj.sp_blocksize,
-                                               ), dtype=np.int16)
+            if lenarray % self.dsp_testobj.dspin_testobj.sp_blocksize != 0:
+                scipy_sp_input[sp] = \
+                    np.zeros((lenarray +
+                              self.dsp_testobj.dspin_testobj.sp_blocksize -
+                              lenarray %
+                              self.dsp_testobj.dspin_testobj.sp_blocksize, ),
+                             dtype=np.int16)
                 scipy_sp_input[sp][0:lenarray, ] = scipy_sp_input_raw[sp]
             else:
                 scipy_sp_input[sp] = scipy_sp_input_raw[sp]
         sol = scipy_sp_input
-        res = self.dspin_testobj.read_sp()
+        res = self.dsp_testobj.dspin_testobj.read_sp()
         errmsg = "get_sp doesn't get same values as scipy function"
         # Following while-loop only for bug-fixes:
         # i = 0
