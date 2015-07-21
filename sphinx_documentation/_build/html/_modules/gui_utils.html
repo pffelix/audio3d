@@ -8,7 +8,7 @@
     
     <title>gui_utils &mdash; Group B: 3D Audio 1.0 documentation</title>
     
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -24,13 +24,22 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="Group B: 3D Audio 1.0 documentation" href="../index.html" />
-    <link rel="up" title="Module code" href="index.html" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="up" title="Module code" href="index.html" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Group B: 3D Audio 1.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -44,28 +53,34 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">PySide</span> <span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span>
-<span class="kn">from</span> <span class="nn">plot</span> <span class="kn">import</span> <span class="n">GLPlotWidget</span>
-<span class="kn">from</span> <span class="nn">dt2</span> <span class="kn">import</span> <span class="n">DT2</span>
+<span class="kn">from</span> <span class="nn">audio3d.plot</span> <span class="kn">import</span> <span class="n">GLPlotWidget</span>
+<span class="kn">from</span> <span class="nn">audio3d.dt2</span> <span class="kn">import</span> <span class="n">DT2</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">acos</span><span class="p">,</span> <span class="n">degrees</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">sin</span><span class="p">,</span> <span class="n">radians</span>
-<span class="kn">import</span> <span class="nn">headtracker_data</span> <span class="kn">as</span> <span class="nn">headtracker</span>
+<span class="kn">import</span> <span class="nn">audio3d.headtracker_data</span> <span class="kn">as</span> <span class="nn">headtracker</span>
 <span class="kn">import</span> <span class="nn">threading</span>
-
-
+<span class="kn">import</span> <span class="nn">pkg_resources</span>
 
 
 <div class="viewcode-block" id="State"><a class="viewcode-back" href="../index.html#gui_utils.State">[docs]</a><span class="k">class</span> <span class="nc">State</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
-
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- State</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **This is an exchange class for variables which are read and written by</span>
+<span class="sd">    the DSP algorithm and all GUI applications.**</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="sd">&quot;&quot;&quot;Constructor of the State class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">State</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="c"># variables which are shared between gui and dsp algorithm</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gui_sp_dict</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gui_settings_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui_sp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gui_settings</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gui_error</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dsp_run</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dsp_sp_spectrum_dict</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dsp_hrtf_spectrum_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dsp_sp_spectrum</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dsp_hrtf_spectrum</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c"># mutex for exchanging data between gui and dsp algorithm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mtx_sp</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
@@ -83,23 +98,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">speaker_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">speaker_to_show</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="c"># @brief stop button clicked alternates dsp_stop boolean and stops dsp</span>
-    <span class="c"># algorithm</span>
-    <span class="c"># @details</span>
-    <span class="c"># @author Felix</span>
-    <span class="k">def</span> <span class="nf">switch_stop_playback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="State.switch_stop_playback"><a class="viewcode-back" href="../index.html#gui_utils.State.switch_stop_playback">[docs]</a>    <span class="k">def</span> <span class="nf">switch_stop_playback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- switch_stop_playback</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function is called from the MainWindow Play/Stop button and</span>
+<span class="sd">        remembers the state and transfers to a DSP command.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mtx_stop</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mtx_stop</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
-
-    <span class="c"># @brief pause button clicked alternates dsp_pause boolean and pause dsp</span>
-    <span class="c"># algorithm</span>
-    <span class="c"># @details</span>
-    <span class="c"># @author Felix</span>
-    <span class="k">def</span> <span class="nf">switch_pause_playback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="State.switch_pause_playback"><a class="viewcode-back" href="../index.html#gui_utils.State.switch_pause_playback">[docs]</a>    <span class="k">def</span> <span class="nf">switch_pause_playback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- switch_pause_playback</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function is called from the MainWindow Pause button and</span>
+<span class="sd">        remembers the state and transfers to respective DSP command.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># start pause</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mtx_pause</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
@@ -108,14 +127,27 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mtx_pause</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="State.send_error"><a class="viewcode-back" href="../index.html#gui_utils.State.send_error">[docs]</a>    <span class="k">def</span> <span class="nf">send_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- send_error</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **The function can be used by the DSP classes to create case-specific</span>
+<span class="sd">        error messages.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">send_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mtx_error</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">message</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gui_error</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gui_error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mtx_error</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="State.check_error"><a class="viewcode-back" href="../index.html#gui_utils.State.check_error">[docs]</a>    <span class="k">def</span> <span class="nf">check_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- check_error</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **The function creates GUI message box with error message.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">check_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mtx_error</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gui_error</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">msgbox</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMessageBox</span><span class="p">()</span>
@@ -123,35 +155,51 @@
             <span class="n">msgbox</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mtx_error</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 
-
-<span class="c"># @class &lt;Headtracker&gt; This class integrates the headtracker</span>
-<span class="c">#</span>
-<span class="c">#</span>
-<span class="c">#</span></div>
+</div></div>
 <div class="viewcode-block" id="Headtracker"><a class="viewcode-back" href="../index.html#gui_utils.Headtracker">[docs]</a><span class="k">class</span> <span class="nc">Headtracker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- Headtracker</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **This class enables the integration of a headtracking system.**</span>
+<span class="sd">    The networking interface from where the data can be extracced is</span>
+<span class="sd">    initialized and thus the azimuthal angle can be read out.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="sd">&quot;&quot;&quot;Constructor of the Headtracker class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">head_deg</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt2</span> <span class="o">=</span> <span class="n">DT2</span><span class="p">()</span>
 
-    <span class="c"># @brief This function calls the azimuth_angle function of DT2 object</span>
-    <span class="c"># which only extracts the azimuthal head movement</span>
-    <span class="c"># recorded by the headtracking setup</span>
-    <span class="k">def</span> <span class="nf">cal_head_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">head_deg</span> <span class="o">=</span> <span class="n">headtracker</span><span class="o">.</span><span class="n">azimuth_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt2</span><span class="o">.</span><span class="n">angle</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+<div class="viewcode-block" id="Headtracker.cal_head_deg"><a class="viewcode-back" href="../index.html#gui_utils.Headtracker.cal_head_deg">[docs]</a>    <span class="k">def</span> <span class="nf">cal_head_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- head_deg</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function calls the azimuth_angle function of DT2 object.**</span>
+<span class="sd">        This only extracts the azimuthal head movement</span>
+<span class="sd">        recorded by the headtracking setup.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-    <span class="c"># @brief This function returns the azimuth angle, which is recorded</span>
-    <span class="c">#        with the headtracker setup</span>
-    <span class="k">def</span> <span class="nf">get_head_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head_deg</span> <span class="o">=</span> <span class="n">headtracker</span><span class="o">.</span><span class="n">azimuth_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dt2</span><span class="o">.</span><span class="n">angle</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="Headtracker.get_head_deg"><a class="viewcode-back" href="../index.html#gui_utils.Headtracker.get_head_deg">[docs]</a>    <span class="k">def</span> <span class="nf">get_head_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- get_head_deg</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function returns the azimuth angle, which is recorded</span>
+<span class="sd">        with the headtracker setup**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_deg</span>
 
-
-<span class="c"># Items inside the QGraphicsScene, including Speaker and Audience</span>
-<span class="c"># @class &lt;Itemr&gt; This class defines items inside the QGraphicsScene,</span>
-<span class="c"># including Speaker and Audience.</span>
-<span class="c">#</span></div>
+</div></div>
 <div class="viewcode-block" id="Item"><a class="viewcode-back" href="../index.html#gui_utils.Item">[docs]</a><span class="k">class</span> <span class="nc">Item</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsPixmapItem</span><span class="p">):</span>
-
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- Item</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **This class defines items inside the QGraphicsScene,</span>
+<span class="sd">    including Speaker and Audience.**</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="sd">&quot;&quot;&quot;Constructor of the Item class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
 
         <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_image</span><span class="o">.</span><span class="n">scaled</span><span class="p">(</span>
@@ -165,14 +213,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsFocusable</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
 
-    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="Item.mousePressEvent"><a class="viewcode-back" href="../index.html#gui_utils.Item.mousePressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- mousePressEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function defines the effect of mouse press on items.**</span>
+<span class="sd">        Only left mouse click is noticed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">!=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">LeftButton</span><span class="p">:</span>
             <span class="n">event</span><span class="o">.</span><span class="n">ignore</span><span class="p">()</span>
             <span class="k">return</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">setCursor</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ClosedHandCursor</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">mouseMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="Item.mouseMoveEvent"><a class="viewcode-back" href="../index.html#gui_utils.Item.mouseMoveEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- mouseMoveEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function defines the effect of mouse move events in connection</span>
+<span class="sd">        with items.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QLineF</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QPointF</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">screenPos</span><span class="p">()),</span>
                          <span class="n">QtCore</span><span class="o">.</span><span class="n">QPointF</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">buttonDownScreenPos</span><span class="p">(</span>
@@ -185,33 +245,61 @@
         <span class="n">drag</span><span class="o">.</span><span class="n">setMimeData</span><span class="p">(</span><span class="n">mime</span><span class="p">)</span>
         <span class="n">drag</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setCursor</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">OpenHandCursor</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="Item.mouseReleaseEvent"><a class="viewcode-back" href="../index.html#gui_utils.Item.mouseReleaseEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- mouseReleaseEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function defines the effect of mouse release events in</span>
+<span class="sd">        connection with items.** The Cursor symbol is changed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setCursor</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">OpenHandCursor</span><span class="p">)</span>
 
 
 <span class="c"># @class &lt;Room&gt; This class defines the Gui Scene</span>
 <span class="c"># A Room object displays the relative Audience and Speaker items positions</span>
 <span class="c">#</span>
-<span class="c">#</span></div>
+<span class="c">#</span></div></div>
 <div class="viewcode-block" id="Room"><a class="viewcode-back" href="../index.html#gui_utils.Room">[docs]</a><span class="k">class</span> <span class="nc">Room</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsScene</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- Room</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **This class defines the QGraphicsScene on which the items are displayed</span>
+<span class="sd">    and handeled.**</span>
+<span class="sd">    * current_item: Indexes the item which is selected.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">current_item</span> <span class="o">=</span> <span class="mi">0</span>
 
+    <span class="sd">&quot;&quot;&quot;Constructor of the Room class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Room</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
 
     <span class="c"># Definition of mouse move events related to the QGraphicsScene:</span>
 
-    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="Room.mousePressEvent"><a class="viewcode-back" href="../index.html#gui_utils.Room.mousePressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- mousePressEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function defines the effect of mouse press on the room.**</span>
+<span class="sd">        The item at the respective mouse event position is noticed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">scenePos</span><span class="p">())</span>
         <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsScene</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-
+</div>
     <span class="k">def</span> <span class="nf">dragEnterEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
         <span class="n">e</span><span class="o">.</span><span class="n">acceptProposedAction</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">dragMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
-
+<div class="viewcode-block" id="Room.dragMoveEvent"><a class="viewcode-back" href="../index.html#gui_utils.Room.dragMoveEvent">[docs]</a>    <span class="k">def</span> <span class="nf">dragMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- dragMoveEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function defines the effect of mouse move event on the room</span>
+<span class="sd">        in connection with an item.**</span>
+<span class="sd">        The mouse movement is recorded and the new item positions are extracted</span>
+<span class="sd">        and used to calculate the respective positions of speaker(s) and</span>
+<span class="sd">        audience.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">e</span><span class="o">.</span><span class="n">acceptProposedAction</span><span class="p">()</span>
         <span class="n">speaker_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span>
         <span class="k">try</span><span class="p">:</span>
@@ -242,11 +330,15 @@
 
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">pass</span>
-
-    <span class="c"># @brief keeps cursor inside gui_scene</span>
-    <span class="c"># @details</span>
-    <span class="c"># @author Huijiang</span>
-    <span class="k">def</span> <span class="nf">get_bound_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="Room.get_bound_pos"><a class="viewcode-back" href="../index.html#gui_utils.Room.get_bound_pos">[docs]</a>    <span class="k">def</span> <span class="nf">get_bound_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- get_bound_pos</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function is used to avoid dragging outside the visible room</span>
+<span class="sd">        area in the MainWindow.** By dragging items inside the QGraphicsScene</span>
+<span class="sd">        the cursor can not leave this scene and items can not be hidden.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">350</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">350</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="mi">350</span>
@@ -262,11 +354,17 @@
             <span class="n">y</span> <span class="o">=</span> <span class="mi">350</span>
 
         <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
-
-    <span class="c"># @brief returns new position of item</span>
-    <span class="c"># @details</span>
-    <span class="c"># @author</span>
-    <span class="k">def</span> <span class="nf">get_abs_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">azimuth</span><span class="p">,</span> <span class="n">dist</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="Room.get_abs_pos"><a class="viewcode-back" href="../index.html#gui_utils.Room.get_abs_pos">[docs]</a>    <span class="k">def</span> <span class="nf">get_abs_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">azimuth</span><span class="p">,</span> <span class="n">dist</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- get_abs_pos</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **The function calculates and returns the new speaker position</span>
+<span class="sd">        relative to the audience.**</span>
+<span class="sd">        Return values:</span>
+<span class="sd">        * x: is the horizontal coordinate of the speaker item.</span>
+<span class="sd">        * y: is the vertical coordinate of the speaker item.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">audience_pos</span><span class="o">.</span><span class="n">x</span><span class="p">()</span>
         <span class="n">y0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">audience_pos</span><span class="o">.</span><span class="n">y</span><span class="p">()</span>
 
@@ -275,40 +373,71 @@
 
         <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
 
-
-<span class="c"># @class &lt;View&gt; This class is responsible for displaying the contents of on the</span>
-<span class="c"># QGraphicsScene</span>
-<span class="c">#</span></div>
+</div></div>
 <div class="viewcode-block" id="View"><a class="viewcode-back" href="../index.html#gui_utils.View">[docs]</a><span class="k">class</span> <span class="nc">View</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsView</span><span class="p">):</span>
-
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- View</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **This class is responsible for displaying the contents of on the</span>
+<span class="sd">    Room.**</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="sd">&quot;&quot;&quot;Constructor of the View class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">scene</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">View</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
 
-    <span class="k">def</span> <span class="nf">dragEnterEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<div class="viewcode-block" id="View.dragEnterEvent"><a class="viewcode-back" href="../index.html#gui_utils.View.dragEnterEvent">[docs]</a>    <span class="k">def</span> <span class="nf">dragEnterEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- dragEnterEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function defines the effect of drag enter event on the view.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">e</span><span class="o">.</span><span class="n">acceptProposedAction</span><span class="p">()</span>
         <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsView</span><span class="o">.</span><span class="n">dragEnterEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">dropEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="View.dropEvent"><a class="viewcode-back" href="../index.html#gui_utils.View.dropEvent">[docs]</a>    <span class="k">def</span> <span class="nf">dropEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- dragMoveEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function defines the effect of mouse drop event on the view.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">viewport</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
         <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsView</span><span class="o">.</span><span class="n">dropEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">dragMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="View.dragMoveEvent"><a class="viewcode-back" href="../index.html#gui_utils.View.dragMoveEvent">[docs]</a>    <span class="k">def</span> <span class="nf">dragMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- dragMoveEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function defines the effect of mouse move event on the view.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">e</span><span class="o">.</span><span class="n">acceptProposedAction</span><span class="p">()</span>
         <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsView</span><span class="o">.</span><span class="n">dragMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-
-    <span class="c"># this will disable scrolling of the view</span>
-    <span class="k">def</span> <span class="nf">wheelEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_wheel_event</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="View.wheelEvent"><a class="viewcode-back" href="../index.html#gui_utils.View.wheelEvent">[docs]</a>    <span class="k">def</span> <span class="nf">wheelEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_wheel_event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- WheelEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function will disable scrolling of the view.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="View.keyPressEvent"><a class="viewcode-back" href="../index.html#gui_utils.View.keyPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_key_event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- keyPressEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function will disable key usage effects on the view.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_key_event</span><span class="p">):</span>
-        <span class="k">pass</span>
-
-
-<span class="c"># @class &lt;SignalHandler&gt; Signal handler for QGraphicsItem</span>
-<span class="c"># which doesn&#39;t provide the signal/slot function</span>
-<span class="c">#</span></div>
+</div></div>
 <div class="viewcode-block" id="SignalHandler"><a class="viewcode-back" href="../index.html#gui_utils.SignalHandler">[docs]</a><span class="k">class</span> <span class="nc">SignalHandler</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- SignalHandler</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **Signal handler class for QGraphicsItem**</span>
+<span class="sd">    This doesn&#39;t provide the signal/slot function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">show_property</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">()</span>
 
@@ -322,23 +451,36 @@
 <span class="c">#</span>
 <span class="c">#</span></div>
 <div class="viewcode-block" id="Speaker"><a class="viewcode-back" href="../index.html#gui_utils.Speaker">[docs]</a><span class="k">class</span> <span class="nc">Speaker</span><span class="p">(</span><span class="n">Item</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- Speaker</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **This subclass is defining speaker items.**</span>
+<span class="sd">    * type: defines the type of the initialized item</span>
+<span class="sd">    * path: defines the selected path of the .wav file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nb">type</span> <span class="o">=</span> <span class="s">&#39;speaker&#39;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;unknown&#39;</span>
 
+    <span class="sd">&quot;&quot;&quot;Constructor of the Speaker class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">posx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">posy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
         <span class="n">speaker_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
-        <span class="n">image_path</span> <span class="o">=</span> <span class="s">&#39;./image/speaker&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;.png&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">origin_image</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+        <span class="n">image_path</span> <span class="o">=</span> <span class="s">&#39;image/speaker&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;.png&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">origin_image</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span><span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span>
+            <span class="s">&quot;audio3d&quot;</span><span class="p">,</span> <span class="n">image_path</span><span class="p">))</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Speaker</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">posx</span><span class="p">,</span> <span class="n">posy</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">norm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">signal_handler</span> <span class="o">=</span> <span class="n">SignalHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
         <span class="n">speaker_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s">&quot;angle&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;distance&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;path&quot;</span><span class="p">:</span>
+                                  <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;normalize&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cal_rel_pos</span><span class="p">()</span>
 
     <span class="c"># @brief this function returns the relative position of the speaker</span>
@@ -347,7 +489,16 @@
     <span class="c"># @details head_deg can take the azimuthal angle set by the headtracker</span>
     <span class="c"># into account</span>
     <span class="c"># @author</span>
-    <span class="k">def</span> <span class="nf">cal_rel_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head_deg</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="Speaker.cal_rel_pos"><a class="viewcode-back" href="../index.html#gui_utils.Speaker.cal_rel_pos">[docs]</a>    <span class="k">def</span> <span class="nf">cal_rel_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head_deg</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- cal_rel_pos</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function returns the relative position of the speaker</span>
+<span class="sd">        to the &#39;audience&#39;, defined by a radial variable deg (defined counter</span>
+<span class="sd">        clockwise) and the distance.**</span>
+<span class="sd">        *head_deg: takes the azimuthal angle set by the headtracker</span>
+<span class="sd">        into account</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">dx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">audience_pos</span><span class="o">.</span><span class="n">x</span><span class="p">()</span>
         <span class="n">dy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">audience_pos</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">()</span>
@@ -367,42 +518,71 @@
             <span class="n">deg</span> <span class="o">+=</span> <span class="mi">360</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
         <span class="c"># write new relative position in exchange variable gui - dsp</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">deg</span><span class="p">,</span> <span class="n">dis</span> <span class="o">/</span> <span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
-                                              <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s">&quot;angle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">deg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s">&quot;distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dis</span> <span class="o">/</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s">&quot;path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">deg</span><span class="p">,</span> <span class="n">dis</span>
-
-    <span class="c"># @brief double click on speaker item offers the opportunity to change</span>
-    <span class="c"># the speaker settings in a seperate QWidget window</span>
-    <span class="k">def</span> <span class="nf">mouseDoubleClickEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="Speaker.mouseDoubleClickEvent"><a class="viewcode-back" href="../index.html#gui_utils.Speaker.mouseDoubleClickEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseDoubleClickEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- mouseDoubleClickEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **This function defines the effect of double clicking on a speaker</span>
+<span class="sd">        item.**</span>
+<span class="sd">        Double click on speaker item offers the opportunity to change</span>
+<span class="sd">        the speaker settings in the SpeakerProperty widget.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_to_show</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">signal_handler</span><span class="o">.</span><span class="n">show_property</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
 
 
 <span class="c"># @class &lt;Audience&gt; Audience item represents the relative user position,</span>
 <span class="c"># without headtracker in the QGraphicsScene</span>
-<span class="c">#</span></div>
+<span class="c">#</span></div></div>
 <div class="viewcode-block" id="Audience"><a class="viewcode-back" href="../index.html#gui_utils.Audience">[docs]</a><span class="k">class</span> <span class="nc">Audience</span><span class="p">(</span><span class="n">Item</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- Audience</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **This sub-class defines the audience item.**</span>
+<span class="sd">    An audience item represents the relative user position,</span>
+<span class="sd">    without headtracker in the QGraphicsScene.</span>
+<span class="sd">    *type: selects the type of item.</span>
+<span class="sd">    *origin_image: selects the image representing the audience in the room.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nb">type</span> <span class="o">=</span> <span class="s">&#39;audience&#39;</span>
-    <span class="n">origin_image</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span><span class="s">&#39;./image/audience.png&#39;</span><span class="p">)</span>
+    <span class="n">origin_image</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span>
+        <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&quot;audio3d&quot;</span><span class="p">,</span> <span class="s">&#39;image/audience.png&#39;</span><span class="p">))</span>
 
+    <span class="sd">&quot;&quot;&quot;Constructor of the Audience class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Audience</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="mi">170</span><span class="p">,</span> <span class="mi">170</span><span class="p">)</span>
 
-
-<span class="c"># @class &lt;SpeakerProperty&gt; Additional widget window to define speaker .wav path</span>
-<span class="c"># speaker position and to activate inverse filtering for speaker before</span>
-<span class="c"># adding it to the scene and afterwards by double click on the speaker item</span>
-<span class="c">#</span></div>
+</div>
 <div class="viewcode-block" id="SpeakerProperty"><a class="viewcode-back" href="../index.html#gui_utils.SpeakerProperty">[docs]</a><span class="k">class</span> <span class="nc">SpeakerProperty</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- SpeakerProperty</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **This class defines a widget window to select speaker properties before</span>
+<span class="sd">    adding a new speaker or to change the settings again later on.**</span>
+<span class="sd">    Additional widget window to define speaker .wav path</span>
+<span class="sd">    speaker position and to activate inverse filtering for speaker before</span>
+<span class="sd">    adding it to the scene and afterwards by double click on the speaker item.</span>
+<span class="sd">    *added: Signal emitted by the confirm button to connect to MainWindow&#39;s</span>
+<span class="sd">    functions.</span>
+<span class="sd">    *posx = horizontal position of the respective speaker item</span>
+<span class="sd">    *posy = vertical position of the respective speaker item</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">added</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">()</span>
     <span class="n">posx</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">posy</span> <span class="o">=</span> <span class="mi">0</span>
 
+    <span class="sd">&quot;&quot;&quot;Constructor of the SpeakerProperty class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SpeakerProperty</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
@@ -454,22 +634,28 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s">&#39;Speaker Properties&#39;</span><span class="p">)</span>
 
-    <span class="c"># @brief function corresponding to the browse button on the settings</span>
-    <span class="c"># widget, to open a file dialog in order to choose a .wav file</span>
-    <span class="c">#</span>
     <span class="nd">@QtCore.Slot</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">browse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SpeakerProperty.browse"><a class="viewcode-back" href="../index.html#gui_utils.SpeakerProperty.browse">[docs]</a>    <span class="k">def</span> <span class="nf">browse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- browse</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Function corresponding to the browse button on the settings</span>
+<span class="sd">        widget, to open a file dialog in order to choose a .wav file.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">file_browser</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QFileDialog</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">file_browser</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path_line_edit</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-
-    <span class="c"># @brief function corresponding to the confirm button on the settings</span>
-    <span class="c"># widget, to add a speaker to the QGraphicsScene with the choosen</span>
-    <span class="c"># properties</span>
-    <span class="c">#</span>
+</div>
     <span class="nd">@QtCore.Slot</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">confirm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SpeakerProperty.confirm"><a class="viewcode-back" href="../index.html#gui_utils.SpeakerProperty.confirm">[docs]</a>    <span class="k">def</span> <span class="nf">confirm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- confirm</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Function corresponding to the confirm button on the settings</span>
+<span class="sd">        widget, to add a speaker to the QGraphicsScene with the choosen</span>
+<span class="sd">        properties.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">audience_pos</span><span class="o">.</span><span class="n">x</span><span class="p">()</span>
         <span class="n">y0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">audience_pos</span><span class="o">.</span><span class="n">y</span><span class="p">()</span>
         <span class="n">azimuth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">azimuth_line_edit</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
@@ -483,28 +669,47 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">posx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">posy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bound_pos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">added</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
+</div>
     <span class="nd">@QtCore.Slot</span><span class="p">()</span>
-    <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SpeakerProperty.cancel"><a class="viewcode-back" href="../index.html#gui_utils.SpeakerProperty.cancel">[docs]</a>    <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- cancel</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Function connected to the cancel button of SpeakerProperty.**</span>
+<span class="sd">        Closes the SpeakerProperty window without making any changes to the</span>
+<span class="sd">        speaker settings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="SpeakerProperty.clear"><a class="viewcode-back" href="../index.html#gui_utils.SpeakerProperty.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- clear</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Function resets the default settings of the SpeakerProperty window.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">normalize_box</span><span class="o">.</span><span class="n">setCheckState</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Unchecked</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path_line_edit</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">azimuth_line_edit</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">distance_line_edit</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">posx</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">posy</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">def</span> <span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_close_event</span><span class="p">):</span>   <span class="c"># flake8: noqa</span>
+</div>
+<div class="viewcode-block" id="SpeakerProperty.closeEvent"><a class="viewcode-back" href="../index.html#gui_utils.SpeakerProperty.closeEvent">[docs]</a>    <span class="k">def</span> <span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_close_event</span><span class="p">):</span>   <span class="c"># flake8: noqa</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- closeEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Function used with manual closing of the SpeakerProperty window.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_on</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">added</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-
-    <span class="c"># @brief keeps cursor inside gui_scene</span>
-    <span class="c"># @details</span>
-    <span class="c"># @author Huijiang</span>
-    <span class="k">def</span> <span class="nf">get_bound_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="SpeakerProperty.get_bound_pos"><a class="viewcode-back" href="../index.html#gui_utils.SpeakerProperty.get_bound_pos">[docs]</a>    <span class="k">def</span> <span class="nf">get_bound_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- get_bound_pos</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Function avoids setting of coordinates which are outside the room.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">350</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">350</span><span class="p">:</span>
             <span class="n">x</span> <span class="o">=</span> <span class="mi">350</span>
@@ -521,13 +726,23 @@
 
         <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
 
+
 <span class="c"># @class &lt;SequencePlot&gt; Additional window is created to display plot of speaker</span>
-<span class="c"># and HRTF spectrum while .wav is played</span>
-<span class="c">#</span></div>
+<span class="c"># and HRTF spectrum while .wav is played</span></div></div>
 <div class="viewcode-block" id="SequencePlot"><a class="viewcode-back" href="../index.html#gui_utils.SequencePlot">[docs]</a><span class="k">class</span> <span class="nc">SequencePlot</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    H1 -- SequencePlot</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **This class builts up a widget window to display real-time plots of the</span>
+<span class="sd">    speaker sequence and HRTF sequence extracted from the DSP algorithm.**</span>
+<span class="sd">    GLPlotWidget was preferred over Matplotlib due to performance. The plot</span>
+<span class="sd">    is imported from plot.py.</span>
+<span class="sd">    *plot_on: Signal to communicate wheter the plot widget is open.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">plot_on</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">()</span>
 
+    <span class="sd">&quot;&quot;&quot;Constructor of the SequencePlot class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SequencePlot</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_on</span> <span class="o">=</span> <span class="bp">False</span>
@@ -547,25 +762,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s">&#39;Sequence Plot&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>   <span class="c"># flake8: noqa</span>
+<div class="viewcode-block" id="SequencePlot.closeEvent"><a class="viewcode-back" href="../index.html#gui_utils.SequencePlot.closeEvent">[docs]</a>    <span class="k">def</span> <span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>   <span class="c"># flake8: noqa</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- closeEvent</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Function used with manual closing of the SequencePlot window.**</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_on</span> <span class="o">=</span> <span class="bp">False</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_on</span> <span class="o">=</span> <span class="bp">False</span></div></div>
 </pre></div>
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
+        <div class="sphinxsidebarwrapper">
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
@@ -583,17 +795,22 @@
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, Felix Pfreundtner, Huaijiang Zhu, Manuela Heiss, Matthias Lederle".
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Group B: 3D Audio 1.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Felix Pfreundtner, Huaijiang Zhu, Manuela Heiss, Matthias Lederle&#34;.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>

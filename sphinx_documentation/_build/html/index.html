@@ -8,7 +8,7 @@
     
     <title>Welcome to Group B: 3D Audio’s documentation! &mdash; Group B: 3D Audio 1.0 documentation</title>
     
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -23,13 +23,21 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Group B: 3D Audio 1.0 documentation" href="#" />
-   
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
-
+    <link rel="top" title="Group B: 3D Audio 1.0 documentation" href="#" /> 
   </head>
-  <body role="document">  
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">Group B: 3D Audio 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
 
     <div class="document">
       <div class="documentwrapper">
@@ -45,24 +53,41 @@
 </div>
 <span class="target" id="module-main"></span><p>Created on Fri Jun  12 15:30:53 2015</p>
 <p>&#64;author: Felix Pfreundtner</p>
-<span class="target" id="module-dsp"></span><p>Created on Fri May 22 16:27:57 2015</p>
-<p>&#64;author: Felix Pfreundtner</p>
-<span class="target" id="module-dsp_in"></span><p>Created on Fri Jun  5 10:30:53 2015</p>
+<span class="target" id="module-dsp"></span><span class="target" id="module-dsp_in"></span><p>Created on Fri Jun  5 10:30:53 2015</p>
 <p>&#64;author: Felix Pfreundtner</p>
 <span class="target" id="module-dsp_out"></span><p>Created on Fri Jun  5 10:31:01 2015</p>
 <p>&#64;author: Felix Pfreundtner</p>
 <span class="target" id="module-dsp_tests"></span><span class="target" id="module-dt2"></span><span class="target" id="module-gui_main_window"></span><p>GUI Main Window of Audio 3D Project, Group B
 author: H. Zhu, M. Heiss</p>
-<span class="target" id="module-gui_tests"></span><p>Created on Thu Jul  2 13:46:25 2015</p>
-<p>&#64;author: mh</p>
-<span class="target" id="module-gui_utils"></span><p>Library for GUI of Audio 3D Project, Group B
+<span class="target" id="module-gui_tests"></span><span class="target" id="module-gui_utils"></span><p>Library for GUI of Audio 3D Project, Group B
 author: H. Zhu, M. Heiss</p>
-<span class="target" id="module-headtracker_data"></span><p>Created on Tue Jun 23 16:46:54 2015</p>
-<p>&#64;author: mh</p>
+<span class="target" id="module-headtracker_data"></span><p>Handling of headtracker data from DT2 class
+author: H. Zhu, M. Heiss</p>
 <span class="target" id="module-test_headtracker"></span><span class="target" id="module-plot"></span><dl class="class">
 <dt id="dsp.Dsp">
-<em class="property">class </em><code class="descclassname">dsp.</code><code class="descname">Dsp</code><span class="sig-paren">(</span><em>state_init</em>, <em>return_ex_init</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp.html#Dsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp.Dsp" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<em class="property">class </em><code class="descclassname">dsp.</code><code class="descname">Dsp</code><span class="sig-paren">(</span><em>state_init</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp.html#Dsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp.Dsp" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Main class of the project&#8217;s Digital Signal Processing part.</strong></p>
+<dl class="method">
+<dt id="dsp.Dsp.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp.html#Dsp.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp.Dsp.run" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Runs the dsp algorithm as one process on one cpu core as a big
+while-loop</strong></p>
+<p>The steps of the loop are:
+1. Lock shared variables.
+2. Set the begin and end of the speaker wave block which needs to
+be read in this iteration.
+3. Iterate over all active speakers sp.
+4. Mix binaural stereo blockoutput of every speaker to one binaural
+stereo block output having regard to speaker distances.
+5. Mix binaural stereo blockoutput of every speaker.
+6. Add mixed binaural stereo block to play queue.
+7. Unlock shared variables.
+8. Synchronize with PortAudio Playback Thread
+9. Finish DSP Algorithm.</p>
+<p>Authors: Felix Pfreundtner, Matthias Lederle</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="dsp_in.DspIn">
@@ -78,7 +103,7 @@ kinds of windows.</p>
 <dd><p><strong>Gets and reads the correct hrtf_file from database</strong></p>
 <p>If the input-flag normalize_flag_sp is True, measure the maximum
 amplitude occurring in the .wav-file. After that, reduce all
-entries of sp_block_dict by the ratio that decreases the max value
+entries of sp_block by the ratio that decreases the max value
 to 2^15-1</p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
@@ -95,20 +120,20 @@ Author: Felix Pfreundtner</p>
 
 <dl class="method">
 <dt id="dsp_in.DspIn.fft_convolution">
-<code class="descname">fft_convolution</code><span class="sig-paren">(</span><em>binaural_block_dict_sp</em>, <em>sp</em>, <em>l_r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.fft_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.fft_convolution" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fft_convolution</code><span class="sig-paren">(</span><em>sp_binaural_block_sp</em>, <em>sp</em>, <em>l_r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.fft_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.fft_convolution" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Function convolves hrtf and data of the music file</strong></p>
 <p>Function takes one hrtf block and one data block (their size is
 defined by fft_blocksize), normalizes their values to int16-signals
 and then executes the convolution. After that, the signal is
 retransformed to  time-domain and normalized again. The final
-values are written then to the binaural_block_dict.</p>
+values are written then to the sp_binaural_block.</p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dsp_in.DspIn.get_block_param">
-<code class="descname">get_block_param</code><span class="sig-paren">(</span><em>wave_param_common</em>, <em>hrtf_blocksize</em>, <em>fft_blocksize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_block_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_block_param" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method uses the parameters of the input .wav-file and the
+<code class="descname">get_block_param</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_block_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_block_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method uses the parameters of the input wav-file and the
 blocksizes of the fft and the hrtf to calculate the blocksize and
 blocktime needed from the speaker.
 Return values
@@ -122,21 +147,19 @@ Return values
 
 <dl class="method">
 <dt id="dsp_in.DspIn.get_hrtf_block_fft">
-<code class="descname">get_hrtf_block_fft</code><span class="sig-paren">(</span><em>gui_sp_dict_sp</em>, <em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_hrtf_block_fft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_hrtf_block_fft" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_hrtf_block_fft</code><span class="sig-paren">(</span><em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_hrtf_block_fft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_hrtf_block_fft" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Gets and reads the correct hrtf_file from database</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dsp_in.DspIn.get_hrtf_param">
-<code class="descname">get_hrtf_param</code><span class="sig-paren">(</span><em>gui_settings_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_hrtf_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_hrtf_param" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_hrtf_param</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_hrtf_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_hrtf_param" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Get all parameters for the hrtf set by the settings in gui</strong></p>
 <p>This function calculates all necessary parameters of the hrtf to be
 later able to get the correct hrtf-files for the convolution with
 the speaker-file signal.</p>
 <p>Return values:
-* hrtf_database_name: Tells which database the listener has chosen
-(available are: normal ear, big ear and a compact version)
 * hrtf_blocksize: Simply set to default value 513 since
 fft_blocksize is defaulted to 1024
 * kemar_inverse_filter: Boolean value that tells whether check-box
@@ -165,23 +188,22 @@ the file or not</p>
 
 <dl class="method">
 <dt id="dsp_in.DspIn.init_read_sp">
-<code class="descname">init_read_sp</code><span class="sig-paren">(</span><em>gui_sp_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.init_read_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.init_read_sp" title="Permalink to this definition">¶</a></dt>
+<code class="descname">init_read_sp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.init_read_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.init_read_sp" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Get 10 important parameters of the files to be played by the
 get_block_function</strong></p>
 <p>This method gets all important data from the .wav files that will
-be played by the speakers. Input is a gui_sp_dict, containing the
-filename at place [2]. The output is another dict called sp_param,
+be played by the speakers. The output is another list called sp_param,
 which holds one of the properties as values for each speaker given
-by the gui_sp_dict.</p>
+by the gui_sp.</p>
 <p>Return values:
-sp_param: Returns a dictionary containing 10 properties of each
+sp_param: Returns a list containing 10 properties of each
 speaker-file.</p>
 <p>Author: Matthias Lederle</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dsp_in.DspIn.init_set_block_begin_end">
-<code class="descname">init_set_block_begin_end</code><span class="sig-paren">(</span><em>gui_sp_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.init_set_block_begin_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.init_set_block_begin_end" title="Permalink to this definition">¶</a></dt>
+<code class="descname">init_set_block_begin_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.init_set_block_begin_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.init_set_block_begin_end" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Initializes a list with the number of the first and last sample
 of the first block</strong></p>
 <p>This function calculates a list called block_begin_end containing
@@ -197,18 +219,18 @@ will then be calculated by the set_block_begin_end-function.</p>
 
 <dl class="method">
 <dt id="dsp_in.DspIn.normalize">
-<code class="descname">normalize</code><span class="sig-paren">(</span><em>normalize_bool</em>, <em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.normalize" title="Permalink to this definition">¶</a></dt>
+<code class="descname">normalize</code><span class="sig-paren">(</span><em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.normalize" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Gets and reads the correct hrtf_file from database</strong></p>
 <p>If the input-flag normalize_flag_sp is True, measure the maximum
 amplitude occurring in the .wav-file. After that, reduce all
-entries of sp_block_dict by the ratio that decreases the max value
+entries of sp_block by the ratio that decreases the max value
 to 2^15-1</p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dsp_in.DspIn.read_hrtf_database">
-<code class="descname">read_hrtf_database</code><span class="sig-paren">(</span><em>gui_sp_dict_sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.read_hrtf_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.read_hrtf_database" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_hrtf_database</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.read_hrtf_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.read_hrtf_database" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Preloads all hrtf Files</strong></p>
 <p>Return values:
 * hrtf_database: A numpy array that contains either the
@@ -218,10 +240,10 @@ kemar_normal_ear or the kemar_full_ear HRTFs.</p>
 
 <dl class="method">
 <dt id="dsp_in.DspIn.read_sp">
-<code class="descname">read_sp</code><span class="sig-paren">(</span><em>gui_sp_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.read_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.read_sp" title="Permalink to this definition">¶</a></dt>
+<code class="descname">read_sp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.read_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.read_sp" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Reads one block of samples</strong></p>
 <p>This method reads a block of samples of a speaker-.wav-file and
-writes in a numpyarray sp_block_dict[sp] (containing one 16-bit-int
+writes in a numpyarray sp_block[sp] (containing one 16-bit-int
 for each sample) and a flag that tells whether the end of the file
 is reached or not. This function will be applied in the while loop
 of the dsp-class: I.e. a optimum performance is required.</p>
@@ -267,82 +289,542 @@ the values are replaced, there are no input and output variables.</p>
 <dl class="class">
 <dt id="dsp_tests.DspTests">
 <em class="property">class </em><code class="descclassname">dsp_tests.</code><code class="descname">DspTests</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>Testclass for all Dsp-Classes of the project.</strong></p>
+<dl class="method">
+<dt id="dsp_tests.DspTests.test_get_block_param">
+<code class="descname">test_get_block_param</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_get_block_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_get_block_param" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Tests get_block_param by comparing two lists.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_tests.DspTests.test_get_sp">
+<code class="descname">test_get_sp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_get_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_get_sp" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Compare get_sp-function to scipy-function-results.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_tests.DspTests.test_hann_window">
+<code class="descname">test_hann_window</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_hann_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_hann_window" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests equality of the values at position 2 and 200 of the
+hamming-window.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_tests.DspTests.test_init_set_block_begin_end">
+<code class="descname">test_init_set_block_begin_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_init_set_block_begin_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_init_set_block_begin_end" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Tests get_block_param by comparing two lists.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_tests.DspTests.test_rnd">
+<code class="descname">test_rnd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_rnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_rnd" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Tests rnd for a list of numbers at the same time.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_tests.DspTests.test_rnd_int">
+<code class="descname">test_rnd_int</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_rnd_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_rnd_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests rnd for one particular number.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_tests.DspTests.test_set_block_begin_end">
+<code class="descname">test_set_block_begin_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_set_block_begin_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_set_block_begin_end" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Tests the set_block_begin_end function for correctness.</strong></p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="gui_main_window.MainWindow">
 <em class="property">class </em><code class="descclassname">gui_main_window.</code><code class="descname">MainWindow</code><a class="reference internal" href="_modules/gui_main_window.html#MainWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>This class sets up the main window which includes all necessaries to
+start/stop and control the DSP algorithm. It also includes all user 
+interactions, corresponding functions and executing and updating these.</strong></p>
+<dl class="method">
+<dt id="gui_main_window.MainWindow.add2scene">
+<code class="descname">add2scene</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.add2scene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.add2scene" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function creates a new speaker item.</strong>
+The function is called by the confirm button of gui_utils&#8217;
+SpeakerProperty widget.
+A new speaker item is created with arguments defined in the speaker
+property widget. Furthermore the gui_utils&#8217; room.addItem function
+is called to add the new speaker to the GuiScene.
+Finally the GuiView is updated to display the change.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_main_window.MainWindow.change_property">
+<code class="descname">change_property</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.change_property"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.change_property" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>With this function transfers the speaker property changes and updates
+the speaker list and gui_sp variables.</strong>
+A threading.Lock() avoids read-write overlaps of the gui_sp
+variable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_main_window.MainWindow.closeEvent">
+<code class="descname">closeEvent</code><span class="sig-paren">(</span><em>event_q_close_event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.closeEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function is responsible for a smooth closure of the MainWindow
+.</strong>
+Whenever the MainWindow is closed by the user all widgets such as
+the SpeakerProperty and SequencePlot have to be closed. If the
+headtracking system is used its continuous updating is stopped.
+And the algorithm control variables are set repsectively.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_main_window.MainWindow.inverse_disable">
+<code class="descname">inverse_disable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.inverse_disable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.inverse_disable" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function is needed to disable the CheckBox for inverse filtering
+if the kemarr_compact database is selected.</strong>
+The kemar_compact database already includes inverse filtering of the
+measurement speaker disturbtions which can therefore not be optional
+for this setting.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_main_window.MainWindow.pause">
+<code class="descname">pause</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.pause"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.pause" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>The algorithm can be paused by the pause button of MainWindow.</strong>
+The state variable switch_pause_playback remembers the status of the
+algorithm and enables pausing and restarting of the play-back of the
+dsp algorithm.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_main_window.MainWindow.play">
+<code class="descname">play</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.play"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.play" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function is called by the MainWindow play/stop button .</strong>
+The algorithm specific stettings such as the HRTF database, the
+inverse filter and the bufferblock size are recorded and
+an DSP object is initialized and run in a seperate thread.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_main_window.MainWindow.plot_sequence">
+<code class="descname">plot_sequence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.plot_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.plot_sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function is called by MainWindow plot button and shows the 
+gui_utils&#8217; SequencePlot of the last selected speaker.</strong>
+The sequences are continously updated by the update_sequences in
+connection with a QTimer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_main_window.MainWindow.positions">
+<code class="descname">positions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.positions" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function places all speakers on their respective default
+positions.</strong>
+Depending on their order every speakers default position is defined
+in the default_speaker_position variable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_main_window.MainWindow.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function is called by the MainWindow reset button and removes
+all existing speakers from the GuiScene and resets also the gui_sp
+variable.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_main_window.MainWindow.show_property">
+<code class="descname">show_property</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.show_property"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.show_property" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>With this function the speaker property widget from gui_utils is
+opened and handeled.</strong>
+If a new speaker is added or by double click on an existing one 
+gui_utils&#8217; SpeakerProperty widget, containing the default or 
+instantaneous settings respectively, is opened to define/change the
+individual speaker settings.
+The change_property function is called to save changes.
+A threading.Lock() avoids read-write overlaps of the gui_sp
+variable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_main_window.MainWindow.update_gui_sp">
+<code class="descname">update_gui_sp</code><span class="sig-paren">(</span><em>deg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.update_gui_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.update_gui_sp" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function is continuously updating the list with the settings
+for each speaker</strong>
+It is called every 10 sec by a timer and updating the speaker 
+list for every present speaker.
+A threading.Lock() avoids read-write overlaps of the dsp_run variable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_main_window.MainWindow.update_head">
+<code class="descname">update_head</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.update_head"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.update_head" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function is nessecary if the program is run in connection with
+a headtracking system.</strong>
+If the DSP algorithm is running the Headtracking angle output is
+requested and the speaker list is updated.
+A threading.Lock() avoids read-write overlaps of the dsp_run variable.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_main_window.MainWindow.update_sequences">
+<code class="descname">update_sequences</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.update_sequences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.update_sequences" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function is used to update speaker spectrum while it is
+displayed in the SequencePlot widget.</strong></p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="gui_utils.State">
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">State</code><a class="reference internal" href="_modules/gui_utils.html#State"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.State" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>This is an exchange class for variables which are read and written by
+the DSP algorithm and all GUI applications.</strong></p>
+<dl class="method">
+<dt id="gui_utils.State.check_error">
+<code class="descname">check_error</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#State.check_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.State.check_error" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>The function creates GUI message box with error message.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.State.send_error">
+<code class="descname">send_error</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#State.send_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.State.send_error" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>The function can be used by the DSP classes to create case-specific
+error messages.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.State.switch_pause_playback">
+<code class="descname">switch_pause_playback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#State.switch_pause_playback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.State.switch_pause_playback" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function is called from the MainWindow Pause button and
+remembers the state and transfers to respective DSP command.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.State.switch_stop_playback">
+<code class="descname">switch_stop_playback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#State.switch_stop_playback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.State.switch_stop_playback" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function is called from the MainWindow Play/Stop button and
+remembers the state and transfers to a DSP command.</strong></p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="gui_utils.Headtracker">
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">Headtracker</code><a class="reference internal" href="_modules/gui_utils.html#Headtracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Headtracker" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>This class enables the integration of a headtracking system.</strong>
+The networking interface from where the data can be extracced is
+initialized and thus the azimuthal angle can be read out.</p>
+<dl class="method">
+<dt id="gui_utils.Headtracker.cal_head_deg">
+<code class="descname">cal_head_deg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Headtracker.cal_head_deg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Headtracker.cal_head_deg" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function calls the azimuth_angle function of DT2 object.</strong>
+This only extracts the azimuthal head movement
+recorded by the headtracking setup.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.Headtracker.get_head_deg">
+<code class="descname">get_head_deg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Headtracker.get_head_deg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Headtracker.get_head_deg" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function returns the azimuth angle, which is recorded
+with the headtracker setup</strong></p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="gui_utils.Item">
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">Item</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Item" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>This class defines items inside the QGraphicsScene,
+including Speaker and Audience.</strong></p>
+<dl class="method">
+<dt id="gui_utils.Item.mouseMoveEvent">
+<code class="descname">mouseMoveEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Item.mouseMoveEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Item.mouseMoveEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function defines the effect of mouse move events in connection
+with items.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.Item.mousePressEvent">
+<code class="descname">mousePressEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Item.mousePressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Item.mousePressEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function defines the effect of mouse press on items.</strong>
+Only left mouse click is noticed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.Item.mouseReleaseEvent">
+<code class="descname">mouseReleaseEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Item.mouseReleaseEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Item.mouseReleaseEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function defines the effect of mouse release events in
+connection with items.</strong> The Cursor symbol is changed.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="gui_utils.Room">
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">Room</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Room"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Room" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>This class defines the QGraphicsScene on which the items are displayed
+and handeled.</strong>
+* current_item: Indexes the item which is selected.</p>
+<dl class="attribute">
+<dt id="gui_utils.Room.current_item">
+<code class="descname">current_item</code><em class="property"> = 0</em><a class="headerlink" href="#gui_utils.Room.current_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor of the Room class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.Room.dragMoveEvent">
+<code class="descname">dragMoveEvent</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Room.dragMoveEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Room.dragMoveEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function defines the effect of mouse move event on the room
+in connection with an item.</strong>
+The mouse movement is recorded and the new item positions are extracted
+and used to calculate the respective positions of speaker(s) and
+audience.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.Room.get_abs_pos">
+<code class="descname">get_abs_pos</code><span class="sig-paren">(</span><em>azimuth</em>, <em>dist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Room.get_abs_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Room.get_abs_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>The function calculates and returns the new speaker position
+relative to the audience.</strong>
+Return values:
+* x: is the horizontal coordinate of the speaker item.
+* y: is the vertical coordinate of the speaker item.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.Room.get_bound_pos">
+<code class="descname">get_bound_pos</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Room.get_bound_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Room.get_bound_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function is used to avoid dragging outside the visible room
+area in the MainWindow.</strong> By dragging items inside the QGraphicsScene
+the cursor can not leave this scene and items can not be hidden.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.Room.mousePressEvent">
+<code class="descname">mousePressEvent</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Room.mousePressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Room.mousePressEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function defines the effect of mouse press on the room.</strong>
+The item at the respective mouse event position is noticed.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="gui_utils.View">
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">View</code><span class="sig-paren">(</span><em>state</em>, <em>scene</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#View"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.View" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>This class is responsible for displaying the contents of on the
+Room.</strong></p>
+<dl class="method">
+<dt id="gui_utils.View.dragEnterEvent">
+<code class="descname">dragEnterEvent</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#View.dragEnterEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.View.dragEnterEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function defines the effect of drag enter event on the view.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.View.dragMoveEvent">
+<code class="descname">dragMoveEvent</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#View.dragMoveEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.View.dragMoveEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function defines the effect of mouse move event on the view.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.View.dropEvent">
+<code class="descname">dropEvent</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#View.dropEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.View.dropEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function defines the effect of mouse drop event on the view.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.View.keyPressEvent">
+<code class="descname">keyPressEvent</code><span class="sig-paren">(</span><em>q_key_event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#View.keyPressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.View.keyPressEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function will disable key usage effects on the view.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.View.wheelEvent">
+<code class="descname">wheelEvent</code><span class="sig-paren">(</span><em>q_wheel_event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#View.wheelEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.View.wheelEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function will disable scrolling of the view.</strong></p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="gui_utils.SignalHandler">
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">SignalHandler</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SignalHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SignalHandler" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>Signal handler class for QGraphicsItem</strong>
+This doesn&#8217;t provide the signal/slot function.</p>
+</dd></dl>
 
 <dl class="class">
 <dt id="gui_utils.Speaker">
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">Speaker</code><span class="sig-paren">(</span><em>state</em>, <em>index</em>, <em>path</em>, <em>posx=0</em>, <em>posy=0</em>, <em>norm=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Speaker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Speaker" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>This subclass is defining speaker items.</strong>
+* type: defines the type of the initialized item
+* path: defines the selected path of the .wav file</p>
+<dl class="method">
+<dt id="gui_utils.Speaker.cal_rel_pos">
+<code class="descname">cal_rel_pos</code><span class="sig-paren">(</span><em>head_deg=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Speaker.cal_rel_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Speaker.cal_rel_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function returns the relative position of the speaker
+to the &#8216;audience&#8217;, defined by a radial variable deg (defined counter
+clockwise) and the distance.</strong>
+<a href="#id7"><span class="problematic" id="id8">*</span></a>head_deg: takes the azimuthal angle set by the headtracker
+into account</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.Speaker.mouseDoubleClickEvent">
+<code class="descname">mouseDoubleClickEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Speaker.mouseDoubleClickEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Speaker.mouseDoubleClickEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function defines the effect of double clicking on a speaker
+item.</strong>
+Double click on speaker item offers the opportunity to change
+the speaker settings in the SpeakerProperty widget.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gui_utils.Speaker.path">
+<code class="descname">path</code><em class="property"> = 'unknown'</em><a class="headerlink" href="#gui_utils.Speaker.path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor of the Speaker class.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="gui_utils.Audience">
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">Audience</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Audience"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Audience" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>This sub-class defines the audience item.</strong>
+An audience item represents the relative user position,
+without headtracker in the QGraphicsScene.
+<a href="#id9"><span class="problematic" id="id10">*</span></a>type: selects the type of item.
+<a href="#id11"><span class="problematic" id="id12">*</span></a>origin_image: selects the image representing the audience in the room.</p>
+<dl class="attribute">
+<dt id="gui_utils.Audience.origin_image">
+<code class="descname">origin_image</code><em class="property"> = &lt;PySide.QtGui.QImage object at 0x0000000008ABCB48&gt;</em><a class="headerlink" href="#gui_utils.Audience.origin_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor of the Audience class.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="gui_utils.SpeakerProperty">
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">SpeakerProperty</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SpeakerProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SpeakerProperty" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>This class defines a widget window to select speaker properties before
+adding a new speaker or to change the settings again later on.</strong>
+Additional widget window to define speaker .wav path
+speaker position and to activate inverse filtering for speaker before
+adding it to the scene and afterwards by double click on the speaker item.
+<a href="#id13"><span class="problematic" id="id14">*</span></a>added: Signal emitted by the confirm button to connect to MainWindow&#8217;s
+functions.
+<a href="#id15"><span class="problematic" id="id16">*</span></a>posx = horizontal position of the respective speaker item
+<a href="#id17"><span class="problematic" id="id18">*</span></a>posy = vertical position of the respective speaker item</p>
+<dl class="method">
+<dt id="gui_utils.SpeakerProperty.browse">
+<code class="descname">browse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SpeakerProperty.browse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SpeakerProperty.browse" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Function corresponding to the browse button on the settings
+widget, to open a file dialog in order to choose a .wav file.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.SpeakerProperty.cancel">
+<code class="descname">cancel</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SpeakerProperty.cancel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SpeakerProperty.cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Function connected to the cancel button of SpeakerProperty.</strong>
+Closes the SpeakerProperty window without making any changes to the
+speaker settings.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.SpeakerProperty.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SpeakerProperty.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SpeakerProperty.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Function resets the default settings of the SpeakerProperty window.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.SpeakerProperty.closeEvent">
+<code class="descname">closeEvent</code><span class="sig-paren">(</span><em>q_close_event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SpeakerProperty.closeEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SpeakerProperty.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Function used with manual closing of the SpeakerProperty window.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.SpeakerProperty.confirm">
+<code class="descname">confirm</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SpeakerProperty.confirm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SpeakerProperty.confirm" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Function corresponding to the confirm button on the settings
+widget, to add a speaker to the QGraphicsScene with the choosen
+properties.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_utils.SpeakerProperty.get_bound_pos">
+<code class="descname">get_bound_pos</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SpeakerProperty.get_bound_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SpeakerProperty.get_bound_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Function avoids setting of coordinates which are outside the room.</strong></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gui_utils.SpeakerProperty.posy">
+<code class="descname">posy</code><em class="property"> = 0</em><a class="headerlink" href="#gui_utils.SpeakerProperty.posy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor of the SpeakerProperty class.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="gui_utils.SequencePlot">
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">SequencePlot</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SequencePlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SequencePlot" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>This class builts up a widget window to display real-time plots of the
+speaker sequence and HRTF sequence extracted from the DSP algorithm.</strong>
+GLPlotWidget was preferred over Matplotlib due to performance. The plot
+is imported from plot.py.
+<a href="#id19"><span class="problematic" id="id20">*</span></a>plot_on: Signal to communicate wheter the plot widget is open.</p>
+<dl class="method">
+<dt id="gui_utils.SequencePlot.closeEvent">
+<code class="descname">closeEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SequencePlot.closeEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SequencePlot.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Function used with manual closing of the SequencePlot window.</strong></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gui_utils.SequencePlot.plot_on">
+<code class="descname">plot_on</code><em class="property"> = &lt;PySide.QtCore.Signal object at 0x0000000008AB4F48&gt;</em><a class="headerlink" href="#gui_utils.SequencePlot.plot_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor of the SequencePlot class.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="plot.GLPlotWidget">
 <em class="property">class </em><code class="descclassname">plot.</code><code class="descname">GLPlotWidget</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p><strong>This class sets up a GLPlot used for real-time plotting of the
+speaker and HRTF seuqences during the DSP algorithm is running as an
+additional feature in the MainWindow.</strong></p>
+<dl class="method">
 <dt id="plot.GLPlotWidget.initializeGL">
 <code class="descname">initializeGL</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.initializeGL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.initializeGL" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize OpenGL, VBOs, upload data on the GPU, etc.</p>
+<dd><p><strong>This function initializes OpenGL, VBOs, upload data on the GPU, etc..
+.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="plot.GLPlotWidget.initialize_data">
+<code class="descname">initialize_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.initialize_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.initialize_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function sets the frequence intervall, defines the
+interpolation and adapts the plot to the sequence.</strong></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="plot.GLPlotWidget.paintEvent">
 <code class="descname">paintEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.paintEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.paintEvent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Paint the scene.</p>
+<dd><p><strong>This function is nessecary as GLPlotWidget does not offer pre-built
+plot settings. With this the axis are painted, scaled and named.</strong></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="plot.GLPlotWidget.resizeGL">
 <code class="descname">resizeGL</code><span class="sig-paren">(</span><em>width</em>, <em>height</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.resizeGL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.resizeGL" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called upon window resizing: reinitialize the viewport.</p>
+<dd><p><strong>This function is called upon window resizing to reinitialize
+the viewport.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="plot.GLPlotWidget.set_data">
+<code class="descname">set_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.set_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.set_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function sets the plot variables respective to the sequence
+data.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="plot.GLPlotWidget.update_data">
+<code class="descname">update_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.update_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.update_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This function updates the plot.</strong></p>
 </dd></dl>
 
 </dd></dl>
@@ -350,17 +832,103 @@ the values are replaced, there are no input and output variables.</p>
 <dl class="class">
 <dt id="dt2.DT2">
 <em class="property">class </em><code class="descclassname">dt2.</code><code class="descname">DT2</code><a class="reference internal" href="_modules/dt2.html#DT2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dt2.DT2" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>This class builts up a networking interface using the python
+package socket to extract information gained by an ARTTRACK tracking
+system.</strong>
+Author: Marko Durkovic</p>
+<dl class="method">
+<dt id="dt2.DT2.angle">
+<code class="descname">angle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dt2.html#DT2.angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dt2.DT2.angle" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><strong>This function returns the data linewise.</strong>
+Returned data format:
+<a href="#id21"><span class="problematic" id="id22">*</span></a>[&#8216;6d 1 [0 1.000] [x y z polar azimuthal] [3x3 rotation matrix]</div></blockquote>
+<dl class="docutils">
+<dt>&#8216;]</dt>
+<dd>Author: Marko Durkovic</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dt2.DT2.get_measurements">
+<code class="descname">get_measurements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dt2.html#DT2.get_measurements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dt2.DT2.get_measurements" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Function returns the the received data from the headtracker.</strong>
+Author: Marko Durkovic</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="gui_tests.GuiTests">
 <em class="property">class </em><code class="descclassname">gui_tests.</code><code class="descname">GuiTests</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>Test class for GUI.</strong>
+Athor: Huijiang, Manuela</p>
+<dl class="method">
+<dt id="gui_tests.GuiTests.test_get_abs_pos">
+<code class="descname">test_get_abs_pos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_get_abs_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_get_abs_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests function get_abs_pos() from gui_utils.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_tests.GuiTests.test_get_abs_pos_float">
+<code class="descname">test_get_abs_pos_float</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_get_abs_pos_float"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_get_abs_pos_float" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests function get_abs_pos() from gui_utils for floats.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_tests.GuiTests.test_get_abs_pos_zero">
+<code class="descname">test_get_abs_pos_zero</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_get_abs_pos_zero"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_get_abs_pos_zero" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests function get_abs_pos() from gui_utils for zero entries.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_tests.GuiTests.test_get_bound_pos_float">
+<code class="descname">test_get_bound_pos_float</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_get_bound_pos_float"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_get_bound_pos_float" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests function get_bound_pos() from gui_utils for float
+values.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_tests.GuiTests.test_get_bound_pos_negative">
+<code class="descname">test_get_bound_pos_negative</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_get_bound_pos_negative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_get_bound_pos_negative" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests function get_bound_pos() from gui_utils for netative
+values.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_tests.GuiTests.test_switch_pause_playback">
+<code class="descname">test_switch_pause_playback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_pause_playback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_switch_pause_playback" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests function switch_pause_playback() from gui_utils.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui_tests.GuiTests.test_switch_stop_playback">
+<code class="descname">test_switch_stop_playback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_stop_playback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_switch_stop_playback" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests function switch_stop_playback() from gui_utils.</strong></p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="class">
 <dt id="test_headtracker.TestHeadtracker">
 <em class="property">class </em><code class="descclassname">test_headtracker.</code><code class="descname">TestHeadtracker</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test_headtracker.html#TestHeadtracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test_headtracker.TestHeadtracker" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p><strong>Test class for the headtracker integration.</strong>
+Athor: Huijiang</p>
+<dl class="method">
+<dt id="test_headtracker.TestHeadtracker.test_head_deg">
+<code class="descname">test_head_deg</code><span class="sig-paren">(</span><em>get_head_deg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test_headtracker.html#TestHeadtracker.test_head_deg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test_headtracker.TestHeadtracker.test_head_deg" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests wheter the azimuthal angle is correctly converted for the
+position of a speaker item.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="test_headtracker.TestHeadtracker.test_over_360">
+<code class="descname">test_over_360</code><span class="sig-paren">(</span><em>get_head_deg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/test_headtracker.html#TestHeadtracker.test_over_360"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#test_headtracker.TestHeadtracker.test_over_360" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests whether the azimuthal angle is correctly applied if the
+angle would result in something greater than 360°.</strong></p>
+</dd></dl>
+
+</dd></dl>
 
 </div>
 <div class="section" id="indices-and-tables">
@@ -383,13 +951,7 @@ the values are replaced, there are no input and output variables.</p>
 <li><a class="reference internal" href="#">Welcome to Group B: 3D Audio&#8217;s documentation!</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="#">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
+
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -414,20 +976,21 @@ the values are replaced, there are no input and output variables.</p>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="footer">
-      &copy;2015, Felix Pfreundtner, Huaijiang Zhu, Manuela Heiss, Matthias Lederle".
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
-      
-      |
-      <a href="_sources/index.txt"
-          rel="nofollow">Page source</a>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">Group B: 3D Audio 1.0 documentation</a> &raquo;</li> 
+      </ul>
     </div>
-
-    
-
-    
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Felix Pfreundtner, Huaijiang Zhu, Manuela Heiss, Matthias Lederle&#34;.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
   </body>
 </html>
