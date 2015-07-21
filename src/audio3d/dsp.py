@@ -10,11 +10,29 @@ import time
 
 class Dsp:
     """
-    H1 -- Dsp
+    Dsp
     ************************
-    **Main class of the project's Digital Signal Processing part.**
+    **Main class of the project's Digital Signal Processing part.
+
+    | This class holds variables and methods which enable the build of the
+    binaural output. It holds one instance of the DspIn and DspOut class.
+    | The run() function is called by GUI Main Window as Thread and generates
+    block by block a binaural audio output and sends it to a playback queue
+    which is read by a PortAudio Callback Thread. To reach a higher
+    performance the __init__ of the DspIn and DspOut class perform many time
+    intensive calculations before starting the run() function of this class. **
     """
     def __init__(self, state_init):
+        """
+        __init__
+        ===================
+        ** __init__ is called by GUI MainWindow and creates all variables which
+        are relevant for the run()method's while loop. It also creates one
+        instance of the DspIn and DspOut class,  which provides all functions
+        and variables need to generate the binaural block output **
+
+        Authors: Felix Pfreundtner, Matthias Lederle
+        """
         self.state = state_init
         # Number of all speakers
         self.spn = len(self.state.gui_sp)
@@ -37,23 +55,34 @@ class Dsp:
 
     def run(self):
         """
-        H2 -- run
+        run
         ===================
-        **Runs the dsp algorithm as one process on one cpu core as a big
-        while-loop**
+        **Runs the dsp algorithm. The method ist called as single processing
+        thread from gui_main_window. It uses a while loop, which generates
+        block by block a mixed binaural output for multiple input speaker
+        wave files. For this 3 hrtf databases can be chosen in Gui Main
+        Window. After the block buffer size, which can be specified in
+        gui_main_window, it generates a second thread which starts the playback
+        of the generated binaural blocks with PortAudio. The algorithm
+        can be stopped and paused through GUI Main Window by using a shared
+        state object, which is controlled by mutex access**
 
-        | The steps of the loop are:
-        | 1. Lock shared variables.
-        | 2. Set the begin and end of the speaker wave block which needs to
-          be read in this iteration.
-        | 3. Iterate over all active speakers sp.
-        | 4. Mix binaural stereo blockoutput of every speaker to one binaural
+        | The steps of the while loop are:
+        | 1. Lock variables which are accessible through state class by gui and
+          dsp algorithm
+        | 2. Set the common begin and end sample position in the speaker wave
+          files input which needs to be read in this iteration.
+        | 3. Iterate over all speakers sp.
+          4. Read in current fitting hrtf for left and right ear and speaker
+          block input
+          5. Convolve hrtfs with speaker block input using fft and overlap add
+        | 6. Mix binaural stereo blockoutput of every speaker to one binaural
           stereo block output having regard to speaker distances.
-        | 5. Mix binaural stereo blockoutput of every speaker.
-        | 6. Add mixed binaural stereo block to play queue.
-        | 7. Unlock shared variables.
-        | 8. Synchronize with PortAudio Playback Thread
-        | 9. Finish DSP Algorithm.
+        | 7. Add mixed binaural stereo block to play queue
+        | 8. Unlock shared variables.
+        | 9. Read play queue by PortAudio playback thread
+        | 10. If selected in GUI: records the binaural output to a wave file
+        | 11. Finish DSP Algorithm, reset play and pause button
 
         Authors: Felix Pfreundtner, Matthias Lederle
         """

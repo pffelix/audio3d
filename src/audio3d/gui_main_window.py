@@ -58,7 +58,7 @@ class MainWindow(QtGui.QWidget):
         play_button = QtGui.QPushButton('Play/Stop')
         pause_button = QtGui.QPushButton('Pause/Continue')
         default_position_button = QtGui.QPushButton('Default Position')
-        self.plot_button = QtGui.QPushButton('Plot Sequence')
+        self.plot_button = QtGui.QPushButton('Plot Spectrum')
         self.plot_button.setDisabled(True)
 
         # set_properties

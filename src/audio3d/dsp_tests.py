@@ -17,7 +17,7 @@ class DspTests(unittest.TestCase):
     """
     H1 -- DspTests
     ************************
-    **Testclass for all Dsp-Classes of the project.**
+    **Testclass for all Dsp-Classes (Dsp, DspIn, DspOut) of the project.**
     """
     def __init__(self, *args, **kwargs):
         # calling the constructor of the super class
@@ -128,9 +128,9 @@ class DspTests(unittest.TestCase):
         errmsg = "Function get_block_param (in DspIn) doesn't work properly"
         self.assertListEqual(res, sol, msg=errmsg)
 
-    def test_init_set_block_begin_end(self):
+    def test_init_set_block_begin_end_1(self):
         """
-        H2 -- test_init_set_block_begin_end
+        H2 -- test_init_set_block_begin_end_1
         ===================
         **Compare init_set_block_begin_end() output with correct values for
         initialization of block_begin_end.**
@@ -147,12 +147,25 @@ class DspTests(unittest.TestCase):
                  "position and size"
         self.assertEqual(result_correct, result_test, msg=errmsg)
 
+    def test_init_set_block_begin_end_2(self):
+        """
+        H2 -- test_init_set_block_begin_end_2
+        ===================
+        **Tests init_set_block_begin_end by comparing two lists.**
+
+        Author: Matthias Lederle
+        """
+        res = self.dsp_obj.dspin_obj.init_set_block_begin_end()
+        errmsg = "The entries in init_block_begin_end are not symmetric  " \
+                 "to 0"
+        self.assertTrue(abs(res[0]) == abs(res[1]), msg=errmsg)
+
     def test_set_block_begin_end(self):
         """
         H2 -- test_set_block_begin_end
         ===================
         **Compare set_block_begin_end() output with correct values for
-        the first run() iterations of dsp alorithm.**
+        the first run() iterations of dsp algorithm.**
 
         Author: Felix Pfreundtner
         """
@@ -179,23 +192,11 @@ class DspTests(unittest.TestCase):
         self.assertEqual(result_correct, result_test, msg=errmsg)
     # @brief Tests the values of init_block_begin_end on symmetry to 0
 
-    def test_init_set_block_begin_end(self):
-        """
-        H2 -- test_init_set_block_begin_end
-        ===================
-        **Tests get_block_param by comparing two lists.**
-
-        Author: Matthias Lederle
-        """
-        res = self.dsp_obj.dspin_obj.init_set_block_begin_end()
-        errmsg = "The entries in init_block_begin_end are not symmetric to 0"
-        self.assertTrue(abs(res[0]) == abs(res[1]), msg=errmsg)
-
     def test_set_block_begin_end(self):
         """
         H2 -- test_set-block_begin_end
         ===================
-        **Tests the set_block_begin_end function for correctness.**
+        **Tests the set_block_begin_end method for correctness.**
 
         Author: Matthias Lederle
         """
@@ -204,7 +205,7 @@ class DspTests(unittest.TestCase):
         block_begin_end = self.dsp_obj.dspin_obj.block_begin_end
         while i < 10:
             # Between ##### and ##### has to be the same code as in
-            # set_block_begin_end-function
+            # set_block_begin_end-method
             #####
             block_begin_end[0] += int(
                 self.dsp_obj.dspin_obj.sp_blocksize *
@@ -227,7 +228,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_init_read_sp
         ===================
-        **Check whether init_read_sp() gives out the sample samplerate as
+        **Test whether init_read_sp() gives out the sample samplerate as
         scipy.io.wavfile.read()**
 
         Author: Felix Pfreundtner
@@ -250,7 +251,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_read_sp
         ===================
-        **Compare get_sp-function to scipy-function-results.**
+        **Compare get_sp-method to scipy-method-results.**
 
         Author: Matthias Lederle
         """
@@ -276,7 +277,7 @@ class DspTests(unittest.TestCase):
                 scipy_sp_input[sp] = scipy_sp_input_raw[sp]
         sol = scipy_sp_input
         res = self.dsp_obj.dspin_obj.read_sp()
-        errmsg = "get_sp doesn't get same values as scipy function"
+        errmsg = "get_sp doesn't get same values as scipy method"
         checklist = [0, 1, 50, 1000, 20000, 100000, 200000, 220671]
         truelist = []
         i = 0
@@ -293,7 +294,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_hrtf_size
         ===================
-        **Check whether hrtf_blocksize is calculated correct by dsp algorithm**
+        **Test whether hrtf_blocksize is calculated correct by dsp algorithm**
 
         Author: Felix Pfreundtner
         """
@@ -309,7 +310,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_fft_blocksize
         ===================
-        **Check whether fft_blocksize is calculated correct by dsp algorithm**
+        **Test whether fft_blocksize is calculated correct by dsp algorithm**
 
         Author: Felix Pfreundtner
         """
@@ -325,7 +326,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_sp_blocksize
         ===================
-        **Check whether sp_blocksize is calculated correct by dsp algorithm**
+        **Test whether sp_blocksize is calculated correct by dsp algorithm**
 
         Author: Felix Pfreundtner
         """
@@ -342,7 +343,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_overlap
         ===================
-        **Check whether overlap is calculated correct by dsp algorithm**
+        **Test whether overlap is calculated correct by dsp algorithm**
 
         Author: Felix Pfreundtner
         """
@@ -377,7 +378,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_kemar_inverse_filter
         ===================
-        **Check whether a deactivated kemar compact inverse measurement
+        **Test whether a deactivated kemar compact inverse measurement
         speaker filter in gui leads to an filter full of zeros in dsp
         algorithm ( kemar compact already includes the inverse speaker
         filter)**
@@ -389,7 +390,6 @@ class DspTests(unittest.TestCase):
         self.state.gui_settings["inverse_filter_active"] = False
         self.state.gui_settings["hrtf_database"] = "kemar_compact"
 
-        result_compare = 0
         # create new dsp_in object with modelled gui state
         dsp_in_test_obj = audio3d.dsp_in.DspIn(self.state)
         result_test = dsp_in_test_obj.kemar_inverse_filter
@@ -401,7 +401,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_get_sp_block_in_file
         ===================
-        **Check whether the read in block size of a speaker for different
+        **Test whether the read in block size of a speaker for different
         positions in the the whole sp file is correct**
 
         Author: Felix Pfreundtner
@@ -416,7 +416,7 @@ class DspTests(unittest.TestCase):
             self.dsp_obj.dspin_obj.set_block_begin_end()
             for sp in range(self.dsp_obj.spn):
                 # get block at position
-                _ = self.dsp_obj.dspin_obj.get_sp_block(sp)
+                _ = self.dsp_obj.dspin_obj.get_sp_block(sp)  # flake8: noqa
                 result_test += len(self.dsp_obj.dspin_obj.sp_block[sp])
 
         # set self.block_begin_end back to initialize value
@@ -429,7 +429,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_get_sp_block_1_out_of_file
         ===================
-        **Check whether sp block is zeropadded to sp_blocksize when a block
+        **Test whether sp block is zeropadded to sp_blocksize when a block
         position higher than samplenumber (sp_param[sp][0]) is adressed**
 
         Author: Felix Pfreundtner
@@ -461,7 +461,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_normalize
         ===================
-        **Check whether the speaker blocks are correctly normalized to
+        **Test whether the speaker blocks are correctly normalized to
         maximum int 16 amplitude**
 
         Author: Felix Pfreundtner
@@ -477,7 +477,7 @@ class DspTests(unittest.TestCase):
                 # set gui normalize state to true
                 self.state.gui_sp[sp]["normalize"] = True
                 # get block at position
-                _ = self.dsp_obj.dspin_obj.get_sp_block(sp)
+                _ = self.dsp_obj.dspin_obj.get_sp_block(sp)  # flake8: noqa
                 # get maximum value of not normalized block
                 amp_unnormalized = int(np.amax(abs(
                     self.dsp_obj.dspin_obj.sp_block[sp])))
@@ -507,7 +507,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_set_fftfreq
         ===================
-        **Checks wether calculates the correct number of fft frequency values
+        **Tests whether calculates the correct number of fft frequency values
          for given input paramaters**
 
         Author: Felix Pfreundtner
@@ -528,7 +528,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_overlap_add
         ===================
-        **Checks wether overlap add algorithm calculates the correct block
+        **Tests whether overlap add algorithm calculates the correct block
         output sizes**
 
         Author: Felix Pfreundtner
@@ -547,7 +547,7 @@ class DspTests(unittest.TestCase):
             self.dsp_obj.dspin_obj.set_block_begin_end()
             for sp in range(self.dsp_obj.spn):
                 # get block at position
-                _ = self.dsp_obj.dspin_obj.get_sp_block(sp)
+                _ = self.dsp_obj.dspin_obj.get_sp_block(sp)  # flake8: noqa
                 # get hrtfs for speaker
                 self.dsp_obj.dspin_obj.get_hrtf_block_fft(sp)
                 # for left and right ear
@@ -580,7 +580,7 @@ class DspTests(unittest.TestCase):
         """
         H2 -- test_mix_binaural_block
         ===================
-        **Checks whether final binaural block output has a higher amplitude
+        **Test whether final binaural block output has a higher amplitude
          than int16 maximum allows, which would lead to clipping in PortAudio**
 
         Author: Felix Pfreundtner
@@ -591,8 +591,6 @@ class DspTests(unittest.TestCase):
         maximum_int16_amplitude = 32767
 
         iteration_number = 300
-        length_out_correct = hopsize
-        length_add_correct = fft_blocksize - hopsize
         result = True
         # run 300 iterations
         for blockcounter in range(iteration_number):

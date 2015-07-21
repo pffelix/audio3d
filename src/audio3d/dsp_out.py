@@ -13,7 +13,26 @@ import pkg_resources
 
 
 class DspOut:
+    """
+    DspOut
+    ************************
+    This class contains all otuput related variables and methods.
+    It enables the overlap add algorithm and mix all binaural speaker
+    output arrays to one final binaural output block. It holds the
+    PortAudio methods, which are called through a Callback Thread. It also
+    enables the interaction between DSP Thread and PortAudio Thread.
+    """
     def __init__(self, state_init, fft_blocksize, hopsize):
+        """
+        __init__
+        ===================
+        ** __init__ is called by DSP and creates all variables which
+        are relevant for the output part of DSP run() method's while loop.
+        It setups up the format of the output block related varialbles and
+        provides the playqueue and record queue. **
+
+        Authors: Felix  Pfreundtner, Matthias Lederle
+        """
         self.state = state_init
         # Number of all speakers
         self.spn = len(self.state.gui_sp)
@@ -83,8 +102,8 @@ class DspOut:
         """
         H2 -- mix_binaural_block
         ===================
-        **Calculate the signal for all speakers taking into account the
-        distance to the speakers.**
+        **Calculate a mixed binaural output for all speakers taking into
+        account the distance of the head to each speaker.**
 
         Author: Felix Pfreundtner
         """
@@ -143,6 +162,9 @@ class DspOut:
         """
         H2 -- callback
         ===================
+        ** Plays the audio blocks. The function is always called by PortAudio
+        when a new block is needed. The blocks are exchanged between DSP Thread
+         and Play Thread through a Queue playqueue **
 
         Author: Felix Pfreundtner
         """
@@ -165,7 +187,8 @@ class DspOut:
         """
         H2 -- audiooutput
         ===================
-        **Streams the calculated files as a output signal.**
+        **Starts a PortAudio Stream and handles play and pause button presses
+         through the user in GUI MainWindow.**
 
         Author: Felix Pfreundtner
         """

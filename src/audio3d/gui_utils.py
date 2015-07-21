@@ -685,7 +685,7 @@ class SequencePlot(QtGui.QWidget):
         self.setGeometry(100, 100, self.speaker_spec.width,
                          2 * self.speaker_spec.height)
 
-        self.setWindowTitle('Sequence Plot')
+        self.setWindowTitle('Spectrum Plot')
         self.timer = QtCore.QTimer(self)
 
     def closeEvent(self, event):   # flake8: noqa
