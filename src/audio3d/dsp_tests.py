@@ -23,10 +23,10 @@ class DspTests(unittest.TestCase):
         # modify GUI state
         self.state.gui_sp = []
         self.state.gui_sp.append({"angle": 90, "distance": 0, "path":
-                                  "./audio_in/sine_1kHz_(44.1,1,16).wav",
+                                  "audio_in/sine_1kHz_(44.1,1,16).wav",
                                   "normalize": False})
         self.state.gui_sp.append({"angle": 120, "distance": 1, "path":
-                                  "./audio_in/electrical_guitar_(44.1,1,"
+                                  "audio_in/electrical_guitar_(44.1,1,"
                                   "16).wav", "normalize": True})
         self.state.gui_settings = {"hrtf_database": "kemar_normal_ear",
                                    "inverse_filter_active": True,
@@ -79,7 +79,8 @@ class DspTests(unittest.TestCase):
         """
         sol_hannwin_2 = 0.00014997
         sol_hannwin_200 = 0.88477
-        res = self.dsp_testobj.dspin_testobj.build_hann_window(sp_blocksize=513)
+        res = \
+            self.dsp_testobj.dspin_testobj.build_hann_window(sp_blocksize=513)
         errmsg = "Hanning Window not calculated correctly"
         self.assertAlmostEqual(res[2], sol_hannwin_2, 5, msg=errmsg)
         self.assertAlmostEqual(res[200], sol_hannwin_200, 5, msg=errmsg)
@@ -155,8 +156,9 @@ class DspTests(unittest.TestCase):
         scipy_sp_input[sp] = np.zeros((220672, ), dtype=np.int16)
         scipy_sp_input_raw = {}
         for sp in range(len(self.state.gui_sp)):
-            _, scipy_sp_input_raw[sp] = scipy.io.wavfile.read(self.state.gui_sp[
-                                                              sp]["path"])
+            _, scipy_sp_input_raw[sp] = scipy.io.wavfile.read(
+                pkg_resources.resource_filename("audio3d",
+                                                self.state.gui_sp[sp]["path"]))
             lenarray = len(scipy_sp_input_raw[sp])
             # append zeros to scipy_sp_dict_raw to reach that output is
             # divideable by sp_blocksize

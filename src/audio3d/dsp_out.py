@@ -38,11 +38,11 @@ class DspOut:
         self.recordqueue = queue.Queue()
 
     # @brief Applies the overlap-add-method to the signal.
-    # @details Adds the last part of the prior fft-block to calculate the
-    # overlapp-values (which decrease the desharmonic sounds in the output
-    # signal.)
+    # @details Adds a part of the prior generated binaural block to the
+    # beginning of the new generated binaural block (reason: convert
+    # fft circular convolution to linear convolution)
     # @author Felix Pfreundtner
-    def overlap_add(self, fft_blocksize, hopsize, sp_max_amp, hrtf_max_amp, sp):
+    def overlap_add(self, fft_blocksize, hopsize, sp):
         # get current binaural block output of sp
         # 1. take binaural block output of current fft which don't overlap
         # with next blocks
