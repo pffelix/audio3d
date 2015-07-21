@@ -605,17 +605,13 @@ class DspIn:
                 self.sp_block[sp] = sp_block_sp_norm
                 self.sp_block[sp] = self.sp_block[sp].astype(
                     np.float32, copy=False)
+            self.sp_max_amp[sp] = max_amplitude_output
 
     def apply_window_on_sp_block(self, sp):
         """
         H2 -- apply_window_on_sp_block
         ===================
-        **Gets and reads the correct hrtf_file from database.**
-
-        If the input-flag normalize_flag_sp is True, measure the maximum
-        amplitude occurring in the .wav-file. After that, reduce all
-        entries of sp_block by the ratio that decreases the max value
-        to 2^15-1
+        **Applys the Hanning Window to the input speaker Block.**
 
         Author: Felix Pfreundtner
         """
