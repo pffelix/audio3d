@@ -53,7 +53,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">PySide</span> <span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span>
-<span class="kn">from</span> <span class="nn">audio3d.plot</span> <span class="kn">import</span> <span class="n">GLPlotWidget</span>
+<span class="kn">from</span> <span class="nn">audio3d.gui_plot</span> <span class="kn">import</span> <span class="n">GLPlotWidget</span>
 <span class="kn">from</span> <span class="nn">audio3d.headtracker_dt2</span> <span class="kn">import</span> <span class="n">DT2</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">acos</span><span class="p">,</span> <span class="n">degrees</span><span class="p">,</span> <span class="n">cos</span><span class="p">,</span> <span class="n">sin</span><span class="p">,</span> <span class="n">radians</span>
 <span class="kn">import</span> <span class="nn">audio3d.headtracker_data</span> <span class="kn">as</span> <span class="nn">headtracker</span>
@@ -713,7 +713,7 @@
 <span class="sd">    **This class builts up a widget window to display real-time plots of the</span>
 <span class="sd">    speaker sequence and HRTF sequence extracted from the DSP algorithm.**</span>
 <span class="sd">    GLPlotWidget was preferred over Matplotlib due to performance. The plot</span>
-<span class="sd">    is imported from plot.py.</span>
+<span class="sd">    is imported from gui_plot.py.</span>
 <span class="sd">    *plot_on: Signal to communicate wheter the plot widget is open.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 

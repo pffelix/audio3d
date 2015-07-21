@@ -14,12 +14,12 @@ Welcome to Group B: 3D Audio's Documentation!
 .. automodule:: dsp_out
 .. automodule:: dsp_tests
 .. automodule:: gui_main_window
-.. automodule:: gui_tests
 .. automodule:: gui_utils
+.. automodule:: gui_plot
+.. automodule:: gui_tests
 .. automodule:: headtracker_dt2
 .. automodule:: headtracker_data
 .. automodule:: headtracker_tests
-.. automodule:: plot
 
 .. autoclass:: dsp.Dsp
     :members:
@@ -51,13 +51,13 @@ Welcome to Group B: 3D Audio's Documentation!
     :members:
 .. autoclass:: gui_utils.SequencePlot
     :members:
-.. autoclass:: plot.GLPlotWidget
-    :members:
-.. autoclass:: dt2.DT2
+.. autoclass:: gui_plot.GLPlotWidget
     :members:
 .. autoclass:: gui_tests.GuiTests
     :members:
-.. autoclass:: test_headtracker.TestHeadtracker
+.. autoclass:: headtracker_dt2.DT2
+    :members:
+.. autoclass:: headtracker_tests.TestHeadtracker
     :members:
 
 
@@ -144,7 +144,7 @@ SequencePlot
 
 GLPlotWidget
 ---------------------------------------------
-.. autoclass:: plot.GLPlotWidget
+.. autoclass:: gui_plot.GLPlotWidget
     :members:
 
 GuiTests
@@ -199,6 +199,10 @@ gui_utils
 ---------------------------------------------
 .. automodule:: gui_utils
 
+gui_plot
+---------------------------------------------
+.. automodule:: gui_plot
+
 headtracker_dt2
 ---------------------------------------------
 .. automodule:: headtracker_dt2
@@ -211,9 +215,6 @@ headtracker_tests
 ---------------------------------------------
 .. automodule:: headtracker_tests
 
-plot
----------------------------------------------
-.. automodule:: plot
 
 
 .. |br| raw:: html

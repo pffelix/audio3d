@@ -4,7 +4,7 @@ author: H. Zhu, M. Heiss
 """
 
 from PySide import QtCore, QtGui
-from audio3d.plot import GLPlotWidget
+from audio3d.gui_plot import GLPlotWidget
 from audio3d.headtracker_dt2 import DT2
 from math import acos, degrees, cos, sin, radians
 import audio3d.headtracker_data as headtracker
@@ -664,7 +664,7 @@ class SequencePlot(QtGui.QWidget):
     **This class builts up a widget window to display real-time plots of the
     speaker sequence and HRTF sequence extracted from the DSP algorithm.**
     GLPlotWidget was preferred over Matplotlib due to performance. The plot
-    is imported from plot.py.
+    is imported from gui_plot.py.
     *plot_on: Signal to communicate wheter the plot widget is open.
     """
 

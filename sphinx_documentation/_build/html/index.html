@@ -56,11 +56,11 @@
 <p>&#64;author: Felix Pfreundtner</p>
 <span class="target" id="module-dsp_tests"></span><span class="target" id="module-gui_main_window"></span><p>GUI Main Window of Audio 3D Project, Group B
 author: H. Zhu, M. Heiss</p>
-<span class="target" id="module-gui_tests"></span><span class="target" id="module-gui_utils"></span><p>Library for GUI of Audio 3D Project, Group B
+<span class="target" id="module-gui_utils"></span><p>Library for GUI of Audio 3D Project, Group B
 author: H. Zhu, M. Heiss</p>
-<span class="target" id="module-headtracker_dt2"></span><span class="target" id="module-headtracker_data"></span><p>Handling of headtracker data from DT2 class
+<span class="target" id="module-gui_plot"></span><span class="target" id="module-gui_tests"></span><span class="target" id="module-headtracker_dt2"></span><span class="target" id="module-headtracker_data"></span><p>Handling of headtracker data from DT2 class
 author: H. Zhu, M. Heiss</p>
-<span class="target" id="module-headtracker_tests"></span><span class="target" id="module-plot"></span><dl class="class">
+<span class="target" id="module-headtracker_tests"></span><dl class="class">
 <dt id="dsp.Dsp">
 <em class="property">class </em><code class="descclassname">dsp.</code><code class="descname">Dsp</code><span class="sig-paren">(</span><em>state_init</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp.html#Dsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp.Dsp" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Main class of the project&#8217;s Digital Signal Processing part.</strong></p>
@@ -822,7 +822,7 @@ properties.</strong></p>
 <dd><p><strong>This class builts up a widget window to display real-time plots of the
 speaker sequence and HRTF sequence extracted from the DSP algorithm.</strong>
 GLPlotWidget was preferred over Matplotlib due to performance. The plot
-is imported from plot.py.
+is imported from gui_plot.py.
 <a href="#id13"><span class="problematic" id="id14">*</span></a>plot_on: Signal to communicate wheter the plot widget is open.</p>
 <dl class="method">
 <dt id="gui_utils.SequencePlot.closeEvent">
@@ -833,49 +833,49 @@ is imported from plot.py.
 </dd></dl>
 
 <dl class="class">
-<dt id="plot.GLPlotWidget">
-<em class="property">class </em><code class="descclassname">plot.</code><code class="descname">GLPlotWidget</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget" title="Permalink to this definition">¶</a></dt>
+<dt id="gui_plot.GLPlotWidget">
+<em class="property">class </em><code class="descclassname">gui_plot.</code><code class="descname">GLPlotWidget</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_plot.GLPlotWidget" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This class sets up a GLPlot used for real-time plotting of the
 speaker and HRTF seuqences during the DSP algorithm is running as an
 additional feature in the MainWindow.</strong></p>
 <dl class="method">
-<dt id="plot.GLPlotWidget.initializeGL">
-<code class="descname">initializeGL</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.initializeGL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.initializeGL" title="Permalink to this definition">¶</a></dt>
+<dt id="gui_plot.GLPlotWidget.initializeGL">
+<code class="descname">initializeGL</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.initializeGL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_plot.GLPlotWidget.initializeGL" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This function initializes OpenGL, VBOs, upload data on the GPU, etc..
 .</strong></p>
 </dd></dl>
 
 <dl class="method">
-<dt id="plot.GLPlotWidget.initialize_data">
-<code class="descname">initialize_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.initialize_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.initialize_data" title="Permalink to this definition">¶</a></dt>
+<dt id="gui_plot.GLPlotWidget.initialize_data">
+<code class="descname">initialize_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.initialize_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_plot.GLPlotWidget.initialize_data" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This function sets the frequence intervall, defines the
 interpolation and adapts the plot to the sequence.</strong></p>
 </dd></dl>
 
 <dl class="method">
-<dt id="plot.GLPlotWidget.paintEvent">
-<code class="descname">paintEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.paintEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.paintEvent" title="Permalink to this definition">¶</a></dt>
+<dt id="gui_plot.GLPlotWidget.paintEvent">
+<code class="descname">paintEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.paintEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_plot.GLPlotWidget.paintEvent" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This function is nessecary as GLPlotWidget does not offer pre-built
 plot settings. With this the axis are painted, scaled and named.</strong></p>
 </dd></dl>
 
 <dl class="method">
-<dt id="plot.GLPlotWidget.resizeGL">
-<code class="descname">resizeGL</code><span class="sig-paren">(</span><em>width</em>, <em>height</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.resizeGL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.resizeGL" title="Permalink to this definition">¶</a></dt>
+<dt id="gui_plot.GLPlotWidget.resizeGL">
+<code class="descname">resizeGL</code><span class="sig-paren">(</span><em>width</em>, <em>height</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.resizeGL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_plot.GLPlotWidget.resizeGL" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This function is called upon window resizing to reinitialize
 the viewport.</strong></p>
 </dd></dl>
 
 <dl class="method">
-<dt id="plot.GLPlotWidget.set_data">
-<code class="descname">set_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.set_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.set_data" title="Permalink to this definition">¶</a></dt>
+<dt id="gui_plot.GLPlotWidget.set_data">
+<code class="descname">set_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.set_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_plot.GLPlotWidget.set_data" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This function sets the plot variables respective to the sequence
 data.</strong></p>
 </dd></dl>
 
 <dl class="method">
-<dt id="plot.GLPlotWidget.update_data">
-<code class="descname">update_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.update_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#plot.GLPlotWidget.update_data" title="Permalink to this definition">¶</a></dt>
+<dt id="gui_plot.GLPlotWidget.update_data">
+<code class="descname">update_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.update_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_plot.GLPlotWidget.update_data" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This function updates the plot.</strong></p>
 </dd></dl>
 
@@ -940,6 +940,56 @@ values.</strong></p>
 <dt id="gui_tests.GuiTests.test_switch_stop_playback_true">
 <code class="descname">test_switch_stop_playback_true</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_switch_stop_playback_true"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_switch_stop_playback_true" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This tests function switch_stop_playback() from gui_utils.</strong></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="headtracker_dt2.DT2">
+<em class="property">class </em><code class="descclassname">headtracker_dt2.</code><code class="descname">DT2</code><a class="reference internal" href="_modules/headtracker_dt2.html#DT2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_dt2.DT2" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This class builts up a networking interface using the python
+package socket to extract information gained by an ARTTRACK tracking
+system.</strong>
+Author: Marko Durkovic</p>
+<dl class="method">
+<dt id="headtracker_dt2.DT2.angle">
+<code class="descname">angle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_dt2.html#DT2.angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_dt2.DT2.angle" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><strong>This function returns the data linewise.</strong>
+Returned data format:
+<a href="#id15"><span class="problematic" id="id16">*</span></a>[&#8216;6d 1 [0 1.000] [x y z polar azimuthal] [3x3 rotation matrix]</div></blockquote>
+<dl class="docutils">
+<dt>&#8216;]</dt>
+<dd>Author: Marko Durkovic</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="headtracker_dt2.DT2.get_measurements">
+<code class="descname">get_measurements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_dt2.html#DT2.get_measurements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_dt2.DT2.get_measurements" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Function returns the the received data from the headtracker.</strong>
+Author: Marko Durkovic</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="headtracker_tests.TestHeadtracker">
+<em class="property">class </em><code class="descclassname">headtracker_tests.</code><code class="descname">TestHeadtracker</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_tests.html#TestHeadtracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_tests.TestHeadtracker" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Test class for the headtracker integration.</strong>
+Athor: Huijiang</p>
+<dl class="method">
+<dt id="headtracker_tests.TestHeadtracker.test_head_deg">
+<code class="descname">test_head_deg</code><span class="sig-paren">(</span><em>get_head_deg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_tests.html#TestHeadtracker.test_head_deg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_tests.TestHeadtracker.test_head_deg" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests wheter the azimuthal angle is correctly converted for the
+position of a speaker item.</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="headtracker_tests.TestHeadtracker.test_over_360">
+<code class="descname">test_over_360</code><span class="sig-paren">(</span><em>get_head_deg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_tests.html#TestHeadtracker.test_over_360"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_tests.TestHeadtracker.test_over_360" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>This tests whether the azimuthal angle is correctly applied if the
+angle would result in something greater than 360°.</strong></p>
 </dd></dl>
 
 </dd></dl>
@@ -1658,7 +1708,7 @@ This doesn&#8217;t provide the signal/slot function.</p>
 <dd><p><strong>This function returns the relative position of the speaker
 to the &#8216;audience&#8217;, defined by a radial variable deg (defined counter
 clockwise) and the distance.</strong>
-<a href="#id15"><span class="problematic" id="id16">*</span></a>head_deg: takes the azimuthal angle set by the headtracker
+<a href="#id17"><span class="problematic" id="id18">*</span></a>head_deg: takes the azimuthal angle set by the headtracker
 into account</p>
 </dd></dl>
 
@@ -1682,8 +1732,8 @@ the speaker settings in the SpeakerProperty widget.</p>
 <dd><p><strong>This sub-class defines the audience item.</strong>
 An audience item represents the relative user position,
 without headtracker in the QGraphicsScene.
-<a href="#id17"><span class="problematic" id="id18">*</span></a>type: selects the type of item.
-<a href="#id19"><span class="problematic" id="id20">*</span></a>origin_image: selects the image representing the audience in the room.</p>
+<a href="#id19"><span class="problematic" id="id20">*</span></a>type: selects the type of item.
+<a href="#id21"><span class="problematic" id="id22">*</span></a>origin_image: selects the image representing the audience in the room.</p>
 </dd></dl>
 
 </div>
@@ -1697,10 +1747,10 @@ adding a new speaker or to change the settings again later on.</strong>
 Additional widget window to define speaker .wav path
 speaker position and to activate inverse filtering for speaker before
 adding it to the scene and afterwards by double click on the speaker item.
-<a href="#id21"><span class="problematic" id="id22">*</span></a>added: Signal emitted by the confirm button to connect to MainWindow&#8217;s
+<a href="#id23"><span class="problematic" id="id24">*</span></a>added: Signal emitted by the confirm button to connect to MainWindow&#8217;s
 functions.
-<a href="#id23"><span class="problematic" id="id24">*</span></a>posx = horizontal position of the respective speaker item
-<a href="#id25"><span class="problematic" id="id26">*</span></a>posy = vertical position of the respective speaker item</p>
+<a href="#id25"><span class="problematic" id="id26">*</span></a>posx = horizontal position of the respective speaker item
+<a href="#id27"><span class="problematic" id="id28">*</span></a>posy = vertical position of the respective speaker item</p>
 <dl class="method">
 <dt>
 <code class="descname">browse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SpeakerProperty.browse"><span class="viewcode-link">[source]</span></a></dt>
@@ -1753,8 +1803,8 @@ properties.</strong></p>
 <dd><p><strong>This class builts up a widget window to display real-time plots of the
 speaker sequence and HRTF sequence extracted from the DSP algorithm.</strong>
 GLPlotWidget was preferred over Matplotlib due to performance. The plot
-is imported from plot.py.
-<a href="#id27"><span class="problematic" id="id28">*</span></a>plot_on: Signal to communicate wheter the plot widget is open.</p>
+is imported from gui_plot.py.
+<a href="#id29"><span class="problematic" id="id30">*</span></a>plot_on: Signal to communicate wheter the plot widget is open.</p>
 <dl class="method">
 <dt>
 <code class="descname">closeEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SequencePlot.closeEvent"><span class="viewcode-link">[source]</span></a></dt>
@@ -1768,48 +1818,48 @@ is imported from plot.py.
 <h2>GLPlotWidget<a class="headerlink" href="#glplotwidget" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt>
-<em class="property">class </em><code class="descclassname">plot.</code><code class="descname">GLPlotWidget</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget"><span class="viewcode-link">[source]</span></a></dt>
+<em class="property">class </em><code class="descclassname">gui_plot.</code><code class="descname">GLPlotWidget</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>This class sets up a GLPlot used for real-time plotting of the
 speaker and HRTF seuqences during the DSP algorithm is running as an
 additional feature in the MainWindow.</strong></p>
 <dl class="method">
 <dt>
-<code class="descname">initializeGL</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.initializeGL"><span class="viewcode-link">[source]</span></a></dt>
+<code class="descname">initializeGL</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.initializeGL"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>This function initializes OpenGL, VBOs, upload data on the GPU, etc..
 .</strong></p>
 </dd></dl>
 
 <dl class="method">
 <dt>
-<code class="descname">initialize_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.initialize_data"><span class="viewcode-link">[source]</span></a></dt>
+<code class="descname">initialize_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.initialize_data"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>This function sets the frequence intervall, defines the
 interpolation and adapts the plot to the sequence.</strong></p>
 </dd></dl>
 
 <dl class="method">
 <dt>
-<code class="descname">paintEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.paintEvent"><span class="viewcode-link">[source]</span></a></dt>
+<code class="descname">paintEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.paintEvent"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>This function is nessecary as GLPlotWidget does not offer pre-built
 plot settings. With this the axis are painted, scaled and named.</strong></p>
 </dd></dl>
 
 <dl class="method">
 <dt>
-<code class="descname">resizeGL</code><span class="sig-paren">(</span><em>width</em>, <em>height</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.resizeGL"><span class="viewcode-link">[source]</span></a></dt>
+<code class="descname">resizeGL</code><span class="sig-paren">(</span><em>width</em>, <em>height</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.resizeGL"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>This function is called upon window resizing to reinitialize
 the viewport.</strong></p>
 </dd></dl>
 
 <dl class="method">
 <dt>
-<code class="descname">set_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.set_data"><span class="viewcode-link">[source]</span></a></dt>
+<code class="descname">set_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.set_data"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>This function sets the plot variables respective to the sequence
 data.</strong></p>
 </dd></dl>
 
 <dl class="method">
 <dt>
-<code class="descname">update_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/plot.html#GLPlotWidget.update_data"><span class="viewcode-link">[source]</span></a></dt>
+<code class="descname">update_data</code><span class="sig-paren">(</span><em>xdata_raw</em>, <em>ydata_raw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.update_data"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>This function updates the plot.</strong></p>
 </dd></dl>
 
@@ -1885,19 +1935,19 @@ values.</strong></p>
 <div class="section" id="dt2">
 <h2>DT2<a class="headerlink" href="#dt2" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="headtracker_dt2.DT2">
-<em class="property">class </em><code class="descclassname">headtracker_dt2.</code><code class="descname">DT2</code><a class="reference internal" href="_modules/headtracker_dt2.html#DT2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_dt2.DT2" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">class </em><code class="descclassname">headtracker_dt2.</code><code class="descname">DT2</code><a class="reference internal" href="_modules/headtracker_dt2.html#DT2"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>This class builts up a networking interface using the python
 package socket to extract information gained by an ARTTRACK tracking
 system.</strong>
 Author: Marko Durkovic</p>
 <dl class="method">
-<dt id="headtracker_dt2.DT2.angle">
-<code class="descname">angle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_dt2.html#DT2.angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_dt2.DT2.angle" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">angle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_dt2.html#DT2.angle"><span class="viewcode-link">[source]</span></a></dt>
 <dd><blockquote>
 <div><strong>This function returns the data linewise.</strong>
 Returned data format:
-<a href="#id29"><span class="problematic" id="id30">*</span></a>[&#8216;6d 1 [0 1.000] [x y z polar azimuthal] [3x3 rotation matrix]</div></blockquote>
+<a href="#id31"><span class="problematic" id="id32">*</span></a>[&#8216;6d 1 [0 1.000] [x y z polar azimuthal] [3x3 rotation matrix]</div></blockquote>
 <dl class="docutils">
 <dt>&#8216;]</dt>
 <dd>Author: Marko Durkovic</dd>
@@ -1905,8 +1955,8 @@ Returned data format:
 </dd></dl>
 
 <dl class="method">
-<dt id="headtracker_dt2.DT2.get_measurements">
-<code class="descname">get_measurements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_dt2.html#DT2.get_measurements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_dt2.DT2.get_measurements" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">get_measurements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_dt2.html#DT2.get_measurements"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>Function returns the the received data from the headtracker.</strong>
 Author: Marko Durkovic</p>
 </dd></dl>
@@ -1917,20 +1967,20 @@ Author: Marko Durkovic</p>
 <div class="section" id="testheadtracker">
 <h2>TestHeadtracker<a class="headerlink" href="#testheadtracker" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="headtracker_tests.TestHeadtracker">
-<em class="property">class </em><code class="descclassname">headtracker_tests.</code><code class="descname">TestHeadtracker</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_tests.html#TestHeadtracker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_tests.TestHeadtracker" title="Permalink to this definition">¶</a></dt>
+<dt>
+<em class="property">class </em><code class="descclassname">headtracker_tests.</code><code class="descname">TestHeadtracker</code><span class="sig-paren">(</span><em>methodName='runTest'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_tests.html#TestHeadtracker"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>Test class for the headtracker integration.</strong>
 Athor: Huijiang</p>
 <dl class="method">
-<dt id="headtracker_tests.TestHeadtracker.test_head_deg">
-<code class="descname">test_head_deg</code><span class="sig-paren">(</span><em>get_head_deg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_tests.html#TestHeadtracker.test_head_deg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_tests.TestHeadtracker.test_head_deg" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">test_head_deg</code><span class="sig-paren">(</span><em>get_head_deg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_tests.html#TestHeadtracker.test_head_deg"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>This tests wheter the azimuthal angle is correctly converted for the
 position of a speaker item.</strong></p>
 </dd></dl>
 
 <dl class="method">
-<dt id="headtracker_tests.TestHeadtracker.test_over_360">
-<code class="descname">test_over_360</code><span class="sig-paren">(</span><em>get_head_deg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_tests.html#TestHeadtracker.test_over_360"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_tests.TestHeadtracker.test_over_360" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">test_over_360</code><span class="sig-paren">(</span><em>get_head_deg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_tests.html#TestHeadtracker.test_over_360"><span class="viewcode-link">[source]</span></a></dt>
 <dd><p><strong>This tests whether the azimuthal angle is correctly applied if the
 angle would result in something greater than 360°.</strong></p>
 </dd></dl>
@@ -1944,8 +1994,8 @@ angle would result in something greater than 360°.</strong></p>
 <div class="section" id="module-__main__">
 <span id="main"></span><h2>__main__<a class="headerlink" href="#module-__main__" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="id31">
-<h2>dsp<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id33">
+<h2>dsp<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-dsp"></span></div>
 <div class="section" id="module-dsp_in">
 <span id="dsp-in"></span><h2>dsp_in<a class="headerlink" href="#module-dsp_in" title="Permalink to this headline">¶</a></h2>
@@ -1973,6 +2023,9 @@ author: H. Zhu, M. Heiss</p>
 <p>Library for GUI of Audio 3D Project, Group B
 author: H. Zhu, M. Heiss</p>
 </div>
+<div class="section" id="module-gui_plot">
+<span id="gui-plot"></span><h2>gui_plot<a class="headerlink" href="#module-gui_plot" title="Permalink to this headline">¶</a></h2>
+</div>
 <div class="section" id="module-headtracker_dt2">
 <span id="headtracker-dt2"></span><h2>headtracker_dt2<a class="headerlink" href="#module-headtracker_dt2" title="Permalink to this headline">¶</a></h2>
 </div>
@@ -1983,9 +2036,6 @@ author: H. Zhu, M. Heiss</p>
 </div>
 <div class="section" id="module-headtracker_tests">
 <span id="headtracker-tests"></span><h2>headtracker_tests<a class="headerlink" href="#module-headtracker_tests" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="module-plot">
-<span id="plot"></span><h2>plot<a class="headerlink" href="#module-plot" title="Permalink to this headline">¶</a></h2>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
@@ -2030,17 +2080,17 @@ author: H. Zhu, M. Heiss</p>
 </li>
 <li><a class="reference internal" href="#modules">Modules</a><ul>
 <li><a class="reference internal" href="#module-__main__">__main__</a></li>
-<li><a class="reference internal" href="#id31">dsp</a></li>
+<li><a class="reference internal" href="#id33">dsp</a></li>
 <li><a class="reference internal" href="#module-dsp_in">dsp_in</a></li>
 <li><a class="reference internal" href="#module-dsp_out">dsp_out</a></li>
 <li><a class="reference internal" href="#module-dsp_tests">dsp_tests</a></li>
 <li><a class="reference internal" href="#module-gui_main_window">gui_main_window</a></li>
 <li><a class="reference internal" href="#module-gui_tests">gui_tests</a></li>
 <li><a class="reference internal" href="#module-gui_utils">gui_utils</a></li>
+<li><a class="reference internal" href="#module-gui_plot">gui_plot</a></li>
 <li><a class="reference internal" href="#module-headtracker_dt2">headtracker_dt2</a></li>
 <li><a class="reference internal" href="#module-headtracker_data">headtracker_data</a></li>
 <li><a class="reference internal" href="#module-headtracker_tests">headtracker_tests</a></li>
-<li><a class="reference internal" href="#module-plot">plot</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
