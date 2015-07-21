@@ -119,70 +119,6 @@ class DspOut:
             self.binaural_block += self.binaural_block_dict_out[sp] * \
                 sp_gain_factor / total_number_of_sp
             # if convolution for this speaker will be skipped on the
-<<<<<<< HEAD:working_pythoncode/dsp_out.py
-            # next iteration set binaural_block_dict_out to zeros
-            if self.continue_convolution_dict[sp] is False:
-                self.binaural_block_dict_out[sp] = np.zeros((hopsize, 2),
-                                                            dtype=np.float32)
-        self.binaural_block = self.binaural_block.astype(np.float32,
-                                                         copy=False)
-
-    def overlapp_add_window(self, binaural_block_dict_sp, blockcounter,
-                            fft_blocksize, binaural):
-        """
-        H2 -- overlapp_add_window
-        ===================
-        **Adds the newly calculated blocks to a dict that contains all the
-        blocks calculated before.**
-
-        Return values:
-        - binaural: A dict of all the output_blocks of the signal added to
-        one another up to the current block.
-
-        Author: felix Pfreundtner
-        """
-        delay = 256
-        if blockcounter == 0:
-            binaural = np.zeros((fft_blocksize * 1500, 2), dtype=np.float32)
-        if blockcounter % 2 != 0:
-            binaural[blockcounter * delay:blockcounter * delay + 1024, 1] += \
-                binaural_block_dict_sp
-        else:
-            binaural[blockcounter * delay:blockcounter * delay + 1024, 1] += \
-                binaural_block_dict_sp
-        return binaural
-
-    def add_to_queue(self, blockcounter):
-        """
-        H2 -- add_to_queue
-        ===================
-        Concatenates the current block to the binaural signal.
-
-        Author: Felix Pfreundtner
-        """
-        # if blockcounter == 0:
-        #     self.binaural = self.binaural_block.astype(np.int16, copy=False)
-        #     q.put(self.binaural_block.astype(np.int16, copy=False))
-        # else:
-        #     self.binaural = np.concatenate((self.binaural,
-        #                                     self.binaural_block.astype(
-        #                                         np.int16, copy=False)))
-        self.playqueue.put(self.binaural_block.astype(np.int16,
-                                                      copy=False).tostring())
-
-    def writebinauraloutput(self, binaural, wave_param_common, gui_sp_dict):
-        """
-        H2 -- writebinauraloutput
-        ===================
-        **Writes the binaural output signal.**
-
-        Author: Felix Pfreundtner
-        """
-        if not os.path.exists("./audio_out/"):
-            os.makedirs("./audio_out/")
-        scipy.io.wavfile.write("./audio_out/binauralmix.wav",
-                               wave_param_common[0], binaural)
-=======
             # next iteration set binaural_block_out to zeros
             if self.continue_convolution[sp] is False:
                 self.sp_binaural_block_out[sp] = np.zeros((hopsize, 2),
@@ -206,7 +142,6 @@ class DspOut:
     def add_to_recordqueue(self):
         self.recordqueue.put(self.binaural_block.astype(np.int16,
                                                         copy=False))
->>>>>>> 584e0e63cd6f7d7bbc59a009febc59d381e39513:src/audio3d/dsp_out.py
 
     def callback(self, in_data, frame_count, time_info, status):
         """
