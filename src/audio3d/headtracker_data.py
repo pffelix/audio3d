@@ -1,8 +1,5 @@
-"""
-Handling of headtracker data from DT2 class
-author: H. Zhu, M. Heiss
-"""
-
+# Handling of headtracker data from DT2 class
+# author: H. Zhu, M. Heiss
 
 def clean_and_split(line):
     """

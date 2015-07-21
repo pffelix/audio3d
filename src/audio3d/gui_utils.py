@@ -1,7 +1,5 @@
-"""
-Library for GUI of Audio 3D Project, Group B
-author: H. Zhu, M. Heiss
-"""
+# Library for GUI of Audio 3D Project, Group B
+# Author: H. Zhu, M. Heiss
 
 from PySide import QtCore, QtGui
 from audio3d.gui_plot import GLPlotWidget

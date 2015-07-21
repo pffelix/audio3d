@@ -3,8 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Group B: 3D Audio's Documentation!
+Welcome to 3D Audio Documentation
 =============================================
+
+:Institution: Technische Universitaet Muenchen (TUM)
+:Department: Electrical Engineering and Information Technology
+:Lecture: Programmierpraktikum Python
+:Term: Summer Semester 2015
+:Instructors: Durkovic, M.; Friesdorf, F.
+:Authors: Pfreundtner, F.; Zhu, H.; Heiss, M.; Lederle, M.
+
 
 .. toctree::
    :maxdepth: 2
@@ -163,57 +171,6 @@ TestHeadtracker
     :members:
 
 
-Modules
-=============================================
-
-__main__
----------------------------------------------
-.. automodule:: __main__
-
-dsp
----------------------------------------------
-.. automodule:: dsp
-
-dsp_in
----------------------------------------------
-.. automodule:: dsp_in
-
-dsp_out
----------------------------------------------
-.. automodule:: dsp_out
-
-
-dsp_tests
----------------------------------------------
-.. automodule:: dsp_tests
-
-gui_main_window
----------------------------------------------
-.. automodule:: gui_main_window
-
-gui_tests
----------------------------------------------
-.. automodule:: gui_tests
-
-gui_utils
----------------------------------------------
-.. automodule:: gui_utils
-
-gui_plot
----------------------------------------------
-.. automodule:: gui_plot
-
-headtracker_dt2
----------------------------------------------
-.. automodule:: headtracker_dt2
-
-headtracker_data
----------------------------------------------
-.. automodule:: headtracker_data
-
-headtracker_tests
----------------------------------------------
-.. automodule:: headtracker_tests
 
 
 

@@ -4,7 +4,6 @@ import OpenGL.GL
 import OpenGL.arrays.vbo as glvbo
 import numpy as np
 
-
 class GLPlotWidget(QGLWidget):
     """
     H1 -- GLPlotWidget

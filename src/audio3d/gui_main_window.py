@@ -1,10 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
-"""
-GUI Main Window of Audio 3D Project, Group B
-author: H. Zhu, M. Heiss
-"""
+#
+# GUI Main Window of Audio 3D Project, Group B
+# Authors: H. Zhu, M. Heiss
 
 from PySide import QtCore, QtGui
 from math import acos, degrees

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Jun  12 15:45:23 2015
+# Created on Fri Jun  12 15:45:23 2015
+# Author: Felix Pfreundtner
 
-@author: Felix Pfreundtner
-"""
 import audio3d
 
 

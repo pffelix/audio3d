@@ -3,8 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Group B: 3D Audio's Documentation!
+Welcome to 3D Audio Documentation
 =============================================
+
+:Institution: Technische Universität München (TUM)
+:Department: Electrical Engineering and Information Technology
+:Lecture: Programmierpraktikum Python
+:Term: Summer Semester 2015
+:Instructors: Durkovic, M.; Friesdorf, F.
+:Authors: Pfreundtner, F.; Zhu, H.; Heiss, M.; Lederle, M.
+
 
 .. toctree::
    :maxdepth: 2
