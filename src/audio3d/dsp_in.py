@@ -87,7 +87,7 @@ class DspIn:
         """
         H2 -- rnd
         ===================
-        *Rounds numbers arithmetically.*
+        **Rounds numbers arithmetically.**
 
         This function does a normal school arithmetic round (choose lower
         int until .4 and higher int from .5 on) and returns the rounded
@@ -115,8 +115,8 @@ class DspIn:
         """
         H2 -- build_hann_window
         ===================
-        *Calculate and construct the hann window in dependency of
-        sp_blocksize.*
+        **Calculate and construct the hann window in dependency of
+        sp_blocksize.**
 
         Return values:
         * hann_window: Numpy-array of the length of sp_blocksize
@@ -133,7 +133,7 @@ class DspIn:
         """
         H2 -- get_block_param
         ===================
-        *Calculates blocksize and blocktime.*
+        **Calculates blocksize and blocktime.**
 
         This method uses the parameters of the input wav-file and the
         blocksizes of the fft and the hrtf to calculate the blocksize and
@@ -160,8 +160,8 @@ class DspIn:
         """
         H2 -- init_set_block_begin_end
         ===================
-        *Initializes a list with the number of the first and last sample
-        of the first block.*
+        **Initializes a list with the number of the first and last sample
+        of the first block.**
 
         This function calculates a list called block_begin_end containing
         two elements: [0] is the first sample of the first block, [1] is
@@ -183,8 +183,8 @@ class DspIn:
         """
         H2 -- set_block_begin_end
         ===================
-        *Every while-loop the number of the first and last sample is
-        calculated.*
+        **Every while-loop the number of the first and last sample is
+        calculated.**
 
         This function replaces the values set by the
         init_set_block_begin_end-function every while-loop according to the
@@ -200,7 +200,7 @@ class DspIn:
         """
         H2 -- get_hrtf_param
         ===================
-        *Get all parameters for the hrtf set by the settings in gui.*
+        **Get all parameters for the hrtf set by the settings in gui.**
 
         This function calculates all necessary parameters of the hrtf to be
         later able to get the correct hrtf-files for the convolution with
@@ -264,7 +264,7 @@ class DspIn:
         """
         H2 -- read_hrtf_database
         ===================
-        *Preloads all hrtf Files.*
+        **Preloads all hrtf Files.**
 
         Return values:
 
@@ -320,7 +320,7 @@ class DspIn:
         """
         H2 -- hrtf_database_fft
         ===================
-        *Converts the whole HRTF-database in frequency domain.*
+        **Converts the whole HRTF-database in frequency domain.**
 
         Return values:
 
@@ -344,8 +344,8 @@ class DspIn:
         """
         H2 -- init_read_sp
         ===================
-        *Get 10 important parameters of the files to be played by the
-        get_block_function.*
+        **Get 10 important parameters of the files to be played by the
+        get_block_function.**
 
         This method gets all important data from the .wav files that will
         be played by the speakers. The output is another list called sp_param,
@@ -474,7 +474,7 @@ class DspIn:
         """
         H2 -- read_sp
         ===================
-        *Reads one block of samples.*
+        **Reads one block of samples.**
 
         This method reads a block of samples of a speaker-.wav-file and
         writes in a numpyarray sp_block[sp] (containing one 16-bit-int
@@ -511,7 +511,7 @@ class DspIn:
         """
         H2 -- get_hrtf_block_fft
         ===================
-        *Gets and reads the correct hrtf_file from database.*
+        **Gets and reads the correct hrtf_file from database.**
 
         Author: Felix Pfreundtner
         """
@@ -559,7 +559,7 @@ class DspIn:
         """
         H2 -- get_sp_block
         ===================
-        *Gets the current block for the speaker.*
+        **Gets the current block for the speaker.**
 
         Return value:
 
@@ -586,7 +586,7 @@ class DspIn:
         """
         H2 -- get_hrtf_block_fft
         ===================
-        *Gets and reads the correct hrtf_file from database.*
+        **Gets and reads the correct hrtf_file from database.**
 
         If the input-flag normalize_flag_sp is True, measure the maximum
         amplitude occurring in the .wav-file. After that, reduce all
@@ -612,7 +612,7 @@ class DspIn:
         """
         H2 -- apply_window_on_sp_block
         ===================
-        *Gets and reads the correct hrtf_file from database.*
+        **Gets and reads the correct hrtf_file from database.**
 
         If the input-flag normalize_flag_sp is True, measure the maximum
         amplitude occurring in the .wav-file. After that, reduce all
@@ -629,7 +629,7 @@ class DspIn:
         """
         H2 -- set_fftfreq
         ===================
-        *Sets the frequency of the Fast-Fourier-Transformation.*
+        **Sets the frequency of the Fast-Fourier-Transformation.**
 
         Author: Felix Pfreundtner
         """
@@ -648,7 +648,7 @@ class DspIn:
         """
         H2 -- fft_convolution
         ===================
-        *Function convolves hrtf and data of the music file.*
+        **Function convolves hrtf and data of the music file.**
 
         Function takes one hrtf block and one data block (their size is
         defined by fft_blocksize), normalizes their values to int16-signals

@@ -3,10 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Group B: 3D Audio's documentation!
+Welcome to Group B: 3D Audio's Documentation!
 =============================================
-
-Contents:
 
 .. toctree::
    :maxdepth: 2
@@ -61,6 +59,162 @@ Contents:
     :members:
 .. autoclass:: test_headtracker.TestHeadtracker
     :members:
+
+
+
+
+
+Classes
+=============================================
+
+Dsp
+---------------------------------------------
+.. autoclass:: dsp.Dsp
+    :members:
+
+DspIn
+---------------------------------------------
+.. autoclass:: dsp_in.DspIn
+    :members:
+
+DspOut
+---------------------------------------------
+.. autoclass:: dsp_out.DspOut
+    :members:
+
+DspTests
+---------------------------------------------
+.. autoclass:: dsp_tests.DspTests
+    :members:
+
+MainWindow
+---------------------------------------------
+.. autoclass:: gui_main_window.MainWindow
+    :members:
+
+State
+---------------------------------------------
+.. autoclass:: gui_utils.State
+    :members:
+
+Headtracker
+---------------------------------------------
+.. autoclass:: gui_utils.Headtracker
+    :members:
+
+Item
+---------------------------------------------
+.. autoclass:: gui_utils.Item
+    :members:
+
+Room
+---------------------------------------------
+.. autoclass:: gui_utils.Room
+    :members:
+
+View
+---------------------------------------------
+.. autoclass:: gui_utils.View
+    :members:
+
+SignalHandler
+---------------------------------------------
+.. autoclass:: gui_utils.SignalHandler
+    :members:
+
+Speaker
+---------------------------------------------
+.. autoclass:: gui_utils.Speaker
+    :members:
+
+Audience
+---------------------------------------------
+.. autoclass:: gui_utils.Audience
+    :members:
+
+SpeakerProperty
+---------------------------------------------
+.. autoclass:: gui_utils.SpeakerProperty
+    :members:
+
+SequencePlot
+---------------------------------------------
+.. autoclass:: gui_utils.SequencePlot
+    :members:
+
+GLPlotWidget
+---------------------------------------------
+.. autoclass:: plot.GLPlotWidget
+    :members:
+
+DT2
+---------------------------------------------
+.. autoclass:: dt2.DT2
+    :members:
+
+GuiTests
+---------------------------------------------
+.. autoclass:: gui_tests.GuiTests
+    :members:
+
+TestHeadtracker
+---------------------------------------------
+.. autoclass:: test_headtracker.TestHeadtracker
+    :members:
+
+
+Modules
+=============================================
+
+main
+---------------------------------------------
+.. automodule:: main
+
+dsp
+---------------------------------------------
+.. automodule:: dsp
+
+dsp_in
+---------------------------------------------
+.. automodule:: dsp_in
+
+dsp_out
+---------------------------------------------
+.. automodule:: dsp_out
+
+
+dsp_tests
+---------------------------------------------
+.. automodule:: dsp_tests
+
+dt2
+---------------------------------------------
+.. automodule:: dt2
+
+gui_main_window
+---------------------------------------------
+.. automodule:: gui_main_window
+
+gui_tests
+---------------------------------------------
+.. automodule:: gui_tests
+
+gui_utils
+---------------------------------------------
+.. automodule:: gui_utils
+
+headtracker_data
+---------------------------------------------
+.. automodule:: headtracker_data
+
+test_headtracker
+---------------------------------------------
+.. automodule:: test_headtracker
+
+plot
+---------------------------------------------
+.. automodule:: plot
+
 
 .. autosummary::
    :toctree: stubs

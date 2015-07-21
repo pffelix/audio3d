@@ -176,10 +176,8 @@
                     <span class="c"># overlap and add binaural stereo block output of</span>
                     <span class="c"># speaker sp to prior binaural stereo block output of</span>
                     <span class="c"># speaker sp</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">overlap_add</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">fft_blocksize</span><span class="p">,</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">hopsize</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">sp_max_amp</span><span class="p">,</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">hrtf_max_amp</span><span class="p">,</span> <span class="n">sp</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dspout_obj</span><span class="o">.</span><span class="n">overlap_add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">fft_blocksize</span><span class="p">,</span>
+                                                <span class="bp">self</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">hopsize</span><span class="p">,</span> <span class="n">sp</span><span class="p">)</span>
 
             <span class="c"># Mix binaural stereo blockoutput of every speaker to one</span>
             <span class="c"># binaural stereo block output having regard to speaker distances</span>

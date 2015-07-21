@@ -63,7 +63,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">State</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">State</span><span class="p">()</span>
 
     <span class="nd">@patch</span><span class="p">(</span><span class="s">&#39;gui_utils.Headtracker.get_head_deg&#39;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">test_head_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_head_deg</span><span class="p">):</span>
@@ -75,7 +75,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">get_head_deg</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="mi">30</span>
-        <span class="n">sp</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Speaker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;unknown&#39;</span><span class="p">)</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">Speaker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;unknown&#39;</span><span class="p">)</span>
         <span class="n">sp</span><span class="o">.</span><span class="n">cal_rel_pos</span><span class="p">(</span><span class="n">get_head_deg</span><span class="p">())</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;angle&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="mi">285</span><span class="p">)</span>
@@ -90,13 +90,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">get_head_deg</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="mi">320</span>
-        <span class="n">sp</span> <span class="o">=</span> <span class="n">gui_utils</span><span class="o">.</span><span class="n">Speaker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;unknown&#39;</span><span class="p">)</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">Speaker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;unknown&#39;</span><span class="p">)</span>
         <span class="n">sp</span><span class="o">.</span><span class="n">cal_rel_pos</span><span class="p">(</span><span class="n">get_head_deg</span><span class="p">())</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;angle&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="mi">355</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span></div></div>
-    <span class="n">app</span> <span class="o">=</span> <span class="n">gui_main_window</span><span class="o">.</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_main_window</span><span class="o">.</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>
 

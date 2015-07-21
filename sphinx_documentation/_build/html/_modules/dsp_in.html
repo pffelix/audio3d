@@ -61,6 +61,7 @@
 <span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="kn">import</span> <span class="n">rfft</span><span class="p">,</span> <span class="n">irfft</span>
 <span class="kn">import</span> <span class="nn">pkg_resources</span>
 
+
 <div class="viewcode-block" id="DspIn"><a class="viewcode-back" href="../index.html#dsp_in.DspIn">[docs]</a><span class="k">class</span> <span class="nc">DspIn</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    H1 -- DspIn</span>
@@ -135,7 +136,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- rnd</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Rounds numbers arithmetically.*</span>
+<span class="sd">        **Rounds numbers arithmetically.**</span>
 
 <span class="sd">        This function does a normal school arithmetic round (choose lower</span>
 <span class="sd">        int until .4 and higher int from .5 on) and returns the rounded</span>
@@ -163,8 +164,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- build_hann_window</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Calculate and construct the hann window in dependency of</span>
-<span class="sd">        sp_blocksize.*</span>
+<span class="sd">        **Calculate and construct the hann window in dependency of</span>
+<span class="sd">        sp_blocksize.**</span>
 
 <span class="sd">        Return values:</span>
 <span class="sd">        * hann_window: Numpy-array of the length of sp_blocksize</span>
@@ -181,7 +182,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- get_block_param</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Calculates blocksize and blocktime.*</span>
+<span class="sd">        **Calculates blocksize and blocktime.**</span>
 
 <span class="sd">        This method uses the parameters of the input wav-file and the</span>
 <span class="sd">        blocksizes of the fft and the hrtf to calculate the blocksize and</span>
@@ -208,8 +209,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- init_set_block_begin_end</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Initializes a list with the number of the first and last sample</span>
-<span class="sd">        of the first block.*</span>
+<span class="sd">        **Initializes a list with the number of the first and last sample</span>
+<span class="sd">        of the first block.**</span>
 
 <span class="sd">        This function calculates a list called block_begin_end containing</span>
 <span class="sd">        two elements: [0] is the first sample of the first block, [1] is</span>
@@ -231,8 +232,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- set_block_begin_end</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Every while-loop the number of the first and last sample is</span>
-<span class="sd">        calculated.*</span>
+<span class="sd">        **Every while-loop the number of the first and last sample is</span>
+<span class="sd">        calculated.**</span>
 
 <span class="sd">        This function replaces the values set by the</span>
 <span class="sd">        init_set_block_begin_end-function every while-loop according to the</span>
@@ -248,7 +249,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- get_hrtf_param</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Get all parameters for the hrtf set by the settings in gui.*</span>
+<span class="sd">        **Get all parameters for the hrtf set by the settings in gui.**</span>
 
 <span class="sd">        This function calculates all necessary parameters of the hrtf to be</span>
 <span class="sd">        later able to get the correct hrtf-files for the convolution with</span>
@@ -312,7 +313,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- read_hrtf_database</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Preloads all hrtf Files.*</span>
+<span class="sd">        **Preloads all hrtf Files.**</span>
 
 <span class="sd">        Return values:</span>
 
@@ -368,7 +369,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- hrtf_database_fft</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Converts the whole HRTF-database in frequency domain.*</span>
+<span class="sd">        **Converts the whole HRTF-database in frequency domain.**</span>
 
 <span class="sd">        Return values:</span>
 
@@ -392,8 +393,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- init_read_sp</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Get 10 important parameters of the files to be played by the</span>
-<span class="sd">        get_block_function.*</span>
+<span class="sd">        **Get 10 important parameters of the files to be played by the</span>
+<span class="sd">        get_block_function.**</span>
 
 <span class="sd">        This method gets all important data from the .wav files that will</span>
 <span class="sd">        be played by the speakers. The output is another list called sp_param,</span>
@@ -500,7 +501,8 @@
             <span class="c"># If signal is neither mono nor stereo, send error message to gui.</span>
             <span class="k">if</span> <span class="n">sp_param</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">sp_param</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;One Input signal is neither mono nor stereo and &quot;</span> \
-                         <span class="s">&quot;can&#39;t be processed. Please choose another input file.&quot;</span>
+                         <span class="s">&quot;can&#39;t be processed. Please choose another input&quot;</span> \
+                         <span class="s">&quot; file.&quot;</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">send_error</span><span class="p">(</span><span class="n">errmsg</span><span class="p">)</span>
                 <span class="c"># stop playback</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">True</span>
@@ -521,7 +523,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- read_sp</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Reads one block of samples.*</span>
+<span class="sd">        **Reads one block of samples.**</span>
 
 <span class="sd">        This method reads a block of samples of a speaker-.wav-file and</span>
 <span class="sd">        writes in a numpyarray sp_block[sp] (containing one 16-bit-int</span>
@@ -533,7 +535,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">sp_input</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">max_sp_samplenumber</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="c"># read in wave audio input files for every speaker</span>
         <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spn</span><span class="p">):</span>
 
@@ -541,9 +542,10 @@
                 <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">wavfile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;path&quot;</span><span class="p">])</span>
 
             <span class="c"># create a output array which is divideable by sp_blocksize</span>
-            <span class="n">sp_input</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">sp_param</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp_blocksize</span> <span class="o">-</span>
-                                     <span class="bp">self</span><span class="o">.</span><span class="n">sp_param</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span>
-                                      <span class="bp">self</span><span class="o">.</span><span class="n">sp_blocksize</span><span class="p">,</span> <span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+            <span class="n">sp_input</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">sp_param</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp_blocksize</span> <span class="o">-</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">sp_param</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp_blocksize</span><span class="p">,</span> <span class="p">),</span>
+                         <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
             <span class="c"># if speaker has two channels make it mono</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp_param</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">sp_input</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">sp_param</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="p">]</span>\
@@ -558,7 +560,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- get_hrtf_block_fft</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Gets and reads the correct hrtf_file from database.*</span>
+<span class="sd">        **Gets and reads the correct hrtf_file from database.**</span>
 
 <span class="sd">        Author: Felix Pfreundtner</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -575,7 +577,8 @@
             <span class="k">if</span> <span class="n">rounddifference</span> <span class="o">&lt;</span> <span class="mf">2.5</span><span class="p">:</span>
                 <span class="n">angle_exact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;angle&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">rounddifference</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">angle_exact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;angle&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">5</span><span class="o">-</span><span class="n">rounddifference</span>
+                <span class="n">angle_exact</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;angle&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">5</span> \
+                    <span class="o">-</span> <span class="n">rounddifference</span>
 
         <span class="c"># get rounded integer angle</span>
         <span class="n">angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rnd</span><span class="p">(</span><span class="n">angle_exact</span><span class="p">)</span>
@@ -605,7 +608,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- get_sp_block</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Gets the current block for the speaker.*</span>
+<span class="sd">        **Gets the current block for the speaker.**</span>
 
 <span class="sd">        Return value:</span>
 
@@ -632,7 +635,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- get_hrtf_block_fft</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Gets and reads the correct hrtf_file from database.*</span>
+<span class="sd">        **Gets and reads the correct hrtf_file from database.**</span>
 
 <span class="sd">        If the input-flag normalize_flag_sp is True, measure the maximum</span>
 <span class="sd">        amplitude occurring in the .wav-file. After that, reduce all</span>
@@ -658,7 +661,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- apply_window_on_sp_block</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Gets and reads the correct hrtf_file from database.*</span>
+<span class="sd">        **Gets and reads the correct hrtf_file from database.**</span>
 
 <span class="sd">        If the input-flag normalize_flag_sp is True, measure the maximum</span>
 <span class="sd">        amplitude occurring in the .wav-file. After that, reduce all</span>
@@ -675,7 +678,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- set_fftfreq</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Sets the frequency of the Fast-Fourier-Transformation.*</span>
+<span class="sd">        **Sets the frequency of the Fast-Fourier-Transformation.**</span>
 
 <span class="sd">        Author: Felix Pfreundtner</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -694,7 +697,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- fft_convolution</span>
 <span class="sd">        ===================</span>
-<span class="sd">        *Function convolves hrtf and data of the music file.*</span>
+<span class="sd">        **Function convolves hrtf and data of the music file.**</span>
 
 <span class="sd">        Function takes one hrtf block and one data block (their size is</span>
 <span class="sd">        defined by fft_blocksize), normalizes their values to int16-signals</span>
