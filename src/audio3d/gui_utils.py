@@ -19,8 +19,7 @@ class State(QtCore.QObject):
     **This is an exchange class for variables which are read and written by
     the DSP algorithm and all GUI applications.**
     """
-    
-    """Constructor of the State class."""
+
     def __init__(self):
         super(State, self).__init__()
         # variables which are shared between gui and dsp algorithm
@@ -115,8 +114,7 @@ class Headtracker(object):
     The networking interface from where the data can be extracced is
     initialized and thus the azimuthal angle can be read out.
     """
-    
-    """Constructor of the Headtracker class."""
+
     def __init__(self):
         self.head_deg = 0
         self.dt2 = DT2()
@@ -149,8 +147,7 @@ class Item(QtGui.QGraphicsPixmapItem):
     **This class defines items inside the QGraphicsScene,
     including Speaker and Audience.**
     """
-    
-    """Constructor of the Item class."""
+
     def __init__(self, state):
 
         image = self.origin_image.scaled(
@@ -221,7 +218,6 @@ class Room(QtGui.QGraphicsScene):
     """
     current_item = 0
 
-    """Constructor of the Room class."""
     def __init__(self, state):
         super(Room, self).__init__()
         self.state = state
@@ -333,7 +329,6 @@ class View(QtGui.QGraphicsView):
     Room.**
     """
     
-    """Constructor of the View class."""
     def __init__(self, state, scene):
         super(View, self).__init__(scene)
         self.state = state
@@ -397,10 +392,6 @@ class SignalHandler(QtCore.QObject):
         self.index = index
 
 
-# @class <Speaker> Speaker item represent the source positions in
-# the QGraphicsScene relative to the Audience item
-#
-#
 class Speaker(Item):
     """
     H1 -- Speaker
@@ -413,7 +404,6 @@ class Speaker(Item):
     type = 'speaker'
     path = 'unknown'
 
-    """Constructor of the Speaker class."""
     def __init__(self, state, index, path, posx=0, posy=0, norm=False):
 
         self.state = state
@@ -434,12 +424,6 @@ class Speaker(Item):
         self.state.mtx_sp.release()
         self.cal_rel_pos()
 
-    # @brief this function returns the relative position of the speaker
-    # to the 'audience', defined by a radial variable deg (defined counter
-    # clockwise) and the distance
-    # @details head_deg can take the azimuthal angle set by the headtracker
-    # into account
-    # @author
     def cal_rel_pos(self, head_deg=0):
         """
         H2 -- cal_rel_pos
@@ -489,9 +473,6 @@ class Speaker(Item):
         self.signal_handler.show_property.emit()
 
 
-# @class <Audience> Audience item represents the relative user position,
-# without headtracker in the QGraphicsScene
-#
 class Audience(Item):
     """
     H1 -- Audience
@@ -507,7 +488,6 @@ class Audience(Item):
     origin_image = QtGui.QImage(
         pkg_resources.resource_filename("audio3d", 'image/audience.png'))
 
-    """Constructor of the Audience class."""
     def __init__(self, state):
         self.state = state
         super(Audience, self).__init__(state)
@@ -533,7 +513,6 @@ class SpeakerProperty(QtGui.QWidget):
     posx = 0
     posy = 0
 
-    """Constructor of the SpeakerProperty class."""
     def __init__(self, state):
         super(SpeakerProperty, self).__init__()
         self.state = state
@@ -678,8 +657,6 @@ class SpeakerProperty(QtGui.QWidget):
         return x, y
 
 
-# @class <SequencePlot> Additional window is created to display plot of speaker
-# and HRTF spectrum while .wav is played
 class SequencePlot(QtGui.QWidget):
     """
     H1 -- SequencePlot
@@ -693,7 +670,6 @@ class SequencePlot(QtGui.QWidget):
 
     plot_on = QtCore.Signal()
 
-    """Constructor of the SequencePlot class."""
     def __init__(self, parent=None):
         super(SequencePlot, self).__init__(parent)
         self.is_on = False

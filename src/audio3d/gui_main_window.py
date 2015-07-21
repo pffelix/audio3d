@@ -22,8 +22,7 @@ class MainWindow(QtGui.QWidget):
     start/stop and control the DSP algorithm. It also includes all user 
     interactions, corresponding functions and executing and updating these.**
     """
-    
-    """Constructor of the MainWindow class."""
+
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setAcceptDrops(True)

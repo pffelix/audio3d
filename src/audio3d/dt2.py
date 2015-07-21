@@ -15,7 +15,6 @@ class DT2(object):
     Author: Marko Durkovic
     """
 
-    """Constructor of the DT2 class."""
     def __init__(self):
         self.tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.tcp.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
