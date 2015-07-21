@@ -2,7 +2,6 @@ import unittest
 import audio3d.gui_utils
 import sys
 
-
 class GuiTests(unittest.TestCase):
     """
     H1 -- GuiTests
@@ -10,30 +9,59 @@ class GuiTests(unittest.TestCase):
     **Test class for GUI.**
     Athor: Huijiang, Manuela
     """
-    def setUp(self):
+    def __init__(self, *args, **kwargs):
+        # calling the constructor of the super class
+        super(GuiTests, self).__init__(*args, **kwargs)
+        # initialze GUI State
         self.state = audio3d.gui_utils.State()
 
-    def test_switch_stop_playback(self):
+    def test_switch_stop_playback_true(self):
         """
-        H2 -- test_switch_stop_playback
+        H2 -- test_switch_stop_playback (condition true)
         ===================
         **This tests function switch_stop_playback() from gui_utils.**
         """
+        self.state.dsp_stop = False
         self.state.switch_stop_playback()
         sol = self.state.dsp_stop
         error_msg = "test_switch_stop_playback failed!"
         self.assertEqual(sol, True, msg=error_msg)
 
-    def test_switch_pause_playback(self):
+    def test_switch_stop_playback_false(self):
         """
-        H2 -- test_switch_pause_playback
+        H2 -- test_switch_stop_playback (condition false)
+        ===================
+        **This tests function switch_stop_playback() from gui_utils.**
+        """
+        self.state.dsp_stop = True
+        self.state.switch_stop_playback()
+        sol = self.state.dsp_stop
+        error_msg = "test_switch_stop_playback failed!"
+        self.assertEqual(sol, False, msg=error_msg)
+
+    def test_switch_pause_playback_true(self):
+        """
+        H2 -- test_switch_pause_playback (condition true)
         ===================
         **This tests function switch_pause_playback() from gui_utils.**
         """
+        self.state.dsp_pause = False
         self.state.switch_pause_playback()
         sol = self.state.dsp_pause
         error_msg = "test_switch_pause_playback failed!"
         self.assertEqual(sol, True, msg=error_msg)
+
+    def test_switch_pause_playback_false(self):
+        """
+        H2 -- test_switch_pause_playback (condition false)
+        ===================
+        **This tests function switch_pause_playback() from gui_utils.**
+        """
+        self.state.dsp_pause = True
+        self.state.switch_pause_playback()
+        sol = self.state.dsp_pause
+        error_msg = "test_switch_pause_playback failed!"
+        self.assertEqual(sol, False, msg=error_msg)
 
     def test_get_bound_pos_negative(self):
         """
@@ -107,7 +135,6 @@ class GuiTests(unittest.TestCase):
         error_msg = "test_get_abs_pos failed!"
         self.assertEqual(solx, res[0], msg=error_msg)
         self.assertEqual(soly, res[1], msg=error_msg)
-
 
 if __name__ == '__main__':
     app = audio3d.gui_utils.QtGui.QApplication(sys.argv)
