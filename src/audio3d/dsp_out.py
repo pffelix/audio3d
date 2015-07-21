@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Created on Fri Jun  5 10:31:01 2015
-#
-# Author: Felix Pfreundtner
+# Author: Felix Pfreundtner, Matthias Lederle
 
 import numpy as np
 import scipy.io.wavfile

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# Created on Fri Jun  5 10:30:53 2015
-# Author: Felix Pfreundtner
+#
+# Author: Felix Pfreundtner, Matthias Lederle
 
 import scipy.io.wavfile
 import struct

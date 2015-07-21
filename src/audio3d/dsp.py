@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+#
+# Author: Felix Pfreundtner, Matthias Lederle
 
 import audio3d.dsp_in
 import audio3d.dsp_out

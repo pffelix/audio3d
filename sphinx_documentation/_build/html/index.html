@@ -32,6 +32,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">Group B: 3D Audio 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -65,7 +68,7 @@
 <ul class="simple">
 </ul>
 </div>
-</div>
+<span class="target" id="module-__main__"></span><span class="target" id="module-dsp"></span><span class="target" id="module-dsp_in"></span><span class="target" id="module-dsp_out"></span><span class="target" id="module-dsp_tests"></span><span class="target" id="module-gui_main_window"></span><span class="target" id="module-gui_utils"></span><span class="target" id="module-gui_plot"></span><span class="target" id="module-gui_tests"></span><span class="target" id="module-headtracker_dt2"></span><span class="target" id="module-headtracker_data"></span><span class="target" id="module-headtracker_tests"></span></div>
 <div class="section" id="classes">
 <h1>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="dsp">
@@ -406,8 +409,16 @@ convolution to linear convolution)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dsp_tests.DspTests.test_get_sp_block">
-<code class="descname">test_get_sp_block</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_get_sp_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_get_sp_block" title="Permalink to this definition">¶</a></dt>
+<dt id="dsp_tests.DspTests.test_get_sp_block_1_out_of_file">
+<code class="descname">test_get_sp_block_1_out_of_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_get_sp_block_1_out_of_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_get_sp_block_1_out_of_file" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Check whether sp block is zeropadded to sp_blocksize when a block
+position higher than samplenumber (sp_param[sp][0]) is adressed</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_tests.DspTests.test_get_sp_block_in_file">
+<code class="descname">test_get_sp_block_in_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_get_sp_block_in_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_get_sp_block_in_file" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Check whether the read in block size of a speaker for different
 positions in the the whole sp file is correct</strong></p>
 <p>Author: Felix Pfreundtner</p>
@@ -446,9 +457,8 @@ scipy.io.wavfile.read()</strong></p>
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_init_set_block_begin_end">
 <code class="descname">test_init_set_block_begin_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_init_set_block_begin_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_init_set_block_begin_end" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Compare init_set_block_begin_end() output with correct values for
-initialization of block_begin_end.</strong></p>
-<p>Author: Felix Pfreundtner</p>
+<dd><p><strong>Tests get_block_param by comparing two lists.</strong></p>
+<p>Author: Matthias Lederle</p>
 </dd></dl>
 
 <dl class="method">
@@ -458,6 +468,16 @@ initialization of block_begin_end.</strong></p>
 speaker filter in gui leads to an filter full of zeros in dsp
 algorithm ( kemar compact already includes the inverse speaker
 filter)</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_tests.DspTests.test_mix_binaural_block">
+<code class="descname">test_mix_binaural_block</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_mix_binaural_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_mix_binaural_block" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>Checks whether final binaural block output has a higher amplitude</dt>
+<dd>than int16 maximum allows, which would lead to clipping in PortAudio**</dd>
+</dl>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
@@ -473,6 +493,14 @@ maximum int 16 amplitude</strong></p>
 <dt id="dsp_tests.DspTests.test_overlap">
 <code class="descname">test_overlap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_overlap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_overlap" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Check whether overlap is calculated correct by dsp algorithm</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_tests.DspTests.test_overlap_add">
+<code class="descname">test_overlap_add</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_overlap_add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_overlap_add" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Checks wether overlap add algorithm calculates the correct block
+output sizes</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
@@ -500,16 +528,15 @@ maximum int 16 amplitude</strong></p>
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_set_block_begin_end">
 <code class="descname">test_set_block_begin_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_set_block_begin_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_set_block_begin_end" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Compare set_block_begin_end() output with correct values for
-the first run() iterations of dsp alorithm.</strong></p>
-<p>Author: Felix Pfreundtner</p>
+<dd><p><strong>Tests the set_block_begin_end function for correctness.</strong></p>
+<p>Author: Matthias Lederle</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_set_fftfreq">
 <code class="descname">test_set_fftfreq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_set_fftfreq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_set_fftfreq" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
-<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>Checks wether calculates the correct number of fft frequency values</dt>
+<dt><a href="#id3"><span class="problematic" id="id4">**</span></a>Checks wether calculates the correct number of fft frequency values</dt>
 <dd>for given input paramaters**</dd>
 </dl>
 <p>Author: Felix Pfreundtner</p>
@@ -867,7 +894,7 @@ This doesn&#8217;t provide the signal/slot function.</p>
 <dd><p><strong>This function returns the relative position of the speaker
 to the &#8216;audience&#8217;, defined by a radial variable deg (defined counter
 clockwise) and the distance.</strong>
-<a href="#id3"><span class="problematic" id="id4">*</span></a>head_deg: takes the azimuthal angle set by the headtracker
+<a href="#id5"><span class="problematic" id="id6">*</span></a>head_deg: takes the azimuthal angle set by the headtracker
 into account</p>
 </dd></dl>
 
@@ -891,8 +918,8 @@ the speaker settings in the SpeakerProperty widget.</p>
 <dd><p><strong>This sub-class defines the audience item.</strong>
 An audience item represents the relative user position,
 without headtracker in the QGraphicsScene.
-<a href="#id5"><span class="problematic" id="id6">*</span></a>type: selects the type of item.
-<a href="#id7"><span class="problematic" id="id8">*</span></a>origin_image: selects the image representing the audience in the room.</p>
+<a href="#id7"><span class="problematic" id="id8">*</span></a>type: selects the type of item.
+<a href="#id9"><span class="problematic" id="id10">*</span></a>origin_image: selects the image representing the audience in the room.</p>
 </dd></dl>
 
 </div>
@@ -906,10 +933,10 @@ adding a new speaker or to change the settings again later on.</strong>
 Additional widget window to define speaker .wav path
 speaker position and to activate inverse filtering for speaker before
 adding it to the scene and afterwards by double click on the speaker item.
-<a href="#id9"><span class="problematic" id="id10">*</span></a>added: Signal emitted by the confirm button to connect to MainWindow&#8217;s
+<a href="#id11"><span class="problematic" id="id12">*</span></a>added: Signal emitted by the confirm button to connect to MainWindow&#8217;s
 functions.
-<a href="#id11"><span class="problematic" id="id12">*</span></a>posx = horizontal position of the respective speaker item
-<a href="#id13"><span class="problematic" id="id14">*</span></a>posy = vertical position of the respective speaker item</p>
+<a href="#id13"><span class="problematic" id="id14">*</span></a>posx = horizontal position of the respective speaker item
+<a href="#id15"><span class="problematic" id="id16">*</span></a>posy = vertical position of the respective speaker item</p>
 <dl class="method">
 <dt id="gui_utils.SpeakerProperty.browse">
 <code class="descname">browse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SpeakerProperty.browse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SpeakerProperty.browse" title="Permalink to this definition">¶</a></dt>
@@ -963,7 +990,7 @@ properties.</strong></p>
 speaker sequence and HRTF sequence extracted from the DSP algorithm.</strong>
 GLPlotWidget was preferred over Matplotlib due to performance. The plot
 is imported from gui_plot.py.
-<a href="#id15"><span class="problematic" id="id16">*</span></a>plot_on: Signal to communicate wheter the plot widget is open.</p>
+<a href="#id17"><span class="problematic" id="id18">*</span></a>plot_on: Signal to communicate wheter the plot widget is open.</p>
 <dl class="method">
 <dt id="gui_utils.SequencePlot.closeEvent">
 <code class="descname">closeEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SequencePlot.closeEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SequencePlot.closeEvent" title="Permalink to this definition">¶</a></dt>
@@ -1106,7 +1133,7 @@ Author: Marko Durkovic</p>
 <dd><blockquote>
 <div><strong>This function returns the data linewise.</strong>
 Returned data format:
-<a href="#id17"><span class="problematic" id="id18">*</span></a>[&#8216;6d 1 [0 1.000] [x y z polar azimuthal] [3x3 rotation matrix]</div></blockquote>
+<a href="#id19"><span class="problematic" id="id20">*</span></a>[&#8216;6d 1 [0 1.000] [x y z polar azimuthal] [3x3 rotation matrix]</div></blockquote>
 <dl class="docutils">
 <dt>&#8216;]</dt>
 <dd>Author: Marko Durkovic</dd>
@@ -1221,6 +1248,9 @@ angle would result in something greater than 360°.</strong></p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="#">Group B: 3D Audio 1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>

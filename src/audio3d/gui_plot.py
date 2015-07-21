@@ -1,8 +1,13 @@
+# -*- coding: utf-8 -*-
+#
+# Author: Huaijiang Zhu, Manuela Heiss
+
 from PySide import QtGui, QtCore, QtOpenGL
 from PySide.QtOpenGL import QGLWidget
 import OpenGL.GL
 import OpenGL.arrays.vbo as glvbo
 import numpy as np
+
 
 class GLPlotWidget(QGLWidget):
     """

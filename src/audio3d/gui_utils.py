@@ -1,5 +1,6 @@
-# Library for GUI of Audio 3D Project, Group B
-# Author: H. Zhu, M. Heiss
+# -*- coding: utf-8 -*-
+#
+# Author: Huaijiang Zhu, Manuela Heiss
 
 from PySide import QtCore, QtGui
 from audio3d.gui_plot import GLPlotWidget

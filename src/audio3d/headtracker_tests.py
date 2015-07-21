@@ -1,4 +1,7 @@
-﻿
+﻿# -*- coding: utf-8 -*-
+#
+# Author: Huaijiang Zhu, Manuela Heiss
+
 import unittest
 from mock import patch
 import sys

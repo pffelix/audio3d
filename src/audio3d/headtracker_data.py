@@ -1,5 +1,7 @@
-# Handling of headtracker data from DT2 class
-# author: H. Zhu, M. Heiss
+# -*- coding: utf-8 -*-
+#
+# Author: Huaijiang Zhu, Manuela Heiss
+
 
 def clean_and_split(line):
     """

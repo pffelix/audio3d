@@ -1,14 +1,13 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# GUI Main Window of Audio 3D Project, Group B
-# Authors: H. Zhu, M. Heiss
+# Author: Huaijiang Zhu, Manuela Heiss
 
 from PySide import QtCore, QtGui
 from math import acos, degrees
 import audio3d.gui_utils
 from audio3d.dsp import Dsp
 import threading
+
 
 class MainWindow(QtGui.QWidget):
     """
@@ -156,7 +155,6 @@ class MainWindow(QtGui.QWidget):
         if self.state.dsp_run is True:
             self.head_tracker.cal_head_deg()
             self.update_gui_sp(self.head_tracker.get_head_deg())
-
 
     def update_gui_sp(self, deg):
         """

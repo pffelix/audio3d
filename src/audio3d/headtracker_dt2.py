@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+#
+# Author: Marko Durkovic
 import socket
 
 HOST = 'artrack.clients.ldv.ei.tum.de'

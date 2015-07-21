@@ -16,6 +16,18 @@ Welcome to 3D Audio Documentation
 
 .. toctree::
    :maxdepth: 2
+.. automodule:: __main__
+.. automodule:: dsp
+.. automodule:: dsp_in
+.. automodule:: dsp_out
+.. automodule:: dsp_tests
+.. automodule:: gui_main_window
+.. automodule:: gui_utils
+.. automodule:: gui_plot
+.. automodule:: gui_tests
+.. automodule:: headtracker_dt2
+.. automodule:: headtracker_data
+.. automodule:: headtracker_tests
 
 
 Classes

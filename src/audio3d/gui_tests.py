@@ -1,6 +1,11 @@
+# -*- coding: utf-8 -*-
+#
+# Author: Huaijiang Zhu, Manuela Heiss
+
 import unittest
 import audio3d.gui_utils
 import sys
+
 
 class GuiTests(unittest.TestCase):
     """
