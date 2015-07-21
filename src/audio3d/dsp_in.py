@@ -15,7 +15,7 @@ import pkg_resources
 
 class DspIn:
     """
-    H1 -- DspIn
+    DspIn
     ************************
     This class contains all functions executed before the convolution in
     the run-function of the Dsp-class. This includes particularly to read
@@ -85,7 +85,7 @@ class DspIn:
 
     def rnd(self, value):
         """
-        H2 -- rnd
+        rnd
         ===================
         **Rounds numbers arithmetically.**
 
@@ -113,7 +113,7 @@ class DspIn:
 
     def build_hann_window(self, sp_blocksize):
         """
-        H2 -- build_hann_window
+        build_hann_window
         ===================
         **Calculate and construct the hann window in dependency of
         sp_blocksize.**
@@ -131,7 +131,7 @@ class DspIn:
 
     def get_block_param(self):
         """
-        H2 -- get_block_param
+        get_block_param
         ===================
         **Calculates blocksize and blocktime.**
 
@@ -158,7 +158,7 @@ class DspIn:
 
     def init_set_block_begin_end(self):
         """
-        H2 -- init_set_block_begin_end
+        init_set_block_begin_end
         ===================
         **Initializes a list with the number of the first and last sample
         of the first block.**
@@ -181,7 +181,7 @@ class DspIn:
 
     def set_block_begin_end(self):
         """
-        H2 -- set_block_begin_end
+        set_block_begin_end
         ===================
         **Every while-loop the number of the first and last sample is
         calculated.**
@@ -198,7 +198,7 @@ class DspIn:
 
     def get_hrtf_param(self):
         """
-        H2 -- get_hrtf_param
+        get_hrtf_param
         ===================
         **Get all parameters for the hrtf set by the settings in gui.**
 
@@ -262,7 +262,7 @@ class DspIn:
 
     def read_hrtf_database(self):
         """
-        H2 -- read_hrtf_database
+        read_hrtf_database
         ===================
         **Preloads all hrtf Files.**
 
@@ -472,7 +472,7 @@ class DspIn:
 
     def read_sp(self):
         """
-        H2 -- read_sp
+        read_sp
         ===================
         **Reads one block of samples.**
 
@@ -557,7 +557,7 @@ class DspIn:
 
     def get_sp_block(self, sp):
         """
-        H2 -- get_sp_block
+        get_sp_block
         ===================
         **Gets the current block for the speaker.**
 

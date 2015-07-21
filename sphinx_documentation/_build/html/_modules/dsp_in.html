@@ -64,7 +64,7 @@
 
 <div class="viewcode-block" id="DspIn"><a class="viewcode-back" href="../index.html#dsp_in.DspIn">[docs]</a><span class="k">class</span> <span class="nc">DspIn</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    H1 -- DspIn</span>
+<span class="sd">    DspIn</span>
 <span class="sd">    ************************</span>
 <span class="sd">    This class contains all functions executed before the convolution in</span>
 <span class="sd">    the run-function of the Dsp-class. This includes particularly to read</span>
@@ -134,7 +134,7 @@
 
 <div class="viewcode-block" id="DspIn.rnd"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.rnd">[docs]</a>    <span class="k">def</span> <span class="nf">rnd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- rnd</span>
+<span class="sd">        rnd</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Rounds numbers arithmetically.**</span>
 
@@ -162,7 +162,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.build_hann_window"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.build_hann_window">[docs]</a>    <span class="k">def</span> <span class="nf">build_hann_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp_blocksize</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- build_hann_window</span>
+<span class="sd">        build_hann_window</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Calculate and construct the hann window in dependency of</span>
 <span class="sd">        sp_blocksize.**</span>
@@ -180,7 +180,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.get_block_param"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.get_block_param">[docs]</a>    <span class="k">def</span> <span class="nf">get_block_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- get_block_param</span>
+<span class="sd">        get_block_param</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Calculates blocksize and blocktime.**</span>
 
@@ -207,7 +207,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.init_set_block_begin_end"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.init_set_block_begin_end">[docs]</a>    <span class="k">def</span> <span class="nf">init_set_block_begin_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- init_set_block_begin_end</span>
+<span class="sd">        init_set_block_begin_end</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Initializes a list with the number of the first and last sample</span>
 <span class="sd">        of the first block.**</span>
@@ -230,7 +230,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.set_block_begin_end"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.set_block_begin_end">[docs]</a>    <span class="k">def</span> <span class="nf">set_block_begin_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- set_block_begin_end</span>
+<span class="sd">        set_block_begin_end</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Every while-loop the number of the first and last sample is</span>
 <span class="sd">        calculated.**</span>
@@ -247,7 +247,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.get_hrtf_param"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.get_hrtf_param">[docs]</a>    <span class="k">def</span> <span class="nf">get_hrtf_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- get_hrtf_param</span>
+<span class="sd">        get_hrtf_param</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Get all parameters for the hrtf set by the settings in gui.**</span>
 
@@ -311,7 +311,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.read_hrtf_database"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.read_hrtf_database">[docs]</a>    <span class="k">def</span> <span class="nf">read_hrtf_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- read_hrtf_database</span>
+<span class="sd">        read_hrtf_database</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Preloads all hrtf Files.**</span>
 
@@ -521,7 +521,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.read_sp"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.read_sp">[docs]</a>    <span class="k">def</span> <span class="nf">read_sp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- read_sp</span>
+<span class="sd">        read_sp</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Reads one block of samples.**</span>
 
@@ -606,7 +606,7 @@
 </div>
 <div class="viewcode-block" id="DspIn.get_sp_block"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.get_sp_block">[docs]</a>    <span class="k">def</span> <span class="nf">get_sp_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- get_sp_block</span>
+<span class="sd">        get_sp_block</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Gets the current block for the speaker.**</span>
 
