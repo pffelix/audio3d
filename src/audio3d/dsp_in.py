@@ -33,7 +33,7 @@ class DspIn:
         self.hrtf_max_amp = [[0, 0] for sp in range(self.spn)]
         # Dict with a key for every speaker and two values. These
         # are the max. values fetched from the speaker-file.
-        self.sp_max_amp = [None for sp in range(self.spn)]
+        self.sp_max_amp = [0 for sp in range(self.spn)]
         # Standard sampledepth
         self.sampledepth = 16
         # Set number of output blocks per second
@@ -489,7 +489,8 @@ class DspIn:
                     = sp_input_scipy[:, 0] + sp_input_scipy[:, 1] / 2
             else:
                 sp_input[sp][0:self.sp_param[sp][0], ] = sp_input_scipy
-
+            # get maximum amplitude in speaker wave signal
+            self.sp_max_amp[sp] = np.amax(np.abs(sp_input[sp]))
         return sp_input
 
     def get_hrtf_block_fft(self, sp):
@@ -563,7 +564,6 @@ class DspIn:
                 0], ] = self.sp_input[
                 sp][self.block_begin_end[0]:self.sp_param[sp][0], ]
             continue_input = False
-        self.sp_max_amp[sp] = np.amax(np.abs(self.sp_block[sp][:, ]))
         return continue_input
 
     def normalize(self, sp):
@@ -591,8 +591,6 @@ class DspIn:
                 self.sp_block[sp] = sp_block_sp_norm
                 self.sp_block[sp] = self.sp_block[sp].astype(
                     np.float32, copy=False)
-                self.sp_max_amp[sp] = np.amax(np.abs(
-                    self.sp_block[sp][:, ]))
 
     def apply_window_on_sp_block(self, sp):
         """
@@ -654,7 +652,8 @@ class DspIn:
         max_amplitude_output = 32767
         max_amplitude_sp_magnitude_spectrum = np.amax(np.abs(
             sp_magnitude_spectrum))
-        if max_amplitude_sp_magnitude_spectrum != 0:
+        if max_amplitude_sp_magnitude_spectrum != 0 and self.sp_max_amp[sp] \
+                != 0:
             # get magnitude spectrum of hrtf-block
             self.state.dsp_sp_spectrum[sp][:, 1] = sp_magnitude_spectrum / (
                 max_amplitude_sp_magnitude_spectrum / self.sp_max_amp[
@@ -699,7 +698,7 @@ class DspIn:
         # dynamical volume output
         sp_binaural_block_sp_time_max_amp = int(np.amax(np.abs(
             sp_binaural_block_sp_l_r_time)))
-        if sp_binaural_block_sp_time_max_amp != 0:
+        if sp_binaural_block_sp_time_max_amp != 0 and self.sp_max_amp[sp] != 0:
             sp_binaural_block_sp_l_r_time /= (
                 sp_binaural_block_sp_time_max_amp / self.sp_max_amp[sp] /
                 self.hrtf_max_amp[sp][l_r] * 32767)
