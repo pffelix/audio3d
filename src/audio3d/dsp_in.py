@@ -82,6 +82,8 @@ class DspIn:
 
     def rnd(self, value):
         """
+        H2 -- rnd
+        ===================
         **Rounds numbers arithmetically.**
 
         This function does a normal school arithmetic round (choose lower
@@ -108,6 +110,8 @@ class DspIn:
 
     def build_hann_window(self, sp_blocksize):
         """
+        H2 -- build_hann_window
+        ===================
         **Calculate and construct the hann window in dependency of
         sp_blocksize.**
 
@@ -124,6 +128,8 @@ class DspIn:
 
     def get_block_param(self):
         """
+        H2 -- get_block_param
+        ===================
         **Calculates blocksize and blocktime.**
 
         This method uses the parameters of the input wav-file and the
@@ -149,6 +155,8 @@ class DspIn:
 
     def init_set_block_begin_end(self):
         """
+        H2 -- init_set_block_begin_end
+        ===================
         **Initializes a list with the number of the first and last sample
         of the first block.**
 
@@ -170,6 +178,8 @@ class DspIn:
 
     def set_block_begin_end(self):
         """
+        H2 -- set_block_begin_end
+        ===================
         **Every while-loop the number of the first and last sample is
         calculated.**
 
@@ -185,6 +195,8 @@ class DspIn:
 
     def get_hrtf_param(self):
         """
+        H2 -- get_hrtf_param
+        ===================
         **Get all parameters for the hrtf set by the settings in gui.**
 
         This function calculates all necessary parameters of the hrtf to be
@@ -247,6 +259,8 @@ class DspIn:
 
     def read_hrtf_database(self):
         """
+        H2 -- read_hrtf_database
+        ===================
         **Preloads all hrtf Files.**
 
         Return values:
@@ -301,6 +315,8 @@ class DspIn:
 
     def hrtf_database_fft(self):
         """
+        H2 -- hrtf_database_fft
+        ===================
         **Converts the whole HRTF-database in frequency domain.**
 
         Return values:
@@ -323,6 +339,8 @@ class DspIn:
 
     def init_read_sp(self):
         """
+        H2 -- init_read_sp
+        ===================
         **Get 10 important parameters of the files to be played by the
         get_block_function.**
 
@@ -452,6 +470,8 @@ class DspIn:
 
     def read_sp(self):
         """
+        H2 -- read_sp
+        ===================
         **Reads one block of samples.**
 
         This method reads a block of samples of a speaker-.wav-file and
@@ -487,6 +507,8 @@ class DspIn:
 
     def get_hrtf_block_fft(self, sp):
         """
+        H2 -- get_hrtf_block_fft
+        ===================
         **Gets and reads the correct hrtf_file from database.**
 
         Author: Felix Pfreundtner
@@ -560,7 +582,7 @@ class DspIn:
 
     def normalize(self, sp):
         """
-        H2 -- get_hrtf_block_fft
+        H2 -- normalize
         ===================
         **Gets and reads the correct hrtf_file from database.**
 
