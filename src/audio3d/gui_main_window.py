@@ -74,7 +74,7 @@ class MainWindow(QtGui.QWidget):
         self.buffersize_spin_box = QtGui.QSpinBox()
         self.buffersize_spin_box.setMinimum(0)
         self.buffersize_spin_box.setMaximum(1000)
-        self.buffersize_spin_box.setValue(30)
+        self.buffersize_spin_box.setValue(20)
 
         # set layout
         layout = QtGui.QGridLayout()

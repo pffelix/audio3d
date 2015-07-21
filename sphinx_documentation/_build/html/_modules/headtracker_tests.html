@@ -47,6 +47,10 @@
           <div class="body" role="main">
             
   <h1>Source code for headtracker_tests</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c"># Author: Huaijiang Zhu, Manuela Heiss</span>
+
 <span class="kn">import</span> <span class="nn">unittest</span>
 <span class="kn">from</span> <span class="nn">mock</span> <span class="kn">import</span> <span class="n">patch</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -54,8 +58,8 @@
 <span class="kn">import</span> <span class="nn">audio3d.gui_utils</span>
 
 
-<span class="k">class</span> <span class="nc">TestHeadtracker</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-<div class="viewcode-block" id="TestHeadtracker"><a class="viewcode-back" href="../index.html#headtracker_tests.TestHeadtracker">[docs]</a>    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestHeadtracker"><a class="viewcode-back" href="../index.html#headtracker_tests.TestHeadtracker">[docs]</a><span class="k">class</span> <span class="nc">TestHeadtracker</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    H1 -- TestHeadtracker</span>
 <span class="sd">    ************************</span>
 <span class="sd">    **Test class for the headtracker integration.**</span>
@@ -66,8 +70,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_utils</span><span class="o">.</span><span class="n">State</span><span class="p">()</span>
 
     <span class="nd">@patch</span><span class="p">(</span><span class="s">&#39;gui_utils.Headtracker.get_head_deg&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">test_head_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_head_deg</span><span class="p">):</span>
-<div class="viewcode-block" id="TestHeadtracker.test_head_deg"><a class="viewcode-back" href="../index.html#headtracker_tests.TestHeadtracker.test_head_deg">[docs]</a>        <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestHeadtracker.test_head_deg"><a class="viewcode-back" href="../index.html#headtracker_tests.TestHeadtracker.test_head_deg">[docs]</a>    <span class="k">def</span> <span class="nf">test_head_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_head_deg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- test_head_deg</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **This tests wheter the azimuthal angle is correctly converted for the</span>
@@ -79,10 +83,10 @@
         <span class="n">sp</span><span class="o">.</span><span class="n">cal_rel_pos</span><span class="p">(</span><span class="n">get_head_deg</span><span class="p">())</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;angle&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="mi">285</span><span class="p">)</span>
-
-    <span class="nd">@patch</span><span class="p">(</span><span class="s">&#39;gui_utils.Headtracker.get_head_deg&#39;</span><span class="p">)</span></div>
-    <span class="k">def</span> <span class="nf">test_over_360</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_head_deg</span><span class="p">):</span>
-<div class="viewcode-block" id="TestHeadtracker.test_over_360"><a class="viewcode-back" href="../index.html#headtracker_tests.TestHeadtracker.test_over_360">[docs]</a>        <span class="sd">&quot;&quot;&quot;</span>
+</div>
+    <span class="nd">@patch</span><span class="p">(</span><span class="s">&#39;gui_utils.Headtracker.get_head_deg&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="TestHeadtracker.test_over_360"><a class="viewcode-back" href="../index.html#headtracker_tests.TestHeadtracker.test_over_360">[docs]</a>    <span class="k">def</span> <span class="nf">test_over_360</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_head_deg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- test_head_deg</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **This tests whether the azimuthal angle is correctly applied if the</span>
@@ -94,8 +98,8 @@
         <span class="n">sp</span><span class="o">.</span><span class="n">cal_rel_pos</span><span class="p">(</span><span class="n">get_head_deg</span><span class="p">())</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;angle&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="mi">355</span><span class="p">)</span>
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span></div></div>
+</div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">gui_main_window</span><span class="o">.</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
     <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </pre></div>

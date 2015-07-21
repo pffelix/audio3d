@@ -47,7 +47,10 @@
           <div class="body" role="main">
             
   <h1>Source code for dsp_out</h1><div class="highlight"><pre>
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Felix Pfreundtner, Matthias Lederle&#39;</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c"># Author: Felix Pfreundtner, Matthias Lederle</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.io.wavfile</span>
 <span class="kn">import</span> <span class="nn">pyaudio</span>
@@ -59,7 +62,28 @@
 
 
 <div class="viewcode-block" id="DspOut"><a class="viewcode-back" href="../index.html#dsp_out.DspOut">[docs]</a><span class="k">class</span> <span class="nc">DspOut</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_init</span><span class="p">,</span> <span class="n">fft_blocksize</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DspOut</span>
+<span class="sd">    ************************</span>
+<span class="sd">    **This class contains all otuput related variables and methods for</span>
+<span class="sd">    the dsp algorithm.**</span>
+
+<span class="sd">    It enables the overlap add algorithm and mix all binaural speaker</span>
+<span class="sd">    output arrays to one final binaural output block. It holds the</span>
+<span class="sd">    PortAudio methods, which are called through a Callback Thread. It also</span>
+<span class="sd">    enables the interaction between DSP Thread and PortAudio Thread.</span>
+
+<span class="sd">    Authors: Felix Pfreundtner, Matthias Lederle</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DspOut.__init__"><a class="viewcode-back" href="../index.html#dsp_out.DspOut.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_init</span><span class="p">,</span> <span class="n">fft_blocksize</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        **__init__ is called by DSP and creates all variables which</span>
+<span class="sd">        are relevant for the output part of DSP run() method&#39;s while loop.</span>
+<span class="sd">        It setups up the format of the output block related varialbles and</span>
+<span class="sd">        provides the playqueue and record queue.**</span>
+
+<span class="sd">        Authors: Felix  Pfreundtner, Matthias Lederle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state_init</span>
         <span class="c"># Number of all speakers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spn</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">)</span>
@@ -79,7 +103,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">playback_successful</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">playqueue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">recordqueue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
-
+</div>
 <div class="viewcode-block" id="DspOut.overlap_add"><a class="viewcode-back" href="../index.html#dsp_out.DspOut.overlap_add">[docs]</a>    <span class="k">def</span> <span class="nf">overlap_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fft_blocksize</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        **Applies the overlap-add-method to the signal.**</span>
@@ -129,8 +153,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- mix_binaural_block</span>
 <span class="sd">        ===================</span>
-<span class="sd">        **Calculate the signal for all speakers taking into account the</span>
-<span class="sd">        distance to the speakers.**</span>
+<span class="sd">        **Calculate a mixed binaural output for all speakers taking into</span>
+<span class="sd">        account the distance of the head to each speaker.**</span>
 
 <span class="sd">        Author: Felix Pfreundtner</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -189,6 +213,9 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- callback</span>
 <span class="sd">        ===================</span>
+<span class="sd">        ** Plays the audio blocks. The function is always called by PortAudio</span>
+<span class="sd">        when a new block is needed. The blocks are exchanged between DSP Thread</span>
+<span class="sd">         and Play Thread through a Queue playqueue **</span>
 
 <span class="sd">        Author: Felix Pfreundtner</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -211,7 +238,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- audiooutput</span>
 <span class="sd">        ===================</span>
-<span class="sd">        **Streams the calculated files as a output signal.**</span>
+<span class="sd">        **Starts a PortAudio Stream and handles play and pause button presses</span>
+<span class="sd">         through the user in GUI MainWindow.**</span>
 
 <span class="sd">        Author: Felix Pfreundtner</span>
 <span class="sd">        &quot;&quot;&quot;</span>

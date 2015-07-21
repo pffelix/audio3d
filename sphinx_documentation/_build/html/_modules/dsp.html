@@ -47,7 +47,10 @@
           <div class="body" role="main">
             
   <h1>Source code for dsp</h1><div class="highlight"><pre>
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Felix Pfreundtner, Matthias Lederle&#39;</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c"># Author: Felix Pfreundtner, Matthias Lederle</span>
+
 <span class="kn">import</span> <span class="nn">audio3d.dsp_in</span>
 <span class="kn">import</span> <span class="nn">audio3d.dsp_out</span>
 <span class="kn">import</span> <span class="nn">threading</span>
@@ -56,11 +59,27 @@
 
 <div class="viewcode-block" id="Dsp"><a class="viewcode-back" href="../index.html#dsp.Dsp">[docs]</a><span class="k">class</span> <span class="nc">Dsp</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    H1 -- Dsp</span>
+<span class="sd">    Dsp</span>
 <span class="sd">    ************************</span>
 <span class="sd">    **Main class of the project&#39;s Digital Signal Processing part.**</span>
+
+<span class="sd">    This class holds variables and methods which enable the build of the</span>
+<span class="sd">    binaural output. It holds one instance of the DspIn and DspOut class.</span>
+<span class="sd">    The run() function is called by GUI Main Window as Thread and generates</span>
+<span class="sd">    block by block a binaural audio output and sends it to a playback queue</span>
+<span class="sd">    which is read by a PortAudio Callback Thread. To reach a higher</span>
+<span class="sd">    performance the __init__ of the DspIn and DspOut class perform many time</span>
+<span class="sd">    intensive calculations before starting the run() function of this class. **</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_init</span><span class="p">):</span>
+<div class="viewcode-block" id="Dsp.__init__"><a class="viewcode-back" href="../index.html#dsp.Dsp.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_init</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        **__init__ is called by GUI MainWindow and creates all variables which</span>
+<span class="sd">        are relevant for the run()method&#39;s while loop. It also creates one</span>
+<span class="sd">        instance of the DspIn and DspOut class,  which provides all functions</span>
+<span class="sd">        and variables need to generate the binaural block output.**</span>
+
+<span class="sd">        Authors: Felix Pfreundtner, Matthias Lederle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state_init</span>
         <span class="c"># Number of all speakers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spn</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">)</span>
@@ -80,26 +99,40 @@
         <span class="c"># Blockcounter initialized to count number of already convolved</span>
         <span class="c"># blocks</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">blockcounter</span> <span class="o">=</span> <span class="mi">0</span>
-
+</div>
 <div class="viewcode-block" id="Dsp.run"><a class="viewcode-back" href="../index.html#dsp.Dsp.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- run</span>
+<span class="sd">        run</span>
 <span class="sd">        ===================</span>
-<span class="sd">        **Runs the dsp algorithm as one process on one cpu core as a big</span>
-<span class="sd">        while-loop**</span>
+<span class="sd">        **Runs the dsp algorithm.**</span>
 
-<span class="sd">        | The steps of the loop are:</span>
-<span class="sd">        | 1. Lock shared variables.</span>
-<span class="sd">        | 2. Set the begin and end of the speaker wave block which needs to</span>
-<span class="sd">          be read in this iteration.</span>
-<span class="sd">        | 3. Iterate over all active speakers sp.</span>
-<span class="sd">        | 4. Mix binaural stereo blockoutput of every speaker to one binaural</span>
+<span class="sd">        The method ist called as single processing</span>
+<span class="sd">        thread from gui_main_window. It uses a while loop, which generates</span>
+<span class="sd">        block by block a mixed binaural output for multiple input speaker</span>
+<span class="sd">        wave files. For this 3 hrtf databases can be chosen in Gui Main</span>
+<span class="sd">        Window. After the block buffer size, which can be specified in</span>
+<span class="sd">        gui_main_window, it generates a second thread which starts the playback</span>
+<span class="sd">        of the generated binaural blocks with PortAudio. The algorithm</span>
+<span class="sd">        can be stopped and paused through GUI Main Window by using a shared</span>
+<span class="sd">        state object, which is controlled by mutex access</span>
+
+<span class="sd">        | The steps of the while loop are:</span>
+<span class="sd">        | 1. Lock variables which are accessible through state class by gui and</span>
+<span class="sd">          dsp algorithm</span>
+<span class="sd">        | 2. Set the common begin and end sample position in the speaker wave</span>
+<span class="sd">          files input which needs to be read in this iteration.</span>
+<span class="sd">        | 3. Iterate over all speakers sp.</span>
+<span class="sd">        | 4. Read in current fitting hrtf for left and right ear and speaker</span>
+<span class="sd">          block input</span>
+<span class="sd">        | 5. Convolve hrtfs with speaker block input using fft and overlap add</span>
+<span class="sd">        | 6. Mix binaural stereo blockoutput of every speaker to one binaural</span>
 <span class="sd">          stereo block output having regard to speaker distances.</span>
-<span class="sd">        | 5. Mix binaural stereo blockoutput of every speaker.</span>
-<span class="sd">        | 6. Add mixed binaural stereo block to play queue.</span>
-<span class="sd">        | 7. Unlock shared variables.</span>
-<span class="sd">        | 8. Synchronize with PortAudio Playback Thread</span>
-<span class="sd">        | 9. Finish DSP Algorithm.</span>
+<span class="sd">        | 7. Add mixed binaural stereo block to play queue</span>
+<span class="sd">        | 8. Unlock shared variables.</span>
+<span class="sd">        | 9. Read play queue by PortAudio playback thread</span>
+<span class="sd">        | 10. If selected in GUI MainWindow: records the binaural output to a</span>
+<span class="sd">          wave file</span>
+<span class="sd">        | 11. Finish DSP Algorithm, reset play and pause button</span>
 
 <span class="sd">        Authors: Felix Pfreundtner, Matthias Lederle</span>
 <span class="sd">        &quot;&quot;&quot;</span>

@@ -16,20 +16,22 @@ class DspOut:
     """
     DspOut
     ************************
-    This class contains all otuput related variables and methods.
+    **This class contains all otuput related variables and methods for
+    the dsp algorithm.**
+
     It enables the overlap add algorithm and mix all binaural speaker
     output arrays to one final binaural output block. It holds the
     PortAudio methods, which are called through a Callback Thread. It also
     enables the interaction between DSP Thread and PortAudio Thread.
+
+    Authors: Felix Pfreundtner, Matthias Lederle
     """
     def __init__(self, state_init, fft_blocksize, hopsize):
         """
-        __init__
-        ===================
-        ** __init__ is called by DSP and creates all variables which
+        **__init__ is called by DSP and creates all variables which
         are relevant for the output part of DSP run() method's while loop.
         It setups up the format of the output block related varialbles and
-        provides the playqueue and record queue. **
+        provides the playqueue and record queue.**
 
         Authors: Felix  Pfreundtner, Matthias Lederle
         """

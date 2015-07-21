@@ -47,6 +47,9 @@
           <div class="body" role="main">
             
   <h1>Source code for headtracker_dt2</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c"># Author: Marko Durkovic</span>
 <span class="kn">import</span> <span class="nn">socket</span>
 
 <span class="n">HOST</span> <span class="o">=</span> <span class="s">&#39;artrack.clients.ldv.ei.tum.de&#39;</span>
@@ -64,7 +67,7 @@
 <span class="sd">    Author: Marko Durkovic</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="DT2.__init__"><a class="viewcode-back" href="../index.html#headtracker_dt2.DT2.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tcp</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tcp</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tcp</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="n">HOST</span><span class="p">,</span> <span class="n">PORT</span><span class="p">))</span>
@@ -77,7 +80,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sendreceive</span><span class="p">(</span><span class="s">&#39;dtrack2 init&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sendreceive</span><span class="p">(</span><span class="s">&#39;dtrack2 set output net ch01 udp my_ip </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">UDPPORT</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sendreceive</span><span class="p">(</span><span class="s">&#39;dtrack2 tracking start&#39;</span><span class="p">)</span>
-
+</div>
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sendreceive</span><span class="p">(</span><span class="s">&#39;dtrack2 tracking stop&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sendreceive</span><span class="p">(</span><span class="s">&#39;dtrack2 set output net ch01 udp my_ip none&#39;</span><span class="p">)</span>

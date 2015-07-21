@@ -77,24 +77,54 @@
 <dt id="dsp.Dsp">
 <em class="property">class </em><code class="descclassname">dsp.</code><code class="descname">Dsp</code><span class="sig-paren">(</span><em>state_init</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp.html#Dsp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp.Dsp" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Main class of the project&#8217;s Digital Signal Processing part.</strong></p>
+<p>This class holds variables and methods which enable the build of the
+binaural output. It holds one instance of the DspIn and DspOut class.
+The run() function is called by GUI Main Window as Thread and generates
+block by block a binaural audio output and sends it to a playback queue
+which is read by a PortAudio Callback Thread. To reach a higher
+performance the __init__ of the DspIn and DspOut class perform many time
+intensive calculations before starting the run() function of this class. **</p>
+<dl class="method">
+<dt id="dsp.Dsp.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>state_init</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp.html#Dsp.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp.Dsp.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>__init__ is called by GUI MainWindow and creates all variables which
+are relevant for the run()method&#8217;s while loop. It also creates one
+instance of the DspIn and DspOut class,  which provides all functions
+and variables need to generate the binaural block output.</strong></p>
+<p>Authors: Felix Pfreundtner, Matthias Lederle</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="dsp.Dsp.run">
 <code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp.html#Dsp.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp.Dsp.run" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Runs the dsp algorithm as one process on one cpu core as a big
-while-loop</strong></p>
+<dd><p><strong>Runs the dsp algorithm.</strong></p>
+<p>The method ist called as single processing
+thread from gui_main_window. It uses a while loop, which generates
+block by block a mixed binaural output for multiple input speaker
+wave files. For this 3 hrtf databases can be chosen in Gui Main
+Window. After the block buffer size, which can be specified in
+gui_main_window, it generates a second thread which starts the playback
+of the generated binaural blocks with PortAudio. The algorithm
+can be stopped and paused through GUI Main Window by using a shared
+state object, which is controlled by mutex access</p>
 <div class="line-block">
-<div class="line">The steps of the loop are:</div>
-<div class="line">1. Lock shared variables.</div>
-<div class="line">2. Set the begin and end of the speaker wave block which needs to
-be read in this iteration.</div>
-<div class="line">3. Iterate over all active speakers sp.</div>
-<div class="line">4. Mix binaural stereo blockoutput of every speaker to one binaural
+<div class="line">The steps of the while loop are:</div>
+<div class="line">1. Lock variables which are accessible through state class by gui and
+dsp algorithm</div>
+<div class="line">2. Set the common begin and end sample position in the speaker wave
+files input which needs to be read in this iteration.</div>
+<div class="line">3. Iterate over all speakers sp.</div>
+<div class="line">4. Read in current fitting hrtf for left and right ear and speaker
+block input</div>
+<div class="line">5. Convolve hrtfs with speaker block input using fft and overlap add</div>
+<div class="line">6. Mix binaural stereo blockoutput of every speaker to one binaural
 stereo block output having regard to speaker distances.</div>
-<div class="line">5. Mix binaural stereo blockoutput of every speaker.</div>
-<div class="line">6. Add mixed binaural stereo block to play queue.</div>
-<div class="line">7. Unlock shared variables.</div>
-<div class="line">8. Synchronize with PortAudio Playback Thread</div>
-<div class="line">9. Finish DSP Algorithm.</div>
+<div class="line">7. Add mixed binaural stereo block to play queue</div>
+<div class="line">8. Unlock shared variables.</div>
+<div class="line">9. Read play queue by PortAudio playback thread</div>
+<div class="line">10. If selected in GUI MainWindow: records the binaural output to a
+wave file</div>
+<div class="line">11. Finish DSP Algorithm, reset play and pause button</div>
 </div>
 <p>Authors: Felix Pfreundtner, Matthias Lederle</p>
 </dd></dl>
@@ -107,19 +137,30 @@ stereo block output having regard to speaker distances.</div>
 <dl class="class">
 <dt id="dsp_in.DspIn">
 <em class="property">class </em><code class="descclassname">dsp_in.</code><code class="descname">DspIn</code><span class="sig-paren">(</span><em>state_init</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn" title="Permalink to this definition">¶</a></dt>
-<dd><p>This class contains all functions executed before the convolution in
-the run-function of the Dsp-class. This includes particularly to read
-parameters of blocks and hrtfs, to read blocks and hrtfs from their
-databases, to normalize hrtfs, round numbers and to create all necessary
-kinds of windows.</p>
+<dd><p><strong>This class contains all input related variables and methods for
+the dsp algorithm.</strong></p>
+<p>It reads in all speaker wave files and hrtf databases and set up the main
+parameters for FFT. It applies a Hanning window to Speakerinput and
+provides a method to convolve the hrtf impulse response with the speaker
+input in FFT Frequency domain.</p>
+<p>Authors: Felix Pfreundtner, Matthias Lederle</p>
+<dl class="method">
+<dt id="dsp_in.DspIn.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>state_init</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>__init__ is called by DSP and creates all variables which
+are relevant for the input part of DSP run() method&#8217;s while loop. It
+sets up Parameters for the FFT. It also sets up parameters for the read
+in of the HRTF and Speaker wave files. After setting up all parameters
+it reads in all speaker wave files. It also reads in the HRTF
+Database which was selected by the GUI MainWindow and brings it for
+higher algorithm performance directly into Frequency Domain with FFT.</strong></p>
+<p>Authors: Felix Pfreundtner, Matthias Lederle</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="dsp_in.DspIn.apply_window_on_sp_block">
 <code class="descname">apply_window_on_sp_block</code><span class="sig-paren">(</span><em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.apply_window_on_sp_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.apply_window_on_sp_block" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Gets and reads the correct hrtf_file from database.</strong></p>
-<p>If the input-flag normalize_flag_sp is True, measure the maximum
-amplitude occurring in the .wav-file. After that, reduce all
-entries of sp_block by the ratio that decreases the max value
-to 2^15-1</p>
+<dd><p><strong>Applys the Hann Window to the input speaker block.</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
@@ -137,11 +178,12 @@ sp_blocksize.</strong></p>
 <dt id="dsp_in.DspIn.fft_convolution">
 <code class="descname">fft_convolution</code><span class="sig-paren">(</span><em>sp</em>, <em>l_r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.fft_convolution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.fft_convolution" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Function convolves hrtf and data of the music file.</strong></p>
-<p>Function takes one hrtf block and one data block (their size is
-defined by fft_blocksize), normalizes their values to int16-signals
-and then executes the convolution. After that, the signal is
-retransformed to  time-domain and normalized again. The final
-values are written then to the sp_binaural_block.</p>
+<p>Method takes one hrtf block (left or right) and one data block,
+zeropadds them to fft_blocksize and executes the FFT Fast convolution.
+After that, the signal is retransformed to time-domain and
+normalized. The final values are written then to the sp_binaural_block.
+The method also saves the magnitude spectrum values for GUI Spectrum
+Plot in the state object.</p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
@@ -150,13 +192,13 @@ values are written then to the sp_binaural_block.</p>
 <code class="descname">get_block_param</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_block_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_block_param" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Calculates blocksize and blocktime.</strong></p>
 <p>This method uses the parameters of the input wav-file and the
-blocksizes of the fft and the hrtf to calculate the blocksize and
-blocktime needed from the speaker.</p>
+blocksizes of the fft and the hrtf to calculate the blocksize
+needed for the speaker.</p>
 <p>Return values:</p>
 <ul>
 <li><p class="first">sp_blocksize: Amount of samples taken from the input file per block</p>
 </li>
-<li><p class="first">sp_blocktime: Time it takes to play one block in [s]</p>
+<li><p class="first">sp_blocktime: Time it takes to play one input block in [s]</p>
 </li>
 <li><dl class="first docutils">
 <dt>overlap: overlap between two binaural output blocks in decimal</dt>
@@ -171,7 +213,8 @@ blocktime needed from the speaker.</p>
 <dl class="method">
 <dt id="dsp_in.DspIn.get_hrtf_block_fft">
 <code class="descname">get_hrtf_block_fft</code><span class="sig-paren">(</span><em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_hrtf_block_fft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_hrtf_block_fft" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Gets and reads the correct hrtf_file from database.</strong></p>
+<dd><p><strong>Gets and reads the correct hrtf_file from database dependend on the
+current azimuth angle position shown in the GUI MainWindow.</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
@@ -179,23 +222,24 @@ blocktime needed from the speaker.</p>
 <dt id="dsp_in.DspIn.get_hrtf_param">
 <code class="descname">get_hrtf_param</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_hrtf_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_hrtf_param" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Get all parameters for the hrtf set by the settings in gui.</strong></p>
-<p>This function calculates all necessary parameters of the hrtf to be
+<p>This method calculates all necessary parameters of the hrtf to be
 later able to get the correct hrtf-files for the convolution with
 the speaker-file signal.</p>
 <p>Return values:</p>
 <ul class="simple">
-<li>hrtf_blocksize: Simply set to default value 513 since</li>
+<li>hrtf_blocksize: Set to default value 513 since</li>
 </ul>
 <p>fft_blocksize is defaulted to 1024
-* kemar_inverse_filter: Boolean value that tells whether check-box
-in gui was activated or not</p>
+* kemar_inverse_filter: Boolean value that tells whether
+Measurement inverse filter check-box in gui was activated or not</p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dsp_in.DspIn.get_sp_block">
 <code class="descname">get_sp_block</code><span class="sig-paren">(</span><em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.get_sp_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.get_sp_block" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Gets the current block for the speaker.</strong></p>
+<dd><p><strong>Gets the block for the speaker sp dependent on the current
+position block_begin_end in the complete wave file.</strong></p>
 <p>Return value:</p>
 <ul class="simple">
 <li>Continue input: Boolean that tells whether its the last block of</li>
@@ -207,7 +251,8 @@ in gui was activated or not</p>
 <dl class="method">
 <dt id="dsp_in.DspIn.hrtf_database_fft">
 <code class="descname">hrtf_database_fft</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.hrtf_database_fft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.hrtf_database_fft" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Converts the whole HRTF-database in frequency domain.</strong></p>
+<dd><p><strong>Converts the whole selected HRTF-database in frequency domain with
+FFT.</strong></p>
 <p>Return values:</p>
 <ul class="simple">
 <li>hrtf_database_fft: The HRTF database converted to frequency domain.</li>
@@ -219,7 +264,7 @@ in gui was activated or not</p>
 <dt id="dsp_in.DspIn.init_read_sp">
 <code class="descname">init_read_sp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.init_read_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.init_read_sp" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Get 10 important parameters of the files to be played by the
-get_block_function.</strong></p>
+get_block_method.</strong></p>
 <p>This method gets all important data from the .wav files that will
 be played by the speakers. The output is another list called sp_param,
 which holds one of the properties as values for each speaker given
@@ -236,11 +281,11 @@ by the gui_sp.</p>
 <dt id="dsp_in.DspIn.init_set_block_begin_end">
 <code class="descname">init_set_block_begin_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.init_set_block_begin_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.init_set_block_begin_end" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Initializes a list with the number of the first and last sample
-of the first block.</strong></p>
-<p>This function calculates a list called block_begin_end containing
-two elements: [0] is the first sample of the first block, [1] is
-the last sample of the first block; The entries of following block
-will then be calculated by the set_block_begin_end-function.</p>
+which needs to be read in from speaker input files.</strong></p>
+<p>This method calculates a list called block_begin_end containing
+two elements: [0] is the first sample of the block, [1] is
+the last sample of the block; The entries of following block
+will then be calculated by the set_block_begin_end-method.</p>
 <p>Return value:</p>
 <ul>
 <li><dl class="first docutils">
@@ -256,7 +301,7 @@ will then be calculated by the set_block_begin_end-function.</p>
 <dl class="method">
 <dt id="dsp_in.DspIn.normalize">
 <code class="descname">normalize</code><span class="sig-paren">(</span><em>sp</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.normalize" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Gets and reads the correct hrtf_file from database.</strong></p>
+<dd><p><strong>Normalizes the audio input.</strong></p>
 <p>If the input-flag normalize_flag_sp is True, measure the maximum
 amplitude occurring in the .wav-file. After that, reduce all
 entries of sp_block by the ratio that decreases the max value
@@ -270,9 +315,10 @@ to 2^15-1</p>
 <dd><p><strong>Preloads all hrtf Files.</strong></p>
 <p>Return values:</p>
 <ul class="simple">
-<li>hrtf_database: A numpy array that contains either the</li>
+<li>hrtf_database: A numpy array that contains either all azimut hrtf</li>
 </ul>
-<p>kemar_normal_ear or the kemar_full_ear HRTFs.</p>
+<p>impulse responses of the
+kemar_normal_ear, kemar_big_ear or the kemar_compact HRTF Database.</p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
@@ -280,10 +326,9 @@ to 2^15-1</p>
 <dt id="dsp_in.DspIn.read_sp">
 <code class="descname">read_sp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.read_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.read_sp" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Reads one block of samples.</strong></p>
-<p>This method reads a block of samples of a speaker-.wav-file and
-writes in a numpyarray sp_block[sp] (containing one 16-bit-int
-for each sample) and a flag that tells whether the end of the file
-is reached or not. This function will be applied in the while loop
+<p>This method reads all samples of all speaker-.wav-files and
+writes them in a numpyarray sp_block[sp] (containing one 16-bit-int
+for each sample). This method will be applied before the while loop
 of the dsp-class: I.e. a optimum performance is required.</p>
 <p>Author: Matthias Lederle</p>
 </dd></dl>
@@ -292,7 +337,7 @@ of the dsp-class: I.e. a optimum performance is required.</p>
 <dt id="dsp_in.DspIn.rnd">
 <code class="descname">rnd</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.rnd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.rnd" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Rounds numbers arithmetically.</strong></p>
-<p>This function does a normal school arithmetic round (choose lower
+<p>This method does a normal school arithmetic round (choose lower
 int until .4 and higher int from .5 on) and returns the rounded
 value. It is NOT equal to pythons round() method.</p>
 <p>Return values:</p>
@@ -305,10 +350,11 @@ value. It is NOT equal to pythons round() method.</p>
 <dl class="method">
 <dt id="dsp_in.DspIn.set_block_begin_end">
 <code class="descname">set_block_begin_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.set_block_begin_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.set_block_begin_end" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Every while-loop the number of the first and last sample is
+<dd><p><strong>In every iteration of the while loop the number of the new first and
+last sample which needs to be read in from speaker input files is
 calculated.</strong></p>
-<p>This function replaces the values set by the
-init_set_block_begin_end-function every while-loop according to the
+<p>This method replaces the values set by the
+init_set_block_begin_end-method every while-loop according to the
 current location in the speaker-file that needs to be read. Since
 the values are replaced, there are no input and output variables.</p>
 <p>Author: Felix Pfreundtner</p>
@@ -317,7 +363,8 @@ the values are replaced, there are no input and output variables.</p>
 <dl class="method">
 <dt id="dsp_in.DspIn.set_fftfreq">
 <code class="descname">set_fftfreq</code><span class="sig-paren">(</span><em>fft_blocksize</em>, <em>samplerate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_in.html#DspIn.set_fftfreq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_in.DspIn.set_fftfreq" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Sets the frequency of the Fast-Fourier-Transformation.</strong></p>
+<dd><p><strong>Sets a array with frequencies points of the
+Fast-Fourier-Transformation which is used in GUI Spectrum Plot.</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
@@ -329,7 +376,24 @@ the values are replaced, there are no input and output variables.</p>
 <dl class="class">
 <dt id="dsp_out.DspOut">
 <em class="property">class </em><code class="descclassname">dsp_out.</code><code class="descname">DspOut</code><span class="sig-paren">(</span><em>state_init</em>, <em>fft_blocksize</em>, <em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p><strong>This class contains all otuput related variables and methods for
+the dsp algorithm.</strong></p>
+<p>It enables the overlap add algorithm and mix all binaural speaker
+output arrays to one final binaural output block. It holds the
+PortAudio methods, which are called through a Callback Thread. It also
+enables the interaction between DSP Thread and PortAudio Thread.</p>
+<p>Authors: Felix Pfreundtner, Matthias Lederle</p>
+<dl class="method">
+<dt id="dsp_out.DspOut.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>state_init</em>, <em>fft_blocksize</em>, <em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>__init__ is called by DSP and creates all variables which
+are relevant for the output part of DSP run() method&#8217;s while loop.
+It setups up the format of the output block related varialbles and
+provides the playqueue and record queue.</strong></p>
+<p>Authors: Felix  Pfreundtner, Matthias Lederle</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="dsp_out.DspOut.add_to_playqueue">
 <code class="descname">add_to_playqueue</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.add_to_playqueue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut.add_to_playqueue" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Sends the created binaural block of the dsp thread to the play
@@ -350,21 +414,28 @@ is read by writerecordfile().</p>
 <dl class="method">
 <dt id="dsp_out.DspOut.audiooutput">
 <code class="descname">audiooutput</code><span class="sig-paren">(</span><em>samplerate</em>, <em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.audiooutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut.audiooutput" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Streams the calculated files as a output signal.</strong></p>
+<dd><dl class="docutils">
+<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>Starts a PortAudio Stream and handles play and pause button presses</dt>
+<dd>through the user in GUI MainWindow.**</dd>
+</dl>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dsp_out.DspOut.callback">
 <code class="descname">callback</code><span class="sig-paren">(</span><em>in_data</em>, <em>frame_count</em>, <em>time_info</em>, <em>status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut.callback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Author: Felix Pfreundtner</p>
+<dd><p>** Plays the audio blocks. The function is always called by PortAudio
+when a new block is needed. The blocks are exchanged between DSP Thread</p>
+<blockquote>
+<div>and Play Thread through a Queue playqueue **</div></blockquote>
+<p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dsp_out.DspOut.mix_binaural_block">
 <code class="descname">mix_binaural_block</code><span class="sig-paren">(</span><em>hopsize</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_out.html#DspOut.mix_binaural_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_out.DspOut.mix_binaural_block" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Calculate the signal for all speakers taking into account the
-distance to the speakers.</strong></p>
+<dd><p><strong>Calculate a mixed binaural output for all speakers taking into
+account the distance of the head to each speaker.</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
@@ -393,11 +464,17 @@ convolution to linear convolution)</p>
 <dl class="class">
 <dt id="dsp_tests.DspTests">
 <em class="property">class </em><code class="descclassname">dsp_tests.</code><code class="descname">DspTests</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Testclass for all Dsp-Classes of the project.</strong></p>
+<dd><p><strong>Testclass for all Dsp-Classes (Dsp, DspIn, DspOut) of the project.</strong></p>
+<p>Authors: Felix Pfreundtner, Matthias Lederle</p>
+<dl class="method">
+<dt id="dsp_tests.DspTests.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_fft_blocksize">
 <code class="descname">test_fft_blocksize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_fft_blocksize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_fft_blocksize" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Check whether fft_blocksize is calculated correct by dsp algorithm</strong></p>
+<dd><p><strong>Test whether fft_blocksize is calculated correct by dsp algorithm</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
@@ -411,7 +488,7 @@ convolution to linear convolution)</p>
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_get_sp_block_1_out_of_file">
 <code class="descname">test_get_sp_block_1_out_of_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_get_sp_block_1_out_of_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_get_sp_block_1_out_of_file" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Check whether sp block is zeropadded to sp_blocksize when a block
+<dd><p><strong>Test whether sp block is zeropadded to sp_blocksize when a block
 position higher than samplenumber (sp_param[sp][0]) is adressed</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
@@ -419,7 +496,7 @@ position higher than samplenumber (sp_param[sp][0]) is adressed</strong></p>
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_get_sp_block_in_file">
 <code class="descname">test_get_sp_block_in_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_get_sp_block_in_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_get_sp_block_in_file" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Check whether the read in block size of a speaker for different
+<dd><p><strong>Test whether the read in block size of a speaker for different
 positions in the the whole sp file is correct</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
@@ -442,29 +519,37 @@ hamming-window.</p>
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_hrtf_blocksize">
 <code class="descname">test_hrtf_blocksize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_hrtf_blocksize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_hrtf_blocksize" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Check whether hrtf_blocksize is calculated correct by dsp algorithm</strong></p>
+<dd><p><strong>Test whether hrtf_blocksize is calculated correct by dsp algorithm</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_init_read_sp">
 <code class="descname">test_init_read_sp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_init_read_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_init_read_sp" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Check whether init_read_sp() gives out the sample samplerate as
+<dd><p><strong>Test whether init_read_sp() gives out the sample samplerate as
 scipy.io.wavfile.read()</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dsp_tests.DspTests.test_init_set_block_begin_end">
-<code class="descname">test_init_set_block_begin_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_init_set_block_begin_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_init_set_block_begin_end" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Tests get_block_param by comparing two lists.</strong></p>
+<dt id="dsp_tests.DspTests.test_init_set_block_begin_end_1">
+<code class="descname">test_init_set_block_begin_end_1</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_init_set_block_begin_end_1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_init_set_block_begin_end_1" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Compare init_set_block_begin_end() output with correct values for
+initialization of block_begin_end.</strong></p>
+<p>Author: Felix Pfreundtner</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsp_tests.DspTests.test_init_set_block_begin_end_2">
+<code class="descname">test_init_set_block_begin_end_2</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_init_set_block_begin_end_2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_init_set_block_begin_end_2" title="Permalink to this definition">¶</a></dt>
+<dd><p><strong>Tests init_set_block_begin_end by comparing two lists.</strong></p>
 <p>Author: Matthias Lederle</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_kemar_inverse_filter">
 <code class="descname">test_kemar_inverse_filter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_kemar_inverse_filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_kemar_inverse_filter" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Check whether a deactivated kemar compact inverse measurement
+<dd><p><strong>Test whether a deactivated kemar compact inverse measurement
 speaker filter in gui leads to an filter full of zeros in dsp
 algorithm ( kemar compact already includes the inverse speaker
 filter)</strong></p>
@@ -474,17 +559,15 @@ filter)</strong></p>
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_mix_binaural_block">
 <code class="descname">test_mix_binaural_block</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_mix_binaural_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_mix_binaural_block" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt><a href="#id1"><span class="problematic" id="id2">**</span></a>Checks whether final binaural block output has a higher amplitude</dt>
-<dd>than int16 maximum allows, which would lead to clipping in PortAudio**</dd>
-</dl>
+<dd><p><strong>Test whether final binaural block output has a higher amplitude
+than int16 maximum allows, which would lead to clipping in PortAudio</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_normalize">
 <code class="descname">test_normalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_normalize" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Check whether the speaker blocks are correctly normalized to
+<dd><p><strong>Test whether the speaker blocks are correctly normalized to
 maximum int 16 amplitude</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
@@ -492,14 +575,14 @@ maximum int 16 amplitude</strong></p>
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_overlap">
 <code class="descname">test_overlap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_overlap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_overlap" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Check whether overlap is calculated correct by dsp algorithm</strong></p>
+<dd><p><strong>Test whether overlap is calculated correct by dsp algorithm</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_overlap_add">
 <code class="descname">test_overlap_add</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_overlap_add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_overlap_add" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Checks wether overlap add algorithm calculates the correct block
+<dd><p><strong>Tests whether overlap add algorithm calculates the correct block
 output sizes</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
@@ -507,7 +590,7 @@ output sizes</strong></p>
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_read_sp">
 <code class="descname">test_read_sp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_read_sp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_read_sp" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Compare get_sp-function to scipy-function-results.</strong></p>
+<dd><p><strong>Compare get_sp-method to scipy-method-results.</strong></p>
 <p>Author: Matthias Lederle</p>
 </dd></dl>
 
@@ -528,7 +611,7 @@ output sizes</strong></p>
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_set_block_begin_end">
 <code class="descname">test_set_block_begin_end</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_set_block_begin_end"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_set_block_begin_end" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Tests the set_block_begin_end function for correctness.</strong></p>
+<dd><p><strong>Tests the set_block_begin_end method for correctness.</strong></p>
 <p>Author: Matthias Lederle</p>
 </dd></dl>
 
@@ -536,7 +619,7 @@ output sizes</strong></p>
 <dt id="dsp_tests.DspTests.test_set_fftfreq">
 <code class="descname">test_set_fftfreq</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_set_fftfreq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_set_fftfreq" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
-<dt><a href="#id3"><span class="problematic" id="id4">**</span></a>Checks wether calculates the correct number of fft frequency values</dt>
+<dt><a href="#id3"><span class="problematic" id="id4">**</span></a>Tests whether calculates the correct number of fft frequency values</dt>
 <dd>for given input paramaters**</dd>
 </dl>
 <p>Author: Felix Pfreundtner</p>
@@ -545,7 +628,7 @@ output sizes</strong></p>
 <dl class="method">
 <dt id="dsp_tests.DspTests.test_sp_blocksize">
 <code class="descname">test_sp_blocksize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dsp_tests.html#DspTests.test_sp_blocksize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dsp_tests.DspTests.test_sp_blocksize" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>Check whether sp_blocksize is calculated correct by dsp algorithm</strong></p>
+<dd><p><strong>Test whether sp_blocksize is calculated correct by dsp algorithm</strong></p>
 <p>Author: Felix Pfreundtner</p>
 </dd></dl>
 
@@ -560,6 +643,11 @@ output sizes</strong></p>
 <dd><p><strong>This class sets up the main window which includes all necessaries to
 start/stop and control the DSP algorithm. It also includes all user 
 interactions, corresponding functions and executing and updating these.</strong></p>
+<dl class="method">
+<dt id="gui_main_window.MainWindow.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="gui_main_window.MainWindow.add2scene">
 <code class="descname">add2scene</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_main_window.html#MainWindow.add2scene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_main_window.MainWindow.add2scene" title="Permalink to this definition">¶</a></dt>
@@ -695,8 +783,13 @@ displayed in the SequencePlot widget.</strong></p>
 <dl class="class">
 <dt id="gui_utils.State">
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">State</code><a class="reference internal" href="_modules/gui_utils.html#State"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.State" title="Permalink to this definition">¶</a></dt>
-<dd><p><strong>This is an exchange class for variables which are read and written by
-the DSP algorithm and all GUI applications.</strong></p>
+<dd><p><strong>This is an exchange class for variables which are exchanged between DSP
+algorithm and all GUI applications and the corresponding mutex locks.</strong></p>
+<dl class="method">
+<dt id="gui_utils.State.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#State.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.State.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="gui_utils.State.check_error">
 <code class="descname">check_error</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#State.check_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.State.check_error" title="Permalink to this definition">¶</a></dt>
@@ -736,6 +829,11 @@ remembers the state and transfers to a DSP command.</strong></p>
 The networking interface from where the data can be extracced is
 initialized and thus the azimuthal angle can be read out.</p>
 <dl class="method">
+<dt id="gui_utils.Headtracker.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Headtracker.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Headtracker.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="gui_utils.Headtracker.cal_head_deg">
 <code class="descname">cal_head_deg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Headtracker.cal_head_deg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Headtracker.cal_head_deg" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This function calls the azimuth_angle function of DT2 object.</strong>
@@ -760,6 +858,11 @@ with the headtracker setup</strong></p>
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">Item</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Item" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This class defines items inside the QGraphicsScene,
 including Speaker and Audience.</strong></p>
+<dl class="method">
+<dt id="gui_utils.Item.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Item.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Item.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="gui_utils.Item.mouseMoveEvent">
 <code class="descname">mouseMoveEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Item.mouseMoveEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Item.mouseMoveEvent" title="Permalink to this definition">¶</a></dt>
@@ -792,6 +895,11 @@ connection with items.</strong> The Cursor symbol is changed.</p>
 <dd><p><strong>This class defines the QGraphicsScene on which the items are displayed
 and handeled.</strong>
 * current_item: Indexes the item which is selected.</p>
+<dl class="method">
+<dt id="gui_utils.Room.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Room.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Room.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="gui_utils.Room.dragMoveEvent">
 <code class="descname">dragMoveEvent</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Room.dragMoveEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Room.dragMoveEvent" title="Permalink to this definition">¶</a></dt>
@@ -838,6 +946,11 @@ The item at the respective mouse event position is noticed.</p>
 <dd><p><strong>This class is responsible for displaying the contents of on the
 Room.</strong></p>
 <dl class="method">
+<dt id="gui_utils.View.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>state</em>, <em>scene</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#View.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.View.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="gui_utils.View.dragEnterEvent">
 <code class="descname">dragEnterEvent</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#View.dragEnterEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.View.dragEnterEvent" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>This function defines the effect of drag enter event on the view.</strong></p>
@@ -877,6 +990,11 @@ Room.</strong></p>
 <em class="property">class </em><code class="descclassname">gui_utils.</code><code class="descname">SignalHandler</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SignalHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SignalHandler" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Signal handler class for QGraphicsItem</strong>
 This doesn&#8217;t provide the signal/slot function.</p>
+<dl class="method">
+<dt id="gui_utils.SignalHandler.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SignalHandler.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SignalHandler.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -888,6 +1006,11 @@ This doesn&#8217;t provide the signal/slot function.</p>
 <dd><p><strong>This subclass is defining speaker items.</strong>
 * type: defines the type of the initialized item
 * path: defines the selected path of the .wav file</p>
+<dl class="method">
+<dt id="gui_utils.Speaker.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>state</em>, <em>index</em>, <em>path</em>, <em>posx=0</em>, <em>posy=0</em>, <em>norm=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Speaker.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Speaker.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="gui_utils.Speaker.cal_rel_pos">
 <code class="descname">cal_rel_pos</code><span class="sig-paren">(</span><em>head_deg=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Speaker.cal_rel_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Speaker.cal_rel_pos" title="Permalink to this definition">¶</a></dt>
@@ -920,6 +1043,11 @@ An audience item represents the relative user position,
 without headtracker in the QGraphicsScene.
 <a href="#id7"><span class="problematic" id="id8">*</span></a>type: selects the type of item.
 <a href="#id9"><span class="problematic" id="id10">*</span></a>origin_image: selects the image representing the audience in the room.</p>
+<dl class="method">
+<dt id="gui_utils.Audience.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#Audience.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.Audience.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -937,6 +1065,11 @@ adding it to the scene and afterwards by double click on the speaker item.
 functions.
 <a href="#id13"><span class="problematic" id="id14">*</span></a>posx = horizontal position of the respective speaker item
 <a href="#id15"><span class="problematic" id="id16">*</span></a>posy = vertical position of the respective speaker item</p>
+<dl class="method">
+<dt id="gui_utils.SpeakerProperty.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SpeakerProperty.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SpeakerProperty.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="gui_utils.SpeakerProperty.browse">
 <code class="descname">browse</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SpeakerProperty.browse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SpeakerProperty.browse" title="Permalink to this definition">¶</a></dt>
@@ -992,6 +1125,11 @@ GLPlotWidget was preferred over Matplotlib due to performance. The plot
 is imported from gui_plot.py.
 <a href="#id17"><span class="problematic" id="id18">*</span></a>plot_on: Signal to communicate wheter the plot widget is open.</p>
 <dl class="method">
+<dt id="gui_utils.SequencePlot.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SequencePlot.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SequencePlot.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="gui_utils.SequencePlot.closeEvent">
 <code class="descname">closeEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_utils.html#SequencePlot.closeEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_utils.SequencePlot.closeEvent" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Function used with manual closing of the SequencePlot window.</strong></p>
@@ -1008,6 +1146,11 @@ is imported from gui_plot.py.
 <dd><p><strong>This class sets up a GLPlot used for real-time plotting of the
 speaker and HRTF seuqences during the DSP algorithm is running as an
 additional feature in the MainWindow.</strong></p>
+<dl class="method">
+<dt id="gui_plot.GLPlotWidget.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_plot.GLPlotWidget.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="gui_plot.GLPlotWidget.initializeGL">
 <code class="descname">initializeGL</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_plot.html#GLPlotWidget.initializeGL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_plot.GLPlotWidget.initializeGL" title="Permalink to this definition">¶</a></dt>
@@ -1059,6 +1202,11 @@ data.</strong></p>
 <em class="property">class </em><code class="descclassname">gui_tests.</code><code class="descname">GuiTests</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests" title="Permalink to this definition">¶</a></dt>
 <dd><p><strong>Test class for GUI.</strong>
 Athor: Huijiang, Manuela</p>
+<dl class="method">
+<dt id="gui_tests.GuiTests.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="gui_tests.GuiTests.test_get_abs_pos">
 <code class="descname">test_get_abs_pos</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gui_tests.html#GuiTests.test_get_abs_pos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui_tests.GuiTests.test_get_abs_pos" title="Permalink to this definition">¶</a></dt>
@@ -1127,6 +1275,11 @@ values.</strong></p>
 package socket to extract information gained by an ARTTRACK tracking
 system.</strong>
 Author: Marko Durkovic</p>
+<dl class="method">
+<dt id="headtracker_dt2.DT2.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_dt2.html#DT2.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_dt2.DT2.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="headtracker_dt2.DT2.angle">
 <code class="descname">angle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/headtracker_dt2.html#DT2.angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#headtracker_dt2.DT2.angle" title="Permalink to this definition">¶</a></dt>

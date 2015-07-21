@@ -47,8 +47,9 @@
           <div class="body" role="main">
             
   <h1>Source code for gui_utils</h1><div class="highlight"><pre>
-<span class="c"># Library for GUI of Audio 3D Project, Group B</span>
-<span class="c"># Author: H. Zhu, M. Heiss</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c"># Author: Huaijiang Zhu, Manuela Heiss</span>
 
 <span class="kn">from</span> <span class="nn">PySide</span> <span class="kn">import</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtGui</span>
 <span class="kn">from</span> <span class="nn">audio3d.gui_plot</span> <span class="kn">import</span> <span class="n">GLPlotWidget</span>
@@ -63,20 +64,38 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    H1 -- State</span>
 <span class="sd">    ************************</span>
-<span class="sd">    **This is an exchange class for variables which are read and written by</span>
-<span class="sd">    the DSP algorithm and all GUI applications.**</span>
+<span class="sd">    **This is an exchange class for variables which are exchanged between DSP</span>
+<span class="sd">    algorithm and all GUI applications and the corresponding mutex locks.**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="State.__init__"><a class="viewcode-back" href="../index.html#gui_utils.State.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">State</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="c"># variables which are shared between gui and dsp algorithm</span>
+        <span class="c"># at creation of the dsp object in GUI MainWindow play() the dsp thread</span>
+        <span class="c"># gets access to the same instance which gui thread uses</span>
+
+        <span class="c"># list with a dictionary for every speaker, which saves current</span>
+        <span class="c"># azimuth angle between head and speaker position, the distance</span>
+        <span class="c"># to the head, the file path to the speaker wave input file and an</span>
+        <span class="c"># information whether normalize box was checked</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gui_sp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># in this variable is saved how many bufferblocks are selected,</span>
+        <span class="c"># whether inverse filter was activated and which hrtf database is</span>
+        <span class="c"># selected</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gui_settings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c"># a error variable which is read from gui to show an error box</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gui_error</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># variables which shows whether dsp algorithm is currently running</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dsp_run</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="c"># variables wich shows whether dsp algorithm was stopped</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="c"># variables wich shows whether dsp algorithm is paused</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="c"># variable with current block magnitude spectrum values for all speakers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dsp_sp_spectrum</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c"># variable with current block magnitude spectrum values for all</span>
+        <span class="c"># speakers and there corresponding current hrtfs for the left and</span>
+        <span class="c"># right ear</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dsp_hrtf_spectrum</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c"># mutex for exchanging data between gui and dsp algorithm</span>
@@ -94,7 +113,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">audience_pos</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QPoint</span><span class="p">(</span><span class="mi">170</span><span class="p">,</span> <span class="mi">170</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">speaker_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">speaker_to_show</span> <span class="o">=</span> <span class="mi">0</span>
-
+</div>
 <div class="viewcode-block" id="State.switch_stop_playback"><a class="viewcode-back" href="../index.html#gui_utils.State.switch_stop_playback">[docs]</a>    <span class="k">def</span> <span class="nf">switch_stop_playback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- switch_stop_playback</span>
@@ -162,10 +181,10 @@
 <span class="sd">    initialized and thus the azimuthal angle can be read out.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Headtracker.__init__"><a class="viewcode-back" href="../index.html#gui_utils.Headtracker.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">head_deg</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt2</span> <span class="o">=</span> <span class="n">DT2</span><span class="p">()</span>
-
+</div>
 <div class="viewcode-block" id="Headtracker.cal_head_deg"><a class="viewcode-back" href="../index.html#gui_utils.Headtracker.cal_head_deg">[docs]</a>    <span class="k">def</span> <span class="nf">cal_head_deg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- head_deg</span>
@@ -195,7 +214,7 @@
 <span class="sd">    including Speaker and Audience.**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<div class="viewcode-block" id="Item.__init__"><a class="viewcode-back" href="../index.html#gui_utils.Item.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
 
         <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_image</span><span class="o">.</span><span class="n">scaled</span><span class="p">(</span>
             <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">KeepAspectRatio</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">SmoothTransformation</span><span class="p">)</span>
@@ -207,7 +226,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsMovable</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsFocusable</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
-
+</div>
 <div class="viewcode-block" id="Item.mousePressEvent"><a class="viewcode-back" href="../index.html#gui_utils.Item.mousePressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- mousePressEvent</span>
@@ -265,12 +284,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">current_item</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<div class="viewcode-block" id="Room.__init__"><a class="viewcode-back" href="../index.html#gui_utils.Room.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Room</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
 
     <span class="c"># Definition of mouse move events related to the QGraphicsScene:</span>
-
+</div>
 <div class="viewcode-block" id="Room.mousePressEvent"><a class="viewcode-back" href="../index.html#gui_utils.Room.mousePressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- mousePressEvent</span>
@@ -376,10 +395,10 @@
 <span class="sd">    Room.**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">scene</span><span class="p">):</span>
+<div class="viewcode-block" id="View.__init__"><a class="viewcode-back" href="../index.html#gui_utils.View.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">scene</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">View</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
-
+</div>
 <div class="viewcode-block" id="View.dragEnterEvent"><a class="viewcode-back" href="../index.html#gui_utils.View.dragEnterEvent">[docs]</a>    <span class="k">def</span> <span class="nf">dragEnterEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- dragEnterEvent</span>
@@ -434,11 +453,11 @@
 
     <span class="n">show_property</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<div class="viewcode-block" id="SignalHandler.__init__"><a class="viewcode-back" href="../index.html#gui_utils.SignalHandler.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SignalHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
 
-</div>
+</div></div>
 <div class="viewcode-block" id="Speaker"><a class="viewcode-back" href="../index.html#gui_utils.Speaker">[docs]</a><span class="k">class</span> <span class="nc">Speaker</span><span class="p">(</span><span class="n">Item</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    H1 -- Speaker</span>
@@ -451,7 +470,7 @@
     <span class="nb">type</span> <span class="o">=</span> <span class="s">&#39;speaker&#39;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;unknown&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">posx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">posy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Speaker.__init__"><a class="viewcode-back" href="../index.html#gui_utils.Speaker.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">posx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">posy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
         <span class="n">speaker_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span>
@@ -470,7 +489,7 @@
                                   <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;normalize&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cal_rel_pos</span><span class="p">()</span>
-
+</div>
 <div class="viewcode-block" id="Speaker.cal_rel_pos"><a class="viewcode-back" href="../index.html#gui_utils.Speaker.cal_rel_pos">[docs]</a>    <span class="k">def</span> <span class="nf">cal_rel_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head_deg</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- cal_rel_pos</span>
@@ -535,12 +554,12 @@
     <span class="n">origin_image</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span>
         <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&quot;audio3d&quot;</span><span class="p">,</span> <span class="s">&#39;image/audience.png&#39;</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<div class="viewcode-block" id="Audience.__init__"><a class="viewcode-back" href="../index.html#gui_utils.Audience.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Audience</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="mi">170</span><span class="p">,</span> <span class="mi">170</span><span class="p">)</span>
 
-</div>
+</div></div>
 <div class="viewcode-block" id="SpeakerProperty"><a class="viewcode-back" href="../index.html#gui_utils.SpeakerProperty">[docs]</a><span class="k">class</span> <span class="nc">SpeakerProperty</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    H1 -- SpeakerProperty</span>
@@ -560,7 +579,7 @@
     <span class="n">posx</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">posy</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<div class="viewcode-block" id="SpeakerProperty.__init__"><a class="viewcode-back" href="../index.html#gui_utils.SpeakerProperty.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SpeakerProperty</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_on</span> <span class="o">=</span> <span class="bp">False</span>
@@ -585,7 +604,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">combo_box</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="s">&#39;Big&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="s">&#39;unknown&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">init_ui</span><span class="p">()</span>
-
+</div>
     <span class="k">def</span> <span class="nf">init_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="c"># set layout</span>
@@ -717,7 +736,7 @@
 
     <span class="n">plot_on</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="SequencePlot.__init__"><a class="viewcode-back" href="../index.html#gui_utils.SequencePlot.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SequencePlot</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_on</span> <span class="o">=</span> <span class="bp">False</span>
 
@@ -733,9 +752,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">speaker_spec</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
                          <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">speaker_spec</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s">&#39;Sequence Plot&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s">&#39;Spectrum Plot&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
+</div>
 <div class="viewcode-block" id="SequencePlot.closeEvent"><a class="viewcode-back" href="../index.html#gui_utils.SequencePlot.closeEvent">[docs]</a>    <span class="k">def</span> <span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>   <span class="c"># flake8: noqa</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- closeEvent</span>

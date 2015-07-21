@@ -47,7 +47,10 @@
           <div class="body" role="main">
             
   <h1>Source code for dsp_in</h1><div class="highlight"><pre>
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;Felix Pfreundtner, Matthias Lederle&#39;</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c"># Author: Felix Pfreundtner, Matthias Lederle</span>
+
 <span class="kn">import</span> <span class="nn">scipy.io.wavfile</span>
 <span class="kn">import</span> <span class="nn">struct</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
@@ -60,14 +63,29 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    DspIn</span>
 <span class="sd">    ************************</span>
-<span class="sd">    This class contains all functions executed before the convolution in</span>
-<span class="sd">    the run-function of the Dsp-class. This includes particularly to read</span>
-<span class="sd">    parameters of blocks and hrtfs, to read blocks and hrtfs from their</span>
-<span class="sd">    databases, to normalize hrtfs, round numbers and to create all necessary</span>
-<span class="sd">    kinds of windows.</span>
+<span class="sd">    **This class contains all input related variables and methods for</span>
+<span class="sd">    the dsp algorithm.**</span>
+
+<span class="sd">    It reads in all speaker wave files and hrtf databases and set up the main</span>
+<span class="sd">    parameters for FFT. It applies a Hanning window to Speakerinput and</span>
+<span class="sd">    provides a method to convolve the hrtf impulse response with the speaker</span>
+<span class="sd">    input in FFT Frequency domain.</span>
+
+<span class="sd">    Authors: Felix Pfreundtner, Matthias Lederle</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="sd">&quot;&quot;&quot;Constructor of the DspIn class.&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_init</span><span class="p">):</span>
+<div class="viewcode-block" id="DspIn.__init__"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_init</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        **__init__ is called by DSP and creates all variables which</span>
+<span class="sd">        are relevant for the input part of DSP run() method&#39;s while loop. It</span>
+<span class="sd">        sets up Parameters for the FFT. It also sets up parameters for the read</span>
+<span class="sd">        in of the HRTF and Speaker wave files. After setting up all parameters</span>
+<span class="sd">        it reads in all speaker wave files. It also reads in the HRTF</span>
+<span class="sd">        Database which was selected by the GUI MainWindow and brings it for</span>
+<span class="sd">        higher algorithm performance directly into Frequency Domain with FFT.**</span>
+
+<span class="sd">        Authors: Felix Pfreundtner, Matthias Lederle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state_init</span>
         <span class="c"># Number of all speakers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spn</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">)</span>
@@ -125,14 +143,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">hann</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_hann_window</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sp_blocksize</span><span class="p">)</span>
         <span class="c"># set fft frequency values of fft magnitude spectrum arrays</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_fftfreq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fft_blocksize</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">samplerate</span><span class="p">)</span>
-
+</div>
 <div class="viewcode-block" id="DspIn.rnd"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.rnd">[docs]</a>    <span class="k">def</span> <span class="nf">rnd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- rnd</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Rounds numbers arithmetically.**</span>
 
-<span class="sd">        This function does a normal school arithmetic round (choose lower</span>
+<span class="sd">        This method does a normal school arithmetic round (choose lower</span>
 <span class="sd">        int until .4 and higher int from .5 on) and returns the rounded</span>
 <span class="sd">        value. It is NOT equal to pythons round() method.</span>
 
@@ -179,13 +197,13 @@
 <span class="sd">        **Calculates blocksize and blocktime.**</span>
 
 <span class="sd">        This method uses the parameters of the input wav-file and the</span>
-<span class="sd">        blocksizes of the fft and the hrtf to calculate the blocksize and</span>
-<span class="sd">        blocktime needed from the speaker.</span>
+<span class="sd">        blocksizes of the fft and the hrtf to calculate the blocksize</span>
+<span class="sd">        needed for the speaker.</span>
 
 <span class="sd">        Return values:</span>
 
 <span class="sd">        * sp_blocksize: Amount of samples taken from the input file per block</span>
-<span class="sd">        * sp_blocktime: Time it takes to play one block in [s]</span>
+<span class="sd">        * sp_blocktime: Time it takes to play one input block in [s]</span>
 <span class="sd">        * overlap: overlap between two binaural output blocks in decimal</span>
 <span class="sd">            value [calculated default is 0.5]</span>
 
@@ -204,12 +222,12 @@
 <span class="sd">        H2 -- init_set_block_begin_end</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Initializes a list with the number of the first and last sample</span>
-<span class="sd">        of the first block.**</span>
+<span class="sd">        which needs to be read in from speaker input files.**</span>
 
-<span class="sd">        This function calculates a list called block_begin_end containing</span>
-<span class="sd">        two elements: [0] is the first sample of the first block, [1] is</span>
-<span class="sd">        the last sample of the first block; The entries of following block</span>
-<span class="sd">        will then be calculated by the set_block_begin_end-function.</span>
+<span class="sd">        This method calculates a list called block_begin_end containing</span>
+<span class="sd">        two elements: [0] is the first sample of the block, [1] is</span>
+<span class="sd">        the last sample of the block; The entries of following block</span>
+<span class="sd">        will then be calculated by the set_block_begin_end-method.</span>
 
 <span class="sd">        Return value:</span>
 
@@ -226,11 +244,12 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- set_block_begin_end</span>
 <span class="sd">        ===================</span>
-<span class="sd">        **Every while-loop the number of the first and last sample is</span>
+<span class="sd">        **In every iteration of the while loop the number of the new first and</span>
+<span class="sd">        last sample which needs to be read in from speaker input files is</span>
 <span class="sd">        calculated.**</span>
 
-<span class="sd">        This function replaces the values set by the</span>
-<span class="sd">        init_set_block_begin_end-function every while-loop according to the</span>
+<span class="sd">        This method replaces the values set by the</span>
+<span class="sd">        init_set_block_begin_end-method every while-loop according to the</span>
 <span class="sd">        current location in the speaker-file that needs to be read. Since</span>
 <span class="sd">        the values are replaced, there are no input and output variables.</span>
 
@@ -245,16 +264,16 @@
 <span class="sd">        ===================</span>
 <span class="sd">        **Get all parameters for the hrtf set by the settings in gui.**</span>
 
-<span class="sd">        This function calculates all necessary parameters of the hrtf to be</span>
+<span class="sd">        This method calculates all necessary parameters of the hrtf to be</span>
 <span class="sd">        later able to get the correct hrtf-files for the convolution with</span>
 <span class="sd">        the speaker-file signal.</span>
 
 <span class="sd">        Return values:</span>
 
-<span class="sd">        * hrtf_blocksize: Simply set to default value 513 since</span>
+<span class="sd">        * hrtf_blocksize: Set to default value 513 since</span>
 <span class="sd">        fft_blocksize is defaulted to 1024</span>
-<span class="sd">        * kemar_inverse_filter: Boolean value that tells whether check-box</span>
-<span class="sd">        in gui was activated or not</span>
+<span class="sd">        * kemar_inverse_filter: Boolean value that tells whether</span>
+<span class="sd">        Measurement inverse filter check-box in gui was activated or not</span>
 
 <span class="sd">        Author: Felix Pfreundtner</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -311,8 +330,9 @@
 
 <span class="sd">        Return values:</span>
 
-<span class="sd">        * hrtf_database: A numpy array that contains either the</span>
-<span class="sd">        kemar_normal_ear or the kemar_full_ear HRTFs.</span>
+<span class="sd">        * hrtf_database: A numpy array that contains either all azimut hrtf</span>
+<span class="sd">        impulse responses of the</span>
+<span class="sd">        kemar_normal_ear, kemar_big_ear or the kemar_compact HRTF Database.</span>
 
 <span class="sd">        Author: Felix Pfreundtner</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -363,7 +383,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- hrtf_database_fft</span>
 <span class="sd">        ===================</span>
-<span class="sd">        **Converts the whole HRTF-database in frequency domain.**</span>
+<span class="sd">        **Converts the whole selected HRTF-database in frequency domain with</span>
+<span class="sd">        FFT.**</span>
 
 <span class="sd">        Return values:</span>
 
@@ -388,7 +409,7 @@
 <span class="sd">        H2 -- init_read_sp</span>
 <span class="sd">        ===================</span>
 <span class="sd">        **Get 10 important parameters of the files to be played by the</span>
-<span class="sd">        get_block_function.**</span>
+<span class="sd">        get_block_method.**</span>
 
 <span class="sd">        This method gets all important data from the .wav files that will</span>
 <span class="sd">        be played by the speakers. The output is another list called sp_param,</span>
@@ -520,10 +541,9 @@
 <span class="sd">        ===================</span>
 <span class="sd">        **Reads one block of samples.**</span>
 
-<span class="sd">        This method reads a block of samples of a speaker-.wav-file and</span>
-<span class="sd">        writes in a numpyarray sp_block[sp] (containing one 16-bit-int</span>
-<span class="sd">        for each sample) and a flag that tells whether the end of the file</span>
-<span class="sd">        is reached or not. This function will be applied in the while loop</span>
+<span class="sd">        This method reads all samples of all speaker-.wav-files and</span>
+<span class="sd">        writes them in a numpyarray sp_block[sp] (containing one 16-bit-int</span>
+<span class="sd">        for each sample). This method will be applied before the while loop</span>
 <span class="sd">        of the dsp-class: I.e. a optimum performance is required.</span>
 
 <span class="sd">        Author: Matthias Lederle</span>
@@ -555,7 +575,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- get_hrtf_block_fft</span>
 <span class="sd">        ===================</span>
-<span class="sd">        **Gets and reads the correct hrtf_file from database.**</span>
+<span class="sd">        **Gets and reads the correct hrtf_file from database dependend on the</span>
+<span class="sd">        current azimuth angle position shown in the GUI MainWindow.**</span>
 
 <span class="sd">        Author: Felix Pfreundtner</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -603,7 +624,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        get_sp_block</span>
 <span class="sd">        ===================</span>
-<span class="sd">        **Gets the current block for the speaker.**</span>
+<span class="sd">        **Gets the block for the speaker sp dependent on the current</span>
+<span class="sd">        position block_begin_end in the complete wave file.**</span>
 
 <span class="sd">        Return value:</span>
 
@@ -630,7 +652,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- normalize</span>
 <span class="sd">        ===================</span>
-<span class="sd">        **Gets and reads the correct hrtf_file from database.**</span>
+<span class="sd">        **Normalizes the audio input.**</span>
 
 <span class="sd">        If the input-flag normalize_flag_sp is True, measure the maximum</span>
 <span class="sd">        amplitude occurring in the .wav-file. After that, reduce all</span>
@@ -651,17 +673,13 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">sp_block</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp_block_sp_norm</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">sp_block</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp_block</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sp_max_amp</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_amplitude_output</span>
 </div>
 <div class="viewcode-block" id="DspIn.apply_window_on_sp_block"><a class="viewcode-back" href="../index.html#dsp_in.DspIn.apply_window_on_sp_block">[docs]</a>    <span class="k">def</span> <span class="nf">apply_window_on_sp_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- apply_window_on_sp_block</span>
 <span class="sd">        ===================</span>
-<span class="sd">        **Gets and reads the correct hrtf_file from database.**</span>
-
-<span class="sd">        If the input-flag normalize_flag_sp is True, measure the maximum</span>
-<span class="sd">        amplitude occurring in the .wav-file. After that, reduce all</span>
-<span class="sd">        entries of sp_block by the ratio that decreases the max value</span>
-<span class="sd">        to 2^15-1</span>
+<span class="sd">        **Applys the Hann Window to the input speaker block.**</span>
 
 <span class="sd">        Author: Felix Pfreundtner</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -673,7 +691,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- set_fftfreq</span>
 <span class="sd">        ===================</span>
-<span class="sd">        **Sets the frequency of the Fast-Fourier-Transformation.**</span>
+<span class="sd">        **Sets a array with frequencies points of the</span>
+<span class="sd">        Fast-Fourier-Transformation which is used in GUI Spectrum Plot.**</span>
 
 <span class="sd">        Author: Felix Pfreundtner</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -694,11 +713,12 @@
 <span class="sd">        ===================</span>
 <span class="sd">        **Function convolves hrtf and data of the music file.**</span>
 
-<span class="sd">        Function takes one hrtf block and one data block (their size is</span>
-<span class="sd">        defined by fft_blocksize), normalizes their values to int16-signals</span>
-<span class="sd">        and then executes the convolution. After that, the signal is</span>
-<span class="sd">        retransformed to  time-domain and normalized again. The final</span>
-<span class="sd">        values are written then to the sp_binaural_block.</span>
+<span class="sd">        Method takes one hrtf block (left or right) and one data block,</span>
+<span class="sd">        zeropadds them to fft_blocksize and executes the FFT Fast convolution.</span>
+<span class="sd">        After that, the signal is retransformed to time-domain and</span>
+<span class="sd">        normalized. The final values are written then to the sp_binaural_block.</span>
+<span class="sd">        The method also saves the magnitude spectrum values for GUI Spectrum</span>
+<span class="sd">        Plot in the state object.</span>
 
 <span class="sd">        Author: Felix Pfreundtner</span>
 <span class="sd">        &quot;&quot;&quot;</span>

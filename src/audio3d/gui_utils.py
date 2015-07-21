@@ -15,20 +15,38 @@ class State(QtCore.QObject):
     """
     H1 -- State
     ************************
-    **This is an exchange class for variables which are read and written by
-    the DSP algorithm and all GUI applications.**
+    **This is an exchange class for variables which are exchanged between DSP
+    algorithm and all GUI applications and the corresponding mutex locks.**
     """
 
     def __init__(self):
         super(State, self).__init__()
         # variables which are shared between gui and dsp algorithm
+        # at creation of the dsp object in GUI MainWindow play() the dsp thread
+        # gets access to the same instance which gui thread uses
+
+        # list with a dictionary for every speaker, which saves current
+        # azimuth angle between head and speaker position, the distance
+        # to the head, the file path to the speaker wave input file and an
+        # information whether normalize box was checked
         self.gui_sp = []
+        # in this variable is saved how many bufferblocks are selected,
+        # whether inverse filter was activated and which hrtf database is
+        # selected
         self.gui_settings = {}
+        # a error variable which is read from gui to show an error box
         self.gui_error = []
+        # variables which shows whether dsp algorithm is currently running
         self.dsp_run = False
+        # variables wich shows whether dsp algorithm was stopped
         self.dsp_stop = True
+        # variables wich shows whether dsp algorithm is paused
         self.dsp_pause = False
+        # variable with current block magnitude spectrum values for all speakers
         self.dsp_sp_spectrum = []
+        # variable with current block magnitude spectrum values for all
+        # speakers and there corresponding current hrtfs for the left and
+        # right ear
         self.dsp_hrtf_spectrum = []
 
         # mutex for exchanging data between gui and dsp algorithm

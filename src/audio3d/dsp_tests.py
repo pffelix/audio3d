@@ -18,6 +18,8 @@ class DspTests(unittest.TestCase):
     H1 -- DspTests
     ************************
     **Testclass for all Dsp-Classes (Dsp, DspIn, DspOut) of the project.**
+
+    Authors: Felix Pfreundtner, Matthias Lederle
     """
     def __init__(self, *args, **kwargs):
         # calling the constructor of the super class
@@ -578,10 +580,8 @@ class DspTests(unittest.TestCase):
 
     def test_mix_binaural_block(self):
         """
-        H2 -- test_mix_binaural_block
-        ===================
         **Test whether final binaural block output has a higher amplitude
-         than int16 maximum allows, which would lead to clipping in PortAudio**
+        than int16 maximum allows, which would lead to clipping in PortAudio**
 
         Author: Felix Pfreundtner
         """

@@ -14,17 +14,19 @@ class DspIn:
     """
     DspIn
     ************************
-    This class contains all input related variables and methods. It reads in
-    all speaker wave files and hrtf databases and set up the main parameters
-    for FFT. It applies a Hanning window to Speakerinput and provides a method
-    to convolve the hrtf impulse response with the speaker input in FFT
-    Frequency domain.
+    **This class contains all input related variables and methods for
+    the dsp algorithm.**
+
+    It reads in all speaker wave files and hrtf databases and set up the main
+    parameters for FFT. It applies a Hanning window to Speakerinput and
+    provides a method to convolve the hrtf impulse response with the speaker
+    input in FFT Frequency domain.
+
+    Authors: Felix Pfreundtner, Matthias Lederle
     """
     def __init__(self, state_init):
         """
-        __init__
-        ===================
-        ** __init__ is called by DSP and creates all variables which
+        **__init__ is called by DSP and creates all variables which
         are relevant for the input part of DSP run() method's while loop. It
         sets up Parameters for the FFT. It also sets up parameters for the read
         in of the HRTF and Speaker wave files. After setting up all parameters
