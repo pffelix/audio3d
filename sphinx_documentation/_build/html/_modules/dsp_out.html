@@ -132,10 +132,7 @@
         <span class="n">sp_binaural_block_add_sp_new</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">+=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">sp_binaural_block</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="n">hopsize</span><span class="p">:,</span> <span class="p">:]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sp_binaural_block_add</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp_binaural_block_add_sp_new</span>
-
-    <span class="c"># @brief Calculate the signal for all speakers taking into account the</span>
-    <span class="c"># distance to the speakers.</span>
-    <span class="c"># @author Felix Pfreundtner</span></div>
+</div>
 <div class="viewcode-block" id="DspOut.mix_binaural_block"><a class="viewcode-back" href="../index.html#dsp_out.DspOut.mix_binaural_block">[docs]</a>    <span class="k">def</span> <span class="nf">mix_binaural_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- mix_binaural_block</span>
@@ -180,11 +177,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">playqueue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binaural_block</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">,</span>
                                                       <span class="n">copy</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">tostring</span><span class="p">())</span>
-
-    <span class="c"># @brief sends the created binaural block of the dsp thread to the record</span>
-    <span class="c">#  queue, which collects all cretaed binaural blocks. Later the queue is</span>
-    <span class="c">#  read by writerecordfile().</span>
-    <span class="c"># @author Felix Pfreundtner</span></div>
+</div>
 <div class="viewcode-block" id="DspOut.add_to_recordqueue"><a class="viewcode-back" href="../index.html#dsp_out.DspOut.add_to_recordqueue">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_recordqueue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- add_to_recordqueue</span>

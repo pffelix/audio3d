@@ -84,9 +84,6 @@ class DspOut:
             self.sp_binaural_block[sp][hopsize:, :]
         self.sp_binaural_block_add[sp] = sp_binaural_block_add_sp_new
 
-    # @brief Calculate the signal for all speakers taking into account the
-    # distance to the speakers.
-    # @author Felix Pfreundtner
     def mix_binaural_block(self, hopsize):
         """
         H2 -- mix_binaural_block
@@ -132,10 +129,6 @@ class DspOut:
         self.playqueue.put(self.binaural_block.astype(np.int16,
                                                       copy=False).tostring())
 
-    # @brief sends the created binaural block of the dsp thread to the record
-    #  queue, which collects all cretaed binaural blocks. Later the queue is
-    #  read by writerecordfile().
-    # @author Felix Pfreundtner
     def add_to_recordqueue(self):
         """
         H2 -- add_to_recordqueue
