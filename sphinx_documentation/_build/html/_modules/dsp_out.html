@@ -59,7 +59,6 @@
 <span class="kn">import</span> <span class="nn">pyaudio</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">queue</span>
 <span class="kn">import</span> <span class="nn">pkg_resources</span>
@@ -88,11 +87,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">recordqueue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
 
     <span class="c"># @brief Applies the overlap-add-method to the signal.</span>
-    <span class="c"># @details Adds the last part of the prior fft-block to calculate the</span>
-    <span class="c"># overlapp-values (which decrease the desharmonic sounds in the output</span>
-    <span class="c"># signal.)</span>
+    <span class="c"># @details Adds a part of the prior generated binaural block to the</span>
+    <span class="c"># beginning of the new generated binaural block (reason: convert</span>
+    <span class="c"># fft circular convolution to linear convolution)</span>
     <span class="c"># @author Felix Pfreundtner</span>
-    <span class="k">def</span> <span class="nf">overlap_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fft_blocksize</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">,</span> <span class="n">sp_max_amp</span><span class="p">,</span> <span class="n">hrtf_max_amp</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">overlap_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fft_blocksize</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
         <span class="c"># get current binaural block output of sp</span>
         <span class="c"># 1. take binaural block output of current fft which don&#39;t overlap</span>
         <span class="c"># with next blocks</span>
@@ -185,7 +184,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">returnflag</span> <span class="o">=</span> <span class="n">pyaudio</span><span class="o">.</span><span class="n">paComplete</span>
-        <span class="c"># data = self.binaural[played_frames_begin:self.played_frames_end, :]</span>
         <span class="c"># print(&quot;Played Block: &quot; + str(self.played_block_counter))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">played_block_counter</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="c"># print(&quot;Play: &quot; + str(self.played_block_counter))</span>
@@ -238,11 +236,6 @@
     <span class="c"># @brief Writes the whole binaural output as wave file.</span>
     <span class="c"># @author Felix Pfreundtner</span>
     <span class="k">def</span> <span class="nf">writerecordfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samplerate</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">):</span>
-        <span class="c">#if not os.path.exists(pkg_resources.resource_filename(&quot;audio3d&quot;,</span>
-                                                              <span class="c">#&quot;audio_out/&quot;)):</span>
-            <span class="c">#os.makedirs(pkg_resources.resource_filename(&quot;audio3d&quot;,</span>
-                                                        <span class="c">#&quot;audio_out/&quot;))</span>
-
         <span class="n">binaural_record</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">recordqueue</span><span class="o">.</span><span class="n">qsize</span><span class="p">()</span> <span class="o">*</span> <span class="n">hopsize</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
                                    <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
         <span class="n">position</span> <span class="o">=</span> <span class="mi">0</span>
@@ -250,9 +243,9 @@
                 <span class="n">binaural_record</span><span class="p">[</span><span class="n">position</span><span class="p">:</span><span class="n">position</span><span class="o">+</span><span class="n">hopsize</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> \
                     <span class="bp">self</span><span class="o">.</span><span class="n">recordqueue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
                 <span class="n">position</span> <span class="o">+=</span> <span class="n">hopsize</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">send_error</span><span class="p">(</span><span class="s">&quot;Audio Recorded to File: &quot;</span> <span class="o">+</span>
-                              <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&quot;audio3d&quot;</span><span class="p">,</span>
-                              <span class="s">&quot;audio_out/binauralmix.wav&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">send_error</span><span class="p">(</span>
+            <span class="s">&quot;Audio Recorded to File: &quot;</span> <span class="o">+</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span>
+                <span class="s">&quot;audio3d&quot;</span><span class="p">,</span> <span class="s">&quot;audio_out/binauralmix.wav&quot;</span><span class="p">))</span>
         <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">wavfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&quot;audio3d&quot;</span><span class="p">,</span>
                                <span class="s">&quot;audio_out/binauralmix.wav&quot;</span><span class="p">),</span> <span class="n">samplerate</span><span class="p">,</span>
                                <span class="n">binaural_record</span><span class="p">)</span></div>

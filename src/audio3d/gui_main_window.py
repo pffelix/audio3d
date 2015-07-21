@@ -11,6 +11,7 @@ from math import acos, degrees
 import audio3d.gui_utils
 from audio3d.dsp import Dsp
 import threading
+import multiprocessing
 
 
 class MainWindow(QtGui.QWidget):
@@ -56,7 +57,6 @@ class MainWindow(QtGui.QWidget):
         self.init_ui()
 
     def init_ui(self):
-
         # set buttons
         add_speaker_button = QtGui.QPushButton('Add Speaker')
         reset_button = QtGui.QPushButton('Reset')
