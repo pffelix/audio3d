@@ -644,7 +644,7 @@ class DspIn:
             for dsp_hrtf_spectrum_sp_l_r in dsp_hrtf_spectrum_sp:
                 dsp_hrtf_spectrum_sp_l_r[:, 0] = freq
 
-    def fft_convolution(self, sp_binaural_block_sp, sp, l_r):
+    def fft_convolution(self, sp, l_r):
         """
         H2 -- fft_convolution
         ===================
@@ -720,4 +720,7 @@ class DspIn:
             sp_binaural_block_sp_l_r_time /= (
                 sp_binaural_block_sp_time_max_amp / self.sp_max_amp[sp] /
                 self.hrtf_max_amp[sp][l_r] * 32767)
+        sp_binaural_block_sp_l_r_time = sp_binaural_block_sp_l_r_time.astype(
+            np.float32, copy=False)
+
         return sp_binaural_block_sp_l_r_time

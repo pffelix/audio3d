@@ -7,7 +7,7 @@ import numpy as np
 import scipy.io.wavfile
 import audio3d.gui_utils
 import pkg_resources
-
+import copy
 
 class DspTests(unittest.TestCase):
     """
@@ -26,14 +26,31 @@ class DspTests(unittest.TestCase):
                                   pkg_resources.resource_filename(
                                       "audio3d", "audio_in/Sine_1kHz_(44.1,1,"
                                       "16).wav"), "normalize": False})
+
         self.state.gui_sp.append({"angle": 120, "distance": 1, "path":
                                   pkg_resources.resource_filename(
                                       "audio3d",
-                                      "audio_in/Rythm_Guitar_1.wav"),
+                                      "audio_in/Rhythm_Guitar_1.wav"),
                                   "normalize": True})
+
+        self.state.gui_sp.append({"angle": 120, "distance": 1, "path":
+                                  pkg_resources.resource_filename(
+                                      "audio3d",
+                                      "audio_in/Rhythm_Bass.wav"),
+                                  "normalize": True})
+
+        # same speaker input as already speaker 1: check whether there might
+        # be redundancy problems in the code
+        self.state.gui_sp.append({"angle": 120, "distance": 1, "path":
+                                  pkg_resources.resource_filename(
+                                      "audio3d",
+                                      "audio_in/Rhythm_Guitar_1.wav"),
+                                  "normalize": True})
+
         self.state.gui_settings = {"hrtf_database": "kemar_normal_ear",
-                                   "inverse_filter_active": True,
+                                   "inverse_filter_active": False,
                                    "bufferblocks": 5}
+
         self.state.gui_stop = False
         self.state.gui_pause = False
         self.dsp_obj = audio3d.dsp.Dsp(self.state)
@@ -82,6 +99,8 @@ class DspTests(unittest.TestCase):
         ===================
         Tests equality of the values at position 2 and 200 of the
         hamming-window.
+
+        Author: Matthias Lederle
         """
         sol_hannwin_2 = 0.00014997
         sol_hannwin_200 = 0.88477
@@ -97,6 +116,8 @@ class DspTests(unittest.TestCase):
         H2 -- test_get_block_param
         ===================
         **Tests get_block_param by comparing two lists.**
+
+        Author: Matthias Lederle
         """
         sol = [512, 0.011609977324263039, 0.5, 256]
         res = [None] * 3
@@ -110,6 +131,8 @@ class DspTests(unittest.TestCase):
         H2 -- test_init_set_block_begin_end
         ===================
         **Tests get_block_param by comparing two lists.**
+
+        Author: Matthias Lederle
         """
         res = self.dsp_obj.dspin_obj.init_set_block_begin_end()
         errmsg = "The entries in init_block_begin_end are not symmetric to 0"
@@ -120,9 +143,9 @@ class DspTests(unittest.TestCase):
         H2 -- test_set-block_begin_end
         ===================
         **Tests the set_block_begin_end function for correctness.**
+
+        Author: Matthias Lederle
         """
-        # Due to the fact, that the function does not return anything,
-        # it has to be copied manually to the section between the ##### below.
         truelist = []
         i = 1
         block_begin_end = self.dsp_obj.dspin_obj.block_begin_end
@@ -147,15 +170,36 @@ class DspTests(unittest.TestCase):
             i += 1
         self.assertTrue(truelist, msg=errmsg)
 
-    # Skip Test for all files besides the electrical guitar
-    @unittest.skipUnless(lambda self: self.self.gui_sp[0]["path"] ==
-                         "./audio_in/electrical_guitar_(44.1,1,16).wav",
-                         "Otherwise total_no_of_samples is wrong")
-    def test_get_sp(self):
+    def test_init_read_sp(self):
+        """
+        H2 -- test_init_read_sp
+        ===================
+        **Check whether init_read_sp() gives out the sample samplerate as
+        scipy.io.wavfile.read()**
+
+        Author: Felix Pfreundtner
+        """
+
+        result_correct = []
+        result_test = []
+        # for all speakers in self.state.gui_sp
+        for sp in range(len(self.state.gui_sp)):
+            # get sample rate values produced by scipy.io.wavfile.read()
+            temp, _ = \
+                scipy.io.wavfile.read(self.state.gui_sp[sp]["path"])
+            result_correct.append(temp)
+            # get sample rate values produced by init_read_sp()
+            result_test.append(self.dsp_obj.dspin_obj.sp_param[sp][1])
+        errmsg = "wrong samplerate produced by init_read_sp()"
+        self.assertEqual(result_correct, result_test, msg=errmsg)
+
+    def test_read_sp(self):
         """
         H2 -- test_get_sp
         ===================
         **Compare get_sp-function to scipy-function-results.**
+
+        Author: Matthias Lederle
         """
         sp = 1
         scipy_sp_input = {}
@@ -203,7 +247,258 @@ class DspTests(unittest.TestCase):
             i += 1
         self.assertTrue(truelist, msg=errmsg)
 
+    def test_hrtf_blocksize(self):
+        """
+        H2 -- test_hrtf_size
+        ===================
+        **Check whether hrtf_blocksize is calculated correct by dsp algorithm**
 
+        Author: Felix Pfreundtner
+        """
+
+        # Manually set correct standard HRTF Size in Samples
+        result_correct = 513
+        result_test = self.dsp_obj.dspin_obj.hrtf_blocksize
+
+        errmsg = "wrong hrtf block size calculation"
+        self.assertEqual(result_correct, result_test, msg=errmsg)
+
+    def test_fft_blocksize(self):
+        """
+        H2 -- test_fft_blocksize
+        ===================
+        **Check whether fft_blocksize is calculated correct by dsp algorithm**
+
+        Author: Felix Pfreundtner
+        """
+
+        # Manually set correct standard FFT Block Size in Samples
+        result_correct = 1024
+        result_test = self.dsp_obj.dspin_obj.fft_blocksize
+
+        errmsg = "wrong fft block size calculation"
+        self.assertEqual(result_correct, result_test, msg=errmsg)
+
+    def test_sp_blocksize(self):
+        """
+        H2 -- test_sp_blocksize
+        ===================
+        **Check whether sp_blocksize is calculated correct by dsp algorithm**
+
+        Author: Felix Pfreundtner
+        """
+
+        # Manually set correct standard Speaker Block Size in Samples
+        result_correct = self.dsp_obj.dspin_obj.fft_blocksize + 1 - \
+            self.dsp_obj.dspin_obj.hrtf_blocksize
+        result_test = self.dsp_obj.dspin_obj.sp_blocksize
+
+        errmsg = "wrong speaker block size calculation"
+        self.assertEqual(result_correct, result_test, msg=errmsg)
+
+    def test_overlap(self):
+        """
+        H2 -- test_overlap
+        ===================
+        **Check whether overlap is calculated correct by dsp algorithm**
+
+        Author: Felix Pfreundtner
+        """
+
+        # Manually set correct standard Overlap in decimal value
+        result_correct = 0.5
+        result_test = self.dsp_obj.dspin_obj.overlap
+
+        errmsg = "wrong speaker block size calculation"
+        self.assertEqual(result_correct, result_test, msg=errmsg)
+
+    def test_hopsize(self):
+        """
+        H2 -- test_hopsize
+        ===================
+        **Check whether hopsize is calculated correct by dsp algorithm**
+
+        Author: Felix Pfreundtner
+        """
+
+        # Manually set correct standard Hopsize in decimal value
+        result_correct = \
+            self.dsp_obj.dspin_obj.overlap * \
+            self.dsp_obj.dspin_obj.sp_blocksize
+
+        result_test = self.dsp_obj.dspin_obj.hopsize
+
+        errmsg = "wrong speaker block size calculation"
+        self.assertEqual(result_correct, result_test, msg=errmsg)
+
+    def test_init_set_block_begin_end(self):
+        """
+        H2 -- test_init_set_block_begin_end
+        ===================
+        **Compare init_set_block_begin_end() output with correct values for
+        initialization of block_begin_end.**
+
+        Author: Felix Pfreundtner
+        """
+        #
+        # initialize -> set back begin end back about one iteration
+        # moving size of one step (each iteration)
+        step = self.dsp_obj.dspin_obj.hopsize
+        result_correct = [0 - step, self.dsp_obj.dspin_obj.sp_blocksize - step]
+        result_test = self.dsp_obj.dspin_obj.init_set_block_begin_end()
+        errmsg = "block begin end intialization does not have correct " \
+                 "position and size"
+        self.assertEqual(result_correct, result_test, msg=errmsg)
+
+    def test_set_block_begin_end(self):
+        """
+        H2 -- test_get_sp
+        ===================
+        **Compare set_block_begin_end() output with correct values for
+        the first run() iterations of dsp alorithm.**
+
+        Author: Felix Pfreundtner
+        """
+        # step between each read block array in position samples is
+        step = self.dsp_obj.dspin_obj.hopsize
+        result_correct = [[0, self.dsp_obj.dspin_obj.sp_blocksize],
+                          [0 + step * 1, self.dsp_obj.dspin_obj.sp_blocksize +
+                           step * 1], [0 + step * 2,
+                                       self.dsp_obj.dspin_obj.sp_blocksize +
+                                       step * 2]]
+        result_test = []
+        # run 3 iterations
+        for blockcounter in range(3):
+            # set position
+            self.dsp_obj.dspin_obj.set_block_begin_end()
+            temp = self.dsp_obj.dspin_obj.block_begin_end
+            result_test.append(copy.deepcopy(temp))
+
+        # set self.block_begin_end back to initialize value
+        self.dsp_obj.dspin_obj.init_set_block_begin_end()
+
+        errmsg = "first block iterations do not have correct position and " \
+                 "size"
+        self.assertEqual(result_correct, result_test, msg=errmsg)
+
+    def test_kemar_inverse_filter(self):
+        """
+        H2 -- test_get_sp
+        ===================
+        **Check whether a deactivated kemar compact inverse measurement
+        speaker filter in gui leads to an filter full of zeros in dsp
+        algorithm ( kemar compact already includes the inverse speaker
+        filter)**
+
+        Author: Felix Pfreundtner
+        """
+
+        # model activated kemar filter in gu
+        self.state.gui_settings["inverse_filter_active"] = False
+        self.state.gui_settings["hrtf_database"] = "kemar_compact"
+
+        result_compare = 0
+        # create new dsp_in object with modelled gui state
+        dsp_in_test_obj = audio3d.dsp_in.DspIn(self.state)
+        result_test = dsp_in_test_obj.kemar_inverse_filter
+
+        errmsg = "Inverse Filter just holds zeros"
+        self.assertEqual(np.amax(result_test), 0, msg=errmsg)
+
+    def test_get_sp_block(self):
+        """
+        H2 -- test_get_sp
+        ===================
+        **Check whether the read in block size of a speaker for different
+        positions in the the whole sp file is correct**
+
+        Author: Felix Pfreundtner
+        """
+        iteration_number = 5
+        result_correct = self.dsp_obj.spn * iteration_number * \
+            self.dsp_obj.dspin_obj.sp_blocksize
+        result_test = 0
+        # run 5 iterations
+        for blockcounter in range(iteration_number):
+            for sp in range(self.dsp_obj.spn):
+                # set position in speaker file
+                self.dsp_obj.dspin_obj.set_block_begin_end()
+                # get block at position
+                _ = self.dsp_obj.dspin_obj.get_sp_block(sp)
+                result_test += len(self.dsp_obj.dspin_obj.sp_block[sp])
+
+        # set self.block_begin_end back to initialize value
+        self.dsp_obj.dspin_obj.init_set_block_begin_end()
+
+        errmsg = "Wrong block sizes were read in"
+        self.assertEqual(result_correct, result_test, msg=errmsg)
+
+    def test_normalize(self):
+        """
+        H2 -- test_normalize
+        ===================
+        **Check whether the speaker blocks are correctly normalized to
+        maximum int 16 amplitude**
+
+        Author: Felix Pfreundtner
+        """
+        maximum_int_amplitude = 32767
+        iteration_number = 5
+        result_test = True
+        # run 5 iterations
+        for blockcounter in range(iteration_number):
+            for sp in range(self.dsp_obj.spn):
+                # set gui normalize state to true
+                self.state.gui_sp[sp]["normalize"] = True
+                # set position in speaker file
+                self.dsp_obj.dspin_obj.set_block_begin_end()
+                # get block at position
+                _ = self.dsp_obj.dspin_obj.get_sp_block(sp)
+                # get maximum value of not normalized block
+                amp_unnormalized = int(np.amax(abs(
+                    self.dsp_obj.dspin_obj.sp_block[sp])))
+                # normalize block at position
+                self.dsp_obj.dspin_obj.normalize(sp)
+                # get maximum value of normalized block
+                amp_normalized = int(np.amax(abs(
+                    self.dsp_obj.dspin_obj.sp_block[sp])))
+                if amp_normalized and amp_unnormalized != 0:
+                    division = int(amp_unnormalized / amp_normalized * 1000)
+                    compare = \
+                        int(self.dsp_obj.dspin_obj.sp_max_amp[
+                            sp]/maximum_int_amplitude * 1000)
+                    if division == compare:
+                        result_test = True
+                    else:
+                        result_test = False
+                        break
+
+        # set self.block_begin_end back to initialize value
+        self.dsp_obj.dspin_obj.init_set_block_begin_end()
+
+        errmsg = "Files were not normalized correctly"
+        self.assertTrue(result_test, msg=errmsg)
+
+    def test_set_fftfreq(self):
+        """
+        H2 -- test_normalize
+        ===================
+        **Checks wether calculates the correct number of fft frequency values
+         for given input paramaters**
+
+        Author: Felix Pfreundtner
+        """
+        fft_blocksize = 1024
+        samplerate = 44100
+        result_correct = (fft_blocksize // 2 + 1 ) * self.dsp_obj.spn
+
+        self.dsp_obj.dspin_obj.set_fftfreq(fft_blocksize, samplerate)
+        result_test = 0
+        for sp in range(self.dsp_obj.spn):
+            result_test += len(self.state.dsp_sp_spectrum[sp][:, 0])
+
+        errmsg = "Wrong number of frequency points in spectrum"
+        self.assertEqual(result_correct, result_test, msg=errmsg)
 
 if __name__ == '__main__':
     unittest.main()

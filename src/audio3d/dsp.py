@@ -121,8 +121,7 @@ class Dsp:
                         # convolve hrtf with speaker block input to get
                         # binaural stereo block output
                         self.dspout_obj.sp_binaural_block[sp][:, l_r] = \
-                            self.dspin_obj.fft_convolution(
-                                self.dspout_obj.sp_binaural_block[sp], sp, l_r)
+                            self.dspin_obj.fft_convolution(sp, l_r)
 
                     # overlap and add binaural stereo block output of
                     # speaker sp to prior binaural stereo block output of
