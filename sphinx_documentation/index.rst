@@ -8,7 +8,7 @@ Welcome to Group B: 3D Audio's Documentation!
 
 .. toctree::
    :maxdepth: 2
-.. automodule:: main
+.. automodule:: __main__
 .. automodule:: dsp
 .. automodule:: dsp_in
 .. automodule:: dsp_out
@@ -166,9 +166,9 @@ TestHeadtracker
 Modules
 =============================================
 
-main
+__main__
 ---------------------------------------------
-.. automodule:: main
+.. automodule:: __main__
 
 dsp
 ---------------------------------------------
@@ -216,13 +216,9 @@ plot
 .. automodule:: plot
 
 
-.. autosummary::
-   :toctree: stubs
-   :template: class.rst
+.. |br| raw:: html
 
-   Dsp
-   DspIn
-   DspOut
+   <br />
 
 Indices and tables
 ==================

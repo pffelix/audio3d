@@ -72,17 +72,20 @@
         <span class="c"># modify GUI state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s">&quot;angle&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="s">&quot;distance&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;path&quot;</span><span class="p">:</span>
-                                  <span class="s">&quot;audio_in/sine_1kHz_(44.1,1,16).wav&quot;</span><span class="p">,</span>
-                                  <span class="s">&quot;normalize&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">})</span>
+                                  <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span>
+                                      <span class="s">&quot;audio3d&quot;</span><span class="p">,</span> <span class="s">&quot;audio_in/Sine_1kHz_(44.1,1,&quot;</span>
+                                      <span class="s">&quot;16).wav&quot;</span><span class="p">),</span> <span class="s">&quot;normalize&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s">&quot;angle&quot;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span> <span class="s">&quot;distance&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&quot;path&quot;</span><span class="p">:</span>
-                                  <span class="s">&quot;audio_in/electrical_guitar_(44.1,1,&quot;</span>
-                                  <span class="s">&quot;16).wav&quot;</span><span class="p">,</span> <span class="s">&quot;normalize&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+                                  <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span>
+                                      <span class="s">&quot;audio3d&quot;</span><span class="p">,</span>
+                                      <span class="s">&quot;audio_in/Rythm_Guitar_1.wav&quot;</span><span class="p">),</span>
+                                  <span class="s">&quot;normalize&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_settings</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;hrtf_database&quot;</span><span class="p">:</span> <span class="s">&quot;kemar_normal_ear&quot;</span><span class="p">,</span>
                                    <span class="s">&quot;inverse_filter_active&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
                                    <span class="s">&quot;bufferblocks&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_stop</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_pause</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">Dsp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span> <span class="o">=</span> <span class="n">audio3d</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">Dsp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DspTests.test_rnd_int"><a class="viewcode-back" href="../index.html#dsp_tests.DspTests.test_rnd_int">[docs]</a>    <span class="k">def</span> <span class="nf">test_rnd_int</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -92,7 +95,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">val</span> <span class="o">=</span> <span class="mf">1.9</span>
         <span class="n">sol</span> <span class="o">=</span> <span class="mi">2</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">rnd</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">rnd</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_rnd_int failed!&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">sol</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
 </div>
@@ -111,8 +114,8 @@
         <span class="c"># value[0] = 2</span>
         <span class="c"># sol = 2</span>
         <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-            <span class="c"># res[i] = res.append(self.dspin_testobj.rnd(value[i]))</span>
-            <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">rnd</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="c"># res[i] = res.append(self.dspin_obj.rnd(value[i]))</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">rnd</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&quot;test_rnd failed!&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">sol</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">error_msg</span><span class="p">)</span>
@@ -129,7 +132,7 @@
         <span class="n">sol_hannwin_2</span> <span class="o">=</span> <span class="mf">0.00014997</span>
         <span class="n">sol_hannwin_200</span> <span class="o">=</span> <span class="mf">0.88477</span>
         <span class="n">res</span> <span class="o">=</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">build_hann_window</span><span class="p">(</span><span class="n">sp_blocksize</span><span class="o">=</span><span class="mi">513</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">build_hann_window</span><span class="p">(</span><span class="n">sp_blocksize</span><span class="o">=</span><span class="mi">513</span><span class="p">)</span>
         <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Hanning Window not calculated correctly&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">sol_hannwin_2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">errmsg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertAlmostEqual</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">200</span><span class="p">],</span> <span class="n">sol_hannwin_200</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">errmsg</span><span class="p">)</span>
@@ -143,7 +146,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sol</span> <span class="o">=</span> <span class="p">[</span><span class="mi">512</span><span class="p">,</span> <span class="mf">0.011609977324263039</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">256</span><span class="p">]</span>
         <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
-        <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">get_block_param</span><span class="p">()</span>
+        <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">get_block_param</span><span class="p">()</span>
         <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;Function get_block_param (in DspIn) doesn&#39;t work properly&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertListEqual</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">sol</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="n">errmsg</span><span class="p">)</span>
 
@@ -154,7 +157,7 @@
 <span class="sd">        ===================</span>
 <span class="sd">        **Tests get_block_param by comparing two lists.**</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">init_set_block_begin_end</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">init_set_block_begin_end</span><span class="p">()</span>
         <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;The entries in init_block_begin_end are not symmetric to 0&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">abs</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">msg</span><span class="o">=</span><span class="n">errmsg</span><span class="p">)</span>
 </div>
@@ -168,20 +171,20 @@
         <span class="c"># it has to be copied manually to the section between the ##### below.</span>
         <span class="n">truelist</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">block_begin_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">block_begin_end</span>
+        <span class="n">block_begin_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">block_begin_end</span>
         <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
             <span class="c"># Between ##### and ##### has to be the same code as in</span>
             <span class="c"># set_block_begin_end-function</span>
             <span class="c">#####</span>
             <span class="n">block_begin_end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">sp_blocksize</span> <span class="o">*</span>
-                <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">overlap</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">sp_blocksize</span> <span class="o">*</span>
+                <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">overlap</span><span class="p">))</span>
             <span class="n">block_begin_end</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">int</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">sp_blocksize</span> <span class="o">*</span>
-                <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">overlap</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">sp_blocksize</span> <span class="o">*</span>
+                <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">overlap</span><span class="p">))</span>
             <span class="c">#####</span>
             <span class="k">if</span> <span class="n">block_begin_end</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">block_begin_end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> \
-                    <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">sp_blocksize</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">sp_blocksize</span><span class="p">:</span>
                 <span class="nb">bool</span> <span class="o">=</span> <span class="bp">True</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">bool</span> <span class="o">=</span> <span class="bp">False</span>
@@ -205,24 +208,23 @@
         <span class="n">scipy_sp_input</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">220672</span><span class="p">,</span> <span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
         <span class="n">scipy_sp_input_raw</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">)):</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">scipy_sp_input_raw</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">wavfile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
-                <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&quot;audio3d&quot;</span><span class="p">,</span>
-                                                <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;path&quot;</span><span class="p">]))</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">scipy_sp_input_raw</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">wavfile</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">gui_sp</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="s">&quot;path&quot;</span><span class="p">])</span>
             <span class="n">lenarray</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">scipy_sp_input_raw</span><span class="p">[</span><span class="n">sp</span><span class="p">])</span>
             <span class="c"># append zeros to scipy_sp_dict_raw to reach that output is</span>
             <span class="c"># divideable by sp_blocksize</span>
-            <span class="k">if</span> <span class="n">lenarray</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">sp_blocksize</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">lenarray</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">sp_blocksize</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">scipy_sp_input</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> \
                     <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">lenarray</span> <span class="o">+</span>
-                              <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">sp_blocksize</span> <span class="o">-</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">sp_blocksize</span> <span class="o">-</span>
                               <span class="n">lenarray</span> <span class="o">%</span>
-                              <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">sp_blocksize</span><span class="p">,</span> <span class="p">),</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">sp_blocksize</span><span class="p">,</span> <span class="p">),</span>
                              <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
                 <span class="n">scipy_sp_input</span><span class="p">[</span><span class="n">sp</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">lenarray</span><span class="p">,</span> <span class="p">]</span> <span class="o">=</span> <span class="n">scipy_sp_input_raw</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">scipy_sp_input</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy_sp_input_raw</span><span class="p">[</span><span class="n">sp</span><span class="p">]</span>
         <span class="n">sol</span> <span class="o">=</span> <span class="n">scipy_sp_input</span>
-        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_testobj</span><span class="o">.</span><span class="n">dspin_testobj</span><span class="o">.</span><span class="n">read_sp</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_obj</span><span class="o">.</span><span class="n">dspin_obj</span><span class="o">.</span><span class="n">read_sp</span><span class="p">()</span>
         <span class="n">errmsg</span> <span class="o">=</span> <span class="s">&quot;get_sp doesn&#39;t get same values as scipy function&quot;</span>
         <span class="c"># Following while-loop only for bug-fixes:</span>
         <span class="c"># i = 0</span>

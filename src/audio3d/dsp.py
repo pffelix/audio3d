@@ -38,20 +38,20 @@ class Dsp:
         H2 -- run
         ===================
         **Runs the dsp algorithm as one process on one cpu core as a big
-        while-loop**
+        while-loop** |br|
 
-        The steps of the loop are:
-        1. Lock shared variables.
-        2. Set the begin and end of the speaker wave block which needs to
-        be read in this iteration.
-        3. Iterate over all active speakers sp.
-        4. Mix binaural stereo blockoutput of every speaker to one binaural
-        stereo block output having regard to speaker distances.
-        5. Mix binaural stereo blockoutput of every speaker.
-        6. Add mixed binaural stereo block to play queue.
-        7. Unlock shared variables.
-        8. Synchronize with PortAudio Playback Thread
-        9. Finish DSP Algorithm.
+        | The steps of the loop are:
+        | 1. Lock shared variables.
+        | 2. Set the begin and end of the speaker wave block which needs to
+          be read in this iteration.
+        | 3. Iterate over all active speakers sp.
+        | 4. Mix binaural stereo blockoutput of every speaker to one binaural
+          stereo block output having regard to speaker distances.
+        | 5. Mix binaural stereo blockoutput of every speaker.
+        | 6. Add mixed binaural stereo block to play queue.
+        | 7. Unlock shared variables.
+        | 8. Synchronize with PortAudio Playback Thread
+        | 9. Finish DSP Algorithm.
 
         Authors: Felix Pfreundtner, Matthias Lederle
         """
