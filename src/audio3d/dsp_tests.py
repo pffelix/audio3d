@@ -23,11 +23,15 @@ class DspTests(unittest.TestCase):
         # modify GUI state
         self.state.gui_sp = []
         self.state.gui_sp.append({"angle": 90, "distance": 0, "path":
-                                  "audio_in/sine_1kHz_(44.1,1,16).wav",
+                                  pkg_resources.resource_filename(
+                                      "audio3d", "audio_in/sine_1kHz_(44.1,1,"
+                                                 "16).wav"),
                                   "normalize": False})
         self.state.gui_sp.append({"angle": 120, "distance": 1, "path":
-                                  "audio_in/electrical_guitar_(44.1,1,"
-                                  "16).wav", "normalize": True})
+                                  pkg_resources.resource_filename(
+                                      "audio3d",
+                                      "audio_in/electrical_guitar_(44.1,1,"
+                                      "16).wav"), "normalize": True})
         self.state.gui_settings = {"hrtf_database": "kemar_normal_ear",
                                    "inverse_filter_active": True,
                                    "bufferblocks": 5}
@@ -156,9 +160,8 @@ class DspTests(unittest.TestCase):
         scipy_sp_input[sp] = np.zeros((220672, ), dtype=np.int16)
         scipy_sp_input_raw = {}
         for sp in range(len(self.state.gui_sp)):
-            _, scipy_sp_input_raw[sp] = scipy.io.wavfile.read(
-                pkg_resources.resource_filename("audio3d",
-                                                self.state.gui_sp[sp]["path"]))
+            _, scipy_sp_input_raw[sp] = \
+                scipy.io.wavfile.read(self.state.gui_sp[sp]["path"])
             lenarray = len(scipy_sp_input_raw[sp])
             # append zeros to scipy_sp_dict_raw to reach that output is
             # divideable by sp_blocksize
