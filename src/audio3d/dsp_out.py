@@ -17,56 +17,43 @@ import pkg_resources
 
 
 class DspOut:
-    """
-    H1 -- DspOut
-    ************************
-    **Contains all Dsp-functions executed after the convolution in the
-    dsp.run function.**
-    """
     def __init__(self, state_init, fft_blocksize, hopsize):
-        self.binaural_block_dict = {sp: np.zeros((
-            fft_blocksize, 2), dtype=np.float32) for sp in range(len(
-                state_init.gui_sp_dict))}
-        self.binaural_block_dict_out = dict.fromkeys(
-            state_init.gui_sp_dict, np.zeros((hopsize, 2), dtype=np.float32))
-        self.binaural_block_dict_add = dict.fromkeys(
-            state_init.gui_sp_dict, np.zeros((fft_blocksize - hopsize, 2),
-                                          dtype=np.float32))
+        self.state = state_init
+        # Number of all speakers
+        self.spn = len(self.state.gui_sp)
+        self.sp_binaural_block = [np.zeros((
+            fft_blocksize, 2), dtype=np.float64) for sp in range(self.spn)]
+        self.sp_binaural_block_out = [np.zeros((hopsize, 2), dtype=np.float64)
+                                      for sp in range(self.spn)]
+        self.sp_binaural_block_add = [np.zeros((fft_blocksize - hopsize, 2),
+                                      dtype=np.float64) for sp in range(
+            self.spn)]
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
-        self.binaural = np.zeros((fft_blocksize, 2), dtype=np.int16)
-        self.continue_convolution_dict = dict.fromkeys(
-            state_init.gui_sp_dict, True)
+        self.continue_convolution = [True for sp in range(self.spn)]
         self.played_frames_end = 0
         self.played_block_counter = 0
         self.prior_played_block_counter = 0
         self.playbuffer = collections.deque()
-        self.lock = threading.Lock()
-        self.playback_finished = False
         self.playback_successful = True
         self.playqueue = queue.Queue()
+        self.recordqueue = queue.Queue()
 
-    def overlap_add(self, fft_blocksize, hopsize, sp):
-        """
-        H2 --
-        ===================
-        **Applies the overlap-add-method to the signal.**
-
-        Adds the last part of the prior fft-block to calculate the
-        overlapp-values (which decrease the desharmonic sounds in the
-        output signal.)
-
-        Author: Felix Pfreundtner
-        """
+    # @brief Applies the overlap-add-method to the signal.
+    # @details Adds the last part of the prior fft-block to calculate the
+    # overlapp-values (which decrease the desharmonic sounds in the output
+    # signal.)
+    # @author Felix Pfreundtner
+    def overlap_add(self, fft_blocksize, hopsize, sp_max_amp, hrtf_max_amp, sp):
         # get current binaural block output of sp
         # 1. take binaural block output of current fft which don't overlap
         # with next blocks
-        self.binaural_block_dict_out[sp] = self.binaural_block_dict[sp][
+        self.sp_binaural_block_out[sp] = self.sp_binaural_block[sp][
             0:hopsize, :]
         # 2. add relevant still remaining block output of prior ffts to
         # binaural block output of current block
-
         self.sp_binaural_block_out[sp] += \
             self.sp_binaural_block_add[sp][0:hopsize, :]
+
         # check if overlap add led to a amplitude higher than int16 max:
         sp_binaural_block_out_sp_max_amp = np.amax(np.abs(
             self.sp_binaural_block_out[sp]))
@@ -77,47 +64,40 @@ class DspOut:
                     sp_binaural_block_out_sp_max_amp * 32767
         # create a new array to save remaining block output of current fft
         # and add it to the still remaining block output of prior ffts
-        # 1. create new array binaural_block_dict_add_sp_new with size (
+        # 1. create new array binaural_block_add_sp_new with size (
         # fft_blocksize - hopsize)
         add_sp_arraysize = (fft_blocksize - hopsize)
-        binaural_block_dict_add_sp_new = np.zeros((add_sp_arraysize, 2),
-                                                  dtype=np.float32)
+        sp_binaural_block_add_sp_new = np.zeros((add_sp_arraysize, 2),
+                                                dtype=np.float32)
         # 2. take still remaining block output of prior ffts and add it to
         # the zero array on front position
-        binaural_block_dict_add_sp_new[0:add_sp_arraysize - hopsize,
-                                       :] = \
-            self.binaural_block_dict_add[sp][hopsize:, :]
+        sp_binaural_block_add_sp_new[0:add_sp_arraysize - hopsize, :] = \
+            self.sp_binaural_block_add[sp][hopsize:, :]
         # 3. take remaining block output of current fft and add it to the
         # array on back position
-        binaural_block_dict_add_sp_new[:, :] += \
-            self.binaural_block_dict[sp][hopsize:, :]
-        self.binaural_block_dict_add[sp] = binaural_block_dict_add_sp_new
+        sp_binaural_block_add_sp_new[:, :] += \
+            self.sp_binaural_block[sp][hopsize:, :]
+        self.sp_binaural_block_add[sp] = sp_binaural_block_add_sp_new
 
-    def mix_binaural_block(self, hopsize, gui_sp_dict):
-        """
-        H2 -- mix_binaural_block
-        ===================
-        ***Calculate the signal for all speakers taking into account the
-        distance to the speakers.**
+    # @brief Calculate the signal for all speakers taking into account the
+    # distance to the speakers.
+    # @author Felix Pfreundtner
+    def mix_binaural_block(self, hopsize):
 
-        Author: Felix Pfreundtner
-        """
         self.binaural_block = np.zeros((hopsize, 2), dtype=np.float32)
         # maximum distance of a speaker to head in window with borderlength
         # 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)
-        # max([gui_sp_dict[sp][1] for sp in gui_sp_dict])
+        # max([gui_sp[sp][1] for sp in gui_sp])
         distance_max = 3.5 * math.sqrt(2)
-        # get total number of speakers from gui_sp_dict
-        total_number_of_sp = len(gui_sp_dict)
-        for sp in self.binaural_block_dict_out:
-            # get distance speaker to head from gui_sp_dict
-            distance_sp = gui_sp_dict[sp][1]
+        for sp in range(self.spn):
+            # get distance speaker to head from gui_sp
+            distance_sp = self.state.gui_sp[sp]["distance"]
             # sound pressure decreases with distance 1/r
             sp_gain_factor = 1 - distance_sp / distance_max
             # add gained sp block output to a summarized block output of all
             # speakers
-            self.binaural_block += self.binaural_block_dict_out[sp] * \
-                sp_gain_factor / total_number_of_sp
+            self.binaural_block += self.sp_binaural_block_out[sp] * \
+                sp_gain_factor / self.spn
             # if convolution for this speaker will be skipped on the
             # next iteration set binaural_block_out to zeros
             if self.continue_convolution[sp] is False:
@@ -143,13 +123,9 @@ class DspOut:
         self.recordqueue.put(self.binaural_block.astype(np.int16,
                                                         copy=False))
 
+    # @brief
+    # @author Felix Pfreundtner
     def callback(self, in_data, frame_count, time_info, status):
-        """
-        H2 -- callback
-        ===================
-
-        Author: Felix Pfreundtner
-        """
         if status:
             print("Playback Error: %i" % status)
         # played_frames_begin = self.played_frames_end
@@ -169,13 +145,6 @@ class DspOut:
     # @brief Streams the calculated files as a output signal.
     # @author Felix Pfreundtner
     def audiooutput(self, samplerate, hopsize):
-        """
-        H2 -- audiooutput
-        ===================
-        **Streams the calculated files as a output signal.**
-
-        Author: Felix Pfreundtner
-        """
         pa = pyaudio.PyAudio()
         audiostream = pa.open(format=pyaudio.paInt16,
                               channels=2,
@@ -184,31 +153,25 @@ class DspOut:
                               frames_per_buffer=hopsize,
                               stream_callback=self.callback,
                               )
+        # start portaudio audio stream
         audiostream.start_stream()
+        # as long as stream is active (enough input) or audiostream has been
+        # stopped by user
         while audiostream.is_active() or audiostream.is_stopped():
-            time.sleep(1)
-            # handle playback pause
-            if self.dsp_pause is True:
+            time.sleep(0.5)
+            # handle playblack pause: stop portaudio audio playback again
+            if self.state.dsp_pause is True:
                 audiostream.stop_stream()
-            if audiostream.is_stopped() and self.dsp_pause is False:
+            # handle playblack continue: start portaudio audio playback again
+            if audiostream.is_stopped() and self.state.dsp_pause is False:
                 audiostream.start_stream()
-            # handle playblack stop
-            if self.dsp_stop is True:
+            # handle playblack stop: break while loop
+            if self.state.dsp_stop is True:
                 break
+        # stop portaudio playback
         audiostream.stop_stream()
         audiostream.close()
         pa.terminate()
-<<<<<<< HEAD:working_pythoncode/dsp_out.py
-        # execute commands when when playback finished successfully
-        if any(self.continue_convolution_dict.values()) is True and \
-                self.dsp_stop is False:
-            print("Error PC to slow - Playback Stopped")
-            for sp in self.continue_convolution_dict:
-                # self.played_frames_end += sp_blocksize
-                self.continue_convolution_dict[sp] = False
-            self.playback_successful = False
-        self.playback_finished = True
-=======
 
         # if stop button was not pressed
         if self.state.dsp_stop is False:
@@ -244,4 +207,3 @@ class DspOut:
         scipy.io.wavfile.write(pkg_resources.resource_filename("audio3d",
                                "audio_out/binauralmix.wav"), samplerate,
                                binaural_record)
->>>>>>> 584e0e63cd6f7d7bbc59a009febc59d381e39513:src/audio3d/dsp_out.py
