@@ -38,8 +38,6 @@ class DspOut:
 
     def overlap_add(self, fft_blocksize, hopsize, sp):
         """
-        H2 -- overlap_add
-        ===================
         **Applies the overlap-add-method to the signal.**
 
         Adds a part of the prior generated binaural block to the beginning

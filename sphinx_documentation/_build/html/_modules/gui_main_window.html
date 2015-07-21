@@ -201,11 +201,11 @@
 <span class="sd">        requested and the speaker list is updated.</span>
 <span class="sd">        A threading.Lock() avoids read-write overlaps of the dsp_run variable.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_run</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">head_tracker</span><span class="o">.</span><span class="n">cal_head_deg</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_gui_sp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">head_tracker</span><span class="o">.</span><span class="n">get_head_deg</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
 </div>
 <div class="viewcode-block" id="MainWindow.update_gui_sp"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.update_gui_sp">[docs]</a>    <span class="k">def</span> <span class="nf">update_gui_sp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deg</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -213,15 +213,13 @@
 <span class="sd">        ===================</span>
 <span class="sd">        **This function is continuously updating the list with the settings</span>
 <span class="sd">        for each speaker**</span>
-<span class="sd">        It is called every 10 sec by a timer and updating the speaker </span>
+<span class="sd">        It is called every 10 ms by a timer and updating the speaker </span>
 <span class="sd">        list for every present speaker.</span>
 <span class="sd">        A threading.Lock() avoids read-write overlaps of the dsp_run variable.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dsp_run</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">speaker</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_run</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">speaker</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_list</span><span class="p">:</span>
                 <span class="n">speaker</span><span class="o">.</span><span class="n">cal_rel_pos</span><span class="p">(</span><span class="n">deg</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_run</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="MainWindow.inverse_disable"><a class="viewcode-back" href="../index.html#gui_main_window.MainWindow.inverse_disable">[docs]</a>    <span class="k">def</span> <span class="nf">inverse_disable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
