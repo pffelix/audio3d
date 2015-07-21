@@ -57,7 +57,8 @@ class DspOut:
         # check if overlap add led to a amplitude higher than int16 max:
         sp_binaural_block_out_sp_max_amp = np.amax(np.abs(
             self.sp_binaural_block_out[sp]))
-        # if yes normalize maximum output amplitude to maximum int16 range
+        # if yes normalize maximum output amplitude to maximum int16 range to
+        #  prevent uncontrolled clipping
         if sp_binaural_block_out_sp_max_amp > 32767:
                 self.sp_binaural_block_out[sp] /=  \
                     sp_binaural_block_out_sp_max_amp * 32767

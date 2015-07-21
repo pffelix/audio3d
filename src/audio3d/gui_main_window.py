@@ -417,7 +417,12 @@ class MainWindow(QtGui.QWidget):
         algorithm and enables pausing and restarting of the play-back of the
         dsp algorithm.
         """
-        self.state.switch_pause_playback()
+        self.state.mtx_pause.acquire()
+        # if algorithm is alread running
+        if self.state.dsp_run is True:
+            # switch stop variable: mark pause as true or false
+            self.state.switch_pause_playback()
+        self.state.mtx_pause.release()
 
     def positions(self):
         """

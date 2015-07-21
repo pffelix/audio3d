@@ -180,7 +180,7 @@ class Dsp:
                 while self.dspout_obj.played_block_counter <= \
                         self.dspout_obj.prior_played_block_counter and \
                         self.state.dsp_stop is False:
-                    time.sleep(1 / self.dspin_obj.samplerate*10)
+                    time.sleep(1 / self.dspin_obj.samplerate * 10)
                 # increment number of last played block
                 self.dspout_obj.prior_played_block_counter += 1
                 # increment number of already convolved block iterations

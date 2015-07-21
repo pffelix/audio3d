@@ -34,6 +34,8 @@ class DspIn:
         # Dict with a key for every speaker and two values. These
         # are the max. values fetched from the speaker-file.
         self.sp_max_amp = [0 for sp in range(self.spn)]
+        # standard samplerate
+        self.samplerate = 44100
         # Standard sampledepth
         self.sampledepth = 16
         # Set number of output blocks per second
@@ -64,7 +66,7 @@ class DspIn:
             self.spn)]
 
         # Get necessary parameters of input-file and store to sp_param.
-        self.sp_param, self.samplerate = self.init_read_sp()
+        self.sp_param = self.init_read_sp()
         # Define blocksize, blocktime, overlap and hopsize
         self.sp_blocksize, self.sp_blocktime, self.overlap, self.hopsize = \
             self.get_block_param()
@@ -422,8 +424,8 @@ class DspIn:
                                                          sp_param[sp][3]))
                 file.close()  # close file opened in the beginning
 
-            # If bit format is not 16-bit/sample
-            if sp_param[sp][2] != 16:
+            # If bit format is not common bitformat 16-bit/sample
+            if self.sampledepth != sp_param[sp][2]:
                 errmsg = "The bit-format of one input signal is not 16-bit " \
                          "and can't be processed. Please choose another input" \
                          " file."
@@ -440,21 +442,17 @@ class DspIn:
                 # stop playback
                 self.state.dsp_stop = True
                 break
-
-        # common samplerate of all input wave files
-        samplerate = sp_param[0][1]
-        for sp_param_sp in sp_param:
-            # If sample rate is not the common samplerate
-            if samplerate != sp_param_sp[1]:
-                errmsg = "The sample rates of the speaker samples are not " \
-                         "uniform and can't be processed. Please choose " \
-                         "other input files."
+            # If sample rate is not the common samplerate 44100 Hz
+            if self.samplerate != sp_param[sp][1]:
+                errmsg = "The sample rate of one input signal ist not 44100 " \
+                         "Hz and can't be processed. Please choose " \
+                         "another input file."
                 self.state.send_error(errmsg)
                 # stop playback
                 self.state.dsp_stop = True
                 break
 
-        return sp_param, samplerate
+        return sp_param
 
     def read_sp(self):
         """
