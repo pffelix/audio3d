@@ -86,12 +86,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">playqueue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">recordqueue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
 
-    <span class="c"># @brief Applies the overlap-add-method to the signal.</span>
-    <span class="c"># @details Adds a part of the prior generated binaural block to the</span>
-    <span class="c"># beginning of the new generated binaural block (reason: convert</span>
-    <span class="c"># fft circular convolution to linear convolution)</span>
-    <span class="c"># @author Felix Pfreundtner</span>
-    <span class="k">def</span> <span class="nf">overlap_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fft_blocksize</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
+<div class="viewcode-block" id="DspOut.overlap_add"><a class="viewcode-back" href="../index.html#dsp_out.DspOut.overlap_add">[docs]</a>    <span class="k">def</span> <span class="nf">overlap_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fft_blocksize</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- overlap_add</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Applies the overlap-add-method to the signal.**</span>
+
+<span class="sd">        Adds a part of the prior generated binaural block to the beginning</span>
+<span class="sd">        of the new generated binaural block (reason: convert fft circular</span>
+<span class="sd">        convolution to linear convolution)</span>
+
+<span class="sd">        Author: Felix Pfreundtner</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># get current binaural block output of sp</span>
         <span class="c"># 1. take binaural block output of current fft which don&#39;t overlap</span>
         <span class="c"># with next blocks</span>
@@ -129,9 +135,16 @@
 
     <span class="c"># @brief Calculate the signal for all speakers taking into account the</span>
     <span class="c"># distance to the speakers.</span>
-    <span class="c"># @author Felix Pfreundtner</span>
-    <span class="k">def</span> <span class="nf">mix_binaural_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">):</span>
+    <span class="c"># @author Felix Pfreundtner</span></div>
+<div class="viewcode-block" id="DspOut.mix_binaural_block"><a class="viewcode-back" href="../index.html#dsp_out.DspOut.mix_binaural_block">[docs]</a>    <span class="k">def</span> <span class="nf">mix_binaural_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- mix_binaural_block</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Calculate the signal for all speakers taking into account the</span>
+<span class="sd">        distance to the speakers.**</span>
 
+<span class="sd">        Author: Felix Pfreundtner</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">binaural_block</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">hopsize</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="c"># maximum distance of a speaker to head in window with borderlength</span>
         <span class="c"># 3.5[m] is sqrt(3.5^2+3.5^2)[m]=3.5*sqrt(2)</span>
@@ -155,25 +168,45 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">sp_binaural_block_out</span><span class="p">[</span><span class="n">sp</span><span class="p">][:,</span> <span class="p">:]))</span>
         <span class="k">if</span> <span class="n">sp_binaural_block_sp_time_max_amp</span> <span class="o">&gt;</span> <span class="mi">35000</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="n">sp_binaural_block_sp_time_max_amp</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DspOut.add_to_playqueue"><a class="viewcode-back" href="../index.html#dsp_out.DspOut.add_to_playqueue">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_playqueue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- add_to_playqueue</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Sends the created binaural block of the dsp thread to the play</span>
+<span class="sd">        thread with the playqueue.**</span>
 
-    <span class="c"># @brief sends the created binaural block of the dsp thread to the play</span>
-    <span class="c"># thread with the playqueue</span>
-    <span class="c"># @author Felix Pfreundtner</span>
-    <span class="k">def</span> <span class="nf">add_to_playqueue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="sd">        Author: Felix Pfreundtner</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">playqueue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binaural_block</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">,</span>
                                                       <span class="n">copy</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">tostring</span><span class="p">())</span>
 
     <span class="c"># @brief sends the created binaural block of the dsp thread to the record</span>
     <span class="c">#  queue, which collects all cretaed binaural blocks. Later the queue is</span>
     <span class="c">#  read by writerecordfile().</span>
-    <span class="c"># @author Felix Pfreundtner</span>
-    <span class="k">def</span> <span class="nf">add_to_recordqueue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c"># @author Felix Pfreundtner</span></div>
+<div class="viewcode-block" id="DspOut.add_to_recordqueue"><a class="viewcode-back" href="../index.html#dsp_out.DspOut.add_to_recordqueue">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_recordqueue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- add_to_recordqueue</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Adds the binaural block to the record queue.**</span>
+
+<span class="sd">        Sends the created binaural block of the dsp thread to the record</span>
+<span class="sd">        queue, which collects all created binaural blocks. Later the queue</span>
+<span class="sd">        is read by writerecordfile().</span>
+
+<span class="sd">        Author: Felix Pfreundtner</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">recordqueue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binaural_block</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">,</span>
                                                         <span class="n">copy</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="DspOut.callback"><a class="viewcode-back" href="../index.html#dsp_out.DspOut.callback">[docs]</a>    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_data</span><span class="p">,</span> <span class="n">frame_count</span><span class="p">,</span> <span class="n">time_info</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- callback</span>
+<span class="sd">        ===================</span>
 
-    <span class="c"># @brief</span>
-    <span class="c"># @author Felix Pfreundtner</span>
-    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_data</span><span class="p">,</span> <span class="n">frame_count</span><span class="p">,</span> <span class="n">time_info</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+<span class="sd">        Author: Felix Pfreundtner</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s">&quot;Playback Error: </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">status</span><span class="p">)</span>
         <span class="c"># played_frames_begin = self.played_frames_end</span>
@@ -188,10 +221,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">played_block_counter</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="c"># print(&quot;Play: &quot; + str(self.played_block_counter))</span>
         <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">returnflag</span>
+</div>
+<div class="viewcode-block" id="DspOut.audiooutput"><a class="viewcode-back" href="../index.html#dsp_out.DspOut.audiooutput">[docs]</a>    <span class="k">def</span> <span class="nf">audiooutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samplerate</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- audiooutput</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Streams the calculated files as a output signal.**</span>
 
-    <span class="c"># @brief Streams the calculated files as a output signal.</span>
-    <span class="c"># @author Felix Pfreundtner</span>
-    <span class="k">def</span> <span class="nf">audiooutput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samplerate</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">):</span>
+<span class="sd">        Author: Felix Pfreundtner</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pa</span> <span class="o">=</span> <span class="n">pyaudio</span><span class="o">.</span><span class="n">PyAudio</span><span class="p">()</span>
         <span class="n">audiostream</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="n">pyaudio</span><span class="o">.</span><span class="n">paInt16</span><span class="p">,</span>
                               <span class="n">channels</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -232,10 +270,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_pause</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="c"># finally mark audio as stopped</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">dsp_stop</span> <span class="o">=</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="DspOut.writerecordfile"><a class="viewcode-back" href="../index.html#dsp_out.DspOut.writerecordfile">[docs]</a>    <span class="k">def</span> <span class="nf">writerecordfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samplerate</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        H2 -- writerecordfile</span>
+<span class="sd">        ===================</span>
+<span class="sd">        **Write the whole binaural output as wave file.**</span>
 
-    <span class="c"># @brief Writes the whole binaural output as wave file.</span>
-    <span class="c"># @author Felix Pfreundtner</span>
-    <span class="k">def</span> <span class="nf">writerecordfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samplerate</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">):</span>
+<span class="sd">        Author: Felix Pfreundtner</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">binaural_record</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">recordqueue</span><span class="o">.</span><span class="n">qsize</span><span class="p">()</span> <span class="o">*</span> <span class="n">hopsize</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
                                    <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
         <span class="n">position</span> <span class="o">=</span> <span class="mi">0</span>
@@ -248,7 +291,7 @@
                 <span class="s">&quot;audio3d&quot;</span><span class="p">,</span> <span class="s">&quot;audio_out/binauralmix.wav&quot;</span><span class="p">))</span>
         <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">wavfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&quot;audio3d&quot;</span><span class="p">,</span>
                                <span class="s">&quot;audio_out/binauralmix.wav&quot;</span><span class="p">),</span> <span class="n">samplerate</span><span class="p">,</span>
-                               <span class="n">binaural_record</span><span class="p">)</span></div>
+                               <span class="n">binaural_record</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
