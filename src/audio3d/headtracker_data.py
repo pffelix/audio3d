@@ -1,8 +1,5 @@
-"""
-Handling of headtracker data from DT2 class
-author: H. Zhu, M. Heiss
-"""
-
+# Handling of headtracker data from DT2 class
+# author: H. Zhu, M. Heiss
 
 def clean_and_split(line):
     """
@@ -35,10 +32,9 @@ def azimuth_angle(data):
     conversion to defined coordinate system.**
     """
     data_list = clean_and_split(data)  # returns list of string objects
-    coor = data_list[3]  # returns the coordinate entry [x y z polar azimuth]
+    coor = data_list[2]  # returns the coordinate entry [x y z polar azimuth]
     coor_float = string_to_float(coor)  # converges strings to floats
-    azimuth = coor_float[5]  # picks the azimuth angle from the floats
-
+    azimuth = coor_float[5]  # picks the azimuth angle from the float
     # Conversion nessesary
     # as Headtracker angle orientation different from the GUI definition
     if azimuth <= 0:

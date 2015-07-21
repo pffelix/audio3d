@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Jun  5 10:31:01 2015
-
-@author: Felix Pfreundtner
-"""
+#
+# Created on Fri Jun  5 10:31:01 2015
+#
+# Author: Felix Pfreundtner
 
 import numpy as np
 import scipy.io.wavfile
@@ -39,8 +38,6 @@ class DspOut:
 
     def overlap_add(self, fft_blocksize, hopsize, sp):
         """
-        H2 -- overlap_add
-        ===================
         **Applies the overlap-add-method to the signal.**
 
         Adds a part of the prior generated binaural block to the beginning

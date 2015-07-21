@@ -1,10 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
-"""
-GUI Main Window of Audio 3D Project, Group B
-author: H. Zhu, M. Heiss
-"""
+#
+# GUI Main Window of Audio 3D Project, Group B
+# Authors: H. Zhu, M. Heiss
 
 from PySide import QtCore, QtGui
 from math import acos, degrees
@@ -154,11 +152,11 @@ class MainWindow(QtGui.QWidget):
         requested and the speaker list is updated.
         A threading.Lock() avoids read-write overlaps of the dsp_run variable.
         """
-        self.state.mtx_run.acquire()
+
         if self.state.dsp_run is True:
             self.head_tracker.cal_head_deg()
             self.update_gui_sp(self.head_tracker.get_head_deg())
-        self.state.mtx_run.release()
+
 
     def update_gui_sp(self, deg):
         """
@@ -166,15 +164,13 @@ class MainWindow(QtGui.QWidget):
         ===================
         **This function is continuously updating the list with the settings
         for each speaker**
-        It is called every 10 sec by a timer and updating the speaker 
+        It is called every 10 ms by a timer and updating the speaker 
         list for every present speaker.
         A threading.Lock() avoids read-write overlaps of the dsp_run variable.
         """
-        self.state.mtx_run.acquire()
-        if self.dsp_run is True:
-            for speaker in self.speaker_list:
+        if self.state.dsp_run is True:
+            for speaker in self.state.speaker_list:
                 speaker.cal_rel_pos(deg)
-        self.state.mtx_run.release()
 
     def inverse_disable(self):
         """

@@ -48,11 +48,10 @@
             
   <h1>Source code for dsp_out</h1><div class="highlight"><pre>
 <span class="c"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Created on Fri Jun  5 10:31:01 2015</span>
-
-<span class="sd">@author: Felix Pfreundtner</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="c">#</span>
+<span class="c"># Created on Fri Jun  5 10:31:01 2015</span>
+<span class="c">#</span>
+<span class="c"># Author: Felix Pfreundtner</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">scipy.io.wavfile</span>
@@ -88,8 +87,6 @@
 
 <div class="viewcode-block" id="DspOut.overlap_add"><a class="viewcode-back" href="../index.html#dsp_out.DspOut.overlap_add">[docs]</a>    <span class="k">def</span> <span class="nf">overlap_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fft_blocksize</span><span class="p">,</span> <span class="n">hopsize</span><span class="p">,</span> <span class="n">sp</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        H2 -- overlap_add</span>
-<span class="sd">        ===================</span>
 <span class="sd">        **Applies the overlap-add-method to the signal.**</span>
 
 <span class="sd">        Adds a part of the prior generated binaural block to the beginning</span>
