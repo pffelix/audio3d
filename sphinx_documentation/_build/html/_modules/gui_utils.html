@@ -68,8 +68,7 @@
 <span class="sd">    **This is an exchange class for variables which are read and written by</span>
 <span class="sd">    the DSP algorithm and all GUI applications.**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="sd">&quot;&quot;&quot;Constructor of the State class.&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">State</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="c"># variables which are shared between gui and dsp algorithm</span>
@@ -164,8 +163,7 @@
 <span class="sd">    The networking interface from where the data can be extracced is</span>
 <span class="sd">    initialized and thus the azimuthal angle can be read out.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="sd">&quot;&quot;&quot;Constructor of the Headtracker class.&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">head_deg</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt2</span> <span class="o">=</span> <span class="n">DT2</span><span class="p">()</span>
@@ -198,8 +196,7 @@
 <span class="sd">    **This class defines items inside the QGraphicsScene,</span>
 <span class="sd">    including Speaker and Audience.**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    
-    <span class="sd">&quot;&quot;&quot;Constructor of the Item class.&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
 
         <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_image</span><span class="o">.</span><span class="n">scaled</span><span class="p">(</span>
@@ -270,7 +267,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">current_item</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="sd">&quot;&quot;&quot;Constructor of the Room class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Room</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
@@ -382,7 +378,6 @@
 <span class="sd">    Room.**</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
-    <span class="sd">&quot;&quot;&quot;Constructor of the View class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">scene</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">View</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
@@ -445,11 +440,7 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">SignalHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
 
-
-<span class="c"># @class &lt;Speaker&gt; Speaker item represent the source positions in</span>
-<span class="c"># the QGraphicsScene relative to the Audience item</span>
-<span class="c">#</span>
-<span class="c">#</span></div>
+</div>
 <div class="viewcode-block" id="Speaker"><a class="viewcode-back" href="../index.html#gui_utils.Speaker">[docs]</a><span class="k">class</span> <span class="nc">Speaker</span><span class="p">(</span><span class="n">Item</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    H1 -- Speaker</span>
@@ -462,7 +453,6 @@
     <span class="nb">type</span> <span class="o">=</span> <span class="s">&#39;speaker&#39;</span>
     <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;unknown&#39;</span>
 
-    <span class="sd">&quot;&quot;&quot;Constructor of the Speaker class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">posx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">posy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
@@ -483,12 +473,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">mtx_sp</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cal_rel_pos</span><span class="p">()</span>
 
-    <span class="c"># @brief this function returns the relative position of the speaker</span>
-    <span class="c"># to the &#39;audience&#39;, defined by a radial variable deg (defined counter</span>
-    <span class="c"># clockwise) and the distance</span>
-    <span class="c"># @details head_deg can take the azimuthal angle set by the headtracker</span>
-    <span class="c"># into account</span>
-    <span class="c"># @author</span>
 <div class="viewcode-block" id="Speaker.cal_rel_pos"><a class="viewcode-back" href="../index.html#gui_utils.Speaker.cal_rel_pos">[docs]</a>    <span class="k">def</span> <span class="nf">cal_rel_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">head_deg</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        H2 -- cal_rel_pos</span>
@@ -537,10 +521,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">speaker_to_show</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">signal_handler</span><span class="o">.</span><span class="n">show_property</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
 
-
-<span class="c"># @class &lt;Audience&gt; Audience item represents the relative user position,</span>
-<span class="c"># without headtracker in the QGraphicsScene</span>
-<span class="c">#</span></div></div>
+</div></div>
 <div class="viewcode-block" id="Audience"><a class="viewcode-back" href="../index.html#gui_utils.Audience">[docs]</a><span class="k">class</span> <span class="nc">Audience</span><span class="p">(</span><span class="n">Item</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    H1 -- Audience</span>
@@ -556,7 +537,6 @@
     <span class="n">origin_image</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span>
         <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&quot;audio3d&quot;</span><span class="p">,</span> <span class="s">&#39;image/audience.png&#39;</span><span class="p">))</span>
 
-    <span class="sd">&quot;&quot;&quot;Constructor of the Audience class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Audience</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
@@ -582,7 +562,6 @@
     <span class="n">posx</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">posy</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="sd">&quot;&quot;&quot;Constructor of the SpeakerProperty class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SpeakerProperty</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
@@ -726,9 +705,7 @@
 
         <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
 
-
-<span class="c"># @class &lt;SequencePlot&gt; Additional window is created to display plot of speaker</span>
-<span class="c"># and HRTF spectrum while .wav is played</span></div></div>
+</div></div>
 <div class="viewcode-block" id="SequencePlot"><a class="viewcode-back" href="../index.html#gui_utils.SequencePlot">[docs]</a><span class="k">class</span> <span class="nc">SequencePlot</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    H1 -- SequencePlot</span>
@@ -742,7 +719,6 @@
 
     <span class="n">plot_on</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">()</span>
 
-    <span class="sd">&quot;&quot;&quot;Constructor of the SequencePlot class.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SequencePlot</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_on</span> <span class="o">=</span> <span class="bp">False</span>
