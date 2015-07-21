@@ -20,7 +20,7 @@ class Dsp:
     block by block a binaural audio output and sends it to a playback queue
     which is read by a PortAudio Callback Thread. To reach a higher
     performance the __init__ of the DspIn and DspOut class perform many time
-    intensive calculations before starting the run() function of this class. **
+    intensive calculations before starting the run() function of this class.
     """
     def __init__(self, state_init):
         """
