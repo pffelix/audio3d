@@ -6,3 +6,5 @@ __pycache__/
 */build
 *env/
 *.pyc
+not_code_related_work/*
+final_presentation/*
