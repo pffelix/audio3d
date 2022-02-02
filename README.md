@@ -4,7 +4,7 @@
 </p>
 
 ### Content
-The Python package provides a digital-signal-processsing (DSP) algorithm that allows to generate 3D Binaural sound. The algorithm loads a number of audio sources that can be moved with a GUI in real-time through a virtual 2 dimensional room. The sources can be for example instruments of a band that are mixed together to one 3D audio output that is played at mixing via headphone and saved for later usage as WAVE file recording. The platform independent port-audio library is used for audio playback and a Kemar HRTF database (Gardner, Martin, 1994) is used for the filtering process.
+The Python package audio3d provides a digital-signal-processsing (DSP) algorithm that allows to generate 3D Binaural sound. The algorithm loads a number of audio sources that can be moved with a GUI in real-time through a virtual 2 dimensional room. The sources can be for example instruments of a band that are mixed together to one 3D audio output that is played at mixing via headphone and saved for later usage as WAVE file recording. The platform independent port-audio library is used for audio playback and a Kemar HRTF database (Gardner, Martin, 1994) is used for the filtering process.
 
 ### DSP Architecture
 The DSP algorithm is controlled by the graphical user interface (GUI) which uses the platform-independent Pyside bindings for Qt. The algorithm can be stopped and paused through a GUI Main Window instance by using a state object shared with the DSP instance, which is controlled through mutex access. The DSP class holds variables and methods which produce the binaural output. It holds one instance of the DspIn and DspOut class. 
