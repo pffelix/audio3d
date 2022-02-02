@@ -9,7 +9,7 @@ The program provides a digital signal processing (DSP) algorithm to generate 3D 
 ### DSP Architecture
 The Gui Main Window Class provides the graphical user interface. The digital signal processing algorithm can be stopped and paused through GUI Main Window instance by using a state object shared with the DSP instance, which is controlled by mutex access. The DSP class holds variables and methods which produce the binaural output. It holds one instance of the DspIn and DspOut class. 
 
-The DSPIn instance reads in all speaker wave files and hrtf databases and set up the main parameters for FFT. It applies a Hanning window to Speakerinput and provides a method to convolve the hrtf impulse response with the speaker input in FFT Frequency domain. The DSPOut instace performs an overlap-add algorithm and mixes all binaural speaker output arrays to one final binaural output block. It holds the PortAudio methods, which are called through a Callback Thread. It also enables the interaction between DSP Thread and PortAudio Thread.
+The DSPIn instance allows to read in all speaker wave files and hrtf databases and set up the main parameters for FFT. It applies a Hanning window to Speakerinput and provides a method to convolve the hrtf impulse response with the speaker input in FFT Frequency domain. The DSPOut instace performs an overlap-add algorithm and mixes all binaural speaker output arrays to one final binaural output block. It holds the PortAudio methods, which are called through a Callback Thread. It also enables the interaction between DSP Thread and PortAudio Thread.
 
 The steps of the DSP loop are:
 1. Lock variables which are accessible through state class by gui and dsp algorithm
