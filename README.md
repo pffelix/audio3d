@@ -14,5 +14,7 @@ cd audio3d/src
 python setup.py install
 python audio3d
 ```
+
+A documentation of all classes can be found in "sphinx_documentation\_build\html\index.html".
 ### Authors
 Felix Pfreundtner, Huaijiang Zhu, Manuela Heiss, Matthias Lederle
