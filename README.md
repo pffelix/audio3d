@@ -15,6 +15,7 @@ python setup.py install
 python audio3d
 ```
 
-A documentation of all classes can be found in "sphinx_documentation/_build/html/index.html".
+A documentation of all classes can be found in "sphinx_documentation/_build/html/index.html". Unit tests are given in "src/audio3d/".
+
 ### Authors
 Felix Pfreundtner, Huaijiang Zhu, Manuela Heiss, Matthias Lederle
