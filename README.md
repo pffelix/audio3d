@@ -14,14 +14,14 @@ The DSPIn instance reads in all speaker wave files and hrtf databases and set up
 The steps of the DSP loop are:
 1. Lock variables which are accessible through state class by gui and dsp algorithm
 2. Set the common begin and end sample position in the speaker wave files input which needs to be read in this iteration.
-3. Iterate over all speakers sp.
-4. Read in current fitting hrtf for left and right ear and speaker block input
-5. Convolve hrtfs with speaker block input using fft and overlap add
+3. Iterate over all speakers
+4. Read in current fitting HRTF for left and right ear and speaker block input
+5. Convolve HRTFs with speaker block input using fft and overlap add
 6. Mix binaural stereo blockoutput of every speaker to one binaural stereo block output having regard to speaker distances.
 7. Add mixed binaural stereo block to play queue
 8. Unlock shared variables.
 9. Read play queue by PortAudio playback thread
-10. If selected in GUI MainWindow: records the binaural output to a wave file
+10. If selected in GUI MainWindow: record the binaural output to a wave file
 11. Finish DSP Algorithm, reset play and pause button
 
 The run() method of the DSP instance is called at program start by GUI Main Window instance as Thread. It generates block by block a binaural audio output and sends it, after the set buffer size is reached, on a second thread to a playback queue which is then read by a PortAudio Callback Thread. To reach a higher computation performance the initialization function of the DspIn and DspOut instance performs time intensive calculations before starting the run() method. 
