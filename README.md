@@ -4,7 +4,7 @@
 </p>
 
 ### Content
-The program provides a digital signal processing (DSP) algorithm to generate 3D Binaural sound in real-time for a number of loaded audio sources that can be moved with a GUI through a virtual 2 dimensional room. The sources can be for example instruments of a band that are mixed together to one 3D audio output that is played during mixing via headphone and saved for later usage as WAVE file recording. The platform independent port-audio library is used for audio playback and Kemar HRTFs are used for the filtering process.
+The program provides a digital signal processing (DSP) algorithm to generate 3D Binaural sound in real-time for a number of loaded audio sources that can be moved with a GUI through a virtual 2 dimensional room. The sources can be for example instruments of a band that are mixed together to one 3D audio output that is played during mixing via headphone and saved for later usage as WAVE file recording. The platform independent port-audio library is used for audio playback and a Kemar database (Gardner, Martin, 1994) is used for the filtering process.
 
 ### DSP Architecture
 The Gui Main Window Class provides the graphical user interface. The digital signal processing algorithm can be stopped and paused through GUI Main Window instance by using a state object shared with the DSP instance, which is controlled by mutex access. The DSP class holds variables and methods which produce the binaural output. It holds one instance of the DspIn and DspOut class. 
