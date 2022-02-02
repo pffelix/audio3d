@@ -1,5 +1,7 @@
 # Python 3D Binaural Audio Simulation
-![image_setup](images/audio3d.png?raw=true)
+<p align="center">
+<img src="images/audio3d.png">
+</p>
 
 ### Content
 The program provides a digital signal processing (DSP) algorithm to generate 3D Binaural sound in real-time for a number of loaded audio sources that can be moved with a GUI through a virtual 2 dimensional room. The sources can be for example instruments of a band that are mixed together to one 3D audio output that is played during mixing via headphone and saved as WAVE file recording. Kemar HRTFs are used for the filtering process. The platform independent port-audio library is used for audio playback.
