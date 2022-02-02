@@ -11,8 +11,6 @@ The Gui Main Window Class provides the graphical user interface. The digital sig
 
 The DSPIn instance reads in all speaker wave files and hrtf databases and set up the main parameters for FFT. It applies a Hanning window to Speakerinput and provides a method to convolve the hrtf impulse response with the speaker input in FFT Frequency domain. The DSPOut instace performs an overlap-add algorithm and mixes all binaural speaker output arrays to one final binaural output block. It holds the PortAudio methods, which are called through a Callback Thread. It also enables the interaction between DSP Thread and PortAudio Thread.
 
-The run() method of the DSP instance is called at program start by GUI Main Window instance as Thread. It generates block by block a binaural audio output and sends it, after the set buffer size is reached, on a second thread to a playback queue which is then read by a PortAudio Callback Thread. To reach a higher computation performance the initialization function of the DspIn and DspOut instance performs time intensive calculations before starting the run() method. 
-
 The steps of the DSP loop are:
 1. Lock variables which are accessible through state class by gui and dsp algorithm
 2. Set the common begin and end sample position in the speaker wave files input which needs to be read in this iteration.
@@ -25,6 +23,8 @@ The steps of the DSP loop are:
 9. Read play queue by PortAudio playback thread
 10. If selected in GUI MainWindow: records the binaural output to a wave file
 11. Finish DSP Algorithm, reset play and pause button
+
+The run() method of the DSP instance is called at program start by GUI Main Window instance as Thread. It generates block by block a binaural audio output and sends it, after the set buffer size is reached, on a second thread to a playback queue which is then read by a PortAudio Callback Thread. To reach a higher computation performance the initialization function of the DspIn and DspOut instance performs time intensive calculations before starting the run() method. 
 
 ### Installation
 You can install the package audio3d as following:
