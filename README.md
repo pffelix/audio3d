@@ -4,12 +4,12 @@
 </p>
 
 ### Content
-The program provides a Python package to generate 3D Binaural sound for a number of loaded audio sources that can be moved with a GUI in real-time through a virtual 2 dimensional room. The sources can be for example instruments of a band that are mixed together to one 3D audio output that is played at mixing via headphone and saved for later usage as WAVE file recording. The platform independent port-audio library is used for audio playback and a Kemar database (Gardner, Martin, 1994) is used for the filtering process.
+The program provides a Python package to generate 3D Binaural sound for a number of loaded audio sources that can be moved with a GUI in real-time through a virtual 2 dimensional room. The sources can be for example instruments of a band that are mixed together to one 3D audio output that is played at mixing via headphone and saved for later usage as WAVE file recording. The platform independent port-audio library is used for audio playback and a Kemar HRTF database (Gardner, Martin, 1994) is used for the filtering process.
 
 ### Architecture
 The Gui Main Window Class provides the graphical user interface (GUI) which uses the platform-independent Pyside bindings for Qt. The digital signal processing (DSP) algorithm can be stopped and paused through a GUI Main Window instance by using a state object shared with the DSP instance, which is controlled through mutex access. The DSP class holds variables and methods which produce the binaural output. It holds one instance of the DspIn and DspOut class. 
 
-The DSPIn instance allows to read in all speaker wave files and hrtf databases and set up the main parameters for FFT. It applies a Hanning window to Speakerinput and provides a method to convolve the hrtf impulse response with the speaker input in FFT Frequency domain. The DSPOut instace performs an overlap-add algorithm and mixes all binaural speaker output arrays to one final binaural output block. It holds the PortAudio methods, which are called through a Callback Thread. It also enables the interaction between DSP Thread and PortAudio Thread.
+The DSPIn instance allows to read in all speaker wave files and hrtf databases and set up the main parameters for FFT. It applies a Hanning window to Speakerinput and provides a method to convolve the HRTF database response with the speaker input in FFT Frequency domain. The DSPOut instace performs an overlap-add algorithm and mixes all binaural speaker output arrays to one final binaural output block. It holds the PortAudio methods, which are called through a Callback Thread. It also enables the interaction between DSP Thread and PortAudio Thread.
 
 The steps of the DSP loop are:
 1. Lock variables which are accessible through state class by gui and dsp algorithm
